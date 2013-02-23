@@ -259,12 +259,16 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could preinitialize EGL");
 
+    	glusDestroyWindow();
+
         return GLUS_FALSE;
 	}
 
 	if (!glusEGLGetNativeVisualID(g_eglDisplay, eglConfig, &eglNativeVisualID))
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could not get native visual ID");
+
+    	glusDestroyWindow();
 
         return GLUS_FALSE;
 	}
@@ -275,12 +279,16 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could not create native window");
 
+    	glusDestroyWindow();
+
         return GLUS_FALSE;
 	}
 
 	if (!glusEGLCreateWindowSetContext(eglNativeWindowType, g_eglContextClientVersion, &g_eglDisplay, &eglConfig, &g_eglSurface, &g_eglContext))
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could not post initialize EGL");
+
+    	glusDestroyWindow();
 
         return GLUS_FALSE;
 	}
