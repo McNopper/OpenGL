@@ -1,30 +1,30 @@
+OpenGL Utilities (GLUS):
+------------------------
+
 How to build GLUS:
-------------------
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
 2. Extract this ZIP file and set the workspace-cpp folder as your Eclipse workspace.
 3. Import each folder as a separate, existing project.
 4. Set the build configuration in Eclipse to your operating system.
-6. Build GLUS.
+5. Build GLUS.
 
 If you get build errors:
-------------------------
+
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 
-23.02.2013 Norbert Nopper (norbert@nopper.tv)
-
-SDKs / Libraries / Images used:
--------------------------------
+SDKs/Libraries/Images used:
 
 - OpenGL ES 3.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - OpenGL ES 2.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
 - Raspbian “wheezy” http://www.raspberrypi.org/downloads
 
+24.02.2013 Norbert Nopper (norbert@nopper.tv)
+
 Changelog:
-----------
 
 22.02.2013 - Added GLUS for Raspberry Pi
 

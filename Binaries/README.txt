@@ -1,24 +1,25 @@
-How to make and run the examples:
----------------------------------
+OpenGL examples:
+----------------
+
+How to build and run the examples:
 
 1. Please make sure, you have installed a Windows OpenGL 3.2 driver. For some examples you need a OpenGL 4.2 or OpenGL 4.3 driver. As Mac OS X only supports OpenGL 3.2, these examples do not work.
 2. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
 3. Extract this ZIP file and set the workspace-cpp folder as your Eclipse workspace.
 4. Import each folder as a separate, existing project.
-5. Set the build configuration in Eclipse to your operating system.
+5. Set the build configurations in Eclipse to your operating system.
 6. Build GLUS.
 7. Build any of the examples.
 8. The executables are located in the Binaries folder. Execute them directly or create a run configuration in Eclipse.
 
 If you get build errors:
-------------------------
+
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-28.01.2013 Norbert Nopper (norbert@nopper.tv)
+24.02.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
-----------
 
 28.01.2013 - Added PowerVR OpenGL ES 3.0 DLLs
 
