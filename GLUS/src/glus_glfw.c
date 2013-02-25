@@ -24,6 +24,7 @@ static GLUSint g_flags = 0;
 static GLUSint g_numberSamples = 0;
 static GLUSboolean g_noResize = GLUS_FALSE;
 
+static GLUSboolean g_windowCreated = GLUS_FALSE;
 static GLUSboolean g_initdone = GLUS_FALSE;
 static GLUSboolean g_done = GLUS_FALSE;
 static GLUSint g_buttons = 0;
@@ -246,6 +247,8 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
     glfwCloseWindow();
 
+    g_windowCreated = GLUS_FALSE;
+
     glfwTerminate();
 
     g_initdone = GLUS_FALSE;
@@ -254,6 +257,13 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width, const GLUSint height, const GLUSint depthBits, const GLUSint stencilBits, const GLUSboolean fullscreen)
 {
     GLUSenum err;
+
+	if (g_windowCreated)
+	{
+    	glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
+
+        return GLUS_FALSE;
+	}
 
     if (!glfwInit())
     {
@@ -311,6 +321,8 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
     glfwSetMousePosCallback(glusInternalMouseMove);
 
     glfwGetWindowSize(&g_width, &g_height);
+
+    g_windowCreated = GLUS_TRUE;
 
     return GLUS_TRUE; // Success
 }

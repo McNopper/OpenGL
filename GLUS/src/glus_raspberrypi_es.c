@@ -31,6 +31,44 @@ extern GLUSint glusInternalClose(GLUSvoid);
 
 extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
 
+// Display resolution changing
+
+static pthread_mutex_t _mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t _cond = PTHREAD_COND_INITIALIZER;
+static GLUSboolean _resizeDone = GLUS_FALSE;
+
+static void resizeDone(void *callback_data, uint32_t reason, uint32_t param1, uint32_t param2)
+{
+	pthread_mutex_lock(&_mutex);
+	_resizeDone = GLUS_TRUE;
+	pthread_cond_signal(&_cond);
+	pthread_mutex_unlock(&_mutex);
+}
+
+static void waitResizeDone()
+{
+	GLUSboolean doBreak = GLUS_FALSE;
+
+	struct timespec breakTime;
+	clock_gettime(CLOCK_REALTIME, &breakTime);
+
+	breakTime.tv_sec += 8;
+
+	while(!doBreak)
+	{
+		pthread_mutex_lock(&_mutex);
+		if (pthread_cond_timedwait(&_cond, &_mutex, &breakTime) == 0)
+		{
+			doBreak = _resizeDone;
+		}
+		else
+		{
+			doBreak = GLUS_TRUE;
+		}
+		pthread_mutex_unlock(&_mutex);
+	}
+}
+
 // Terminal input is used
 
 static struct termios g_originalTermios;
@@ -206,6 +244,8 @@ static GLUSint _width = -1;
 
 static GLUSint _height = -1;
 
+static GLUSboolean _fullscreen = GLUS_FALSE;
+
 GLUSvoid _glusPollEvents()
 {
     static int lastKey = 0;
@@ -245,20 +285,6 @@ GLUSvoid _glusPollEvents()
 
 EGLNativeDisplayType _glusGetNativeDisplayType()
 {
-	if (!_nativeDisplay)
-	{
-		bcm_host_init();
-
-		_nativeDisplay = vc_dispmanx_display_open(0 /* LCD */);
-
-		if (!_nativeDisplay)
-		{
-			glusLogPrint(GLUS_LOG_ERROR, "Could not open display");
-
-			return EGL_NO_DISPLAY;
-		}
-	}
-
 	return EGL_DEFAULT_DISPLAY;
 }
 
@@ -270,32 +296,77 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	VC_RECT_T srcRect;
 	VC_DISPMANX_ALPHA_T dispmanAlpha;
 	int32_t success;
-	uint32_t windowWidth;
-	uint32_t windowHeight;
+	int32_t windowWidth;
+	int32_t windowHeight;
 
 	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title' and 'noResize' are not used");
-	glusLogPrint(GLUS_LOG_INFO, "If parameter 'fullscreen' is GLUS_TRUE, parameters 'width' and 'height' are not used. Instead, the display size is used");
 	glusLogPrint(GLUS_LOG_INFO, "Terminal key events are used. Mouse events are not supported");
 
-	//
+	// Initialize graphics system
+
+	bcm_host_init();
+
+	// Set fullscreen, if wanted
 
 	if (fullscreen)
 	{
-		success = graphics_get_display_size(0 /* LCD */, &windowWidth, &windowHeight);
+		const uint32_t MAX_SUPPORTED_MODES = 128;
+		HDMI_RES_GROUP_T group = HDMI_RES_GROUP_DMT;
+		TV_SUPPORTED_MODE_NEW_T supportedModes[MAX_SUPPORTED_MODES];
+		int32_t i, numberSupportedModes;
 
-		if (success < 0)
+		numberSupportedModes = vc_tv_hdmi_get_supported_modes_new(group, supportedModes, MAX_SUPPORTED_MODES, 0, 0);
+
+		for (i = 0; i < numberSupportedModes; i++)
 		{
-			glusLogPrint(GLUS_LOG_ERROR, "Could not get display size");
-
-			return 0;
+			if (supportedModes[i].width == (uint32_t)width && supportedModes[i].height == (uint32_t)height && supportedModes[i].frame_rate >= 60)
+			{
+				break;
+			}
 		}
 
-		glusLogPrint(GLUS_LOG_INFO, "Fullscreen size: %dx%d", windowWidth, windowHeight);
+		if (i == numberSupportedModes)
+		{
+			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: ", width, height);
+
+			return EGL_NO_SURFACE;
+		}
+
+		vc_tv_register_callback(resizeDone, 0);
+
+		if (vc_tv_hdmi_power_on_explicit_new(group, supportedModes[i].group, supportedModes[i].code) != 0)
+		{
+			vc_tv_unregister_callback(resizeDone);
+
+			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
+
+			return EGL_NO_SURFACE;
+		}
+
+		waitResizeDone();
+
+		vc_tv_unregister_callback(resizeDone);
+
+		windowWidth = width;
+		windowHeight = height;
+
+		_fullscreen = GLUS_TRUE;
 	}
 	else
 	{
-		windowWidth = (uint32_t)width;
-		windowHeight = (uint32_t)height;
+		windowWidth = width;
+		windowHeight = height;
+	}
+
+	//
+
+	_nativeDisplay = vc_dispmanx_display_open(0 /* LCD */);
+
+	if (!_nativeDisplay)
+	{
+		glusLogPrint(GLUS_LOG_ERROR, "Could not open display");
+
+		return EGL_NO_SURFACE;
 	}
 
 	//
@@ -326,11 +397,11 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not add element");
 
-		return 0;
+		return EGL_NO_SURFACE;
 	}
 
-	_width = (GLUSint)windowWidth;
-	_height = (GLUSint)windowHeight;
+	_width = windowWidth;
+	_height = windowHeight;
 
 	_nativeWindow.element = dispmanElement;
 	_nativeWindow.width = windowWidth;
@@ -345,12 +416,12 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 GLUSvoid _glusDestroyNativeWindow()
 {
-	DISPMANX_UPDATE_HANDLE_T dispmanUpdate;
-
     resetTerminalMode();
 
 	if (_nativeWindowCreated)
 	{
+		DISPMANX_UPDATE_HANDLE_T dispmanUpdate;
+
 		dispmanUpdate = vc_dispmanx_update_start(0);
 		vc_dispmanx_element_remove(dispmanUpdate, _nativeWindow.element);
 		vc_dispmanx_update_submit_sync(dispmanUpdate);
@@ -361,11 +432,23 @@ GLUSvoid _glusDestroyNativeWindow()
 
 	if (_nativeDisplay)
 	{
-		dispmanUpdate = vc_dispmanx_update_start(0);
 		vc_dispmanx_display_close(_nativeDisplay);
-		vc_dispmanx_update_submit_sync(dispmanUpdate);
 
 		_nativeDisplay = 0;
+	}
+
+	if (_fullscreen)
+	{
+		vc_tv_register_callback(resizeDone, 0);
+
+		if (vc_tv_hdmi_power_on_preferred() == 0)
+		{
+			waitResizeDone();
+		}
+
+		vc_tv_unregister_callback(resizeDone);
+
+		_fullscreen = GLUS_FALSE;
 	}
 
 	bcm_host_deinit();

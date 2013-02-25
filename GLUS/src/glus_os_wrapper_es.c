@@ -41,6 +41,7 @@ static EGLDisplay g_eglContext = EGL_NO_CONTEXT;
 
 static GLUSboolean g_noResize = GLUS_FALSE;
 
+static GLUSboolean g_windowCreated = GLUS_FALSE;
 static GLUSboolean g_initdone = GLUS_FALSE;
 static GLUSboolean g_done = GLUS_FALSE;
 static GLUSint g_buttons = 0;
@@ -244,6 +245,8 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 
 	_glusDestroyNativeWindow();
 
+	g_windowCreated = GLUS_FALSE;
+
     g_initdone = GLUS_FALSE;
 }
 
@@ -254,6 +257,13 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	EGLint eglNativeVisualID;
 
 	EGLNativeWindowType eglNativeWindowType;
+
+	if (g_windowCreated)
+	{
+    	glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
+
+        return GLUS_FALSE;
+	}
 
 	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, attribList, g_eglContextClientVersion))
 	{
@@ -294,6 +304,8 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	}
 
 	_glusGetWindowSize(&g_width, &g_height);
+
+	g_windowCreated = GLUS_TRUE;
 
     return GLUS_TRUE; // Success
 }

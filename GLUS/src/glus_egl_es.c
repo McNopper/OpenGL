@@ -85,12 +85,14 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
     if (context == EGL_NO_CONTEXT)
     {
-        glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context. Context client version: %d", eglContextClientVersion);
+        glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context. EGL context client version: %d", eglContextClientVersion);
 
         glusEGLTerminate(eglDisplay, 0, 0);
 
         return EGL_FALSE;
     }
+
+    glusLogPrint(GLUS_LOG_INFO, "EGL context client version: %d", eglContextClientVersion);
 
     *eglDisplay = display;
     *eglConfig = config;
@@ -121,7 +123,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowTyp
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL window surface");
 
-        glusEGLTerminate(eglDisplay, eglContext, EGL_NO_SURFACE);
+        glusEGLTerminate(eglDisplay, eglContext, 0);
 
         return EGL_FALSE;
     }
@@ -131,7 +133,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowTyp
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not set EGL context as current");
 
-        glusEGLTerminate(eglDisplay, eglContext, EGL_NO_SURFACE);
+        glusEGLTerminate(eglDisplay, eglContext, 0);
 
         return EGL_FALSE;
     }
