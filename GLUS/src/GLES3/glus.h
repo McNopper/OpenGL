@@ -283,16 +283,18 @@ typedef struct _GLUSline
 //
 
 /**
- * Gathers the default display and chooses the best configuration.
+ * Creates the context and all needed EGL elements.
  *
- * @param eglNativeDisplayType  Native display type.
- * @param eglDisplay  			EGL display.
- * @param eglConfig  			EGL configuration.
- * @param attribList 			EGL attribute list.
+ * @param eglNativeDisplayType		Native display type.
+ * @param eglDisplay  				EGL display.
+ * @param eglConfig  				EGL configuration.
+ * @param eglContext 				EGL context.
+ * @param attribList 				EGL attribute list.
+ * @param eglContextClientVersion	EGL context client version.
  *
- * @return EGL_TRUE, when creation of window and setting of context succeeded.
+ * @return EGL_TRUE, when creation of context succeeded.
  */
-GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLGetDisplayChooseConfig(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, const EGLint attribList[]);
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint attribList[], const EGLint eglContextClientVersion);
 
 /**
  * Gathers the native visual ID. Needed on some platforms to initialize EGL
@@ -306,27 +308,26 @@ GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLGetDisplayChooseConfig(EGLNativeDisplayTy
 GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLGetNativeVisualID(EGLDisplay eglDisplay, EGLConfig eglConfig, EGLint* eglNativeVisualID);
 
 /**
- * Creates a window surface, creates a context and sets it as current.
+ * Creates a window surface and sets it as current.
  *
  * @param eglNativeWindowType   	Native window type.
- * @param eglContextClientVersion	EGL context client version.
  * @param eglDisplay 				EGL display.
  * @param eglConfig  				EGL configuration.
- * @param eglSurface 				EGL surface.
  * @param eglContext 				EGL context.
+ * @param eglSurface 				EGL surface.
  *
  * @return EGL_TRUE, when creation of window and setting of context succeeded.
  */
-GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSetContext(EGLNativeWindowType eglNativeWindowType, EGLint eglContextClientVersion, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLSurface* eglSurface, EGLContext* eglContext);
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface);
 
 /**
  * Terminates EGL an frees all resources.
  *
  * @param eglDisplay EGL display.
- * @param eglSurface EGL surface.
  * @param eglContext EGL context.
+ * @param eglSurface EGL surface.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLSurface* eglSurface, EGLContext* eglContext);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglContext, EGLSurface* eglSurface);
 
 //
 // Callback functions.

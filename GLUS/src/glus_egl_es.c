@@ -21,17 +21,20 @@
 #include "GLES3/glus.h"
 #endif
 
-EGLBoolean GLUSAPIENTRY glusEGLGetDisplayChooseConfig(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, const EGLint attribList[])
+EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext,  const EGLint attribList[], const EGLint eglContextClientVersion)
 {
     EGLint numConfigs;
     EGLint majorVersion;
     EGLint minorVersion;
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLConfig config = 0;
+    EGLDisplay context = EGL_NO_CONTEXT;
 
-    if (!eglDisplay || !eglConfig)
+    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, GLUS_DEFAULT_CLIENT_VERSION, EGL_NONE, EGL_NONE };
+
+    if (!eglDisplay || !eglConfig || !eglContext)
     {
-        glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay or eglConfig passed");
+        glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay, eglConfig or eglContext passed");
 
         return EGL_FALSE;
     }
@@ -76,8 +79,22 @@ EGLBoolean GLUSAPIENTRY glusEGLGetDisplayChooseConfig(EGLNativeDisplayType eglNa
         return EGL_FALSE;
     }
 
+    contextAttribs[1] = eglContextClientVersion;
+
+    // Create a GL ES context
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+    if (context == EGL_NO_CONTEXT)
+    {
+        glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context. Context client version: %d", eglContextClientVersion);
+
+        glusEGLTerminate(eglDisplay, 0, 0);
+
+        return EGL_FALSE;
+    }
+
     *eglDisplay = display;
     *eglConfig = config;
+    *eglContext = context;
 
     return EGL_TRUE;
 }
@@ -87,18 +104,13 @@ EGLBoolean GLUSAPIENTRY glusEGLGetNativeVisualID(EGLDisplay eglDisplay, EGLConfi
 	return eglGetConfigAttrib(eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, eglNativeVisualID);
 }
 
-EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSetContext(EGLNativeWindowType eglNativeWindowType, EGLint eglContextClientVersion, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLSurface* eglSurface, EGLContext* eglContext)
+EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface)
 {
     EGLDisplay surface = EGL_NO_SURFACE;
-    EGLDisplay context = EGL_NO_CONTEXT;
 
-    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, GLUS_DEFAULT_CLIENT_VERSION, EGL_NONE, EGL_NONE };
-
-    contextAttribs[1] = eglContextClientVersion;
-
-    if (!eglDisplay || !eglConfig || !eglSurface || !eglContext)
+    if (!eglDisplay || !eglConfig || !eglContext || !eglSurface)
     {
-        glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay, eglSurface or eglContext passed");
+        glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay, eglConfig, eglContext or eglSurface passed");
 
         return EGL_FALSE;
     }
@@ -109,41 +121,27 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSetContext(EGLNativeWindowType eglNat
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL window surface");
 
-        glusEGLTerminate(eglDisplay, eglSurface, eglContext);
+        glusEGLTerminate(eglDisplay, eglContext, EGL_NO_SURFACE);
 
         return EGL_FALSE;
     }
-
-    // Create a GL context
-    context = eglCreateContext(*eglDisplay, *eglConfig, EGL_NO_CONTEXT, contextAttribs);
-    if (context == EGL_NO_CONTEXT)
-    {
-        glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context. Context client version: %d", eglContextClientVersion);
-
-        glusEGLTerminate(eglDisplay, eglSurface, eglContext);
-
-        return EGL_FALSE;
-    }
-
-    glusLogPrint(GLUS_LOG_INFO, "EGL context client version: %d", eglContextClientVersion);
 
     // Make the context current
-    if (!eglMakeCurrent(*eglDisplay, surface, surface, context))
+    if (!eglMakeCurrent(*eglDisplay, surface, surface, *eglContext))
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not set EGL context as current");
 
-        glusEGLTerminate(eglDisplay, eglSurface, eglContext);
+        glusEGLTerminate(eglDisplay, eglContext, EGL_NO_SURFACE);
 
         return EGL_FALSE;
     }
 
     *eglSurface = surface;
-    *eglContext = context;
 
     return EGL_TRUE;
 }
 
-GLvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLSurface* eglSurface, EGLContext* eglContext)
+GLvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglContext, EGLSurface* eglSurface)
 {
     if (!eglDisplay)
     {
@@ -156,18 +154,18 @@ GLvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLSurface* eglSurf
     {
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-        if (eglContext && *eglContext)
-        {
-            eglDestroyContext(eglDisplay, *eglContext);
-
-            *eglContext = EGL_NO_CONTEXT;
-        }
-
         if (eglSurface && *eglSurface)
         {
             eglDestroySurface(eglDisplay, *eglSurface);
 
             *eglSurface = EGL_NO_SURFACE;
+        }
+
+        if (eglContext && *eglContext)
+        {
+            eglDestroyContext(eglDisplay, *eglContext);
+
+            *eglContext = EGL_NO_CONTEXT;
         }
 
         eglTerminate(*eglDisplay);

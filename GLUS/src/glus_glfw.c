@@ -244,6 +244,8 @@ static GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y)
 
 GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
+    glfwCloseWindow();
+
     glfwTerminate();
 
     g_initdone = GLUS_FALSE;
@@ -259,8 +261,6 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
         return GLUS_FALSE;
     }
-
-    glfwCloseWindow();
 
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, g_major);
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, g_minor);

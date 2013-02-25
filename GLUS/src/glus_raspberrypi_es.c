@@ -33,27 +33,39 @@ extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
 
 // Terminal input is used
 
-static struct termios g_origTermios;
+static struct termios g_originalTermios;
+
+static GLUSboolean g_hasOriginalTermios = GLUS_FALSE;
 
 static void resetTerminalMode()
 {
-    tcsetattr(0, TCSANOW, &g_origTermios);
+    if (g_hasOriginalTermios)
+    {
+    	tcsetattr(0, TCSANOW, &g_originalTermios);
+
+    	g_hasOriginalTermios = GLUS_FALSE;
+    }
 }
 
 static void setNonBlockingTerminalMode()
 {
     struct termios newTermios;
 
-    tcgetattr(0, &g_origTermios);
-    memcpy(&newTermios, &g_origTermios, sizeof(newTermios));
+    if (!g_hasOriginalTermios)
+    {
+		tcgetattr(0, &g_originalTermios);
+		memcpy(&newTermios, &g_originalTermios, sizeof(newTermios));
 
-    newTermios.c_lflag &= ~ICANON;
-    newTermios.c_lflag &= ~ECHO;
-    newTermios.c_lflag &= ~ISIG;
-    newTermios.c_cc[VMIN] = 0;
-    newTermios.c_cc[VTIME] = 0;
+		newTermios.c_lflag &= ~ICANON;
+		newTermios.c_lflag &= ~ECHO;
+		newTermios.c_lflag &= ~ISIG;
+		newTermios.c_cc[VMIN] = 0;
+		newTermios.c_cc[VTIME] = 0;
 
-    tcsetattr(0, TCSANOW, &newTermios);
+		tcsetattr(0, TCSANOW, &newTermios);
+
+		g_hasOriginalTermios = GLUS_TRUE;
+    }
 }
 
 // Map, if possible, to GLFW keys
@@ -235,9 +247,11 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 {
 	if (!_nativeDisplay)
 	{
+		bcm_host_init();
+
 		_nativeDisplay = vc_dispmanx_display_open(0 /* LCD */);
 
-		if (_nativeDisplay == 0)
+		if (!_nativeDisplay)
 		{
 			glusLogPrint(GLUS_LOG_ERROR, "Could not open display");
 
@@ -254,55 +268,77 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	DISPMANX_ELEMENT_HANDLE_T dispmanElement;
 	VC_RECT_T dstRect;
 	VC_RECT_T srcRect;
-	int success;
+	VC_DISPMANX_ALPHA_T dispmanAlpha;
+	int32_t success;
+	uint32_t windowWidth;
+	uint32_t windowHeight;
 
-	if (_nativeWindowCreated)
-	{
-		dispmanUpdate = vc_dispmanx_update_start(0);
-		vc_dispmanx_element_remove(dispmanUpdate, _nativeWindow.element);
-		vc_dispmanx_update_submit_sync(dispmanUpdate);
-
-		_nativeWindowCreated = GLUS_FALSE;
-	}
-	memset(&_nativeWindow, 0, sizeof(_nativeWindow));
-
-	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'fullscreen' and 'noResize' are not used");
+	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title' and 'noResize' are not used");
+	glusLogPrint(GLUS_LOG_INFO, "If parameter 'fullscreen' is GLUS_TRUE, parameters 'width' and 'height' are not used. Instead, the display size is used");
 	glusLogPrint(GLUS_LOG_INFO, "Terminal key events are used. Mouse events are not supported");
+
+	//
+
+	if (fullscreen)
+	{
+		success = graphics_get_display_size(0 /* LCD */, &windowWidth, &windowHeight);
+
+		if (success < 0)
+		{
+			glusLogPrint(GLUS_LOG_ERROR, "Could not get display size");
+
+			return 0;
+		}
+
+		glusLogPrint(GLUS_LOG_INFO, "Fullscreen size: %dx%d", windowWidth, windowHeight);
+	}
+	else
+	{
+		windowWidth = (uint32_t)width;
+		windowHeight = (uint32_t)height;
+	}
 
 	//
 
 	dstRect.x = 0;
 	dstRect.y = 0;
-	dstRect.width = width;
-	dstRect.height = height;
+	dstRect.width = windowWidth;
+	dstRect.height = windowHeight;
 
 	srcRect.x = 0;
 	srcRect.y = 0;
-	srcRect.width = width << 16;
-	srcRect.height = height << 16;
+	srcRect.width = windowWidth << 16;
+	srcRect.height = windowHeight << 16;
+
+	dispmanAlpha.flags = DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS;
+	dispmanAlpha.mask = 0xFFFFFFFF;
+	dispmanAlpha.opacity = 255;
 
 	dispmanUpdate = vc_dispmanx_update_start(0);
+
 	dispmanElement = vc_dispmanx_element_add(dispmanUpdate, _nativeDisplay,
 												 0 /*layer*/, &dstRect, 0 /*src*/, &srcRect,
-												 DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, 0/*transform*/);
+												 DISPMANX_PROTECTION_NONE, &dispmanAlpha, 0/*clamp*/, 0/*transform*/);
+
 	success = vc_dispmanx_update_submit_sync(dispmanUpdate);
-	if (!dispmanElement || !success)
+
+	if (!dispmanElement || success < 0)
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not add element");
 
 		return 0;
 	}
 
+	_width = (GLUSint)windowWidth;
+	_height = (GLUSint)windowHeight;
+
 	_nativeWindow.element = dispmanElement;
-	_nativeWindow.width = width;
-	_nativeWindow.height = height;
-
-	_width = width;
-	_height = height;
-
-	setNonBlockingTerminalMode();
+	_nativeWindow.width = windowWidth;
+	_nativeWindow.height = windowHeight;
 
 	_nativeWindowCreated = GLUS_TRUE;
+
+	setNonBlockingTerminalMode();
 
 	return (EGLNativeWindowType)&_nativeWindow;
 }
@@ -331,6 +367,8 @@ GLUSvoid _glusDestroyNativeWindow()
 
 		_nativeDisplay = 0;
 	}
+
+	bcm_host_deinit();
 }
 
 double _glusGetRawTime()

@@ -240,7 +240,7 @@ GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y)
 
 GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
-	glusEGLTerminate(&g_eglDisplay, &g_eglSurface, &g_eglContext);
+	glusEGLTerminate(&g_eglDisplay, &g_eglContext, &g_eglSurface);
 
 	_glusDestroyNativeWindow();
 
@@ -255,7 +255,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	EGLNativeWindowType eglNativeWindowType;
 
-	if (!glusEGLGetDisplayChooseConfig(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, attribList))
+	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, attribList, g_eglContextClientVersion))
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could preinitialize EGL");
 
@@ -284,7 +284,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
         return GLUS_FALSE;
 	}
 
-	if (!glusEGLCreateWindowSetContext(eglNativeWindowType, g_eglContextClientVersion, &g_eglDisplay, &eglConfig, &g_eglSurface, &g_eglContext))
+	if (!glusEGLCreateWindowSurfaceMakeCurrent(eglNativeWindowType, &g_eglDisplay, &eglConfig, &g_eglContext, &g_eglSurface))
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Could not post initialize EGL");
 

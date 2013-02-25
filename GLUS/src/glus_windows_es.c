@@ -446,13 +446,6 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 	GLUSint fullWidth, fullHeight;
 
-	if (_nativeWindow)
-	{
-		DestroyWindow(_nativeWindow);
-
-		_nativeWindow = 0;
-	}
-
 	dwStyle   = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE;
 	dwExStyle = WS_EX_APPWINDOW;
 
