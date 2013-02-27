@@ -20,11 +20,14 @@ SDKs/Libraries/Images used:
 - OpenGL ES 3.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - OpenGL ES 2.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
+- SDL 1.2 http://www.libsdl.org/download-1.2.php
 - Raspbian “wheezy” http://www.raspberrypi.org/downloads
 
-24.02.2013 Norbert Nopper (norbert@nopper.tv)
+27.02.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+27.02.2013 - Finalized GLUS for Raspberry Pi
 
 22.02.2013 - Added GLUS for Raspberry Pi
 

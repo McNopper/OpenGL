@@ -10,6 +10,6 @@
 	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.1098488581" name="ReleaseLinux64"/>
 	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836" name="DebugES"/>
 	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762" name="DebugES2"/>
-	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913" name="DebugRaspberryPi"/>
-	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.857908553" name="ReleaseRaspberryPi"/>
+	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553" name="DebugRaspberryPi"/>
+	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938" name="ReleaseRaspberryPi"/>
 </project>

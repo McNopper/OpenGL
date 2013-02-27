@@ -21,15 +21,25 @@
 #include "GLES3/glus.h"
 #endif
 
+#include <pthread.h>
+
+#include <stdint.h>
+
 #include <time.h>
 
-#include <termios.h>
-
 #include <bcm_host.h>
+
+#include <SDL/SDL.h>
 
 extern GLUSint glusInternalClose(GLUSvoid);
 
 extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
+
+extern GLUSvoid glusInternalMouse(GLUSint button, GLUSint action);
+
+extern GLUSvoid glusInternalMouseWheel(GLUSint pos);
+
+extern GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y);
 
 // Display resolution changing
 
@@ -54,7 +64,7 @@ static void waitResizeDone()
 
 	breakTime.tv_sec += 8;
 
-	while(!doBreak)
+	while (!doBreak)
 	{
 		pthread_mutex_lock(&_mutex);
 		if (pthread_cond_timedwait(&_cond, &_mutex, &breakTime) == 0)
@@ -69,164 +79,135 @@ static void waitResizeDone()
 	}
 }
 
-// Terminal input is used
-
-static struct termios g_originalTermios;
-
-static GLUSboolean g_hasOriginalTermios = GLUS_FALSE;
-
-static void resetTerminalMode()
-{
-    if (g_hasOriginalTermios)
-    {
-    	tcsetattr(0, TCSANOW, &g_originalTermios);
-
-    	g_hasOriginalTermios = GLUS_FALSE;
-    }
-}
-
-static void setNonBlockingTerminalMode()
-{
-    struct termios newTermios;
-
-    if (!g_hasOriginalTermios)
-    {
-		tcgetattr(0, &g_originalTermios);
-		memcpy(&newTermios, &g_originalTermios, sizeof(newTermios));
-
-		newTermios.c_lflag &= ~ICANON;
-		newTermios.c_lflag &= ~ECHO;
-		newTermios.c_lflag &= ~ISIG;
-		newTermios.c_cc[VMIN] = 0;
-		newTermios.c_cc[VTIME] = 0;
-
-		tcsetattr(0, TCSANOW, &newTermios);
-
-		g_hasOriginalTermios = GLUS_TRUE;
-    }
-}
-
 // Map, if possible, to GLFW keys
 
-static int translateKey(int key)
+static int translateKey(SDLKey key)
 {
-	int keys[4];
 
 	switch (key)
 	{
-		case 9:
-			// Tab key
-			return GLFW_KEY_SPECIAL + 37;
-		case 10:
-			// Return key
-			return GLFW_KEY_SPECIAL + 38;
-		case 127:
-			// Backspace key
-			return GLFW_KEY_SPECIAL + 39;
-	}
-
-	// Normal key
-	if (key != 27)
-	{
-		return key;
-	}
-
-	keys[0] = getchar();
-
-	// Escape key
-	if (keys[0] == -1)
-	{
-		return GLFW_KEY_SPECIAL + 1;
-	}
-
-	keys[1] = getchar();
-	keys[2] = getchar();
-	keys[3] = getchar();
-
-	//glusLogPrint(GLUS_LOG_SEVERE, "Keys %d - %d %d %d %d\n", key, keys[0], keys[1], keys[2], keys[3]);
-
-	if (keys[0] == 91)
-	{
-		switch (keys[1])
-		{
-			case 49:
-				// Insert key
-				return GLFW_KEY_SPECIAL + 44;
-			case 50:
-				// Del key
-				return GLFW_KEY_SPECIAL + 40;
-			case 51:
-				// Page up key
-				return GLFW_KEY_SPECIAL + 41;
-			case 52:
-				// Page down key
-				return GLFW_KEY_SPECIAL + 45;
-			case 53:
-				// Home/Pos1 key
-				return GLFW_KEY_SPECIAL + 42;
-			case 54:
-				// End key
-				return GLFW_KEY_SPECIAL + 43;
-			case 65:
-			case 66:
-				// Cursor keys
-				return GLFW_KEY_SPECIAL + 27 + keys[1] - 65;
-			case 67:
-			case 68:
-				// Cursor keys
-				return GLFW_KEY_SPECIAL + 29 + 68 - keys[1];
-			case 80:
-				// Pause key
-				return GLFW_KEY_SPECIAL + 66;
-		}
-	}
-
-	if (keys[1] == 91)
-	{
-		if (keys[2] >= 65 && keys[2] <= 69)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 65;
-		}
-	}
-	else if (keys[1] == 49)
-	{
-		if (keys[2] == 70)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 65;
-		}
-		else if (keys[2] >= 55 && keys[2] <= 57)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 55 + 5;
-		}
-	}
-	else if (keys[1] == 50)
-	{
-		if (keys[2] >= 48 && keys[2] <= 49)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 48 + 8;
-		}
-		else if (keys[2] >= 51 && keys[2] <= 54)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 51 + 10;
-		}
-		else if (keys[2] >= 56 && keys[2] <= 57)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 56 + 14;
-		}
-	}
-	else if (keys[1] == 51)
-	{
-		if (keys[2] >= 49 && keys[2] <= 52)
-		{
-			// Function keys
-			return GLFW_KEY_SPECIAL + 2 + keys[2] - 49 + 16;
-		}
+		case SDLK_SPACE:
+			return GLFW_KEY_SPACE;
+		case SDLK_ESCAPE:
+			return GLFW_KEY_ESC;
+		case SDLK_F1:
+			return GLFW_KEY_F1;
+		case SDLK_F2:
+			return GLFW_KEY_F2;
+		case SDLK_F3:
+			return GLFW_KEY_F3;
+		case SDLK_F4:
+			return GLFW_KEY_F4;
+		case SDLK_F5:
+			return GLFW_KEY_F5;
+		case SDLK_F6:
+			return GLFW_KEY_F6;
+		case SDLK_F7:
+			return GLFW_KEY_F7;
+		case SDLK_F8:
+			return GLFW_KEY_F8;
+		case SDLK_F9:
+			return GLFW_KEY_F9;
+		case SDLK_F10:
+			return GLFW_KEY_F10;
+		case SDLK_F11:
+			return GLFW_KEY_F11;
+		case SDLK_F12:
+			return GLFW_KEY_F12;
+		case SDLK_F13:
+			return GLFW_KEY_F13;
+		case SDLK_F14:
+			return GLFW_KEY_F14;
+		case SDLK_F15:
+			return GLFW_KEY_F15;
+		case SDLK_UP:
+			return GLFW_KEY_UP;
+		case SDLK_DOWN:
+			return GLFW_KEY_DOWN;
+		case SDLK_LEFT:
+			return GLFW_KEY_LEFT;
+		case SDLK_RIGHT:
+			return GLFW_KEY_RIGHT;
+		case SDLK_LSHIFT:
+			return GLFW_KEY_LSHIFT;
+		case SDLK_RSHIFT:
+			return GLFW_KEY_RSHIFT;
+		case SDLK_LCTRL:
+			return GLFW_KEY_LCTRL;
+		case SDLK_RCTRL:
+			return GLFW_KEY_RCTRL;
+		case SDLK_LALT:
+			return GLFW_KEY_LALT;
+		case SDLK_RALT:
+			return GLFW_KEY_RALT;
+		case SDLK_TAB:
+			return GLFW_KEY_TAB;
+		case SDLK_RETURN:
+			return GLFW_KEY_ENTER;
+		case SDLK_BACKSPACE:
+			return GLFW_KEY_BACKSPACE;
+		case SDLK_INSERT:
+			return GLFW_KEY_INSERT;
+		case SDLK_DELETE:
+			return GLFW_KEY_DEL;
+		case SDLK_PAGEUP:
+			return GLFW_KEY_PAGEUP;
+		case SDLK_PAGEDOWN:
+			return GLFW_KEY_PAGEDOWN;
+		case SDLK_HOME:
+			return GLFW_KEY_HOME;
+		case SDLK_END:
+			return GLFW_KEY_END;
+		case SDLK_KP0:
+			return GLFW_KEY_KP_0;
+		case SDLK_KP1:
+			return GLFW_KEY_KP_1;
+		case SDLK_KP2:
+			return GLFW_KEY_KP_2;
+		case SDLK_KP3:
+			return GLFW_KEY_KP_3;
+		case SDLK_KP4:
+			return GLFW_KEY_KP_4;
+		case SDLK_KP5:
+			return GLFW_KEY_KP_5;
+		case SDLK_KP6:
+			return GLFW_KEY_KP_6;
+		case SDLK_KP7:
+			return GLFW_KEY_KP_7;
+		case SDLK_KP8:
+			return GLFW_KEY_KP_8;
+		case SDLK_KP9:
+			return GLFW_KEY_KP_9;
+		case SDLK_KP_DIVIDE:
+			return GLFW_KEY_KP_DIVIDE;
+		case SDLK_KP_MULTIPLY:
+			return GLFW_KEY_KP_MULTIPLY;
+		case SDLK_KP_MINUS:
+			return GLFW_KEY_KP_SUBTRACT;
+		case SDLK_KP_PLUS:
+			return GLFW_KEY_KP_ADD;
+		case SDLK_KP_PERIOD:
+			return GLFW_KEY_KP_DECIMAL;
+		case SDLK_KP_EQUALS:
+			return GLFW_KEY_KP_EQUAL;
+		case SDLK_KP_ENTER:
+			return GLFW_KEY_KP_ENTER;
+		case SDLK_NUMLOCK:
+			return GLFW_KEY_KP_NUM_LOCK;
+		case SDLK_CAPSLOCK:
+			return GLFW_KEY_CAPS_LOCK;
+		case SDLK_SCROLLOCK:
+			return GLFW_KEY_SCROLL_LOCK;
+		case SDLK_PAUSE:
+			return GLFW_KEY_PAUSE;
+		case SDLK_LSUPER:
+			return GLFW_KEY_LSUPER;
+		case SDLK_RSUPER:
+			return GLFW_KEY_RSUPER;
+		case SDLK_MENU:
+			return GLFW_KEY_MENU;
+		default:
+			return (int)key;
 	}
 
 	return GLFW_KEY_UNKNOWN;
@@ -244,52 +225,117 @@ static GLUSint _width = -1;
 
 static GLUSint _height = -1;
 
+static GLUSint _wheelPos = 0;
+
 static GLUSboolean _fullscreen = GLUS_FALSE;
 
 GLUSvoid _glusPollEvents()
 {
-    static int lastKey = 0;
-    static GLUSboolean keyPressed = GLUS_FALSE;
+	SDL_Event event;
 
-    int currentKey = getchar();
-
-    if (currentKey != EOF)
-    {
-		lastKey = currentKey;
-
-		// CTRL-C
-		if (lastKey == 3)
-		{
-			lastKey = 0;
-
-			glusInternalClose();
-
-			return;
-		}
-
-		lastKey = translateKey(lastKey);
-
-		keyPressed = GLUS_TRUE;
-
-		glusInternalKey(lastKey, keyPressed);
-    }
-	else if (keyPressed)
+	while (SDL_PollEvent(&event))
 	{
-		keyPressed = GLUS_FALSE;
+		switch (event.type)
+		{
+			case SDL_KEYDOWN:
+			{
+				// CTRL-C
+				if (event.key.keysym.sym == 99 && (event.key.keysym.mod == KMOD_LCTRL || event.key.keysym.mod == KMOD_RCTRL))
+				{
+					glusInternalClose();
 
-		glusInternalKey(lastKey, keyPressed);
+					return;
+				}
 
-		lastKey = 0;
-    }
+				glusInternalKey(translateKey(event.key.keysym.sym), GLUS_TRUE);
+			}
+			break;
+
+			case SDL_KEYUP:
+			{
+				glusInternalKey(translateKey(event.key.keysym.sym), GLUS_FALSE);
+			}
+			break;
+
+			case SDL_MOUSEMOTION:
+			{
+				if (event.motion.x <= _width && event.motion.y <= _height)
+				{
+					glusInternalMouseMove(event.motion.x, event.motion.y);
+				}
+			}
+			break;
+
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				if (event.button.x <= _width && event.button.y <= _height)
+				{
+					switch (event.button.button)
+					{
+						case 1:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+						break;
+						case 2:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
+						break;
+						case 3:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
+						break;
+						case 4:
+							_wheelPos += 1;
+							glusInternalMouseWheel(_wheelPos);
+						break;
+						case 5:
+							_wheelPos -= 1;
+							glusInternalMouseWheel(_wheelPos);
+						break;
+					}
+				}
+			}
+			break;
+
+			case SDL_MOUSEBUTTONUP:
+			{
+				if (event.button.x <= _width && event.button.y <= _height)
+				{
+					switch (event.button.button)
+					{
+						case 1:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+						break;
+						case 2:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
+						break;
+						case 3:
+							glusInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
+						break;
+						case 4:
+							_wheelPos += 1;
+							glusInternalMouseWheel(_wheelPos);
+						break;
+						case 5:
+							_wheelPos -= 1;
+							glusInternalMouseWheel(_wheelPos);
+						break;
+					}
+				}
+			}
+			break;
+		}
+	}
 }
 
 EGLNativeDisplayType _glusGetNativeDisplayType()
 {
-	return EGL_DEFAULT_DISPLAY;
+	return EGL_DEFAULT_DISPLAY ;
 }
 
 EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
 {
+	const SDL_VideoInfo* videoInfo;
+
+	//
+
 	DISPMANX_UPDATE_HANDLE_T dispmanUpdate;
 	DISPMANX_ELEMENT_HANDLE_T dispmanElement;
 	VC_RECT_T dstRect;
@@ -300,7 +346,6 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	int32_t windowHeight;
 
 	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title' and 'noResize' are not used");
-	glusLogPrint(GLUS_LOG_INFO, "Terminal key events are used. Mouse events are not supported");
 
 	// Initialize graphics system
 
@@ -329,7 +374,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 		{
 			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: ", width, height);
 
-			return EGL_NO_SURFACE;
+			return EGL_NO_SURFACE ;
 		}
 
 		vc_tv_register_callback(resizeDone, 0);
@@ -340,7 +385,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
 
-			return EGL_NO_SURFACE;
+			return EGL_NO_SURFACE ;
 		}
 
 		waitResizeDone();
@@ -366,8 +411,35 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not open display");
 
-		return EGL_NO_SURFACE;
+		return EGL_NO_SURFACE ;
 	}
+
+	//
+
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		glusLogPrint(GLUS_LOG_ERROR, "Could not initialize SDL");
+
+		return EGL_NO_SURFACE ;
+	}
+
+	videoInfo = SDL_GetVideoInfo();
+
+	if (!videoInfo)
+	{
+		glusLogPrint(GLUS_LOG_ERROR, "Could not get video info for SDL");
+
+		return EGL_NO_SURFACE ;
+	}
+
+	if (!SDL_SetVideoMode(videoInfo->current_w, videoInfo->current_h, videoInfo->vfmt->BitsPerPixel, SDL_HWSURFACE))
+	{
+		glusLogPrint(GLUS_LOG_ERROR, "Set video mode for SDL failed");
+
+		return EGL_NO_SURFACE ;
+	}
+
+	SDL_ShowCursor(SDL_DISABLE);
 
 	//
 
@@ -387,9 +459,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 	dispmanUpdate = vc_dispmanx_update_start(0);
 
-	dispmanElement = vc_dispmanx_element_add(dispmanUpdate, _nativeDisplay,
-												 0 /*layer*/, &dstRect, 0 /*src*/, &srcRect,
-												 DISPMANX_PROTECTION_NONE, &dispmanAlpha, 0/*clamp*/, 0/*transform*/);
+	dispmanElement = vc_dispmanx_element_add(dispmanUpdate, _nativeDisplay, 0 /*layer*/, &dstRect, 0 /*src*/, &srcRect, DISPMANX_PROTECTION_NONE, &dispmanAlpha, 0/*clamp*/, 0/*transform*/);
 
 	success = vc_dispmanx_update_submit_sync(dispmanUpdate);
 
@@ -397,7 +467,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not add element");
 
-		return EGL_NO_SURFACE;
+		return EGL_NO_SURFACE ;
 	}
 
 	_width = windowWidth;
@@ -409,15 +479,11 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 	_nativeWindowCreated = GLUS_TRUE;
 
-	setNonBlockingTerminalMode();
-
 	return (EGLNativeWindowType)&_nativeWindow;
 }
 
 GLUSvoid _glusDestroyNativeWindow()
 {
-    resetTerminalMode();
-
 	if (_nativeWindowCreated)
 	{
 		DISPMANX_UPDATE_HANDLE_T dispmanUpdate;
@@ -451,6 +517,10 @@ GLUSvoid _glusDestroyNativeWindow()
 		_fullscreen = GLUS_FALSE;
 	}
 
+	SDL_ShowCursor(SDL_ENABLE);
+
+	SDL_Quit();
+
 	bcm_host_deinit();
 }
 
@@ -460,7 +530,7 @@ double _glusGetRawTime()
 
 	clock_gettime(CLOCK_MONOTONIC, &currentTime);
 
-    return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
+	return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
 }
 
 GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height)
