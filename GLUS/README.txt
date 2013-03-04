@@ -23,9 +23,24 @@ SDKs/Libraries/Images used:
 - SDL 1.2 http://www.libsdl.org/download-1.2.php
 - Raspbian “wheezy” http://www.raspberrypi.org/downloads
 
-27.02.2013 Norbert Nopper (norbert@nopper.tv)
+Build configuration naming:
+
+[CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
+
+CPU:						ARMv6, x64, x86
+GPU (Optional):				VC4
+OS: 						Darwin, Linux, Windows
+OpenGL (Optional):			GLES2, GLES3
+Compiler:					GCC, MinGW, MSVC
+Configuration:				Debug, Release
+
+e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
+
+04.03.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+04.03.2013 - Changed build configuration naming
 
 27.02.2013 - Finalized GLUS for Raspberry Pi
 
