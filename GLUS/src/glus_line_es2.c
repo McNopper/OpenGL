@@ -122,13 +122,89 @@ GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfE
     return GLUS_TRUE;
 }
 
+GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns)
+{
+	GLUSuint i, offset;
+	GLUSuint numberVertices = (rows + 1) * 2 + (columns + 1) * 2;
+	GLUSuint numberIndices = numberVertices;
+	float rowStep, columnStep;
+
+	if (!line || rows < 1 || columns < 1 || numberVertices > GLUS_MAX_VERTICES || numberIndices > GLUS_MAX_INDICES)
+	{
+		return GLUS_FALSE;
+	}
+	glusInitLinef(line);
+
+	line->numberVertices = numberVertices;
+	line->numberIndices = numberIndices;
+
+	line->vertices = (GLUSfloat*)malloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSushort*)malloc(line->numberIndices * sizeof(GLUSushort));
+
+	line->mode = GL_LINES;
+
+	if (!glusCheckLinef(line))
+	{
+		glusDestroyLinef(line);
+
+		return GLUS_FALSE;
+	}
+
+	rowStep = verticalExtend / (float)rows;
+	for (i = 0; i <= rows; i++)
+	{
+		line->vertices[0 + i * 4 * 2] = -horizontalExtend * 0.5f;
+		line->vertices[1 + i * 4 * 2] = -verticalExtend * 0.5f + rowStep * (float)i;
+		line->vertices[2 + i * 4 * 2] = 0.0f;
+		line->vertices[3 + i * 4 * 2] = 1.0f;
+
+		line->indices[i * 2] = i * 2;
+
+		//
+
+		line->vertices[0 + i * 4 * 2 + 4] = horizontalExtend * 0.5f;
+		line->vertices[1 + i * 4 * 2 + 4] = -verticalExtend * 0.5f + rowStep * (float)i;
+		line->vertices[2 + i * 4 * 2 + 4] = 0.0f;
+		line->vertices[3 + i * 4 * 2 + 4] = 1.0f;
+
+		line->indices[i * 2 + 1] = i * 2 + 1;
+	}
+
+	offset = (rows + 1) * 2;
+
+	columnStep = horizontalExtend / (float)columns;
+	for (i = 0; i <= columns; i++)
+	{
+		line->vertices[0 + i * 4 * 2 + offset * 4] = -horizontalExtend * 0.5f + columnStep * (float)i;
+		line->vertices[1 + i * 4 * 2 + offset * 4] = -verticalExtend * 0.5f;
+		line->vertices[2 + i * 4 * 2 + offset * 4] = 0.0f;
+		line->vertices[3 + i * 4 * 2 + offset * 4] = 1.0f;
+
+		line->indices[i * 2 + offset] = i * 2 + offset;
+
+		//
+
+		line->vertices[0 + i * 4 * 2 + 4 + offset * 4] = -horizontalExtend * 0.5f + columnStep * (float)i;
+		line->vertices[1 + i * 4 * 2 + 4 + offset * 4] = verticalExtend * 0.5f;
+		line->vertices[2 + i * 4 * 2 + 4 + offset * 4] = 0.0f;
+		line->vertices[3 + i * 4 * 2 + 4 + offset * 4] = 1.0f;
+
+		line->indices[i * 2 + 1 + offset] = i * 2 + 1 + offset;
+	}
+
+	return GLUS_TRUE;
+}
+
 GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSushort numberSectors)
 {
 	GLUSuint i;
 	float singleStep;
 	float totalStep;
 
-    if (!line || numberSectors < 3)
+	GLUSuint numberVertices = numberSectors;
+	GLUSuint numberIndices = numberSectors;
+
+    if (!line || numberSectors < 3 || numberVertices > GLUS_MAX_VERTICES || numberIndices > GLUS_MAX_INDICES)
     {
         return GLUS_FALSE;
     }

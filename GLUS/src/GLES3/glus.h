@@ -2004,6 +2004,19 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat
 GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfExtend);
 
 /**
+ * Creates a rectangular grid out of lines. The grid is centered.
+ *
+ * @param line The data is stored into this structure.
+ * @param horizontalExtend The width of the grid.
+ * @param verticalExtend The height of the grid.
+ * @param rows Number of rows of the grid.
+ * @param columns Number of columns of the grid.
+ *
+ * @return GLUS_TRUE, if creation succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns);
+
+/**
  * Creates a circle out of lines with the given radius and number sectors. More sectors makes the circle more round.
  *
  * @param line The data is stored into this structure.
