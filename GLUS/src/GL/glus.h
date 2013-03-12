@@ -445,6 +445,28 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid);
 GLUSAPI GLUSboolean GLUSAPIENTRY glusIsSupported(const GLUSint major, const GLUSint minor);
 
 //
+// Extension functions.
+//
+
+/**
+ * Checks, if an OpenGL extension is supported.
+ *
+ * @param extension The name of the extension.
+ *
+ * @return GLUS_TRUE, if the given extension is supported.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusExtensionSupported(const GLUSchar* extension);
+
+/**
+ * Gathers the function pointer of an extension.
+ *
+ * @param procname The name of the function.
+ *
+ * @return The function pointer.
+ */
+GLUSAPI void* GLUSAPIENTRY glusGetProcAddress(const GLUSchar* procname);
+
+//
 // File, image loading functions.
 //
 

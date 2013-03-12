@@ -354,3 +354,8 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 
 	return GLUS_TRUE; // Exit The Program
 }
+
+void* GLUSAPIENTRY glusGetProcAddress(const GLUSchar* procname)
+{
+	return eglGetProcAddress(procname);
+}
