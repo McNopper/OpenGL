@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-10.03.2013 Norbert Nopper (norbert@nopper.tv)
+09.04.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+09.04.2013 - Added possibility to save a TGA image
 
 10.03.2013 - Added new line primitive (grid)
 

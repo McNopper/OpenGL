@@ -522,6 +522,20 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUS
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage);
 
 //
+// File, image saving functions
+//
+
+/**
+ * Saves a TGA file.
+ *
+ * @param filename The name of the file to save.
+ * @param tgaimage The structure with the TGA data.
+ *
+ * @return GLUS_TRUE, if saving succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStgaimage* tgaimage);
+
+//
 // Vector functions.
 //
 
