@@ -530,6 +530,21 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage);
 GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStgaimage* tgaimage);
 
 //
+// Screenshot functions
+//
+
+/**
+ * Creates a screenshot of the current back buffer.
+ *
+ * @param x The lower left x coordinate from the screenshot rectangle.
+ * @param y The lower left y coordinate from the screenshot rectangle.
+ * @param width The width of the screenshot rectangle.
+ * @param height The height of the screenshot rectangle.
+ * @param screenshot The image structure to store the pixel data.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot);
+
+//
 // Vector functions.
 //
 
