@@ -267,8 +267,6 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, attribList, g_eglContextClientVersion))
 	{
-		glusLogPrint(GLUS_LOG_ERROR, "Could preinitialize EGL");
-
 		glusDestroyWindow();
 
 		return GLUS_FALSE;
@@ -296,8 +294,6 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	if (!glusEGLCreateWindowSurfaceMakeCurrent(eglNativeWindowType, &g_eglDisplay, &eglConfig, &g_eglContext, &g_eglSurface))
 	{
-		glusLogPrint(GLUS_LOG_ERROR, "Could not post initialize EGL");
-
 		glusDestroyWindow();
 
 		return GLUS_FALSE;

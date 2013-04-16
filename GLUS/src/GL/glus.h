@@ -2058,6 +2058,18 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshap
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape);
 
 //
+// Shape adjacency
+//
+
+/**
+ * Creates a shape with adjacent index data for a triangle. Can be used in the geometry shader.
+ *
+ * @param adjacencyShape 	The shape with additional adjacent index data.
+ * @param sourceShape 		The source shape.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, const GLUSshape* sourceShape);
+
+//
 // Line / geometry functions.
 //
 

@@ -72,7 +72,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
 
     if (numConfigs == 0)
     {
-        glusLogPrint(GLUS_LOG_ERROR, "Could no EGL configuration returned");
+        glusLogPrint(GLUS_LOG_ERROR, "No EGL configuration returned");
 
         glusEGLTerminate(display, 0, 0);
 

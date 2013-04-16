@@ -15,13 +15,13 @@ If you get build errors:
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 
-SDKs/Libraries/Images used:
+SDKs/Libraries/Images used for Raspberry Pi:
 
 - OpenGL ES 3.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - OpenGL ES 2.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
 - SDL 1.2 http://www.libsdl.org/download-1.2.php
-- Raspbian “wheezy” http://www.raspberrypi.org/downloads
+- Raspbian ï¿½wheezyï¿½ http://www.raspberrypi.org/downloads
 
 Build configuration naming:
 
@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-10.04.2013 Norbert Nopper (norbert@nopper.tv)
+11.04.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+11.04.2012 - Added latest GLFW (2.7.8)
 
 10.04.2013 - Added screenshot functionality
 

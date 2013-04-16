@@ -7,6 +7,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows__MinGW_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -61,6 +62,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows__MinGW_Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -112,6 +114,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugLinux"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Linux__GCC_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -164,6 +167,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugMac"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugMac64"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x64__Darwin__GCC_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -215,6 +219,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugVC"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows__MSVC_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -265,6 +270,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/ReleaseVC"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows__MSVC_Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -311,6 +317,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugLinux64"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x64__Linux__GCC_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -362,6 +369,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/ReleaseLinux64"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x64__Linux__GCC_Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -413,6 +421,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugES"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows_GLES3_MinGW_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -458,7 +467,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -470,6 +479,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugES2"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86__Windows_GLES2_MinGW_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -515,7 +525,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -528,6 +538,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugRaspberryPiSDL"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/DebugRaspberryPi"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/ARMv6_VC4_Linux_GLES2_GCC_Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -574,7 +585,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -586,6 +597,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/ReleaseRaspberryPi"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/ARMv6_VC4_Linux_GLES2_GCC_Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -632,7 +644,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
