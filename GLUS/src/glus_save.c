@@ -84,10 +84,36 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 		return GLUS_FALSE;
 	}
 
+	switch (tgaimage->format)
+	{
+		case GLUS_ALPHA:
+		case GLUS_LUMINANCE:
+			bitsPerPixel = 8;
+		break;
+		case GLUS_RGB:
+			bitsPerPixel = 24;
+		break;
+		case GLUS_RGBA:
+			bitsPerPixel = 32;
+		break;
+		default:
+			fclose(file);
+			return GLUS_FALSE;
+	}
+
+	if (bitsPerPixel == 8)
+	{
+		buffer[2] = 3;
+	}
+	else
+	{
+		buffer[2] = 2;
+	}
+
 	// TGA header
 	buffer[0] = 0;
 	buffer[1] = 0;
-	buffer[2] = 2;
+
 	buffer[3] = 0;
 	buffer[4] = 0;
 	buffer[5] = 0;
@@ -119,23 +145,6 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 		return GLUS_FALSE;
 	}
 
-	switch (tgaimage->format)
-	{
-		case GLUS_ALPHA:
-			case GLUS_LUMINANCE:
-			bitsPerPixel = 8;
-		break;
-		case GLUS_RGB:
-			bitsPerPixel = 24;
-		break;
-		case GLUS_RGBA:
-			bitsPerPixel = 32;
-		break;
-		default:
-			fclose(file);
-			return GLUS_FALSE;
-	}
-
 	elementsWritten = fwrite(&bitsPerPixel, 1, sizeof(bitsPerPixel), file);
 
 	if (!glusCheckFileWrite(file, elementsWritten, 1))
@@ -163,7 +172,10 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 
 	memcpy(data, tgaimage->data, tgaimage->width * tgaimage->height * bitsPerPixel / 8);
 
-	glusSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, data);
+	if (bitsPerPixel >= 24)
+	{
+		glusSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, data);
+	}
 
 	elementsWritten = fwrite(data, 1, tgaimage->width * tgaimage->height * bitsPerPixel / 8, file);
 
