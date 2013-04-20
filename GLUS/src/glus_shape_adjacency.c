@@ -223,6 +223,8 @@ GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, co
 		// Find adjacent indices for each edge of the triangle ...
 		for (edge = 0; edge < 3; edge++)
 		{
+			adjacentIndex = 0;
+
 			// ... by scanning the indices ...
 			if (glusFindIndexByIndicesf(&adjacentIndex, 3 * i, edge, sourceShape))
 			{
