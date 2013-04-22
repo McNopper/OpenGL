@@ -187,7 +187,7 @@ extern "C" {
 
 #define GLFW_VERSION_MAJOR    2
 #define GLFW_VERSION_MINOR    7
-#define GLFW_VERSION_REVISION 7
+#define GLFW_VERSION_REVISION 8
 
 
 /*************************************************************************
