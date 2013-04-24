@@ -17,6 +17,8 @@
 
 #include "GL/glus.h"
 
+#define GLUS_POINT_TOLERANCE 0.001f
+
 static GLUSboolean glusCheckShapef(GLUSshape* shape)
 {
 	if (!shape)
@@ -125,9 +127,9 @@ static GLUSboolean glusFindIndexByVerticesf(GLUSuint* adjacentIndex, GLUSuint tr
 			{
 				searchIndex = shape->indices[triangleIndex + (m % 3)];
 
-				if (shape->vertices[4 * searchIndex + 0] == shape->vertices[4 * walkerIndex + 0] &&
-						shape->vertices[4 * searchIndex + 1] == shape->vertices[4 * walkerIndex + 1] &&
-						shape->vertices[4 * searchIndex + 2] == shape->vertices[4 * walkerIndex + 2])
+				if (shape->vertices[4 * searchIndex + 0] >= shape->vertices[4 * walkerIndex + 0] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 0] <= shape->vertices[4 * walkerIndex + 0] + GLUS_POINT_TOLERANCE &&
+						shape->vertices[4 * searchIndex + 1] >= shape->vertices[4 * walkerIndex + 1] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 1] <= shape->vertices[4 * walkerIndex + 1] + GLUS_POINT_TOLERANCE &&
+						shape->vertices[4 * searchIndex + 2] >= shape->vertices[4 * walkerIndex + 2] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 2] <= shape->vertices[4 * walkerIndex + 2] + GLUS_POINT_TOLERANCE)
 				{
 					equalVertices++;
 
@@ -237,7 +239,11 @@ GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, co
 			if (glusFindIndexByVerticesf(&adjacentIndex, 3 * i, edge, sourceShape))
 			{
 				adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
+
+				continue;
 			}
+
+			glusLogPrint(GLUS_LOG_WARNING, "Triangle %d with edge %d: No adjacent index found!", i, edge);
 		}
 	}
 
