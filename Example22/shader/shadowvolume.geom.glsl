@@ -17,7 +17,7 @@ void main(void)
 	// see http://developer.download.nvidia.com/opengl/specs/GL_EXT_geometry_shader4.txt for which point has which index 
 	for (int i = 0; i < 2; i++)
 	{
-		triangleVector[i] = (gl_PositionIn[i*2 + 2] - gl_PositionIn[0]).xyz;
+		triangleVector[i] = (gl_in[i*2 + 2].gl_Position - gl_in[0].gl_Position).xyz;
 	}
 
 	vec3 triangleNormal = cross(triangleVector[0], triangleVector[1]);
@@ -31,13 +31,13 @@ void main(void)
 	}
 	
 	// Front cap	
-	gl_Position = u_projectionMatrix * gl_PositionIn[0];
+	gl_Position = u_projectionMatrix * gl_in[0].gl_Position;
     EmitVertex();
     
-	gl_Position = u_projectionMatrix * gl_PositionIn[2];
+	gl_Position = u_projectionMatrix * gl_in[2].gl_Position;
     EmitVertex();
 
-	gl_Position = u_projectionMatrix * gl_PositionIn[4];
+	gl_Position = u_projectionMatrix * gl_in[4].gl_Position;
 	EmitVertex();
 
 	EndPrimitive();
@@ -63,7 +63,7 @@ void main(void)
    	{
 		for (int k = 0; k < 2; k++)
 		{
-			triangleAdjacentVector[k] = (gl_PositionIn[(i*2 + k + 1) % 6] - gl_PositionIn[i*2]).xyz;
+			triangleAdjacentVector[k] = (gl_in[(i*2 + k + 1) % 6].gl_Position - gl_in[i*2].gl_Position).xyz;
 		}
 	
 		triangleAdjacentNormal = cross(triangleAdjacentVector[0], triangleAdjacentVector[1]);
@@ -73,13 +73,13 @@ void main(void)
 		// Silhouette, so we need a side
 		if (dotNormal * dotAdjacentNormal < 0.0)
 		{
-			gl_Position = u_projectionMatrix * gl_PositionIn[i*2];
+			gl_Position = u_projectionMatrix * gl_in[i*2].gl_Position;
 	        EmitVertex();
 		
 			gl_Position = u_projectionMatrix * (-vec4(u_lightDirection, 0.0));
 	        EmitVertex();
 
-			gl_Position = u_projectionMatrix * gl_PositionIn[(i*2 + 2) % 6];
+			gl_Position = u_projectionMatrix * gl_in[(i*2 + 2) % 6].gl_Position;
 	        EmitVertex();
     
 			gl_Position = u_projectionMatrix * (-vec4(u_lightDirection, 0.0));
