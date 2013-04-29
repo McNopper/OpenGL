@@ -17,9 +17,13 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-24.02.2013 Norbert Nopper (norbert@nopper.tv)
+29.04.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+29.04.2013 - Added shadow volume example
+
+11.04.2012 - Added latest GLFW (2.7.8)
 
 28.01.2013 - Added PowerVR OpenGL ES 3.0 DLLs
 
