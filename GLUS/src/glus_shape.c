@@ -227,14 +227,23 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns)
+GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip)
 {
     GLUSuint i, currentRow, currentColumn;
 
     GLUSuint numberVertices = (rows + 1) * (columns + 1);
-    GLUSuint numberIndices = rows * 2 * (columns + 1);
+    GLUSuint numberIndices;
 
     GLUSfloat x, y, s, t;
+
+    if (triangleStrip)
+    {
+    	numberIndices = rows * 2 * (columns + 1);
+    }
+    else
+    {
+    	numberIndices = rows * 6 * columns;
+    }
 
     if (rows < 1 || columns < 1 || numberVertices > GLUS_MAX_VERTICES || numberIndices > GLUS_MAX_INDICES)
     {
@@ -247,7 +256,14 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
     }
     glusInitShapef(shape);
 
-    shape->mode = GL_TRIANGLE_STRIP;
+    if (triangleStrip)
+    {
+        shape->mode = GL_TRIANGLE_STRIP;
+    }
+    else
+    {
+        shape->mode = GL_TRIANGLES;
+    }
 
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
@@ -290,23 +306,42 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
         shape->texCoords[i * 2 + 1] = t;
     }
 
-    for (i = 0; i < rows * (columns + 1); i++)
+    if (triangleStrip)
     {
-        currentColumn = i % (columns + 1);
-        currentRow = i / (columns + 1);
+		for (i = 0; i < rows * (columns + 1); i++)
+		{
+			currentColumn = i % (columns + 1);
+			currentRow = i / (columns + 1);
 
-        if (currentRow == 0)
-        {
-            // Left to right, top to bottom
-            shape->indices[i * 2] = currentColumn + currentRow * (columns + 1);
-            shape->indices[i * 2 + 1] = currentColumn + (currentRow + 1) * (columns + 1);
-        }
-        else
-        {
-            // Right to left, bottom to up
-            shape->indices[i * 2] = (columns - currentColumn) + (currentRow + 1) * (columns + 1);
-            shape->indices[i * 2 + 1] = (columns - currentColumn) + currentRow * (columns + 1);
-        }
+			if (currentRow == 0)
+			{
+				// Left to right, top to bottom
+				shape->indices[i * 2] = currentColumn + currentRow * (columns + 1);
+				shape->indices[i * 2 + 1] = currentColumn + (currentRow + 1) * (columns + 1);
+			}
+			else
+			{
+				// Right to left, bottom to up
+				shape->indices[i * 2] = (columns - currentColumn) + (currentRow + 1) * (columns + 1);
+				shape->indices[i * 2 + 1] = (columns - currentColumn) + currentRow * (columns + 1);
+			}
+		}
+    }
+    else
+    {
+    	for (i = 0; i < rows * columns; i++)
+    	{
+			currentColumn = i % columns;
+			currentRow = i / columns;
+
+			shape->indices[i * 6 + 0] = currentColumn + currentRow * (columns + 1);
+    	    shape->indices[i * 6 + 1] = currentColumn + (currentRow + 1) * (columns + 1);
+    	    shape->indices[i * 6 + 2] = (currentColumn + 1) + (currentRow + 1) * (columns + 1);
+
+    	    shape->indices[i * 6 + 3] = (currentColumn + 1) + (currentRow + 1) * (columns + 1);
+    	    shape->indices[i * 6 + 4] = (currentColumn + 1) + currentRow * (columns + 1);
+    	    shape->indices[i * 6 + 5] = currentColumn + currentRow * (columns + 1);
+    	}
     }
 
     if (!glusFinalizeShapef(shape))

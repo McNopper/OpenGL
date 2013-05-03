@@ -1913,10 +1913,11 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, c
  * @param verticalExtend The length from the center point to the upper/lower border of the plane.
  * @param rows The number of rows the grid should have.
  * @param columns The number of columns the grid should have.
+ * @param triangleStrip Set to GLUS_TRUE, if a triangle strip should be created.
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip);
 
 /**
  * Creates a disc with the given radius and number sectors. More sectors makes the disc more round.
