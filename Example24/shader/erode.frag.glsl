@@ -31,7 +31,7 @@ out vec4 fragColor;
 
 void main()
 {
-	float erodeLevel = texture(u_texture, normalize(v_vertex)).r;
+	float erodeLevel = texture(u_texture, normalize(v_vertex) * 0.5 + 0.5).r;
 	
 	// u_erode gets smaller over time. If this value is smaller than the reference texel, discard it.
 	// This results in an erode effect over time.
