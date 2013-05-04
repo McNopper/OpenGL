@@ -177,6 +177,38 @@ typedef struct _GLUStgaimage
 } GLUStgaimage;
 
 /**
+ * Structure used for any texture image format.
+ */
+typedef struct _GLUSteximage
+{
+	/**
+	 * Width of the texture.
+	 */
+    GLUSushort width;
+
+	/**
+	 * Height of the texture.
+	 */
+    GLUSushort height;
+
+	/**
+	 * Depth of the texture.
+	 */
+    GLUSushort depth;
+
+    /**
+     * Pixel data.
+     */
+    GLUSubyte* data;
+
+    /**
+     * Format of the texture.
+     */
+    GLUSenum format;
+
+} GLUSteximage;
+
+/**
  * Structure for shader program handling.
  */
 typedef struct _GLUSshaderprogram
@@ -549,6 +581,69 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, cons
  * @param screenshot The image structure to store the pixel data.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot);
+
+//
+// Perlin noise functions.
+//
+
+/**
+ * Creates a 1D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
+ *
+ * @param image The perlin noise texture will be stored into this image.
+ * @param width Width of the texture.
+ * @param seed Random seed number.
+ * @param frequency Frequency of the noise.
+ * @param amplitude Amplitude of the noise.
+ * @param persistence Persistence of the noise.
+ * @param octaves Octaves of the noise.
+ *
+ * @return GLUS_TRUE, if creation succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUSteximage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+
+/**
+ * Creates a 2D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
+ *
+ * @param image The perlin noise texture will be stored into this image.
+ * @param width Width of the texture.
+ * @param height Height of the texture
+ * @param seed Random seed number.
+ * @param frequency Frequency of the noise.
+ * @param amplitude Amplitude of the noise.
+ * @param persistence Persistence of the noise.
+ * @param octaves Octaves of the noise.
+ *
+ * @return GLUS_TRUE, if creation succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUSteximage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+
+/**
+ * Creates a 3D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
+ *
+ * @param image The perlin noise texture will be stored into this image.
+ * @param width Width of the texture.
+ * @param height Height of the texture
+ * @param depth Depth of the texture
+ * @param seed Random seed number.
+ * @param frequency Frequency of the noise.
+ * @param amplitude Amplitude of the noise.
+ * @param persistence Persistence of the noise.
+ * @param octaves Octaves of the noise.
+ *
+ * @return GLUS_TRUE, if creation succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUSteximage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+
+//
+// Texture image functions.
+//
+
+/**
+ * Destroys the content of a texture image structure. Has to be called for freeing the resources.
+ *
+ * @param teximage The texture image strucutre.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTexImage(GLUSteximage* teximage);
 
 //
 // Vector functions.
