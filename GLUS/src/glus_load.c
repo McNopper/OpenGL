@@ -251,6 +251,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
     tgaimage->width = 0;
     tgaimage->height = 0;
+    tgaimage->depth = 0;
     tgaimage->data = 0;
     tgaimage->format = 0;
 		
@@ -327,6 +328,8 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
         return GLUS_FALSE;
     }
+
+    tgaimage->depth = 1;
 
     // read the bits per pixel
     elementsRead = fread(&bitsPerPixel, 1, 1, file);
@@ -487,6 +490,8 @@ GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage)
     tgaimage->width = 0;
 
     tgaimage->height = 0;
+
+    tgaimage->depth = 0;
 
     tgaimage->format = 0;
 }

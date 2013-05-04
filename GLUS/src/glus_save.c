@@ -86,6 +86,7 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 
 	switch (tgaimage->format)
 	{
+		case GLUS_RED:
 		case GLUS_ALPHA:
 		case GLUS_LUMINANCE:
 			bitsPerPixel = 8;

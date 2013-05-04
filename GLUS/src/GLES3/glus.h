@@ -71,6 +71,7 @@ typedef void GLUSvoid;
 #define GLUS_VERTEX_SHADER              0x8B31
 #define GLUS_FRAGMENT_SHADER            0x8B30
 
+#define GLUS_RED  		0x1903
 #define GLUS_ALPHA  	0x1906
 #define GLUS_RGB    	0x1907
 #define GLUS_RGBA   	0x1908
@@ -142,6 +143,11 @@ typedef struct _GLUStgaimage
 	 */
     GLUSushort height;
 
+	/**
+	 * Depth of the image.
+	 */
+    GLUSushort depth;
+
     /**
      * Pixel data.
      */
@@ -159,38 +165,6 @@ typedef struct _GLUStgaimage
     GLUSenum format;
 
 } GLUStgaimage;
-
-/**
- * Structure used for any texture image format.
- */
-typedef struct _GLUSteximage
-{
-	/**
-	 * Width of the texture.
-	 */
-    GLUSushort width;
-
-	/**
-	 * Height of the texture.
-	 */
-    GLUSushort height;
-
-	/**
-	 * Depth of the texture.
-	 */
-    GLUSushort depth;
-
-    /**
-     * Pixel data.
-     */
-    GLUSubyte* data;
-
-    /**
-     * Format of the texture.
-     */
-    GLUSenum format;
-
-} GLUSteximage;
 
 /**
  * Structure for shader program handling.
@@ -593,7 +567,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei 
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUSteximage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 /**
  * Creates a 2D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
@@ -609,7 +583,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUSteximage* image, co
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUSteximage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 /**
  * Creates a 3D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
@@ -626,18 +600,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUSteximage* image, co
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUSteximage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
-
-//
-// Texture image functions.
-//
-
-/**
- * Destroys the content of a texture image structure. Has to be called for freeing the resources.
- *
- * @param teximage The texture image strucutre.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTexImage(GLUSteximage* teximage);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 //
 // Vector functions.

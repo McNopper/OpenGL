@@ -126,7 +126,7 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape sphere;
 
-    GLUSteximage image;
+    GLUStgaimage image;
 
     glusLoadTextFile("../Example24/shader/erode.vert.glsl", &vertexSource);
     glusLoadTextFile("../Example24/shader/erode.frag.glsl", &fragmentSource);
@@ -155,7 +155,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glusDestroyTexImage(&image);
+    glusDestroyTgaImage(&image);
 
     //
 

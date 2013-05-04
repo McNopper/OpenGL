@@ -32,6 +32,7 @@ GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, G
 	screenshot->format= GLUS_RGBA;
 	screenshot->width = width;
 	screenshot->height = height;
+	screenshot->depth = 1;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
