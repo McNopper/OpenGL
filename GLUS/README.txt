@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-29.04.2013 Norbert Nopper (norbert@nopper.tv)
+07.05.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+07.05.2013 - Added improved wavefront object file loader. Now supports groups and materials.
 
 29.04.2012 - Added adjacent geometry creation
 

@@ -92,6 +92,8 @@ typedef void GLUSvoid;
 #define GLUS_MAX_VERTICES 65536
 #define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
 
+#define GLUS_MAX_STRING  256
+
 #define GLUS_DEFAULT_CLIENT_VERSION 2
 
 /**
@@ -247,6 +249,209 @@ typedef struct _GLUSshape
     GLUSenum mode;
 
 } GLUSshape;
+
+/**
+ * Structure for holding material data.
+ */
+typedef struct _GLUSmaterial
+{
+	/**
+	 * Name of the material.
+	 */
+	GLUSchar name[GLUS_MAX_STRING];
+
+	/**
+	 * Emissive color.
+	 */
+	GLUSfloat emissive[4];
+
+	/**
+	 * Ambient color.
+	 */
+	GLUSfloat ambient[4];
+
+	/**
+	 * Diffuse color.
+	 */
+	GLUSfloat diffuse[4];
+
+	/**
+	 * Specular color.
+	 */
+	GLUSfloat specular[4];
+
+	/**
+	 * Shininess.
+	 */
+	GLUSfloat shininess;
+
+	/**
+	 * Diffuse color texture filename.
+	 */
+	GLUSchar textureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Can be used to store the texture name.
+	 */
+    GLUSuint textureName;
+
+} GLUSmaterial;
+
+/**
+ * Structure for holding material data list.
+ */
+typedef struct _GLUSmaterialList
+{
+	/**
+	 * The material data.
+	 */
+	GLUSmaterial material;
+
+	/**
+	 * The pointer to the next element.
+	 */
+	struct _GLUSmaterialList* next;
+
+} GLUSmaterialList;
+
+/**
+ * Group of geometry.
+ */
+typedef struct _GLUSgroup
+{
+		/**
+		 * Name of the group.
+		 */
+		GLUSchar name[GLUS_MAX_STRING];
+
+		/**
+		 * Name of the material.
+		 */
+		GLUSchar materialName[GLUS_MAX_STRING];
+
+		/**
+		 * Pointer to the material.
+		 */
+		GLUSmaterial* material;
+
+	    /**
+	     * Indices.
+	     */
+	    GLUSushort* indices;
+
+	    /**
+	     * Indices VBO.
+	     */
+	    GLUSuint indicesVBO;
+
+	    /**
+	     * VAO of this group.
+	     */
+	    GLUSuint vao;
+
+	    /**
+	     * Number of indices.
+	     */
+	    GLUSuint numberIndices;
+
+	    /**
+	     * Triangle render mode - could be either:
+	     *
+	     * GL_TRIANGLES
+	     * GL_TRIANGLE_STRIP
+	     */
+	    GLUSenum mode;
+
+} GLUSgroup;
+
+/**
+ * Structure for holding the group data list.
+ */
+typedef struct _GLUSgroupList
+{
+		/**
+		 * The group data.
+		 */
+		GLUSgroup group;
+
+	    /**
+	     * The pointer to the next group element.
+	     */
+	    struct _GLUSgroupList* next;
+
+} GLUSgroupList;
+
+/**
+ * Structure for a complete wavefront object file.
+ */
+typedef struct _GLUSwavefront
+{
+		/**
+		 * Vertices in homogeneous coordinates.
+		 */
+	    GLUSfloat* vertices;
+
+	    /**
+	     * Vertices VBO.
+	     */
+	    GLUSuint verticesVBO;
+
+	    /**
+	     * Normals.
+	     */
+	    GLUSfloat* normals;
+
+	    /**
+	     * Normals VBO.
+	     */
+	    GLUSuint normalsVBO;
+
+	    /**
+	     * Tangents.
+	     */
+	    GLUSfloat* tangents;
+
+	    /**
+	     * Tangents VBO.
+	     */
+	    GLUSuint tangentsVBO;
+
+	    /**
+	     * Bitangents.
+	     */
+	    GLUSfloat* bitangents;
+
+	    /**
+	     * Bitangents VBO.
+	     */
+	    GLUSuint bitangentsVBO;
+
+	    /**
+	     * Texture coordinates.
+	     */
+	    GLUSfloat* texCoords;
+
+	    /**
+	     * Texture corrdinates VBO.
+	     */
+	    GLUSuint texCoordsVBO;
+
+	    /**
+	     * Number of vertices.
+	     */
+	    GLUSuint numberVertices;
+
+	    /**
+	     * Pointer to the first element of the groups.
+	     */
+	    GLUSgroupList* groups;
+
+	    /**
+	     * Pointer to the first element of the materials.
+	     */
+	    GLUSmaterialList* materials;
+
+} GLUSwavefront;
 
 /**
  * Structure for holding line data.
@@ -2163,6 +2368,23 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line);
  * @return GLUS_TRUE, if loading succeeded.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape);
+
+/**
+ * Destroys the wavefront structure by freeing the allocated memory. VBOs, VAOs and textures are not freed.
+ *
+ * @param shape The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyGroupedObj(GLUSwavefront* wavefront);
+
+/**
+ * Loads a wavefront object file with groups and materials.
+ *
+ * @param filename The name of the wavefront file including extension.
+ * @param wavefront The data is stored into this structure.
+ *
+ * @return GLUS_TRUE, if loading succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwavefront* wavefront);
 
 //
 // Logging

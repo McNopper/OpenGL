@@ -17,9 +17,11 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-29.04.2013 Norbert Nopper (norbert@nopper.tv)
+07.05.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+07.05.2013 - Added improved wavefront object loading example
 
 29.04.2013 - Added shadow volume example
 

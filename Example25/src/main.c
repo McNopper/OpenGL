@@ -1,0 +1,431 @@
+/**
+ * OpenGL 3 - Example 25
+ *
+ * @author	Norbert Nopper norbert@nopper.tv
+ *
+ * Homepage: http://nopper.tv
+ *
+ * Copyright Norbert Nopper
+ */
+
+#include <stdio.h>
+
+#include "GL/glus.h"
+
+/**
+ * Properties of the light.
+ */
+struct LightProperties
+{
+	GLfloat direction[3];
+	GLfloat ambientColor[4];
+	GLfloat diffuseColor[4];
+	GLfloat specularColor[4];
+};
+
+/**
+ * Properties of the material, basically all the color factors without the emissive color component.
+ */
+struct MaterialProperties
+{
+	GLfloat ambientColor[4];
+	GLfloat diffuseColor[4];
+	GLfloat specularColor[4];
+	GLfloat specularExponent;
+};
+
+/**
+ * Locations for the light properties.
+ */
+struct LightLocations
+{
+	GLint directionLocation;
+	GLint ambientColorLocation;
+	GLint diffuseColorLocation;
+	GLint specularColorLocation;
+};
+
+/**
+ * Locations for the material properties. With a diffuse texture.
+ */
+struct MaterialLocations
+{
+	GLint ambientColorLocation;
+	GLint diffuseColorLocation;
+	GLint specularColorLocation;
+	GLint specularExponentLocation;
+
+	GLint diffuseTextureLocation;
+};
+
+static GLfloat g_viewMatrix[16];
+
+static GLUSshaderprogram g_program;
+
+/**
+ * The location of the projection matrix.
+ */
+static GLint g_projectionMatrixLocation;
+
+/**
+ * The location of the model view matrix.
+ */
+static GLint g_modelViewMatrixLocation;
+
+static GLint g_normalMatrixLocation;
+
+static GLint g_vertexLocation;
+
+static GLint g_normalLocation;
+
+static GLint g_texCoordLocation;
+
+static GLint g_useTextureLocation;
+
+/**
+ * The locations for the light properties.
+ */
+static struct LightLocations g_light;
+
+/**
+ * The locations for the material properties.
+ */
+static struct MaterialLocations g_material;
+
+/**
+ * This structure contains the loaded wavefront object file.
+ */
+static GLUSwavefront g_wavefront;
+
+GLUSboolean init(GLUSvoid)
+{
+	// This is a white light.
+	struct LightProperties light = { { 1.0f, 1.0f, 1.0f }, { 0.3f, 0.3f, 0.3f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } };
+
+	GLUStextfile vertexSource;
+	GLUStextfile fragmentSource;
+
+	GLUStgaimage image;
+
+	GLUSgroupList* groupWalker;
+	GLUSmaterialList* materialWalker;
+
+	glusLoadTextFile("../Example25/shader/phong_textured.vert.glsl", &vertexSource);
+	glusLoadTextFile("../Example25/shader/phong_textured.frag.glsl", &fragmentSource);
+
+	glusBuildProgramFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+
+	glusDestroyTextFile(&vertexSource);
+	glusDestroyTextFile(&fragmentSource);
+
+	//
+
+	g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
+	g_modelViewMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
+	g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
+
+	g_light.directionLocation = glGetUniformLocation(g_program.program, "u_light.direction");
+	g_light.ambientColorLocation = glGetUniformLocation(g_program.program, "u_light.ambientColor");
+	g_light.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_light.diffuseColor");
+	g_light.specularColorLocation = glGetUniformLocation(g_program.program, "u_light.specularColor");
+
+	g_material.ambientColorLocation = glGetUniformLocation(g_program.program, "u_material.ambientColor");
+	g_material.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_material.diffuseColor");
+	g_material.specularColorLocation = glGetUniformLocation(g_program.program, "u_material.specularColor");
+	g_material.specularExponentLocation = glGetUniformLocation(g_program.program, "u_material.specularExponent");
+	g_material.diffuseTextureLocation = glGetUniformLocation(g_program.program, "u_material.diffuseTexture");
+
+	g_useTextureLocation = glGetUniformLocation(g_program.program, "u_useTexture");
+
+	g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
+	g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
+	g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
+
+	//
+	// Use a helper function to load the wavefront object file.
+	//
+
+	glusLoadGroupedObjFile("ChessKing.obj", &g_wavefront);
+
+	glGenBuffers(1, &g_wavefront.verticesVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)g_wavefront.vertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &g_wavefront.normalsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)g_wavefront.normals, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &g_wavefront.texCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)g_wavefront.texCoords, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//
+	// Set up indices and the VAOs for each group
+	//
+
+	glUseProgram(g_program.program);
+
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		glGenBuffers(1, &groupWalker->group.indicesVBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.numberIndices * sizeof(GLuint), (GLuint*)groupWalker->group.indices, GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		//
+
+		glGenVertexArrays(1, &groupWalker->group.vao);
+		glBindVertexArray(groupWalker->group.vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+		glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(g_vertexLocation);
+
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
+		glVertexAttribPointer(g_normalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(g_normalLocation);
+
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+		glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(g_texCoordLocation);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+
+		glBindVertexArray(0);
+
+		groupWalker = groupWalker->next;
+	}
+
+	//
+	// Load the textures, if there are available
+	//
+
+	materialWalker = g_wavefront.materials;
+	while (materialWalker)
+	{
+		if (materialWalker->material.textureFilename[0] != '\0')
+		{
+			// Load the image.
+			glusLoadTgaImage(materialWalker->material.textureFilename, &image);
+
+			// Generate and bind a texture.
+			glGenTextures(1, &materialWalker->material.textureName);
+			glBindTexture(GL_TEXTURE_2D, materialWalker->material.textureName);
+
+			// Transfer the image data from the CPU to the GPU.
+			glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
+
+			// Setting the texture parameters.
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			materialWalker = materialWalker->next;
+		}
+	}
+
+	//
+
+	glusLookAtf(g_viewMatrix, 0.0f, 0.75f, 3.0f, 0.0f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+	//
+
+	glusVector3Normalizef(light.direction);
+
+	// Transform light to camera space, as it is currently in world space.
+	glusMatrix4x4MultiplyVector3f(light.direction, g_viewMatrix, light.direction);
+
+	// Set up light
+	glUniform3fv(g_light.directionLocation, 1, light.direction);
+	glUniform4fv(g_light.ambientColorLocation, 1, light.ambientColor);
+	glUniform4fv(g_light.diffuseColorLocation, 1, light.diffuseColor);
+	glUniform4fv(g_light.specularColorLocation, 1, light.specularColor);
+
+	//
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	glClearDepth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_CULL_FACE);
+
+	return GLUS_TRUE;
+}
+
+GLUSvoid reshape(GLUSint width, GLUSint height)
+{
+	GLfloat projectionMatrix[16];
+
+	glViewport(0, 0, width, height);
+
+	glusPerspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
+
+	// Just pass the projection matrix. The final matrix is calculated in the shader.
+	glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
+}
+
+GLUSboolean update(GLUSfloat time)
+{
+	static GLfloat angle = 0.0f;
+
+	GLfloat modelViewMatrix[16];
+	GLfloat normalMatrix[9];
+
+	GLUSgroupList* groupWalker;
+
+	glusMatrix4x4Identityf(modelViewMatrix);
+
+	glusMatrix4x4RotateRyf(modelViewMatrix, angle);
+	// Scale the model up
+	glusMatrix4x4Scalef(modelViewMatrix, 10.0f, 10.0f, 10.0f);
+
+	glusMatrix4x4Multiplyf(modelViewMatrix, g_viewMatrix, modelViewMatrix);
+
+	// Uniform scale, so extracting is sufficient
+	glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelViewMatrix);
+
+	glUniformMatrix4fv(g_modelViewMatrixLocation, 1, GL_FALSE, modelViewMatrix);
+	glUniformMatrix3fv(g_normalMatrixLocation, 1, GL_FALSE, normalMatrix);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		// Set up material values.
+		glUniform4fv(g_material.ambientColorLocation, 1, groupWalker->group.material->ambient);
+		glUniform4fv(g_material.diffuseColorLocation, 1, groupWalker->group.material->diffuse);
+		glUniform4fv(g_material.specularColorLocation, 1, groupWalker->group.material->specular);
+		glUniform1f(g_material.specularExponentLocation, groupWalker->group.material->shininess);
+
+		// Enable only texturing, if the material has a texture
+		if (groupWalker->group.material->textureName)
+		{
+		    glUniform1i(g_useTextureLocation, 1);
+		    glUniform1i(g_material.diffuseTextureLocation, 0);
+			glBindTexture(GL_TEXTURE_2D, groupWalker->group.material->textureName);
+		}
+		else
+		{
+		    glUniform1i(g_useTextureLocation, 0);
+		    glUniform1i(g_material.diffuseTextureLocation, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		glBindVertexArray(groupWalker->group.vao);
+
+		glDrawElements(GL_TRIANGLES, groupWalker->group.numberIndices, GL_UNSIGNED_INT, 0);
+
+		groupWalker = groupWalker->next;
+	}
+
+	angle += 30.0f * time;
+
+	return GLUS_TRUE;
+}
+
+GLUSvoid terminate(GLUSvoid)
+{
+	GLUSgroupList* groupWalker;
+	GLUSmaterialList* materialWalker;
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	if (g_wavefront.verticesVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.verticesVBO);
+
+		g_wavefront.verticesVBO = 0;
+	}
+
+	if (g_wavefront.normalsVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.normalsVBO);
+
+		g_wavefront.normalsVBO = 0;
+	}
+
+	if (g_wavefront.texCoordsVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.texCoordsVBO);
+
+		g_wavefront.texCoordsVBO = 0;
+	}
+
+	glBindVertexArray(0);
+
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+	    if (groupWalker->group.indicesVBO)
+	    {
+	        glDeleteBuffers(1, &groupWalker->group.indicesVBO);
+
+	        groupWalker->group.indicesVBO = 0;
+	    }
+
+		if (groupWalker->group.vao)
+		{
+			glDeleteVertexArrays(1, &groupWalker->group.vao);
+
+			groupWalker->group.vao = 0;
+		}
+
+		groupWalker = groupWalker->next;
+	}
+
+	materialWalker = g_wavefront.materials;
+	while (materialWalker)
+	{
+		if (materialWalker->material.textureName)
+		{
+			glDeleteTextures(1, &materialWalker->material.textureName);
+
+			materialWalker->material.textureName = 0;
+
+			materialWalker = materialWalker->next;
+		}
+	}
+
+	glUseProgram(0);
+
+	glusDestroyProgram(&g_program);
+
+	glusDestroyGroupedObj(&g_wavefront);
+}
+
+int main(int argc, char* argv[])
+{
+	glusInitFunc(init);
+
+	glusReshapeFunc(reshape);
+
+	glusUpdateFunc(update);
+
+	glusTerminateFunc(terminate);
+
+	glusPrepareContext(3, 2, GLUS_FORWARD_COMPATIBLE_BIT);
+
+	glusPrepareMSAA(8);
+
+	if (!glusCreateWindow("GLUS Example Window", 640, 480, 24, 0, GLUS_FALSE))
+	{
+		printf("Could not create window!\n");
+		return -1;
+	}
+
+	glusRun();
+
+	return 0;
+}

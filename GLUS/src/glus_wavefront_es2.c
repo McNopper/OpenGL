@@ -189,14 +189,176 @@ static GLUSvoid glusFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GL
 	}
 }
 
-GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape)
+
+static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
+{
+	GLUSmaterialList* currentMaterialList = 0;
+	GLUSmaterialList* nextMaterialList = 0;
+
+	if (!materialList)
+	{
+		return;
+	}
+
+	currentMaterialList = *materialList;
+	while (currentMaterialList != 0)
+	{
+		nextMaterialList = currentMaterialList->next;
+
+		memset(&currentMaterialList->material, 0, sizeof(GLUSmaterial));
+
+		free(currentMaterialList);
+
+		currentMaterialList = nextMaterialList;
+	}
+
+	*materialList = 0;
+}
+
+static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList** materialList)
+{
+	FILE* f;
+
+	GLUSchar buffer[GLUS_BUFFERSIZE];
+	GLUSchar name[GLUS_MAX_STRING];
+	GLUSchar identifier[7];
+
+	GLUSmaterialList* currentMaterialList = 0;
+
+	if (!filename || !materialList)
+	{
+		return GLUS_FALSE;
+	}
+
+	f = fopen(filename, "r");
+
+	if (!f)
+	{
+		return GLUS_FALSE;
+	}
+
+	while (!feof(f))
+	{
+		if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
+		{
+			if (ferror(f))
+			{
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		if (strncmp(buffer, "newmtl", 6) == 0)
+		{
+			GLUSmaterialList* newMaterialList = 0;
+
+			sscanf(buffer, "%s %s", identifier, name);
+
+			newMaterialList = (GLUSmaterialList*)malloc(sizeof(GLUSmaterialList));
+
+			if (!newMaterialList)
+			{
+				glusDestroyMaterial(materialList);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			memset(newMaterialList, 0, sizeof(GLUSmaterialList));
+
+			strcpy(newMaterialList->material.name, name);
+
+			if (*materialList == 0)
+			{
+				*materialList = newMaterialList;
+			}
+			else
+			{
+				currentMaterialList->next = newMaterialList;
+			}
+
+			currentMaterialList = newMaterialList;
+		}
+		else if (strncmp(buffer, "ke", 2) == 0)
+		{
+			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.emissive[0], &currentMaterialList->material.emissive[1], &currentMaterialList->material.emissive[2]);
+
+			currentMaterialList->material.emissive[3] = 1.0f;
+		}
+		else if (strncmp(buffer, "ka", 2) == 0)
+		{
+			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.ambient[0], &currentMaterialList->material.ambient[1], &currentMaterialList->material.ambient[2]);
+
+			currentMaterialList->material.ambient[3] = 1.0f;
+		}
+		else if (strncmp(buffer, "kd", 2) == 0)
+		{
+			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.diffuse[0], &currentMaterialList->material.diffuse[1], &currentMaterialList->material.diffuse[2]);
+
+			currentMaterialList->material.diffuse[3] = 1.0f;
+		}
+		else if (strncmp(buffer, "ks", 2) == 0)
+		{
+			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.specular[0], &currentMaterialList->material.specular[1], &currentMaterialList->material.specular[2]);
+
+			currentMaterialList->material.specular[3] = 1.0f;
+		}
+		else if (strncmp(buffer, "Ns", 2) == 0)
+		{
+			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.shininess);
+		}
+		else if (strncmp(buffer, "map_kd", 6) == 0)
+		{
+			sscanf(buffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.textureFilename, name);
+		}
+	}
+
+	fclose(f);
+
+	return GLUS_TRUE;
+}
+
+static GLUSvoid glusDestroyGroup(GLUSgroupList** groupList)
+{
+	GLUSgroupList* currentGroupList = 0;
+	GLUSgroupList* nextGroupList = 0;
+
+	if (!groupList)
+	{
+		return;
+	}
+
+	currentGroupList = *groupList;
+	while (currentGroupList != 0)
+	{
+		nextGroupList = currentGroupList->next;
+
+		if (currentGroupList->group.indices)
+		{
+			free(currentGroupList->group.indices);
+		}
+		memset(&currentGroupList->group, 0, sizeof(GLUSgroup));
+
+		free(currentGroupList);
+
+		currentGroupList = nextGroupList;
+	}
+
+	*groupList = 0;
+}
+
+static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
 {
 	GLUSboolean result;
 
     FILE* f;
 
     GLUSchar buffer[GLUS_BUFFERSIZE];
-    GLUSchar identifier[3];
+    GLUSchar identifier[7];
 
     GLUSfloat x, y, z;
     GLUSfloat s, t;
@@ -218,6 +380,16 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
     GLUSuint totalNumberTexCoords= 0;
 
     GLUSuint facesEncoding = 0;
+
+	// Material and groups
+
+	GLUSchar name[GLUS_MAX_STRING];
+
+	GLUSuint numberIndicesGroup = 0;
+	GLUSuint numberMaterials = 0;
+	GLUSuint numberGroups = 0;
+
+	GLUSgroupList* currentGroupList = 0;
 
     if (!filename || !shape)
     {
@@ -255,6 +427,93 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
                 return GLUS_FALSE;
         	}
         }
+
+		if (wavefront)
+		{
+			if (strncmp(buffer, "mtllib", 6) == 0)
+			{
+				sscanf(buffer, "%s %s", identifier, name);
+
+				if (numberMaterials == 0)
+				{
+					wavefront->materials = 0;
+				}
+
+				if (!glusLoadMaterial(name, &wavefront->materials))
+				{
+					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+					fclose(f);
+
+					return GLUS_FALSE;
+				}
+
+				numberMaterials++;
+			}
+			else if (strncmp(buffer, "usemtl", 6) == 0)
+			{
+				if (!currentGroupList)
+				{
+					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+					fclose(f);
+
+					return GLUS_FALSE;
+				}
+
+				sscanf(buffer, "%s %s", identifier, name);
+
+				strcpy(currentGroupList->group.materialName, name);
+			}
+			else if (strncmp(buffer, "g", 1) == 0)
+			{
+				GLUSgroupList* newGroupList;
+
+				sscanf(buffer, "%s %s", identifier, name);
+
+				newGroupList = (GLUSgroupList*)malloc(sizeof(GLUSgroupList));
+
+				if (!newGroupList)
+				{
+					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+					fclose(f);
+
+					return GLUS_FALSE;
+				}
+
+				memset(newGroupList, 0, sizeof(GLUSgroupList));
+
+				strcpy(newGroupList->group.name, name);
+
+				if (numberGroups == 0)
+				{
+					wavefront->groups = newGroupList;
+				}
+				else
+				{
+					if (!currentGroupList)
+					{
+						free(newGroupList);
+
+						glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+						fclose(f);
+
+						return GLUS_FALSE;
+					}
+
+					currentGroupList->next = newGroupList;
+
+					currentGroupList->group.numberIndices = numberIndicesGroup;
+					numberIndicesGroup = 0;
+				}
+
+				currentGroupList = newGroupList;
+
+				numberGroups++;
+			}
+		}
 
         if (strncmp(buffer, "vt", 2) == 0)
         {
@@ -401,6 +660,7 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
                         memcpy(&triangleVertices[4*totalNumberVertices], &vertices[4*vIndex], 4*sizeof(GLUSfloat));
 
                         totalNumberVertices++;
+                        numberIndicesGroup++;
                     }
                     else
                     {
@@ -418,6 +678,7 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
                         memcpy(&triangleVertices[4*(totalNumberVertices+2)], &vertices[4*vIndex], 4*sizeof(GLUSfloat));
 
                         totalNumberVertices += 3;
+                        numberIndicesGroup +=3;
                     }
                 }
                 if (vnIndex >= 0)
@@ -500,6 +761,12 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
 
     fclose(f);
 
+	if (wavefront && currentGroupList)
+	{
+		currentGroupList->group.numberIndices = numberIndicesGroup;
+		numberIndicesGroup = 0;
+	}
+
     result = glusCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
 
     glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
@@ -510,4 +777,121 @@ GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* sh
     }
 
     return result;
+}
+
+
+GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape)
+{
+	return glusParseObjFile(filename, shape, 0);
+}
+
+GLUSvoid GLUSAPIENTRY glusDestroyGroupedObj(GLUSwavefront* wavefront)
+{
+	if (!wavefront)
+	{
+		return;
+	}
+
+	glusDestroyMaterial(&wavefront->materials);
+	glusDestroyGroup(&wavefront->groups);
+
+	if (wavefront->vertices)
+	{
+		free(wavefront->vertices);
+
+		wavefront->vertices = 0;
+	}
+
+	if (wavefront->normals)
+	{
+		free(wavefront->normals);
+
+		wavefront->normals = 0;
+	}
+
+	if (wavefront->texCoords)
+	{
+		free(wavefront->texCoords);
+
+		wavefront->texCoords = 0;
+	}
+
+	if (wavefront->tangents)
+	{
+		free(wavefront->tangents);
+
+		wavefront->tangents = 0;
+	}
+
+	if (wavefront->bitangents)
+	{
+		free(wavefront->bitangents);
+
+		wavefront->bitangents = 0;
+	}
+
+	memset(wavefront, 0, sizeof(GLUSwavefront));
+}
+
+GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwavefront* wavefront)
+{
+	GLUSshape dummyShape;
+
+	GLUSmaterialList* materialWalker;
+	GLUSgroupList* groupWalker;
+
+	GLUSuint i;
+	GLUSushort counter = 0;
+
+	if (!glusParseObjFile(filename, &dummyShape, wavefront))
+	{
+		glusDestroyGroupedObj(wavefront);
+
+		return GLUS_FALSE;
+	}
+
+	wavefront->vertices = dummyShape.vertices;
+	wavefront->normals = dummyShape.normals;
+	wavefront->texCoords = dummyShape.texCoords;
+	wavefront->tangents = dummyShape.tangents;
+	wavefront->bitangents = dummyShape.bitangents;
+	wavefront->numberVertices = dummyShape.numberVertices;
+
+	free(dummyShape.indices);
+
+	groupWalker = wavefront->groups;
+	while (groupWalker)
+	{
+		groupWalker->group.indices = (GLUSushort*)malloc(groupWalker->group.numberIndices * sizeof(GLUSushort));
+
+		if (!groupWalker->group.indices)
+		{
+			glusDestroyGroupedObj(wavefront);
+
+			return GLUS_FALSE;
+		}
+
+		for (i = 0; i < groupWalker->group.numberIndices; i++)
+		{
+			groupWalker->group.indices[i] = counter++;
+		}
+
+		materialWalker = wavefront->materials;
+
+		while (materialWalker)
+		{
+			if (strcmp(materialWalker->material.name, groupWalker->group.materialName) == 0)
+			{
+				groupWalker->group.material = &materialWalker->material;
+
+				break;
+			}
+
+			materialWalker = materialWalker->next;
+		}
+
+		groupWalker = groupWalker->next;
+	}
+
+	return GLUS_TRUE;
 }
