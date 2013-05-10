@@ -345,11 +345,6 @@ typedef struct _GLUSgroup
 	    GLUSuint indicesVBO;
 
 	    /**
-	     * VAO of this group.
-	     */
-	    GLUSuint vao;
-
-	    /**
 	     * Number of indices.
 	     */
 	    GLUSuint numberIndices;
