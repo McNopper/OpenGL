@@ -308,7 +308,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
 
     if (triangleStrip)
     {
-		for (i = 0; i < rows * (columns + 1); i++)
+		for (i = 0; i < (GLUSuint)(rows * (columns + 1)); i++)
 		{
 			currentColumn = i % (columns + 1);
 			currentRow = i / (columns + 1);
@@ -329,7 +329,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
     }
     else
     {
-    	for (i = 0; i < rows * columns; i++)
+    	for (i = 0; i < (GLUSuint)(rows * columns); i++)
     	{
 			currentColumn = i % columns;
 			currentRow = i / columns;
@@ -414,7 +414,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radiu
 
     vertexCounter++;
 
-    for (i = 0; i < numberSectors + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberSectors + 1); i++)
     {
     	GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
@@ -571,7 +571,7 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
 {
     GLUSuint i, j;
 
-    GLUSuint numberParallels = numberSlices / 2;
+    GLUSushort numberParallels = numberSlices / 2;
     GLUSuint numberVertices = (numberParallels + 1) * (numberSlices + 1);
     GLUSuint numberIndices = numberParallels * numberSlices * 6;
 
@@ -611,9 +611,9 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
         return GLUS_FALSE;
     }
 
-    for (i = 0; i < numberParallels + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberParallels + 1); i++)
     {
-        for (j = 0; j < numberSlices + 1; j++)
+        for (j = 0; j < (GLUSuint)(numberSlices + 1); j++)
         {
             GLUSuint vertexIndex = (i * (numberSlices + 1) + j) * 4;
             GLUSuint normalIndex = (i * (numberSlices + 1) + j) * 3;
@@ -709,9 +709,9 @@ GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radiu
         return GLUS_FALSE;
     }
 
-    for (i = 0; i < numberParallels + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberParallels + 1); i++)
     {
-        for (j = 0; j < numberSlices + 1; j++)
+        for (j = 0; j < (GLUSuint)(numberSlices + 1); j++)
         {
             GLUSuint vertexIndex = (i * (numberSlices + 1) + j) * 4;
             GLUSuint normalIndex = (i * (numberSlices + 1) + j) * 3;
@@ -974,7 +974,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
     vertexCounter++;
 
     // Bottom
-    for (i = 0; i < numberSlices + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberSlices + 1); i++)
     {
     	GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
@@ -1017,7 +1017,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
     vertexCounter++;
 
     // Top
-    for (i = 0; i < numberSlices + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberSlices + 1); i++)
     {
     	GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
@@ -1040,7 +1040,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
 		vertexCounter++;
     }
 
-    for (i = 0; i < numberSlices + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberSlices + 1); i++)
     {
 		GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
@@ -1190,7 +1190,7 @@ GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfE
     vertexCounter++;
 
     // Bottom
-    for (i = 0; i < numberSlices + 1; i++)
+    for (i = 0; i < (GLUSuint)(numberSlices + 1); i++)
     {
     	GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
@@ -1213,11 +1213,11 @@ GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfE
 		vertexCounter++;
     }
 
-	for (j = 0; j < numberStacks + 1; j++)
+	for (j = 0; j < (GLUSuint)(numberStacks + 1); j++)
     {
 		GLUSfloat level = (GLUSfloat)j / (GLUSfloat)numberStacks;
 
-		for (i = 0; i < numberSlices + 1; i++)
+		for (i = 0; i < (GLUSuint)(numberSlices + 1); i++)
 		{
 			GLUSfloat currentAngle = angleStep * (GLUSfloat)i;
 
