@@ -1291,6 +1291,37 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3Identityf(GLUSfloat matrix[9]);
 GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2Identityf(GLUSfloat matrix[4]);
 
 /**
+ * Initializes the given 4x4 matrix with the provided column vectors.
+ *
+ * @param matrix The matrix, which is initalized with the given column vectors.
+ * @param column0 The first column of the matrix.
+ * @param column1 The second column of the matrix.
+ * @param column2 The third column of the matrix.
+ * @param column3 The fourth column of the matrix.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4Initf(GLUSfloat matrix[16], const GLUSfloat column0[4], const GLUSfloat column1[4], const GLUSfloat column2[4], const GLUSfloat column3[4]);
+
+/**
+ * Initializes the given 3x3 matrix with the provided column vectors.
+ *
+ * @param matrix The matrix, which is initalized with the given column vectors.
+ * @param column0 The first column of the matrix.
+ * @param column1 The second column of the matrix.
+ * @param column2 The third column of the matrix.
+ */
+
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3Initf(GLUSfloat matrix[9], const GLUSfloat column0[3], const GLUSfloat column1[3], const GLUSfloat column2[3]);
+
+/**
+ * Initializes the given 2x2 matrix with the provided column vectors.
+ *
+ * @param matrix The matrix, which is initalized with the given column vectors.
+ * @param column0 The first column of the matrix.
+ * @param column1 The second column of the matrix.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2Initf(GLUSfloat matrix[4], const GLUSfloat column0[2], const GLUSfloat column1[2]);
+
+/**
  * Copies a 4x4 matrix.
  *
  * @param matrix The destination matrix.

@@ -137,6 +137,53 @@ GLUSvoid GLUSAPIENTRY glusMatrix2x2Identityf(GLUSfloat matrix[4])
     matrix[3] = 1.0f;
 }
 
+GLUSvoid GLUSAPIENTRY glusMatrix4x4Initf(GLUSfloat matrix[16], const GLUSfloat column0[4], const GLUSfloat column1[4], const GLUSfloat column2[4], const GLUSfloat column3[4])
+{
+    matrix[0] = column0[0];
+    matrix[1] = column0[1];
+    matrix[2] = column0[2];
+    matrix[3] = column0[3];
+
+    matrix[4] = column1[0];
+    matrix[5] = column1[1];
+    matrix[6] = column1[2];
+    matrix[7] = column1[3];
+
+    matrix[8] = column2[0];
+    matrix[9] = column2[1];
+    matrix[10] = column2[2];
+    matrix[11] = column2[3];
+
+    matrix[12] = column3[0];
+    matrix[13] = column3[1];
+    matrix[14] = column3[2];
+    matrix[15] = column3[3];
+}
+
+GLUSvoid GLUSAPIENTRY glusMatrix3x3Initf(GLUSfloat matrix[9], const GLUSfloat column0[3], const GLUSfloat column1[3], const GLUSfloat column2[3])
+{
+    matrix[0] = column0[0];
+    matrix[1] = column0[1];
+    matrix[2] = column0[2];
+
+    matrix[3] = column1[0];
+    matrix[4] = column1[1];
+    matrix[5] = column1[2];
+
+    matrix[6] = column2[0];
+    matrix[7] = column2[1];
+    matrix[8] = column2[2];
+}
+
+GLUSvoid GLUSAPIENTRY glusMatrix2x2Initf(GLUSfloat matrix[4], const GLUSfloat column0[2], const GLUSfloat column1[2])
+{
+    matrix[0] = column0[0];
+    matrix[1] = column0[1];
+
+    matrix[2] = column0[1];
+    matrix[3] = column1[1];
+}
+
 GLUSvoid GLUSAPIENTRY glusMatrix4x4Copyf(GLUSfloat matrix[16], const GLUSfloat source[16], const GLUSboolean rotationOnly)
 {
     GLUSint i;
