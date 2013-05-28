@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset)
+GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset)
 {
 	GLUSuint i;
 
@@ -42,14 +42,14 @@ GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sXS
 
 	for (i = 0; i < shape->numberVertices; i++)
 	{
-		shape->texCoords[2 * i + 0] = shape->vertices[4 * i + 0] * sXScale + shape->vertices[4 * i + 2] * sZScale + sOffset;
-		shape->texCoords[2 * i + 1] = shape->vertices[4 * i + 1] * tYScale + shape->vertices[4 * i + 2] * tZScale + tOffset;
+		shape->texCoords[2 * i + 0] = shape->vertices[4 * i + 0] * sSizeX + shape->vertices[4 * i + 2] * sSizeZ + sOffset;
+		shape->texCoords[2 * i + 1] = shape->vertices[4 * i + 1] * tSizeY + shape->vertices[4 * i + 2] * tSizeZ + tOffset;
 	}
 
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4])
+GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset)
 {
 	GLUSuint i;
 
@@ -74,8 +74,8 @@ GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat s
 
 	for (i = 0; i < shape->numberVertices; i++)
 	{
-		shape->texCoords[2 * i + 0] = glusPlaneDistancePoint4f(sPlane, &shape->vertices[4 * i]);
-		shape->texCoords[2 * i + 1] = glusPlaneDistancePoint4f(tPlane, &shape->vertices[4 * i]);
+		shape->texCoords[2 * i + 0] = glusPlaneDistancePoint4f(sPlane, &shape->vertices[4 * i]) * sSize + sOffset;
+		shape->texCoords[2 * i + 1] = glusPlaneDistancePoint4f(tPlane, &shape->vertices[4 * i]) * tSize + tOffset;
 	}
 
 	return GLUS_TRUE;

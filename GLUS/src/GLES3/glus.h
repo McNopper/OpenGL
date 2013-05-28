@@ -2328,16 +2328,16 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape);
  * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
  *
  * @param shape 	The shape, where the texture coordinates are created.
- * @param sXScale 	Scaling in the s texture coordinate, considering x coordinate.
- * @param sZScale 	Scaling in the s texture coordinate, considering z coordinate.
- * @param tYScale 	Scaling in the t texture coordinate, considering y coordinate.
- * @param tZScale 	Scaling in the t texture coordinate, considering z coordinate.
+ * @param sSizeX 	Size of the s texture coordinate, considering x axis.
+ * @param sSizeZ 	Size of the s texture coordinate, considering z axis.
+ * @param tSizeY 	Size of the t texture coordinate, considering y axis.
+ * @param tSizeZ 	Size of the t texture coordinate, considering z axis.
  * @param sOffset 	Offset in the s texture coordinate direction.
  * @param tOffset 	Offset in the t texture coordinate direction.
  *
  * @return GLUS_TURE. if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset);
 
 /**
  * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
@@ -2345,10 +2345,14 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSf
  * @param shape 	The shape, where the texture coordinates are created.
  * @param sPlane 	The plane for calculating the s coordinate.
  * @param tPlane 	The plane for calculating the t coordinate.
+ * @param sSize 	The size in s direction.
+ * @param tSize 	The size in t direction.
+ * @param sOffset 	The offset in s direction.
+ * @param tOffset 	The offset in t direction.
  *
  * @return GLUS_TURE. if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset);
 
 //
 // Line / geometry functions.
