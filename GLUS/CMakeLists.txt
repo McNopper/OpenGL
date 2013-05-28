@@ -94,6 +94,7 @@ list(APPEND ONLY_GL_C_FILES 	${GLUS_SOURCE_DIR}/src/glus_glfw.c
 # Files not for OpenGL ES 2.0 context
 list(APPEND NOT_GLES2_C_FILES	${GLUS_SOURCE_DIR}/src/glus_line.c
 								${GLUS_SOURCE_DIR}/src/glus_shape.c
+								${GLUS_SOURCE_DIR}/src/glus_shape_texgen.c
 								${GLUS_SOURCE_DIR}/src/glus_wavefront.c						
 )
 
