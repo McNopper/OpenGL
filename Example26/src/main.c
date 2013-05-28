@@ -153,7 +153,7 @@ GLUSboolean init(GLUSvoid)
     glusLoadObjFile("bunny.obj", &wavefrontObj);
 
     // This model does not have any texture coordinates, so generate them.
-    glusTexGenf(&wavefrontObj, 2.0f, 2.0f, 2.0f, 2.0f, 0.0f, 0.0f);
+    glusTexGenByAxesf(&wavefrontObj, 2.0f, 2.0f, 2.0f, 2.0f, 0.0f, 0.0f);
 
     g_numberVertices = wavefrontObj.numberVertices;
 

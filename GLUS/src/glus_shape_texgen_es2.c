@@ -17,11 +17,9 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset)
+GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset)
 {
-	GLUSuint i, k;
-
-	GLUSfloat v[3];
+	GLUSuint i;
 
 	if (!shape)
 	{
@@ -44,13 +42,40 @@ GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sXScale, 
 
 	for (i = 0; i < shape->numberVertices; i++)
 	{
-		for (k = 0; k < 3; k++)
-		{
-			v[k] = shape->vertices[4 * i + k];
-		}
+		shape->texCoords[2 * i + 0] = shape->vertices[4 * i + 0] * sXScale + shape->vertices[4 * i + 2] * sZScale + sOffset;
+		shape->texCoords[2 * i + 1] = shape->vertices[4 * i + 1] * tYScale + shape->vertices[4 * i + 2] * tZScale + tOffset;
+	}
 
-		shape->texCoords[2 * i + 0] = v[0] * sXScale + v[2] * sZScale + sOffset;
-		shape->texCoords[2 * i + 1] = v[1] * tYScale + v[2] * tZScale + tOffset;
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4])
+{
+	GLUSuint i;
+
+	if (!shape)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (shape->texCoords)
+	{
+		free(shape->texCoords);
+
+		shape->texCoords = 0;
+	}
+
+	shape->texCoords = (GLUSfloat*)malloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+
+	if (!shape->texCoords)
+	{
+		return GLUS_FALSE;
+	}
+
+	for (i = 0; i < shape->numberVertices; i++)
+	{
+		shape->texCoords[2 * i + 0] = glusPlaneDistancePoint4f(sPlane, &shape->vertices[4 * i]);
+		shape->texCoords[2 * i + 1] = glusPlaneDistancePoint4f(tPlane, &shape->vertices[4 * i]);
 	}
 
 	return GLUS_TRUE;

@@ -2383,7 +2383,18 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyS
  *
  * @return GLUS_TURE. if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset);
+
+/**
+ * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
+ *
+ * @param shape 	The shape, where the texture coordinates are created.
+ * @param sPlane 	The plane for calculating the s coordinate.
+ * @param tPlane 	The plane for calculating the t coordinate.
+ *
+ * @return GLUS_TURE. if creation succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4]);
 
 //
 // Line / geometry functions.
