@@ -2328,14 +2328,16 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape);
  * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
  *
  * @param shape 	The shape, where the texture coordinates are created.
- * @param sScale 	Scaling in the s texture coordinate.
- * @param tScale 	Scaling in the t texture coordinate.
+ * @param sXScale 	Scaling in the s texture coordinate, considering x coordinate.
+ * @param sZScale 	Scaling in the s texture coordinate, considering z coordinate.
+ * @param tYScale 	Scaling in the t texture coordinate, considering y coordinate.
+ * @param tZScale 	Scaling in the t texture coordinate, considering z coordinate.
  * @param sOffset 	Offset in the s texture coordinate direction.
  * @param tOffset 	Offset in the t texture coordinate direction.
  *
  * @return GLUS_TURE. if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sScale, const GLUSfloat tScale, const GLUSfloat sOffset, const GLUSfloat tOffset);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset);
 
 //
 // Line / geometry functions.

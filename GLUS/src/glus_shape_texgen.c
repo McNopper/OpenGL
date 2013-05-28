@@ -17,14 +17,11 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sScale, const GLUSfloat tScale, const GLUSfloat sOffset, const GLUSfloat tOffset)
+GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sXScale, const GLUSfloat sZScale, const GLUSfloat tYScale, const GLUSfloat tZScale, const GLUSfloat sOffset, const GLUSfloat tOffset)
 {
 	GLUSuint i, k;
 
-	GLUSfloat v[2];
-
-	GLUSfloat min[2];
-	GLUSfloat max[2];
+	GLUSfloat v[3];
 
 	if (!shape)
 	{
@@ -47,38 +44,13 @@ GLUSboolean GLUSAPIENTRY glusTexGenf(GLUSshape* shape, const GLUSfloat sScale, c
 
 	for (i = 0; i < shape->numberVertices; i++)
 	{
-		if (i == 0)
+		for (k = 0; k < 3; k++)
 		{
-			for (k = 0; k < 2; k++)
-			{
-				min[k] = max[k] = shape->vertices[4 * i + k];
-			}
-		}
-		else
-		{
-			for (k = 0; k < 2; k++)
-			{
-				if (shape->vertices[4 * i + k] < min[k])
-				{
-					min[k] = shape->vertices[4 * i + k];
-				}
-				else if (shape->vertices[4 * i + k] > max[k])
-				{
-					max[k] = shape->vertices[4 * i + k];
-				}
-			}
-		}
-	}
-
-	for (i = 0; i < shape->numberVertices; i++)
-	{
-		for (k = 0; k < 2; k++)
-		{
-			v[k] = (shape->vertices[4 * i + k] - min[k]) / (max[k] - min[k]);
+			v[k] = shape->vertices[4 * i + k];
 		}
 
-		shape->texCoords[2 * i + 0] = v[0] * sScale + sOffset;
-		shape->texCoords[2 * i + 1] = v[1] * tScale + tOffset;
+		shape->texCoords[2 * i + 0] = v[0] * sXScale + v[2] * sZScale + sOffset;
+		shape->texCoords[2 * i + 1] = v[1] * tYScale + v[2] * tZScale + tOffset;
 	}
 
 	return GLUS_TRUE;
