@@ -10,7 +10,7 @@ struct LightProperties
 
 uniform	LightProperties u_light;
 
-uniform sampler2D u_texture;
+uniform sampler2D u_textureFurColor;
 
 in vec3 v_normal;
 in vec2 v_texCoord;
@@ -22,7 +22,7 @@ void main()
 {
 	// Note: All calculations are in camera space.
 	
-	vec4 textureColor = texture(u_texture, v_texCoord);
+	vec4 textureColor = texture(u_textureFurColor, v_texCoord);
 
 	vec4 color = u_light.ambientColor * textureColor;
 
