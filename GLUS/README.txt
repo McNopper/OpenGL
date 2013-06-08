@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-07.05.2013 Norbert Nopper (norbert@nopper.tv)
+06.06.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+06.06.2013 - Added latest GLFW (2.7.9)
 
 07.05.2013 - Added improved wavefront object file loader. Now supports groups and materials.
 
