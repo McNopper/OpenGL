@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 // We receive a quad
 layout(quads) in;

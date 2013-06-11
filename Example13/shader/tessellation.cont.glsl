@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 // Working with quads, so four vertices out
 layout(vertices = 4) out;

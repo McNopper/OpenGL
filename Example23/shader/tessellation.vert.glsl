@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 in vec4 a_vertex;
 in vec3 a_tangent;

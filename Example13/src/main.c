@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 
 	glusTerminateFunc(terminate);
 
-	glusPrepareContext(4, 2, GLUS_FORWARD_COMPATIBLE_BIT);
+	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
 
 	if (!glusCreateWindow("GLUS Example Window", 640, 480, 0, 0, GLUS_FALSE))
 	{

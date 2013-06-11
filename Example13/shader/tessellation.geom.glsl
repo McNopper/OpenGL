@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 // Create as the outcome a line loop
 layout(line_strip, max_vertices = 4) out;

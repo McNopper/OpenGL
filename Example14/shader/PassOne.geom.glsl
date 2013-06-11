@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 layout(points, invocations = 1) in;
 layout(points, max_vertices = 64) out;

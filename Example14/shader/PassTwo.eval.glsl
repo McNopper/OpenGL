@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 
 layout(quads, equal_spacing, ccw) in;
 
