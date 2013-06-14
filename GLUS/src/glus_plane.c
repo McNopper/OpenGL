@@ -44,3 +44,24 @@ GLUSfloat GLUSAPIENTRY glusPlaneDistancePoint4f(const GLUSfloat plane[4], const 
 {
 	return glusVector3Dotf(plane, point) + plane[3];
 }
+
+GLUSvoid GLUSAPIENTRY glusPlaneGetPoint4f(GLUSfloat point[4], const GLUSfloat plane[4])
+{
+	point[0] = 0.0f;
+	point[1] = 0.0f;
+	point[2] = 0.0f;
+	point[3] = 1.0f;
+
+	if (plane[0] != 0.0f)
+	{
+		point[0] = -plane[3] / plane[0];
+	}
+	else if (plane[1] != 0.0f)
+	{
+		point[1] = -plane[3] / plane[1];
+	}
+	else if (plane[2] != 0.0f)
+	{
+		point[2] = -plane[3] / plane[2];
+	}
+}

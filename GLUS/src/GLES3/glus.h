@@ -1120,6 +1120,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusPlaneCreatef(GLUSfloat result[4], const GLUSfl
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusPlaneDistancePoint4f(const GLUSfloat plane[4], const GLUSfloat point[4]);
 
+/**
+ * Calculates a point on the given plane, located around the origin.
+ *
+ * @param point The resulting point.
+ * @param plane The used plane.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPlaneGetPoint4f(GLUSfloat point[4], const GLUSfloat plane[4]);
+
 //
 // Math functions
 //
@@ -1266,28 +1274,28 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusLookAtf(GLUSfloat result[16], const GLUSfloat 
 /**
  * Creates the projection matrix to simulate a planar shadow coming from a point / spot light.
  *
- * @param result The matrix, which is set to the projection matrix.
+ * @param matrix The matrix, which is set to the projection matrix.
  * @param shadowPlane The shadow receiver plane.
  * @param lightPoint The origin of the light.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarShadowPointLightf(GLUSfloat result[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightPoint[4]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarShadowPointLightf(GLUSfloat matrix[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightPoint[4]);
 
 /**
  * Creates the projection matrix to simulate a planar shadow coming from a directional light.
  *
- * @param result The matrix, which is set to the projection matrix.
+ * @param matrix The matrix, which is set to the projection matrix.
  * @param shadowPlane The shadow receiver plane.
  * @param lightDirection The direction of the light, pointing towards the light source.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarShadowDirectionalLightf(GLUSfloat result[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightDirection[3]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarShadowDirectionalLightf(GLUSfloat matrix[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightDirection[3]);
 
 /**
  * Creates the projection matrix to simulate a planar reflection.
  *
- * @param result The matrix, which is set to the projection matrix.
+ * @param matrix The matrix, which is set to the projection matrix.
  * @param reflectionPlane The reflecting plane.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarReflectionf(GLUSfloat result[16], const GLUSfloat reflectionPlane[4]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPlanarReflectionf(GLUSfloat matrix[16], const GLUSfloat reflectionPlane[4]);
 
 //
 // Matrix functions.

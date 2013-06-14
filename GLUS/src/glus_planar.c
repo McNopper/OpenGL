@@ -17,66 +17,71 @@
 
 #include "GL/glus.h"
 
-GLUSvoid GLUSAPIENTRY glusPlanarShadowPointLightf(GLUSfloat result[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightPoint[4])
+GLUSvoid GLUSAPIENTRY glusPlanarShadowPointLightf(GLUSfloat matrix[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightPoint[4])
 {
-	float nDotL = glusVector3Dotf(shadowPlane, lightPoint);
+	GLUSfloat nDotL = glusVector3Dotf(shadowPlane, lightPoint);
 
-	result[0] = nDotL + shadowPlane[3] - lightPoint[0] * shadowPlane[0];
-	result[1] = -lightPoint[1] * shadowPlane[0];
-	result[2] = -lightPoint[2] * shadowPlane[0];
-	result[3] = -shadowPlane[0];
+	matrix[0] = nDotL + shadowPlane[3] - lightPoint[0] * shadowPlane[0];
+	matrix[1] = -lightPoint[1] * shadowPlane[0];
+	matrix[2] = -lightPoint[2] * shadowPlane[0];
+	matrix[3] = -shadowPlane[0];
 
-	result[4] = -lightPoint[0] * shadowPlane[1];
-	result[5] = nDotL + shadowPlane[3] - lightPoint[1] * shadowPlane[1];
-	result[6] = -lightPoint[2] * shadowPlane[1];
-	result[7] = -shadowPlane[1];
+	matrix[4] = -lightPoint[0] * shadowPlane[1];
+	matrix[5] = nDotL + shadowPlane[3] - lightPoint[1] * shadowPlane[1];
+	matrix[6] = -lightPoint[2] * shadowPlane[1];
+	matrix[7] = -shadowPlane[1];
 
-	result[8] = -lightPoint[0] * shadowPlane[2];
-	result[9] = -lightPoint[1] * shadowPlane[2];
-	result[10] = nDotL + shadowPlane[3] - lightPoint[2] * shadowPlane[2];
-	result[11] = -shadowPlane[2];
+	matrix[8] = -lightPoint[0] * shadowPlane[2];
+	matrix[9] = -lightPoint[1] * shadowPlane[2];
+	matrix[10] = nDotL + shadowPlane[3] - lightPoint[2] * shadowPlane[2];
+	matrix[11] = -shadowPlane[2];
 
-	result[12] = -lightPoint[0] * shadowPlane[3];
-	result[13] = -lightPoint[1] * shadowPlane[3];
-	result[14] = -lightPoint[2] * shadowPlane[3];
-	result[15] = nDotL;
+	matrix[12] = -lightPoint[0] * shadowPlane[3];
+	matrix[13] = -lightPoint[1] * shadowPlane[3];
+	matrix[14] = -lightPoint[2] * shadowPlane[3];
+	matrix[15] = nDotL;
 }
 
-GLUSvoid GLUSAPIENTRY glusPlanarShadowDirectionalLightf(GLUSfloat result[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightDirection[3])
+GLUSvoid GLUSAPIENTRY glusPlanarShadowDirectionalLightf(GLUSfloat matrix[16], const GLUSfloat shadowPlane[4], const GLUSfloat lightDirection[3])
 {
-	float lightDirectionNormalized[3];
+	GLUSfloat lightDirectionNormalized[3];
 
-	float nDotL = glusVector3Dotf(shadowPlane, lightDirection);
+	GLUSfloat nDotL;
 
 	glusVector3Copyf(lightDirectionNormalized, lightDirection);
 	glusVector3Normalizef(lightDirectionNormalized);
 
-	result[0] = nDotL - lightDirectionNormalized[0] * shadowPlane[0];
-	result[1] = -lightDirectionNormalized[1] * shadowPlane[0];
-	result[2] = -lightDirectionNormalized[2] * shadowPlane[0];
-	result[3] = shadowPlane[0] * lightDirectionNormalized[0];
+	nDotL = glusVector3Dotf(shadowPlane, lightDirectionNormalized);
 
-	result[4] = -lightDirectionNormalized[0] * shadowPlane[1];
-	result[5] = nDotL - lightDirectionNormalized[1] * shadowPlane[1];
-	result[6] = -lightDirectionNormalized[2] * shadowPlane[1];
-	result[7] = shadowPlane[1] * lightDirectionNormalized[1];
+	matrix[0] = nDotL - lightDirectionNormalized[0] * shadowPlane[0];
+	matrix[1] = -lightDirectionNormalized[1] * shadowPlane[0];
+	matrix[2] = -lightDirectionNormalized[2] * shadowPlane[0];
+	matrix[3] = 0.0f;
 
-	result[8] = -lightDirectionNormalized[0] * shadowPlane[2];
-	result[9] = -lightDirectionNormalized[1] * shadowPlane[2];
-	result[10] = nDotL - lightDirectionNormalized[2] * shadowPlane[2];
-	result[11] = shadowPlane[2] * lightDirectionNormalized[2];
+	matrix[4] = -lightDirectionNormalized[0] * shadowPlane[1];
+	matrix[5] = nDotL - lightDirectionNormalized[1] * shadowPlane[1];
+	matrix[6] = -lightDirectionNormalized[2] * shadowPlane[1];
+	matrix[7] = 0.0f;
 
-	result[12] = -lightDirectionNormalized[0] * shadowPlane[3];
-	result[13] = -lightDirectionNormalized[1] * shadowPlane[3];
-	result[14] = -lightDirectionNormalized[2] * shadowPlane[3];
-	result[15] = 0.0f;
+	matrix[8] = -lightDirectionNormalized[0] * shadowPlane[2];
+	matrix[9] = -lightDirectionNormalized[1] * shadowPlane[2];
+	matrix[10] = nDotL - lightDirectionNormalized[2] * shadowPlane[2];
+	matrix[11] = 0.0f;
+
+	matrix[12] = -lightDirectionNormalized[0] * shadowPlane[3];
+	matrix[13] = -lightDirectionNormalized[1] * shadowPlane[3];
+	matrix[14] = -lightDirectionNormalized[2] * shadowPlane[3];
+	matrix[15] = nDotL;
 }
 
-GLUSvoid GLUSAPIENTRY glusPlanarReflectionf(GLUSfloat result[16], const GLUSfloat reflectionPlane[4])
+GLUSvoid GLUSAPIENTRY glusPlanarReflectionf(GLUSfloat matrix[16], const GLUSfloat reflectionPlane[4])
 {
-	float yUpNormal[3];
-	float rotationAngle;
-	float rotationAxis[3];
+	GLUSfloat pointOnPlane[4];
+	GLUSfloat yUpNormal[3];
+	GLUSfloat rotationAngle;
+	GLUSfloat rotationAxis[3];
+
+	glusPlaneGetPoint4f(pointOnPlane, reflectionPlane);
 
 	yUpNormal[0] = 0.0f;
 	yUpNormal[1] = 1.0f;
@@ -91,27 +96,27 @@ GLUSvoid GLUSAPIENTRY glusPlanarReflectionf(GLUSfloat result[16], const GLUSfloa
 		glusVector3Normalizef(rotationAxis);
 	}
 
-	glusMatrix4x4Identityf(result);
+	glusMatrix4x4Identityf(matrix);
 
-	if (reflectionPlane[3] != 0.0f)
+	if (pointOnPlane[0] != 0.0f || pointOnPlane[1] != 0.0f || pointOnPlane[2] != 0.0f)
 	{
-		glusMatrix4x4Translatef(result, 0.0f, reflectionPlane[3], 0.0f);
+		glusMatrix4x4Translatef(matrix, pointOnPlane[0], pointOnPlane[1], pointOnPlane[2]);
 	}
 
 	if (rotationAngle != 0.0f)
 	{
-		glusMatrix4x4Rotatef(result, rotationAngle, rotationAxis[0], rotationAxis[1], rotationAxis[2]);
+		glusMatrix4x4Rotatef(matrix, rotationAngle, rotationAxis[0], rotationAxis[1], rotationAxis[2]);
 	}
 
-	glusMatrix4x4Scalef(result, 1.0f, -1.0f, 1.0f);
+	glusMatrix4x4Scalef(matrix, 1.0f, -1.0f, 1.0f);
 
 	if (rotationAngle != 0.0f)
 	{
-		glusMatrix4x4Rotatef(result, -rotationAngle, rotationAxis[0], rotationAxis[1], rotationAxis[2]);
+		glusMatrix4x4Rotatef(matrix, -rotationAngle, rotationAxis[0], rotationAxis[1], rotationAxis[2]);
 	}
 
-	if (reflectionPlane[3] != 0.0f)
+	if (pointOnPlane[0] != 0.0f || pointOnPlane[1] != 0.0f || pointOnPlane[2] != 0.0f)
 	{
-		glusMatrix4x4Translatef(result, 0.0f, -reflectionPlane[3], 0.0f);
+		glusMatrix4x4Translatef(matrix, -pointOnPlane[0], -pointOnPlane[1], -pointOnPlane[2]);
 	}
 }
