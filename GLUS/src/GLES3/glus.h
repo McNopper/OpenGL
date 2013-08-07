@@ -1204,6 +1204,25 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusClampf(const GLUSfloat value, const GLUSfloat
 GLUSAPI GLUSfloat GLUSAPIENTRY glusLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z);
 
 //
+// Random functions
+//
+
+/**
+ * Initializes the random generator.
+ *
+ * @param seed Number for initializing the pseudo-random number generator.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed);
+
+/**
+ * Returns a floating point value in the given range.
+ *
+ * @param start Smallest possible generated value (inclusive).
+ * @param end Largest possible generated value (inclusive).
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomGetFloatf(const GLUSfloat start, const GLUSfloat end);
+
+//
 // View, projection etc. functions.
 //
 
