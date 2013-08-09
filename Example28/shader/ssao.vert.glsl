@@ -1,4 +1,4 @@
-#version 150
+#version 410 core
 
 in vec4 a_vertex;
 in vec2 a_texCoord;

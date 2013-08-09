@@ -1,5 +1,5 @@
 /**
- * OpenGL 3 - Example 19 - Rendering of the wavefront object
+ * OpenGL 4 - Example 19 - Rendering of the wavefront object
  *
  * @author	Norbert Nopper norbert@nopper.tv
  *

@@ -1,4 +1,4 @@
-#version 150
+#version 410 core
 
 struct LightProperties
 {
@@ -22,8 +22,8 @@ uniform	MaterialProperties u_material;
 in vec3 v_normal;
 in vec3 v_eye;
 
-layout(location = 0, index = 0) out vec4 fragColor;
-layout(location = 1, index = 0) out vec4 normalColor;
+layout(location = 0) out vec4 fragColor;
+layout(location = 1) out vec4 normalColor;
 
 void main()
 {

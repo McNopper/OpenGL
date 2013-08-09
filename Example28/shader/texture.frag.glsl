@@ -1,4 +1,4 @@
-#version 150
+#version 410 core
 
 uniform sampler2D u_texture;
 
@@ -6,8 +6,8 @@ in float v_intensity;
 in vec2 v_texCoord;
 in vec3 v_normal;
 
-layout(location = 0, index = 0) out vec4 fragColor;
-layout(location = 1, index = 0) out vec4 normalColor;
+layout(location = 0) out vec4 fragColor;
+layout(location = 1) out vec4 normalColor;
 
 void main(void)
 {

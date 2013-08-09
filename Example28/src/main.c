@@ -1,5 +1,5 @@
 /**
- * OpenGL 3 - Example 28
+ * OpenGL 4 - Example 28
  *
  * @author	Norbert Nopper norbert@nopper.tv
  *
@@ -972,7 +972,7 @@ int main(int argc, char* argv[])
 
 	glusTerminateFunc(terminate);
 
-	glusPrepareContext(3, 2, GLUS_FORWARD_COMPATIBLE_BIT);
+	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
 
 	// No resizing for convenience. If resizing is allowed, dynamically resize the SSAO and Blur frame buffer as well.
 	glusPrepareNoResize(GLUS_TRUE);
