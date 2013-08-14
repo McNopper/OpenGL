@@ -508,17 +508,6 @@ typedef struct _GLUSline
 GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint attribList[], const EGLint eglContextClientVersion);
 
 /**
- * Gathers the native visual ID. Needed on some platforms to initialize EGL
- *
- * @param eglDisplay  			EGL display.
- * @param eglConfig  			EGL configuration.
- * @param eglNativeVisualID 	EGL native visual ID.
- *
- * @return EGL_TRUE, when gathering succeeded.
- */
-GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLGetNativeVisualID(EGLDisplay eglDisplay, EGLConfig eglConfig, EGLint* eglNativeVisualID);
-
-/**
  * Creates a window surface and sets it as current.
  *
  * @param eglNativeWindowType   	Native window type.

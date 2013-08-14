@@ -330,7 +330,7 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 	return EGL_DEFAULT_DISPLAY ;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
+EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize)
 {
 	const SDL_VideoInfo* videoInfo;
 

@@ -17,8 +17,8 @@ If you get build errors:
 
 SDKs/Libraries/Images used for Raspberry Pi:
 
-- OpenGL ES 3.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
-- OpenGL ES 2.0: PowerVR SDK http://www.imgtec.com/powervr/insider/sdkdownloads/
+- OpenGL ES 3.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
+- OpenGL ES 2.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
 - SDL 1.2 http://www.libsdl.org/download-1.2.php
 - Raspbian "wheezy" http://www.raspberrypi.org/downloads
@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-06.06.2013 Norbert Nopper (norbert@nopper.tv)
+14.08.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+14.08.2013 - Added latest PowerVR SDK (3.1)
 
 06.06.2013 - Added latest GLFW (2.7.9)
 

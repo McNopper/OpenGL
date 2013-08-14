@@ -25,7 +25,7 @@ extern GLUSvoid _glusPollEvents(GLUSvoid);
 
 extern EGLNativeDisplayType _glusGetNativeDisplayType(GLUSvoid);
 
-extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID);
+extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize);
 
 extern GLUSvoid _glusDestroyNativeWindow(GLUSvoid);
 
@@ -254,8 +254,6 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 {
 	EGLConfig eglConfig;
 
-	EGLint eglNativeVisualID;
-
 	EGLNativeWindowType eglNativeWindowType;
 
 	if (g_windowCreated)
@@ -272,16 +270,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
-	if (!glusEGLGetNativeVisualID(g_eglDisplay, eglConfig, &eglNativeVisualID))
-	{
-		glusLogPrint(GLUS_LOG_ERROR, "Could not get native visual ID");
-
-		glusDestroyWindow();
-
-		return GLUS_FALSE;
-	}
-
-	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize, eglNativeVisualID);
+	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize);
 
 	if (!eglNativeWindowType)
 	{

@@ -101,11 +101,6 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     return EGL_TRUE;
 }
 
-EGLBoolean GLUSAPIENTRY glusEGLGetNativeVisualID(EGLDisplay eglDisplay, EGLConfig eglConfig, EGLint* eglNativeVisualID)
-{
-	return eglGetConfigAttrib(eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, eglNativeVisualID);
-}
-
 EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface)
 {
     EGLDisplay surface = EGL_NO_SURFACE;

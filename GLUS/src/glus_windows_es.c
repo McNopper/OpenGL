@@ -436,7 +436,7 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 	return _nativeDisplay;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
+EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize)
 {
 	WNDCLASS wc;
 	RECT wRect;
