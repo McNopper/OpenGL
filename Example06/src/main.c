@@ -98,6 +98,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
 
+    glusDestroyTgaImage(&image);
+
     // Mipmap generation is now included in OpenGL 3 and above
     glGenerateMipmap(GL_TEXTURE_2D);
 
