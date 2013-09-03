@@ -959,6 +959,28 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3GetPoint4f(GLUSfloat result[4], const G
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusVector2GetPoint3f(GLUSfloat result[3], const GLUSfloat vector[2]);
 
+/**
+ * Creates a 3D vector orthogonal to u on the u/v plane.
+ *
+ * @param result The resulting vector.
+ * @param u 	 The vector to calculate a orthogonal vector to.
+ * @param v 	 The vector, which is projected to the orthogonal line of u.
+ *
+ * @return GLUS_TRUE, if a vector could be calculated.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusVector3GramSchmidtOrthof(GLUSfloat result[3], const GLUSfloat u[3], const GLUSfloat v[3]);
+
+/**
+ * Creates a 2D vector orthogonal to u.
+ *
+ * @param result The resulting vector.
+ * @param u 	 The vector to calculate a orthogonal vector to.
+ * @param v 	 The vector, which is projected to the orthogonal line of u.
+ *
+ * @return GLUS_TRUE, if a vector could be calculated.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusVector2GramSchmidtOrthof(GLUSfloat result[2], const GLUSfloat u[2], const GLUSfloat v[2]);
+
 //
 // Point functions.
 //

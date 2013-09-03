@@ -165,3 +165,50 @@ GLUSvoid GLUSAPIENTRY glusVector2GetPoint3f(GLUSfloat result[3], const GLUSfloat
     result[1] = vector[1];
     result[2] = 1.0f;
 }
+
+GLUSboolean GLUSAPIENTRY glusVector3GramSchmidtOrthof(GLUSfloat result[3], const GLUSfloat u[3], const GLUSfloat v[3])
+{
+	GLUSfloat uProjV[3];
+
+	GLUSfloat vDotU;
+
+	GLUSfloat uDotU = glusVector3Dotf(u, u);
+
+	if (uDotU == 0.0f)
+	{
+		return GLUS_FALSE;
+	}
+
+	vDotU = glusVector3Dotf(v, u);
+
+	uProjV[0] = u[0] * vDotU / uDotU;
+	uProjV[1] = u[1] * vDotU / uDotU;
+	uProjV[2] = u[2] * vDotU / uDotU;
+
+	glusVector3SubtractVector3f(result, v, uProjV);
+
+    return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusVector2GramSchmidtOrthof(GLUSfloat result[2], const GLUSfloat u[2], const GLUSfloat v[2])
+{
+	GLUSfloat uProjV[2];
+
+	GLUSfloat vDotU;
+
+	GLUSfloat uDotU = glusVector2Dotf(u, u);
+
+	if (uDotU == 0.0f)
+	{
+		return GLUS_FALSE;
+	}
+
+	vDotU = glusVector2Dotf(v, u);
+
+	uProjV[0] = u[0] * vDotU / uDotU;
+	uProjV[1] = u[1] * vDotU / uDotU;
+
+	glusVector2SubtractVector2f(result, v, uProjV);
+
+    return GLUS_TRUE;
+}
