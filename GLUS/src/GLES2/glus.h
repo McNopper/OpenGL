@@ -169,6 +169,23 @@ typedef struct _GLUStgaimage
 } GLUStgaimage;
 
 /**
+ * Structure used for storing float values.
+ */
+typedef struct _GLUSfloatbuffer
+{
+	/**
+	 * Length of the buffer. Size of buffer is sizeof(GLUSfloat) * length.
+	 */
+    GLUSuint length;
+
+    /**
+     * Buffer data.
+     */
+    GLUSfloat* data;
+
+} GLUSfloatbuffer;
+
+/**
  * Structure for shader program handling.
  */
 typedef struct _GLUSshaderprogram
@@ -975,6 +992,44 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusVector3GramSchmidtOrthof(GLUSfloat result[3
  * @return GLUS_TRUE, if a vector could be calculated.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusVector2GramSchmidtOrthof(GLUSfloat result[2], const GLUSfloat u[2], const GLUSfloat v[2]);
+
+/**
+ * Calculate the reflection direction for an incident vector.
+ *
+ * @param result	The reflection vector.
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3Reflectf(GLUSfloat result[3], const GLUSfloat incident[3], const GLUSfloat normal[3]);
+
+/**
+ * Calculate the reflection direction for an incident vector.
+ *
+ * @param result	The reflection vector.
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector2Reflectf(GLUSfloat result[2], const GLUSfloat incident[2], const GLUSfloat normal[2]);
+
+/**
+ * Calculate the refraction direction for an incident vector.
+ *
+ * @param result	The refraction vector.
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ * @param eta		The ratio of indices of refraction.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3Refractf(GLUSfloat result[3], const GLUSfloat incident[3], const GLUSfloat normal[3], const float eta);
+
+/**
+ * Calculate the refraction direction for an incident vector.
+ *
+ * @param result	The refraction vector.
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ * @param eta		The ratio of indices of refraction.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector2Refractf(GLUSfloat result[2], const GLUSfloat incident[2], const GLUSfloat normal[2], const float eta);
 
 //
 // Point functions.
