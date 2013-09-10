@@ -2616,6 +2616,25 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBu
 GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ);
 
 //
+// Intersection testing
+//
+
+/**
+ * Intersecting ray against sphere.
+ *
+ * @param closePoint	Closest intersection point if number intersections greater than zero.
+ * @param farPoint		Far intersection point if number intersections greater than one.
+ * @param insideSphere	Set to GLUS_TRUE, if ray starts inside sphere. Can be NULL.
+ * @param rayStart		Point, where the ray starts.
+ * @param rayDirection	Ray direction vector. Has to be normalized.
+ * @param sphereCenter	Center of the sphere given as a point.
+ * @param sphereRadius	Radius of the sphere.
+ *
+ * @return Number of intersection points.
+ */
+GLUSAPI GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat closePoint[4], GLUSfloat farPoint[4], GLUSboolean* insideSphere, const GLUSfloat rayStart[4], const GLUSfloat rayDirection[3], const GLUSfloat sphereCenter[4], const GLUSfloat radius);
+
+//
 // GLFW Start. Internally, some GLFW functions are used. See copyright informations in C file.
 //
 
