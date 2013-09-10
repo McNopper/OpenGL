@@ -185,23 +185,6 @@ typedef struct _GLUStgaimage
 } GLUStgaimage;
 
 /**
- * Structure used for storing float values.
- */
-typedef struct _GLUSfloatbuffer
-{
-	/**
-	 * Length of the buffer. Size of buffer is sizeof(GLUSfloat) * length.
-	 */
-    GLUSuint length;
-
-    /**
-     * Buffer data.
-     */
-    GLUSfloat* data;
-
-} GLUSfloatbuffer;
-
-/**
  * Structure for shader program handling.
  */
 typedef struct _GLUSshaderprogram
@@ -2657,6 +2640,42 @@ GLUSAPI GLUSuint GLUSAPIENTRY glusLogGetLevel();
  * @param ... Parameter list for the format string.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusLogPrint(GLUSuint verbosity, const char* format, ...);
+
+//
+// Ray tracing
+//
+
+/**
+ * Creates normals in a buffer for ray traced perspective projection. Directions are pointing to -Z direction.
+ *
+ * @param directionBuffer	The resulting direction buffer.
+ * @param fovy				Field of view.
+ * @param width				Width of the buffer.
+ * @param height			Height of the buffer.
+ *
+ * @return GLUS_TRUE, if creation was successful.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, const GLUSfloat fovy, const GLUSint width, const GLUSint height);
+
+/**
+ * Creates the positions and directions in buffers needed for ray tracing.
+ *
+ * @param positionBuffer		The resulting position buffer. Positions are in homogeneous coordinates.
+ * @param directionBuffer		The resulting direction buffer.
+ * @param originDirectionBuffer	The direction buffer, pointing to -Z direction.
+ * @param width 				The width of the buffers.
+ * @param height 				The height of the buffers.
+ * @param eyeX 					Eye / camera X position.
+ * @param eyeY 					Eye / camera Y position.
+ * @param eyeZ 					Eye / camera Z position.
+ * @param centerX 				X Position, where the view / camera points to.
+ * @param centerY 				Y Position, where the view / camera points to.
+ * @param centerZ 				Z Position, where the view / camera points to.
+ * @param upX 					Eye / camera X component from up vector.
+ * @param upY 					Eye / camera Y component from up vector.
+ * @param upZ 					Eye / camera Z component from up vector.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ);
 
 #ifdef __cplusplus
 }
