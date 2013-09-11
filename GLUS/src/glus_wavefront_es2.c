@@ -189,6 +189,49 @@ static GLUSvoid glusFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GL
 	}
 }
 
+static GLUSvoid glusInitMaterial(GLUSmaterial* material)
+{
+	if (!material)
+	{
+		return;
+	}
+
+	material->name[0] = 0;
+
+	material->emissive[0] = 0.0f;
+	material->emissive[1] = 0.0f;
+	material->emissive[2] = 0.0f;
+	material->emissive[3] = 1.0f;
+
+	material->ambient[0] = 0.0f;
+	material->ambient[1] = 0.0f;
+	material->ambient[2] = 0.0f;
+	material->ambient[3] = 1.0f;
+
+	material->diffuse[0] = 0.0f;
+	material->diffuse[1] = 0.0f;
+	material->diffuse[2] = 0.0f;
+	material->diffuse[3] = 1.0f;
+
+	material->specular[0] = 0.0f;
+	material->specular[1] = 0.0f;
+	material->specular[2] = 0.0f;
+	material->specular[3] = 1.0f;
+
+	material->shininess = 0.0f;
+
+	material->transparency = 1.0f;
+
+	material->reflection = GLUS_FALSE;
+
+	material->refraction = GLUS_FALSE;
+
+	material->indexOfRefraction = 1.0f;
+
+	material->textureFilename[0] = 0;
+
+	material->textureName = 0;
+}
 
 static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
 {
@@ -268,6 +311,8 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			memset(newMaterialList, 0, sizeof(GLUSmaterialList));
 
+			glusInitMaterial(&newMaterialList->material);
+
 			strcpy(newMaterialList->material.name, name);
 
 			if (*materialList == 0)
@@ -309,11 +354,42 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 		{
 			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.shininess);
 		}
+		else if (strncmp(buffer, "d", 1) == 0 || strncmp(buffer, "Tr", 2) == 0)
+		{
+			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.transparency);
+		}
+		else if (strncmp(buffer, "Ni", 2) == 0)
+		{
+			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
+		}
 		else if (strncmp(buffer, "map_kd", 6) == 0)
 		{
 			sscanf(buffer, "%s %s", identifier, name);
 
 			strcpy(currentMaterialList->material.textureFilename, name);
+		}
+		else if (strncmp(buffer, "illum", 5) == 0)
+		{
+			GLUSint illum;
+
+			sscanf(buffer, "%s %d", identifier, &illum);
+
+			// Only setting reflection and refraction depending on illumination model.
+			switch (illum)
+			{
+				case 3:
+				case 4:
+				case 5:
+				case 8:
+				case 9:
+					currentMaterialList->material.reflection = GLUS_TRUE;
+					break;
+				case 6:
+				case 7:
+					currentMaterialList->material.reflection = GLUS_TRUE;
+					currentMaterialList->material.refraction = GLUS_TRUE;
+					break;
+			}
 		}
 	}
 

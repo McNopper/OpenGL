@@ -17,16 +17,14 @@
 
 #include "GL/glus.h"
 
-GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat closePoint[4], GLUSfloat farPoint[4], GLUSboolean* insideSphere, const GLUSfloat rayStart[4], const GLUSfloat rayDirection[3], const GLUSfloat sphereCenter[4], const GLUSfloat radius)
+GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat* tNear, GLUSfloat* tFar, GLUSboolean* insideSphere, const GLUSfloat rayStart[4], const GLUSfloat rayDirection[3], const GLUSfloat sphereCenter[4], const GLUSfloat radius)
 {
 	// see http://de.wikipedia.org/wiki/Quadratische_Gleichung (German)
 	// see Real-Time Collision Detection p177
 
 	GLUSint intersections = 0;
 	GLUSfloat m[3];
-	GLUSfloat rayVector[3];
-	GLUSfloat b, c, discriminant, t;
-	GLUSfloat* output = closePoint;
+	GLUSfloat b, c, discriminant, sqrtDiscriminant, t;
 
 	glusPoint4SubtractPoint4f(m, rayStart, sphereCenter);
 
@@ -47,6 +45,8 @@ GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat closePoint[4], GLUSfloat 
 		return intersections;
 	}
 
+	sqrtDiscriminant = sqrtf(discriminant);
+
 	// If we come so far, we have at least one intersection.
 
 	if (insideSphere)
@@ -54,43 +54,42 @@ GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat closePoint[4], GLUSfloat 
 		*insideSphere = GLUS_FALSE;
 	}
 
-	t = -b - sqrtf(discriminant);
+	t = -b - sqrtDiscriminant;
 
-	// Avoid point behind ray start ...
-	if (t >= 0.0f)
+	// Ray starts inside the sphere.
+	if (t < 0.0f)
 	{
-		intersections++;
+		t = 0.0f;
 
-		glusVector3MultiplyScalarf(rayVector, rayDirection, t);
-
-		glusPoint4AddVector3f(output, rayStart, rayVector);
-
-		// Tangent point. Only one intersection. So leave.
-		if (discriminant == 0.0f)
+		if (insideSphere)
 		{
-			return intersections;
+			*insideSphere = GLUS_TRUE;
 		}
-
-		output = farPoint;
 	}
-	else if (insideSphere)
-	{
-		// ... so in this case the ray starts inside the sphere.
-		// Note: With t = 0.0f we would have the intersection point.
-		//       But only intersection points at the sphere surface are stored.
-
-		*insideSphere = GLUS_TRUE;
-	}
-
-	// No test needed, as this is an intersection point in any case.
-
-	t = -b + sqrtf(discriminant);
 
 	intersections++;
 
-	glusVector3MultiplyScalarf(rayVector, rayDirection, t);
+	if (tNear)
+	{
+		*tNear = t;
+	}
 
-	glusPoint4AddVector3f(output, rayStart, rayVector);
+	// Tangent point. Only one intersection. So leave.
+	if (discriminant == 0.0f)
+	{
+		return intersections;
+	}
+
+	//
+
+	t = -b + sqrtDiscriminant;
+
+	intersections++;
+
+	if (tFar)
+	{
+		*tFar = t;
+	}
 
 	return intersections;
 }
