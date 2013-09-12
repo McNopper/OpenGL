@@ -1034,6 +1034,28 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3Refractf(GLUSfloat result[3], const GLU
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusVector2Refractf(GLUSfloat result[2], const GLUSfloat incident[2], const GLUSfloat normal[2], const float eta);
 
+/**
+ * Calculate the specular reflection coefficient, based on Schlick's approximation for the Fresnel term.
+ *
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ * @param R0		The reflection coefficient for light incoming parallel to the normal.
+ *
+ * @return Specular reflection coefficient.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusVector3Fresnelf(const GLUSfloat incident[3], const GLUSfloat normal[3], const GLUSfloat R0);
+
+/**
+ * Calculate the specular reflection coefficient, based on Schlick's approximation for the Fresnel term.
+ *
+ * @param incident	The incident vector.
+ * @param normal	The normal vector.
+ * @param R0		The reflection coefficient for light incoming parallel to the normal.
+ *
+ * @return Specular reflection coefficient.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusVector2Fresnelf(const GLUSfloat incident[2], const GLUSfloat normal[2], const GLUSfloat R0);
+
 //
 // Point functions.
 //

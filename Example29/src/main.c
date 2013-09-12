@@ -17,9 +17,19 @@
 #define WIDTH 640
 #define HEIGHT 480
 #define BYTES_PER_PIXEL 3
-#define NUM_SPHERES 6
+#define NUM_SPHERES 3
 
 #define MAX_RAY_DEPTH 5
+
+// Indices of refraction
+#define Air 1.000293f
+#define Glass 1.51714f
+
+// Air to glass ratio of the indices of refraction (Eta)
+#define Eta (Air / Glass)
+
+// see http://en.wikipedia.org/wiki/Refractive_index Reflectivity
+#define R0 (((Air - Glass) * (Air - Glass)) / ((Air + Glass) * (Air + Glass)))
 
 typedef struct _Sphere
 {
@@ -31,9 +41,9 @@ typedef struct _Sphere
 
 	GLfloat emissiveColor[4];
 
-	GLfloat transparency;
+	GLfloat reflectivity;
 
-	GLboolean reflectivity;
+	GLfloat transparency;
 
 } Sphere;
 
@@ -69,22 +79,18 @@ static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
 Sphere g_allSpheres[NUM_SPHERES] = {
 		// Ground as sphere
-		{ { 0.0f, -10004.0f, -20.0f }, 10000.0f, { 0.2f, 0.2f, 0.2f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, GLUS_FALSE },
-		// Four spheres
-		{ { 0.0f, 0.0f, -20.0f }, 4.0f, { 1.0f, 0.32f, 0.36f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.5f, GLUS_TRUE },
-		{ { 5.0f, -1.0f, -15.0f }, 2.0f, { 0.9f, 0.76f, 0.46f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, GLUS_TRUE },
-		{ { 5.0f, 0.0f, -25.0f }, 3.0f, { 0.65f, 0.77f, 0.97f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, GLUS_TRUE },
-		{ { -5.5f, 0.0f, -15.0f }, 3.0f, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, GLUS_TRUE },
+		{ { 0.0f, -10001.0f, -20.0f }, 10000.0f, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 0.0f },
+		// One sphere
+		{ { 0.0f, 0.0f, -10.0f }, 1.0f, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 0.0f },
 		// Light as sphere using emissive light
-		{ { 0.0f, 20.0f, -30.0f }, 3.0f, { 0.0f, 0.0f, 0.0f, 1.0f }, { 3.0f, 3.0f, 3.0f, 1.0f }, 0.0f, GLUS_FALSE }
+		{ { -10.0f, 10.0f, 10.0f }, 10.0f, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.0f, 0.0f }
 };
 
-static GLvoid trace(GLfloat pixelColor[4], const GLint index, const GLint depth)
+static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const GLfloat rayDirection[3], const GLint depth)
 {
-	// TODO Needed later
-	//const GLfloat bias = 1e-4;
+	const GLfloat bias = 1e-4f;
 
-	GLint i;
+	GLint i, k;
 
 	GLfloat tNear = INFINITY;
 	Sphere* sphereNear = 0;
@@ -95,8 +101,9 @@ static GLvoid trace(GLfloat pixelColor[4], const GLint index, const GLint depth)
 	GLfloat hitPosition[4];
 	GLfloat hitDirection[3];
 
-	GLfloat* rayPosition;
-	GLfloat* rayDirection;
+	GLfloat biasedPositiveHitPosition[4];
+	GLfloat biasedNegativeHitPosition[4];
+	GLfloat biasedHitDirection[3];
 
 	//
 
@@ -104,10 +111,6 @@ static GLvoid trace(GLfloat pixelColor[4], const GLint index, const GLint depth)
 	pixelColor[1] = 0.0f;
 	pixelColor[2] = 0.0f;
 	pixelColor[3] = 1.0f;
-
-	rayPosition = &g_positionBuffer[index * 4];
-
-	rayDirection = &g_directionBuffer[index * 3];
 
 	//
 
@@ -141,12 +144,12 @@ static GLvoid trace(GLfloat pixelColor[4], const GLint index, const GLint depth)
 
 	//
 
-	// No intersection, return background color.
+	// No intersection, return background color / ambient light.
 	if (!sphereNear)
 	{
-		pixelColor[0] = 2.0f;
-		pixelColor[1] = 2.0f;
-		pixelColor[2] = 2.0f;
+		pixelColor[0] = 0.0f;
+		pixelColor[1] = 0.0f;
+		pixelColor[2] = 0.0f;
 
 		return;
 	}
@@ -167,32 +170,95 @@ static GLvoid trace(GLfloat pixelColor[4], const GLint index, const GLint depth)
 
 	//
 
-	if ((sphereNear->transparency > 0.0 || sphereNear->reflectivity) && depth < MAX_RAY_DEPTH)
+	// Biasing, to avoid artifacts.
+	glusVector3MultiplyScalarf(biasedHitDirection, hitDirection, bias);
+	glusPoint4AddVector3f(biasedPositiveHitPosition, hitPosition, biasedHitDirection);
+	glusPoint4SubtractVector3f(biasedNegativeHitPosition, hitPosition, biasedHitDirection);
+
+	//
+
+	GLfloat reflectionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	GLfloat refractionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+	GLfloat fresnel = glusVector3Fresnelf(rayDirection, hitDirection, R0);
+
+	// Reflection ...
+	if (sphereNear->reflectivity > 0.0f && depth < MAX_RAY_DEPTH)
 	{
-		// TODO Continue
-		pixelColor[0] = 0.0f;
-		pixelColor[1] = 1.0f;
-		pixelColor[2] = 0.0f;
+		GLfloat reflectionDirection[3];
+
+		glusVector3Reflectf(reflectionDirection, rayDirection, hitDirection);
+		glusVector3Normalizef(reflectionDirection);
+
+		trace(reflectionColor, biasedPositiveHitPosition, reflectionDirection, depth + 1);
 	}
-	else
+
+	// ... refraction
+	if (sphereNear->transparency > 0.0f && depth < MAX_RAY_DEPTH)
 	{
-		// Diffuse, no more steps required
+		GLfloat refractionDirection[3];
 
-		for (i = 0; i < NUM_SPHERES; i++)
+		// If inside, it is from glass to air.
+		GLfloat eta = insideSphereNear ? 1.0f / Eta : Eta;
+
+		glusVector3Refractf(refractionDirection, rayDirection, hitDirection, eta);
+		glusVector3Normalizef(refractionDirection);
+
+		trace(refractionColor, biasedNegativeHitPosition, refractionDirection, depth + 1);
+	}
+
+	// TODO Add reflection and refraction depending on fresnel value
+
+	// Diffuse
+	for (i = 0; i < NUM_SPHERES; i++)
+	{
+		Sphere* lightSphere = &g_allSpheres[i];
+
+		if (lightSphere == sphereNear)
 		{
-			Sphere* currentSphere = &g_allSpheres[i];
+			continue;
+		}
 
-			// Treat any emissive color as a point light
-			if (currentSphere->emissiveColor[0] > 0.0f || currentSphere->emissiveColor[1] > 0.0f || currentSphere->emissiveColor[2] > 0.0f)
+		// Treat any emissive color as a point light
+		if (lightSphere->emissiveColor[0] > 0.0f || lightSphere->emissiveColor[1] > 0.0f || lightSphere->emissiveColor[2] > 0.0f)
+		{
+			GLboolean obstacle = GL_FALSE;
+			GLfloat lightDirection[3];
+
+			glusPoint4SubtractPoint4f(lightDirection, lightSphere->center, hitPosition);
+			glusVector3Normalizef(lightDirection);
+
+			// Check for obstacles between current hit point surface and light.
+			for (k = 0; k < NUM_SPHERES; k++)
 			{
-				// TODO Continue
-				pixelColor[0] = 1.0f;
-				pixelColor[1] = 1.0f;
-				pixelColor[2] = 0.0f;
+				Sphere* obstacleSphere = &g_allSpheres[k];
+
+				if (obstacleSphere == sphereNear || obstacleSphere == lightSphere)
+				{
+					continue;
+				}
+
+				if (glusIntersectRaySpheref(0, 0, 0, biasedPositiveHitPosition, lightDirection, obstacleSphere->center, obstacleSphere->radius))
+				{
+					obstacle = GL_TRUE;
+
+					break;
+				}
+			}
+
+			// If no obstacle, illuminate hit point surface.
+			if (!obstacle)
+			{
+				GLfloat intensity = glusMaxf(0.0f, glusVector3Dotf(hitDirection, lightDirection));
+
+				pixelColor[0] = pixelColor[0] + intensity * sphereNear->diffuseColor[0] * lightSphere->emissiveColor[0];
+				pixelColor[1] = pixelColor[1] + intensity * sphereNear->diffuseColor[1] * lightSphere->emissiveColor[1];
+				pixelColor[2] = pixelColor[2] + intensity * sphereNear->diffuseColor[2] * lightSphere->emissiveColor[2];
 			}
 		}
 	}
 
+	// Emissive
 	pixelColor[0] = pixelColor[0] + sphereNear->emissiveColor[0];
 	pixelColor[1] = pixelColor[1] + sphereNear->emissiveColor[1];
 	pixelColor[2] = pixelColor[2] + sphereNear->emissiveColor[2];
@@ -223,7 +289,7 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
 		{
 			index = (x + y * WIDTH);
 
-			trace(pixelColor, index, 0);
+			trace(pixelColor, &g_positionBuffer[index * 4], &g_directionBuffer[index * 3], 0);
 
 			// Resolve to pixel buffer, which is used for the texture.
 

@@ -280,3 +280,23 @@ GLUSvoid GLUSAPIENTRY glusVector2Refractf(GLUSfloat result[2], const GLUSfloat i
 		glusVector2SubtractVector2f(result, a, b);
 	}
 }
+
+GLUSfloat GLUSAPIENTRY glusVector3Fresnelf(const GLUSfloat incident[3], const GLUSfloat normal[3], const GLUSfloat R0)
+{
+	// see http://en.wikipedia.org/wiki/Schlick%27s_approximation
+
+	GLUSfloat negIncident[3];
+
+	glusVector3MultiplyScalarf(negIncident, incident, -1.0f);
+
+	return R0 + (1.0f - R0) * powf(1.0f - glusVector3Dotf(negIncident, normal), 5.0f);
+}
+
+GLUSfloat GLUSAPIENTRY glusVector2Fresnelf(const GLUSfloat incident[2], const GLUSfloat normal[2], const GLUSfloat R0)
+{
+	GLUSfloat negIncident[2];
+
+	glusVector2MultiplyScalarf(negIncident, incident, -1.0f);
+
+	return R0 + (1.0f - R0) * powf(1.0f - glusVector2Dotf(negIncident, normal), 5.0f);
+}
