@@ -43,6 +43,11 @@ typedef struct _Sphere
 static GLUSshaderprogram g_program;
 
 /**
+ * VAO is needed. Otherwise glDrawArrays will not draw.
+ */
+static GLuint g_vao;
+
+/**
  * The location of the texture in the shader program.
  */
 static GLint g_textureLocation;
@@ -284,6 +289,11 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
+    glGenVertexArrays(1, &g_vao);
+    glBindVertexArray(g_vao);
+
+	//
+
 	glBindTexture(GL_TEXTURE_2D, g_texture);
 	glUniform1i(g_textureLocation, 0);
 
@@ -325,6 +335,17 @@ GLUSvoid terminate(GLUSvoid)
 		glDeleteTextures(1, &g_texture);
 
 		g_texture = 0;
+	}
+
+	//
+
+	glBindVertexArray(0);
+
+	if (g_vao)
+	{
+		glDeleteVertexArrays(1, &g_vao);
+
+		g_vao = 0;
 	}
 
 	//
