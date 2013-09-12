@@ -2643,7 +2643,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLU
  * Intersecting ray against sphere.
  *
  * @param tNear			t of near intersection point if number intersections greater than zero.
- * @param tFar			t of far intersection point if number intersections greater than one.
+ * @param tFar			t of far intersection point if number intersections greater than zero.
  * @param insideSphere	Set to GLUS_TRUE, if ray starts inside sphere.
  * @param rayStart		Point, where the ray starts.
  * @param rayDirection	Ray direction vector. Has to be normalized.

@@ -56,9 +56,10 @@ GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat* tNear, GLUSfloat* tFar, 
 
 	t = -b - sqrtDiscriminant;
 
-	// Ray starts inside the sphere.
+	// Ray starts inside the sphere, as t is negative.
 	if (t < 0.0f)
 	{
+		// Use origin as intersection point.
 		t = 0.0f;
 
 		if (insideSphere)
@@ -77,6 +78,12 @@ GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat* tNear, GLUSfloat* tFar, 
 	// Tangent point. Only one intersection. So leave.
 	if (discriminant == 0.0f)
 	{
+		// Save in both for convenience.
+		if (tFar)
+		{
+			*tFar = t;
+		}
+
 		return intersections;
 	}
 
