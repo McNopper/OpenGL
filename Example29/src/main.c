@@ -17,19 +17,36 @@
 #define WIDTH 640
 #define HEIGHT 480
 #define BYTES_PER_PIXEL 3
-#define NUM_SPHERES 3
+#define NUM_SPHERES 6
+#define NUM_LIGHTS 1
 
 #define MAX_RAY_DEPTH 5
 
 // Indices of refraction
-#define Air 1.000293f
-#define Glass 1.51714f
+#define Air 1.0f
+#define Booble 1.06f
 
 // Air to glass ratio of the indices of refraction (Eta)
-#define Eta (Air / Glass)
+#define Eta (Air / Booble)
 
 // see http://en.wikipedia.org/wiki/Refractive_index Reflectivity
-#define R0 (((Air - Glass) * (Air - Glass)) / ((Air + Glass) * (Air + Glass)))
+#define R0 (((Air - Booble) * (Air - Booble)) / ((Air + Booble) * (Air + Booble)))
+
+typedef struct _Material
+{
+	GLfloat emissiveColor[4];
+
+	GLfloat diffuseColor[4];
+
+	GLfloat specularColor[4];
+
+	GLfloat shininess;
+
+	GLfloat alpha;
+
+	GLfloat reflectivity;
+
+} Material;
 
 typedef struct _Sphere
 {
@@ -37,15 +54,17 @@ typedef struct _Sphere
 
 	GLfloat radius;
 
-	GLfloat diffuseColor[4];
-
-	GLfloat emissiveColor[4];
-
-	GLfloat reflectivity;
-
-	GLfloat transparency;
+	Material material;
 
 } Sphere;
+
+typedef struct _PointLight
+{
+	GLfloat position[4];
+
+	GLfloat color[4];
+
+} PointLight;
 
 /**
  * The used shader program.
@@ -78,12 +97,22 @@ static GLfloat g_directionBuffer[WIDTH * HEIGHT * 3];
 static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
 Sphere g_allSpheres[NUM_SPHERES] = {
-		// Ground as sphere
-		{ { 0.0f, -10001.0f, -20.0f }, 10000.0f, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 0.0f },
-		// One sphere
-		{ { 0.0f, 0.0f, -10.0f }, 1.0f, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 0.0f },
-		// Light as sphere using emissive light
-		{ { -10.0f, 10.0f, 10.0f }, 10.0f, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.0f, 0.0f }
+		// Ground sphere
+		{ { 0.0f, -10001.0f, -20.0f, 1.0f }, 10000.0f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 1.0f, 0.0f } },
+		// Transparent sphere
+		{ { 0.0f, 0.0f, -10.0f, 1.0f }, 1.0f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 0.2f, 1.0f } },
+		// Reflective sphere
+		{ { 1.0f, -0.75f, -7.0f, 1.0f }, 0.25f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.8f } },
+		// Blue sphere
+		{ { 2.0f, 1.0f, -16.0f, 1.0f }, 2.0f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f } },
+		// Green sphere
+		{ { -2.0f, 0.25f, -6.0f, 1.0f }, 1.25f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.8f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f } },
+		// Red sphere
+		{ { 3.0f, 0.0f, -8.0f, 1.0f }, 1.0f, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f } }
+};
+
+PointLight g_allLights[NUM_LIGHTS] = {
+		{{0.0f, 5.0f, -5.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f }}
 };
 
 static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const GLfloat rayDirection[3], const GLint depth)
@@ -104,6 +133,8 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 	GLfloat biasedPositiveHitPosition[4];
 	GLfloat biasedNegativeHitPosition[4];
 	GLfloat biasedHitDirection[3];
+
+	GLfloat eyeDirection[3];
 
 	//
 
@@ -147,9 +178,9 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 	// No intersection, return background color / ambient light.
 	if (!sphereNear)
 	{
-		pixelColor[0] = 0.0f;
-		pixelColor[1] = 0.0f;
-		pixelColor[2] = 0.0f;
+		pixelColor[0] = 0.8f;
+		pixelColor[1] = 0.8f;
+		pixelColor[2] = 0.8f;
 
 		return;
 	}
@@ -183,7 +214,7 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 	GLfloat fresnel = glusVector3Fresnelf(rayDirection, hitDirection, R0);
 
 	// Reflection ...
-	if (sphereNear->reflectivity > 0.0f && depth < MAX_RAY_DEPTH)
+	if (sphereNear->material.reflectivity > 0.0f && depth < MAX_RAY_DEPTH)
 	{
 		GLfloat reflectionDirection[3];
 
@@ -193,8 +224,8 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 		trace(reflectionColor, biasedPositiveHitPosition, reflectionDirection, depth + 1);
 	}
 
-	// ... refraction
-	if (sphereNear->transparency > 0.0f && depth < MAX_RAY_DEPTH)
+	// ... refraction.
+	if (sphereNear->material.alpha < 1.0f && depth < MAX_RAY_DEPTH)
 	{
 		GLfloat refractionDirection[3];
 
@@ -206,62 +237,87 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 
 		trace(refractionColor, biasedNegativeHitPosition, refractionDirection, depth + 1);
 	}
-
-	// TODO Add reflection and refraction depending on fresnel value
-
-	// Diffuse
-	for (i = 0; i < NUM_SPHERES; i++)
+	else
 	{
-		Sphere* lightSphere = &g_allSpheres[i];
+		fresnel = 1.0f;
+	}
 
-		if (lightSphere == sphereNear)
+	//
+
+	glusVector3MultiplyScalarf(eyeDirection, rayDirection, -1.0f);
+
+	// Diffuse and specular color
+	for (i = 0; i < NUM_LIGHTS; i++)
+	{
+		PointLight* pointLight = &g_allLights[i];
+
+		GLboolean obstacle = GL_FALSE;
+		GLfloat lightDirection[3];
+		GLfloat incidentLightDirection[3];
+
+		glusPoint4SubtractPoint4f(lightDirection, pointLight->position, hitPosition);
+		glusVector3Normalizef(lightDirection);
+		glusVector3MultiplyScalarf(incidentLightDirection, lightDirection, -1.0f);
+
+		// Check for obstacles between current hit point surface and point light.
+		for (k = 0; k < NUM_SPHERES; k++)
 		{
-			continue;
-		}
+			Sphere* obstacleSphere = &g_allSpheres[k];
 
-		// Treat any emissive color as a point light
-		if (lightSphere->emissiveColor[0] > 0.0f || lightSphere->emissiveColor[1] > 0.0f || lightSphere->emissiveColor[2] > 0.0f)
-		{
-			GLboolean obstacle = GL_FALSE;
-			GLfloat lightDirection[3];
-
-			glusPoint4SubtractPoint4f(lightDirection, lightSphere->center, hitPosition);
-			glusVector3Normalizef(lightDirection);
-
-			// Check for obstacles between current hit point surface and light.
-			for (k = 0; k < NUM_SPHERES; k++)
+			if (obstacleSphere == sphereNear)
 			{
-				Sphere* obstacleSphere = &g_allSpheres[k];
-
-				if (obstacleSphere == sphereNear || obstacleSphere == lightSphere)
-				{
-					continue;
-				}
-
-				if (glusIntersectRaySpheref(0, 0, 0, biasedPositiveHitPosition, lightDirection, obstacleSphere->center, obstacleSphere->radius))
-				{
-					obstacle = GL_TRUE;
-
-					break;
-				}
+				continue;
 			}
 
-			// If no obstacle, illuminate hit point surface.
-			if (!obstacle)
+			if (glusIntersectRaySpheref(0, 0, 0, biasedPositiveHitPosition, lightDirection, obstacleSphere->center, obstacleSphere->radius))
 			{
-				GLfloat intensity = glusMaxf(0.0f, glusVector3Dotf(hitDirection, lightDirection));
+				obstacle = GL_TRUE;
 
-				pixelColor[0] = pixelColor[0] + intensity * sphereNear->diffuseColor[0] * lightSphere->emissiveColor[0];
-				pixelColor[1] = pixelColor[1] + intensity * sphereNear->diffuseColor[1] * lightSphere->emissiveColor[1];
-				pixelColor[2] = pixelColor[2] + intensity * sphereNear->diffuseColor[2] * lightSphere->emissiveColor[2];
+				break;
+			}
+		}
+
+		// If no obstacle, illuminate hit point surface.
+		if (!obstacle)
+		{
+			GLfloat diffuseIntensity = glusMaxf(0.0f, glusVector3Dotf(hitDirection, lightDirection));
+
+			if (diffuseIntensity > 0.0f)
+			{
+				GLfloat specularReflection[3];
+
+				GLfloat eDotR;
+
+				pixelColor[0] = pixelColor[0] + diffuseIntensity * sphereNear->material.diffuseColor[0] * pointLight->color[0];
+				pixelColor[1] = pixelColor[1] + diffuseIntensity * sphereNear->material.diffuseColor[1] * pointLight->color[1];
+				pixelColor[2] = pixelColor[2] + diffuseIntensity * sphereNear->material.diffuseColor[2] * pointLight->color[2];
+
+				glusVector3Reflectf(specularReflection, incidentLightDirection, hitDirection);
+				glusVector3Normalizef(specularReflection);
+
+				eDotR = glusMaxf(0.0f, glusVector3Dotf(eyeDirection, specularReflection));
+
+				if (eDotR > 0.0f && !insideSphereNear)
+				{
+					GLfloat specularIntensity = powf(eDotR, sphereNear->material.shininess);
+
+					pixelColor[0] = pixelColor[0] + specularIntensity * sphereNear->material.specularColor[0] * pointLight->color[0];
+					pixelColor[1] = pixelColor[1] + specularIntensity * sphereNear->material.specularColor[1] * pointLight->color[1];
+					pixelColor[2] = pixelColor[2] + specularIntensity * sphereNear->material.specularColor[2] * pointLight->color[2];
+				}
 			}
 		}
 	}
 
-	// Emissive
-	pixelColor[0] = pixelColor[0] + sphereNear->emissiveColor[0];
-	pixelColor[1] = pixelColor[1] + sphereNear->emissiveColor[1];
-	pixelColor[2] = pixelColor[2] + sphereNear->emissiveColor[2];
+	// Emissive color
+	pixelColor[0] = pixelColor[0] + sphereNear->material.emissiveColor[0];
+	pixelColor[1] = pixelColor[1] + sphereNear->material.emissiveColor[1];
+	pixelColor[2] = pixelColor[2] + sphereNear->material.emissiveColor[2];
+
+	// Final color with reflection and refraction
+	pixelColor[0] = (1.0f - fresnel) * refractionColor[0] * (1.0f - sphereNear->material.alpha) + pixelColor[0] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[0] * sphereNear->material.reflectivity;
+	pixelColor[1] = (1.0f - fresnel) * refractionColor[1] * (1.0f - sphereNear->material.alpha) + pixelColor[1] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[1] * sphereNear->material.reflectivity;
+	pixelColor[2] = (1.0f - fresnel) * refractionColor[2] * (1.0f - sphereNear->material.alpha) + pixelColor[2] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[2] * sphereNear->material.reflectivity;
 }
 
 static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const GLint height)
