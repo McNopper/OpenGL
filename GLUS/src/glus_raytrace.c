@@ -17,9 +17,9 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, const GLUSfloat fovy, const GLUSint width, const GLUSint height)
+GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, const GLUSubyte padding, const GLUSfloat fovy, const GLUSint width, const GLUSint height)
 {
-	GLUSint i;
+	GLUSint i, k;
 
 	GLUSfloat aspect;
 
@@ -44,21 +44,26 @@ GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, co
 
 	for (i = 0; i < width * height; i++)
 	{
-		directionBuffer[i * 3 + 0] = -xExtend + xStep * 0.5f + xStep * (GLUSfloat)(i % width);
-		directionBuffer[i * 3 + 1] = -yExtend + yStep * 0.5f + yStep * (GLUSfloat)(i / width);
-		directionBuffer[i * 3 + 2] = -1.0f;
+		directionBuffer[i * (3 + padding) + 0] = -xExtend + xStep * 0.5f + xStep * (GLUSfloat)(i % width);
+		directionBuffer[i * (3 + padding) + 1] = -yExtend + yStep * 0.5f + yStep * (GLUSfloat)(i / width);
+		directionBuffer[i * (3 + padding) + 2] = -1.0f;
 
-		glusVector3Normalizef(&directionBuffer[i * 3]);
+		for (k = 0; k < padding; k++)
+		{
+			directionBuffer[i * (3 + padding) + 3 + k] = 0.0f;
+		}
+
+		glusVector3Normalizef(&directionBuffer[i * (3 + padding)]);
 	}
 
 	return GLUS_TRUE;
 }
 
-GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ)
+GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSubyte padding, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ)
 {
 	GLUSfloat forward[3], side[3], up[3];
 	GLUSfloat rotation[9];
-	GLUSint i;
+	GLUSint i, k;
 
 	forward[0] = centerX - eyeX;
 	forward[1] = centerY - eyeY;
@@ -97,7 +102,12 @@ GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* 
 
 		if (directionBuffer && originDirectionBuffer)
 		{
-			glusMatrix3x3MultiplyVector3f(&directionBuffer[i*3], rotation, &originDirectionBuffer[i*3]);
+			glusMatrix3x3MultiplyVector3f(&directionBuffer[i * (3 + padding)], rotation, &originDirectionBuffer[i * (3 + padding)]);
+
+			for (k = 0; k < padding; k++)
+			{
+				directionBuffer[i * (3 + padding) + 3 + k] = originDirectionBuffer[i * (3 + padding) + 3 + k];
+			}
 		}
 	}
 }

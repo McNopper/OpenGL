@@ -2691,13 +2691,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusLogPrint(GLUSuint verbosity, const char* forma
  * Creates normals in a buffer for ray traced perspective projection. Directions are pointing to -Z direction.
  *
  * @param directionBuffer	The resulting direction buffer.
+ * @param padding			Amount of padding bytes.
  * @param fovy				Field of view.
  * @param width				Width of the buffer.
  * @param height			Height of the buffer.
  *
  * @return GLUS_TRUE, if creation was successful.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, const GLUSfloat fovy, const GLUSint width, const GLUSint height);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, const GLUSubyte padding, const GLUSfloat fovy, const GLUSint width, const GLUSint height);
 
 /**
  * Creates the positions and directions in buffers needed for ray tracing.
@@ -2705,6 +2706,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBu
  * @param positionBuffer		The resulting position buffer. Positions are in homogeneous coordinates.
  * @param directionBuffer		The resulting direction buffer.
  * @param originDirectionBuffer	The direction buffer, pointing to -Z direction.
+ * @param padding				Amount of padding bytes.
  * @param width 				The width of the buffers.
  * @param height 				The height of the buffers.
  * @param eyeX 					Eye / camera X position.
@@ -2717,7 +2719,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBu
  * @param upY 					Eye / camera Y component from up vector.
  * @param upZ 					Eye / camera Z component from up vector.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLUSfloat* directionBuffer, const GLUSfloat* originDirectionBuffer, const GLUSubyte padding, const GLUSint width, const GLUSint height, const GLUSfloat eyeX, const GLUSfloat eyeY, const GLUSfloat eyeZ, const GLUSfloat centerX, const GLUSfloat centerY, const GLUSfloat centerZ, const GLUSfloat upX, const GLUSfloat upY, const GLUSfloat upZ);
 
 //
 // Intersection testing

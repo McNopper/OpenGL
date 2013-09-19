@@ -326,8 +326,8 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
 
 	GLfloat pixelColor[4];
 
-	// Generate the ry directions depending on FOV, width and height.
-	if (!glusRaytracePerspectivef(g_directionBuffer, 30.0f, width, height))
+	// Generate the ray directions depending on FOV, width and height.
+	if (!glusRaytracePerspectivef(g_directionBuffer, 0, 30.0f, width, height))
 	{
 		printf("Error: Could not create direction buffer.\n");
 
@@ -335,7 +335,7 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
 	}
 
 	// Rendering only once, so direction buffer can be overwritten.
-	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, width, height, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, 0, width, height, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
 	// Ray tracing over all pixels
 
