@@ -171,6 +171,10 @@ GLUSboolean init(GLUSvoid)
 	// see binding = 2 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_positionSSBO);
 
+	//
+
+	// TODO Create and initialize ray stack buffer
+
 	return GLUS_TRUE;
 }
 
