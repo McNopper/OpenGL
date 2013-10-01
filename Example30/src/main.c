@@ -18,6 +18,9 @@
 
 #define DIRECTIONS_PADDING 1
 
+// 2^5-1
+#define STACK_DEPTH (2 * 2 * 2 * 2 * 2 - 1)
+
 #define RAY_STACK_LENGTH (4 + 3 + 1)
 
 #define NUM_SPHERES 6
@@ -85,7 +88,7 @@ static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
 static GLuint g_rayStackSSBO;
 
-static GLfloat g_rayStackBuffer[WIDTH * HEIGHT * RAY_STACK_LENGTH];
+static GLfloat g_rayStackBuffer[WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH];
 
 //
 //
@@ -155,6 +158,12 @@ static GLuint g_pointLightsSSBO;
 PointLight g_allLights[NUM_LIGHTS] = {
 		{{0.0f, 5.0f, -5.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f }}
 };
+
+//
+
+static GLuint g_colorSSBO;
+
+static GLfloat g_colorBuffer[WIDTH * HEIGHT * 4 * STACK_DEPTH];
 
 GLUSboolean init(GLUSvoid)
 {
@@ -226,9 +235,13 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
+	printf("Preparing buffers ... ");
+
 	// Generate the ray directions depending on FOV, width and height.
 	if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTIONS_PADDING, 30.0f, WIDTH, HEIGHT))
 	{
+		printf("failed!\n");
+
 		printf("Error: Could not create direction buffer.\n");
 
 		return GLUS_FALSE;
@@ -237,10 +250,20 @@ GLUSboolean init(GLUSvoid)
 	// Compute shader will use these textures just for input.
 	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTIONS_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-	for (i = 0; i < WIDTH * HEIGHT * RAY_STACK_LENGTH; i++)
+	for (i = 0; i < WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH; i++)
 	{
 		g_rayStackBuffer[i] = 0.0f;
 	}
+
+	for (i = 0; i < WIDTH * HEIGHT * STACK_DEPTH; i++)
+	{
+		g_colorBuffer[i * 4 + 0] = 0.0f;
+		g_colorBuffer[i * 4 + 1] = 0.0f;
+		g_colorBuffer[i * 4 + 2] = 0.0f;
+		g_colorBuffer[i * 4 + 3] = 1.0f;
+	}
+
+	printf("done!\n");
 
 	//
 	// Buffers with the initial ray position and direction.
@@ -267,7 +290,7 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_rayStackSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_rayStackSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * RAY_STACK_LENGTH * sizeof(GLfloat), g_rayStackBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH * sizeof(GLfloat), g_rayStackBuffer, GL_STATIC_DRAW);
 	// see binding = 3 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_rayStackSSBO);
 
@@ -288,6 +311,15 @@ GLUSboolean init(GLUSvoid)
 	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_allSpheres, GL_STATIC_DRAW);
 	// see binding = 5 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightsSSBO);
+
+	//
+
+	glGenBuffers(1, &g_colorSSBO);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_colorSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * STACK_DEPTH * sizeof(GLfloat), g_colorBuffer, GL_STATIC_DRAW);
+	// see binding = 6 in the shader
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, g_colorSSBO);
 
 	return GLUS_TRUE;
 }
@@ -362,6 +394,13 @@ GLUSvoid terminate(GLUSvoid)
 		glDeleteBuffers(1, &g_pointLightsSSBO);
 
 		g_pointLightsSSBO = 0;
+	}
+
+	if (g_colorSSBO)
+	{
+		glDeleteBuffers(1, &g_colorSSBO);
+
+		g_colorSSBO = 0;
 	}
 
 	//
