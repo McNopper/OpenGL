@@ -2,6 +2,9 @@
 
 #define MAX_DEPTH 5
 
+#define NUM_SPHERES 6
+#define NUM_LIGHTS 1
+
 // see g_localSize = 16 in main.c. Also the division by 16.0 depends on this size.
 layout (local_size_x = 16, local_size_y = 16) in;
 
@@ -28,6 +31,56 @@ layout (binding = 3) buffer RayStacks
 {
 	Ray ray[];
 } b_rayStacks;
+
+//
+
+struct Material {
+	vec4 emissiveColor;
+
+	vec4 diffuseColor;
+
+	vec4 specularColor;
+
+	float shininess;
+
+	float alpha;
+
+	float reflectivity;
+
+	float padding;
+};
+
+struct Sphere
+{
+	vec4 center;
+
+	float radius;
+
+	vec3 padding;
+
+	Material material;
+};
+
+layout (binding = 4) buffer Spheres
+{
+	Sphere sphere[];
+} b_spheres;
+
+//
+
+struct PointLight
+{
+	vec4 position;
+
+	vec4 color;
+};
+
+layout (binding = 5) buffer PointLights
+{
+	PointLight pointLight[];
+} b_pointLights;
+
+//
 
 int getReflectIndex(int index)
 {

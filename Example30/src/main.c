@@ -20,6 +20,11 @@
 
 #define RAY_STACK_LENGTH (4 + 3 + 1)
 
+#define NUM_SPHERES 6
+#define NUM_LIGHTS 1
+
+#define PADDING -321.123f
+
 /**
  * The used shader program.
  */
@@ -81,6 +86,75 @@ static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 static GLuint g_rayStackSSBO;
 
 static GLfloat g_rayStackBuffer[WIDTH * HEIGHT * RAY_STACK_LENGTH];
+
+//
+//
+//
+
+typedef struct _Material
+{
+	GLfloat emissiveColor[4];
+
+	GLfloat diffuseColor[4];
+
+	GLfloat specularColor[4];
+
+	GLfloat shininess;
+
+	GLfloat alpha;
+
+	GLfloat reflectivity;
+
+	GLfloat padding;
+
+} Material;
+
+typedef struct _Sphere
+{
+	GLfloat center[4];
+
+	GLfloat radius;
+
+	GLfloat padding[3];
+
+	Material material;
+
+} Sphere;
+
+typedef struct _PointLight
+{
+	GLfloat position[4];
+
+	GLfloat color[4];
+
+} PointLight;
+
+//
+
+static GLuint g_spheresSSBO;
+
+Sphere g_allSpheres[NUM_SPHERES] = {
+		// Ground sphere
+		{ { 0.0f, -10001.0f, -20.0f, 1.0f }, 10000.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 1.0f, 0.0f, PADDING } },
+		// Transparent sphere
+		{ { 0.0f, 0.0f, -10.0f, 1.0f }, 1.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 0.2f, 1.0f, PADDING } },
+		// Reflective sphere
+		{ { 1.0f, -0.75f, -7.0f, 1.0f }, 0.25f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.8f, PADDING } },
+		// Blue sphere
+		{ { 2.0f, 1.0f, -16.0f, 1.0f }, 2.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } },
+		// Green sphere
+		{ { -2.0f, 0.25f, -6.0f, 1.0f }, 1.25f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.8f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } },
+		// Red sphere
+		{ { 3.0f, 0.0f, -8.0f, 1.0f }, 1.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } }
+};
+
+//
+
+static GLuint g_pointLightsSSBO;
+
+PointLight g_allLights[NUM_LIGHTS] = {
+		{{0.0f, 5.0f, -5.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f }}
+};
 
 GLUSboolean init(GLUSvoid)
 {
@@ -199,7 +273,21 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	// TODO Create buffer for lights and spheres
+	glGenBuffers(1, &g_spheresSSBO);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_spheresSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_SPHERES * sizeof(Sphere), g_allSpheres, GL_STATIC_DRAW);
+	// see binding = 4 in the shader
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, g_spheresSSBO);
+
+	//
+
+	glGenBuffers(1, &g_pointLightsSSBO);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightsSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_allSpheres, GL_STATIC_DRAW);
+	// see binding = 5 in the shader
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightsSSBO);
 
 	return GLUS_TRUE;
 }
@@ -260,6 +348,20 @@ GLUSvoid terminate(GLUSvoid)
 		glDeleteBuffers(1, &g_rayStackSSBO);
 
 		g_rayStackSSBO = 0;
+	}
+
+	if (g_spheresSSBO)
+	{
+		glDeleteBuffers(1, &g_spheresSSBO);
+
+		g_spheresSSBO = 0;
+	}
+
+	if (g_pointLightsSSBO)
+	{
+		glDeleteBuffers(1, &g_pointLightsSSBO);
+
+		g_pointLightsSSBO = 0;
 	}
 
 	//
