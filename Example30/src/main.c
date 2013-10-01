@@ -16,7 +16,9 @@
 
 #define HEIGHT 480
 
-#define PADDING 1
+#define DIRECTIONS_PADDING 1
+
+#define RAY_STACK_LENGTH (4 + 3 + 1)
 
 /**
  * The used shader program.
@@ -61,10 +63,12 @@ static GLuint g_localSize = 16;
 static GLUSshaderprogram g_computeProgram;
 
 //
+// Shader Storage Buffer Objects
+//
 
 static GLuint g_directionSSBO;
 
-static GLfloat g_directionBuffer[WIDTH * HEIGHT * (3 + PADDING)];
+static GLfloat g_directionBuffer[WIDTH * HEIGHT * (3 + DIRECTIONS_PADDING)];
 
 //
 
@@ -72,8 +76,16 @@ static GLuint g_positionSSBO;
 
 static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
+//
+
+static GLuint g_rayStackSSBO;
+
+static GLfloat g_rayStackBuffer[WIDTH * HEIGHT * RAY_STACK_LENGTH];
+
 GLUSboolean init(GLUSvoid)
 {
+	GLint i;
+
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 	GLUStextfile computeSource;
@@ -141,7 +153,7 @@ GLUSboolean init(GLUSvoid)
 	//
 
 	// Generate the ray directions depending on FOV, width and height.
-	if (!glusRaytracePerspectivef(g_directionBuffer, PADDING, 30.0f, WIDTH, HEIGHT))
+	if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTIONS_PADDING, 30.0f, WIDTH, HEIGHT))
 	{
 		printf("Error: Could not create direction buffer.\n");
 
@@ -149,7 +161,12 @@ GLUSboolean init(GLUSvoid)
 	}
 
 	// Compute shader will use these textures just for input.
-	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTIONS_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+
+	for (i = 0; i < WIDTH * HEIGHT * RAY_STACK_LENGTH; i++)
+	{
+		g_rayStackBuffer[i] = 0.0f;
+	}
 
 	//
 	// Buffers with the initial ray position and direction.
@@ -158,7 +175,7 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_directionSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_directionSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_READ);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTIONS_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
 	// see binding = 1 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, g_directionSSBO);
 
@@ -167,13 +184,22 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_positionSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_positionSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_READ);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_DRAW);
 	// see binding = 2 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_positionSSBO);
 
 	//
 
-	// TODO Create and initialize ray stack buffer
+	glGenBuffers(1, &g_rayStackSSBO);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_rayStackSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * RAY_STACK_LENGTH * sizeof(GLfloat), g_rayStackBuffer, GL_STATIC_DRAW);
+	// see binding = 3 in the shader
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_rayStackSSBO);
+
+	//
+
+	// TODO Create buffer for lights and spheres
 
 	return GLUS_TRUE;
 }
@@ -227,6 +253,13 @@ GLUSvoid terminate(GLUSvoid)
 		glDeleteBuffers(1, &g_positionSSBO);
 
 		g_positionSSBO = 0;
+	}
+
+	if (g_rayStackSSBO)
+	{
+		glDeleteBuffers(1, &g_rayStackSSBO);
+
+		g_rayStackSSBO = 0;
 	}
 
 	//

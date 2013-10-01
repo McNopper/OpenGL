@@ -24,10 +24,10 @@ struct Ray {
 	float valid;
 };
 
-layout (binding = 3) buffer RayStack
+layout (binding = 3) buffer RayStacks
 {
 	Ray ray[];
-} b_rayStack;
+} b_rayStacks;
 
 int getReflectIndex(int index)
 {
@@ -41,7 +41,7 @@ int getRefractIndex(int index)
 
 void trace(int rayIndex)
 {
-	if (b_rayStack.ray[rayIndex].valid <= 0.0)
+	if (b_rayStacks.ray[rayIndex].valid <= 0.0)
 	{
 		return;
 	}
@@ -49,15 +49,17 @@ void trace(int rayIndex)
 	// TODO Do checks similar as in Example29
 
 	// TODO If reflection:
-	// b_rayStack.ray[getReflectIndex(rayIndex)].valid = 1.0;
+	// b_rayStacks.ray[getReflectIndex(rayIndex)].valid = 1.0;
 	// Store position and direction
 	
 	// TODO If refraction:
-	// b_rayStack.ray[getRefractIndex(rayIndex)].valid = 1.0;
+	// b_rayStacks.ray[getRefractIndex(rayIndex)].valid = 1.0;
 	// Store position and direction
 	
 	// TODO Store hit sphere. 
 }
+
+// TODO Create buffer to pass lights and spheres
 
 void main(void)
 {
@@ -69,8 +71,8 @@ void main(void)
 	int maxLoops = int(exp2(MAX_DEPTH) - 1.0);
 
 	// Init ray stack 0 with initial direction and position.
-	b_rayStack.ray[0].position = b_positions.position[storePos.x + storePos.y * dimension.x];
-	b_rayStack.ray[0].direction = b_directions.direction[storePos.x + storePos.y * dimension.x];
+	b_rayStacks.ray[0].position = b_positions.position[storePos.x + storePos.y * dimension.x];
+	b_rayStacks.ray[0].direction = b_directions.direction[storePos.x + storePos.y * dimension.x];
 
 	// Trace all possible rays initiated by the origin ray.
 	for (int i = 0; i < maxLoops; i++)
@@ -80,9 +82,7 @@ void main(void)
 	
 	// TODO Loop again and calculate final color.
 
-	//
 	// TODO Temp: Printing out origin ray directions for debug purposes.
-	//
 		
 	vec4 testColor = vec4(b_directions.direction[storePos.x + storePos.y * dimension.x], 1.0);
 	
