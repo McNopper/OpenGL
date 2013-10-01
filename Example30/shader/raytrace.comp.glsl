@@ -15,7 +15,7 @@ layout (binding = 0, rgba8) uniform image2D u_texture;
 layout (std430, binding = 1) buffer Directions
 {
 	vec3 direction[];
-	// Padding[]
+	// Padding
 } b_directions;
 
 layout (std430, binding = 2) buffer Positions
@@ -49,7 +49,7 @@ struct Material {
 
 	float reflectivity;
 
-	// Padding
+	float padding;
 };
 
 struct Sphere
@@ -58,7 +58,7 @@ struct Sphere
 
 	float radius;
 
-	// Padding[3]
+	vec3 padding;
 
 	Material material;
 };
