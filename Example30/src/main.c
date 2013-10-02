@@ -21,7 +21,7 @@
 // 2^5-1
 #define STACK_DEPTH (2 * 2 * 2 * 2 * 2 - 1)
 
-#define RAY_STACK_LENGTH (4 + 3 + 1)
+#define RAY_STACK_LENGTH (4 + 3 + 1 + 1 + 1 + 2)
 
 #define NUM_SPHERES 6
 #define NUM_LIGHTS 1
