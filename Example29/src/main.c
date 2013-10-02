@@ -24,13 +24,13 @@
 
 // Indices of refraction
 #define Air 1.0f
-#define Booble 1.06f
+#define Bubble 1.06f
 
 // Air to glass ratio of the indices of refraction (Eta)
-#define Eta (Air / Booble)
+#define Eta (Air / Bubble)
 
 // see http://en.wikipedia.org/wiki/Refractive_index Reflectivity
-#define R0 (((Air - Booble) * (Air - Booble)) / ((Air + Booble) * (Air + Booble)))
+#define R0 (((Air - Bubble) * (Air - Bubble)) / ((Air + Bubble) * (Air + Bubble)))
 
 typedef struct _Material
 {

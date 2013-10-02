@@ -2,13 +2,13 @@
 
 // Indices of refraction
 #define Air 1.0f
-#define Booble 1.06f
+#define Bubble 1.06f
 
 // Air to glass ratio of the indices of refraction (Eta)
-#define Eta (Air / Booble)
+#define Eta (Air / Bubble)
 
 // see http://en.wikipedia.org/wiki/Refractive_index Reflectivity
-#define R0 (((Air - Booble) * (Air - Booble)) / ((Air + Booble) * (Air + Booble)))
+#define R0 (((Air - Bubble) * (Air - Bubble)) / ((Air + Bubble) * (Air + Bubble)))
 
 #define MAX_DEPTH 5
 
@@ -17,10 +17,10 @@
 
 #define INFINITY 1000000.0
 
-// see g_localSize = 16 in main.c. Also the division by 16.0 depends on this size.
+// see g_localSize = 16 in main.c.
 layout (local_size_x = 16, local_size_y = 16) in;
 
-layout (binding = 0, rgba8) uniform image2D u_texture; 
+layout (rgba8, binding = 0) uniform image2D u_texture; 
 
 layout (std430, binding = 1) buffer Directions
 {
@@ -33,19 +33,20 @@ layout (std430, binding = 2) buffer Positions
 	vec4 position[];
 } b_positions;
 
-struct Ray {
+struct Stack {
 	vec4 position;
 	vec3 direction;
 	float valid;
 	float sphereIndex;
 	float fresnel;
+	vec4 color;
 	// Padding[2]
 };
 
-layout (std430, binding = 3) buffer RayStacks
+layout (std430, binding = 3) buffer Stacks
 {
-	Ray ray[];
-} b_rayStacks;
+	Stack stack[];
+} b_stacks;
 
 //
 
@@ -94,13 +95,6 @@ layout (std430, binding = 5) buffer PointLights
 {
 	PointLight pointLight[];
 } b_pointLights;
-
-//
-
-layout (std430, binding = 6) buffer Colors
-{
-	vec4 color[];
-} b_colors;
 
 //
 
@@ -196,9 +190,9 @@ int getRefractIndex(int index)
 	return index * 2 + 2;
 }
 
-void trace(int rayIndex, int maxLoops, int pixelPos)
+void trace(int pixelPos, int maxLoops, int rayIndex)
 {
-	if (b_rayStacks.ray[pixelPos * maxLoops + rayIndex].valid <= 0.0)
+	if (b_stacks.stack[pixelPos * maxLoops + rayIndex].valid <= 0.0)
 	{
 		return;
 	}
@@ -224,9 +218,9 @@ void trace(int rayIndex, int maxLoops, int pixelPos)
 
 	//
 	
-	vec4 rayPosition = b_rayStacks.ray[pixelPos * maxLoops + rayIndex].position;
+	vec4 rayPosition = b_stacks.stack[pixelPos * maxLoops + rayIndex].position;
 	
-	vec3 rayDirection = b_rayStacks.ray[pixelPos * maxLoops + rayIndex].direction;
+	vec3 rayDirection = b_stacks.stack[pixelPos * maxLoops + rayIndex].direction;
 
 	for (i = 0; i < NUM_SPHERES; i++)
 	{
@@ -259,12 +253,12 @@ void trace(int rayIndex, int maxLoops, int pixelPos)
 	// No intersection, return background color / ambient light.
 	if (sphereNearIndex < 0)
 	{
-		b_rayStacks.ray[pixelPos * maxLoops + rayIndex].sphereIndex = -1.0;
+		b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex = -1.0;
 	
 		return;
 	}
 	
-	b_rayStacks.ray[pixelPos * maxLoops + rayIndex].sphereIndex = float(sphereNearIndex);	
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex = float(sphereNearIndex);	
 	
 	//
 	
@@ -290,7 +284,7 @@ void trace(int rayIndex, int maxLoops, int pixelPos)
 
 	//
 
-	b_rayStacks.ray[pixelPos * maxLoops + rayIndex].fresnel = fresnel(rayDirection, hitDirection, R0);
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel = fresnel(rayDirection, hitDirection, R0);
 
 	int reflectionIndex = getReflectIndex(rayIndex);
 
@@ -299,9 +293,9 @@ void trace(int rayIndex, int maxLoops, int pixelPos)
 	{
 		vec3 reflectionDirection = normalize(reflect(rayDirection, hitDirection));
 
-		b_rayStacks.ray[pixelPos * maxLoops + reflectionIndex].position = biasedPositiveHitPosition;
-		b_rayStacks.ray[pixelPos * maxLoops + reflectionIndex].direction = reflectionDirection;
-		b_rayStacks.ray[pixelPos * maxLoops + reflectionIndex].valid = 1.0;
+		b_stacks.stack[pixelPos * maxLoops + reflectionIndex].position = biasedPositiveHitPosition;
+		b_stacks.stack[pixelPos * maxLoops + reflectionIndex].direction = reflectionDirection;
+		b_stacks.stack[pixelPos * maxLoops + reflectionIndex].valid = 1.0;
 	}
 
 	int refractionIndex = getRefractIndex(rayIndex);
@@ -316,39 +310,39 @@ void trace(int rayIndex, int maxLoops, int pixelPos)
 
 		refractionDirection = normalize(refract(rayDirection, hitDirection, eta));
 
-		b_rayStacks.ray[pixelPos * maxLoops + refractionIndex].position = biasedNegativeHitPosition;
-		b_rayStacks.ray[pixelPos * maxLoops + refractionIndex].direction = refractionDirection;
-		b_rayStacks.ray[pixelPos * maxLoops + refractionIndex].valid = 1.0;
+		b_stacks.stack[pixelPos * maxLoops + refractionIndex].position = biasedNegativeHitPosition;
+		b_stacks.stack[pixelPos * maxLoops + refractionIndex].direction = refractionDirection;
+		b_stacks.stack[pixelPos * maxLoops + refractionIndex].valid = 1.0;
 	}
 	else
 	{
-		b_rayStacks.ray[pixelPos * maxLoops + rayIndex].fresnel = 1.0f;
+		b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel = 1.0f;
 	}
 }
 
-void shade(int rayIndex, int maxLoops, int pixelPos)
+void shade(int pixelPos, int maxLoops, int rayIndex)
 {
-	if (b_rayStacks.ray[pixelPos * maxLoops + rayIndex].valid <= 0.0)
+	if (b_stacks.stack[pixelPos * maxLoops + rayIndex].valid <= 0.0)
 	{
 		return;
 	}
 	
-	int sphereIndex = int(b_rayStacks.ray[pixelPos * maxLoops + rayIndex].sphereIndex);
+	int sphereIndex = int(b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex);
 
 	if (sphereIndex < 0)
 	{
-		b_colors.color[pixelPos * maxLoops + rayIndex] = vec4(0.8, 0.8, 0.8, 1.0);
+		b_stacks.stack[pixelPos * maxLoops + rayIndex].color = vec4(0.8, 0.8, 0.8, 1.0);
 		
 		return;
 	}	
 
 	// TODO Calculate final color
-	b_colors.color[pixelPos * maxLoops + rayIndex] = b_spheres.sphere[sphereIndex].material.diffuseColor;
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].color = b_spheres.sphere[sphereIndex].material.diffuseColor;
 }
 
-void clear(int rayIndex, int maxLoops, int pixelPos)
+void clear(int pixelPos, int maxLoops, int rayIndex)
 {
-	b_rayStacks.ray[pixelPos * maxLoops + rayIndex].valid = 0.0;
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].valid = 0.0;
 }
 
 void main(void)
@@ -363,28 +357,28 @@ void main(void)
 	int maxLoops = int(exp2(MAX_DEPTH) - 1.0);
 
 	// Init ray stack 0 with initial direction and position.
-	b_rayStacks.ray[pixelPos * maxLoops + 0].position = b_positions.position[pixelPos];
-	b_rayStacks.ray[pixelPos * maxLoops + 0].direction = b_directions.direction[pixelPos];
-	b_rayStacks.ray[pixelPos * maxLoops + 0].valid = 1.0;
+	b_stacks.stack[pixelPos * maxLoops + 0].position = b_positions.position[pixelPos];
+	b_stacks.stack[pixelPos * maxLoops + 0].direction = b_directions.direction[pixelPos];
+	b_stacks.stack[pixelPos * maxLoops + 0].valid = 1.0;
 
 	// Trace all possible rays initiated by the origin ray.
 	for (int i = 0; i < maxLoops; i++)
 	{
-		trace(i, maxLoops, pixelPos);
+		trace(pixelPos, maxLoops, i);
 	}
 		
-	// Loop from end again and calculate final color.
+	// Loop from end and calculate final color.
 	for (int i = maxLoops - 1; i >= 0; i--)
 	{
-		shade(i, maxLoops, pixelPos);
+		shade(pixelPos, maxLoops, i);
 	}	
 
 	// Clear for next frame.
 	for (int i = 0; i < maxLoops; i++)
 	{
-		clear(i, maxLoops, pixelPos);
+		clear(pixelPos, maxLoops, i);
 	}
 
 	// In index 0, the final color for this pixel is stored.
-	imageStore(u_texture, storePos, b_colors.color[pixelPos * maxLoops + 0]);	
+	imageStore(u_texture, storePos, b_stacks.stack[pixelPos * maxLoops + 0].color);	
 }

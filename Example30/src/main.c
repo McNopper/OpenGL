@@ -13,20 +13,19 @@
 #include "GL/glus.h"
 
 #define WIDTH 640
-
 #define HEIGHT 480
 
-#define DIRECTIONS_PADDING 1
+#define DIRECTION_BUFFER_PADDING 1
+
+#define PADDING_VALUE -321.123f
 
 // 2^5-1
 #define STACK_DEPTH (2 * 2 * 2 * 2 * 2 - 1)
 
-#define RAY_STACK_LENGTH (4 + 3 + 1 + 1 + 1 + 2)
+#define NUM_STACK_ELEMENTS (4 + 3 + 1 + 1 + 1 + 4 + 2)
 
 #define NUM_SPHERES 6
 #define NUM_LIGHTS 1
-
-#define PADDING -321.123f
 
 /**
  * The used shader program.
@@ -51,12 +50,12 @@ static GLuint g_texture;
 /**
  * Width of the image.
  */
-static GLuint g_imageWidth = 640;
+static GLuint g_imageWidth = WIDTH;
 
 /**
  * Height of the image.
  */
-static GLuint g_imageHeight = 480;
+static GLuint g_imageHeight = HEIGHT;
 
 /**
  * Size of the work goups.
@@ -76,7 +75,7 @@ static GLUSshaderprogram g_computeProgram;
 
 static GLuint g_directionSSBO;
 
-static GLfloat g_directionBuffer[WIDTH * HEIGHT * (3 + DIRECTIONS_PADDING)];
+static GLfloat g_directionBuffer[WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING)];
 
 //
 
@@ -86,12 +85,10 @@ static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
 //
 
-static GLuint g_rayStackSSBO;
+static GLuint g_stackSSBO;
 
-static GLfloat g_rayStackBuffer[WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH];
+static GLfloat g_stackBuffer[WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH];
 
-//
-//
 //
 
 typedef struct _Material
@@ -124,6 +121,25 @@ typedef struct _Sphere
 
 } Sphere;
 
+static GLuint g_sphereSSBO;
+
+Sphere g_sphereBuffer[NUM_SPHERES] = {
+		// Ground sphere
+		{ { 0.0f, -10001.0f, -20.0f, 1.0f }, 10000.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 1.0f, 0.0f, PADDING_VALUE } },
+		// Transparent sphere
+		{ { 0.0f, 0.0f, -10.0f, 1.0f }, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 0.2f, 1.0f, PADDING_VALUE } },
+		// Reflective sphere
+		{ { 1.0f, -0.75f, -7.0f, 1.0f }, 0.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.8f, PADDING_VALUE } },
+		// Blue sphere
+		{ { 2.0f, 1.0f, -16.0f, 1.0f }, 2.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } },
+		// Green sphere
+		{ { -2.0f, 0.25f, -6.0f, 1.0f }, 1.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.8f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } },
+		// Red sphere
+		{ { 3.0f, 0.0f, -8.0f, 1.0f }, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } }
+};
+
+//
+
 typedef struct _PointLight
 {
 	GLfloat position[4];
@@ -132,38 +148,11 @@ typedef struct _PointLight
 
 } PointLight;
 
-//
+static GLuint g_pointLightSSBO;
 
-static GLuint g_spheresSSBO;
-
-Sphere g_allSpheres[NUM_SPHERES] = {
-		// Ground sphere
-		{ { 0.0f, -10001.0f, -20.0f, 1.0f }, 10000.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 1.0f, 0.0f, PADDING } },
-		// Transparent sphere
-		{ { 0.0f, 0.0f, -10.0f, 1.0f }, 1.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 0.2f, 1.0f, PADDING } },
-		// Reflective sphere
-		{ { 1.0f, -0.75f, -7.0f, 1.0f }, 0.25f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.8f, PADDING } },
-		// Blue sphere
-		{ { 2.0f, 1.0f, -16.0f, 1.0f }, 2.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } },
-		// Green sphere
-		{ { -2.0f, 0.25f, -6.0f, 1.0f }, 1.25f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.8f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } },
-		// Red sphere
-		{ { 3.0f, 0.0f, -8.0f, 1.0f }, 1.0f, {PADDING, PADDING, PADDING}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING } }
-};
-
-//
-
-static GLuint g_pointLightsSSBO;
-
-PointLight g_allLights[NUM_LIGHTS] = {
+PointLight g_lightBuffer[NUM_LIGHTS] = {
 		{{0.0f, 5.0f, -5.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f }}
 };
-
-//
-
-static GLuint g_colorSSBO;
-
-static GLfloat g_colorBuffer[WIDTH * HEIGHT * 4 * STACK_DEPTH];
 
 GLUSboolean init(GLUSvoid)
 {
@@ -238,7 +227,7 @@ GLUSboolean init(GLUSvoid)
 	printf("Preparing buffers ... ");
 
 	// Generate the ray directions depending on FOV, width and height.
-	if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTIONS_PADDING, 30.0f, WIDTH, HEIGHT))
+	if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTION_BUFFER_PADDING, 30.0f, WIDTH, HEIGHT))
 	{
 		printf("failed!\n");
 
@@ -248,19 +237,11 @@ GLUSboolean init(GLUSvoid)
 	}
 
 	// Compute shader will use these textures just for input.
-	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTIONS_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTION_BUFFER_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-	for (i = 0; i < WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH; i++)
+	for (i = 0; i < WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH; i++)
 	{
-		g_rayStackBuffer[i] = 0.0f;
-	}
-
-	for (i = 0; i < WIDTH * HEIGHT * STACK_DEPTH; i++)
-	{
-		g_colorBuffer[i * 4 + 0] = 0.0f;
-		g_colorBuffer[i * 4 + 1] = 0.0f;
-		g_colorBuffer[i * 4 + 2] = 0.0f;
-		g_colorBuffer[i * 4 + 3] = 1.0f;
+		g_stackBuffer[i] = 0.0f;
 	}
 
 	printf("done!\n");
@@ -272,7 +253,7 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_directionSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_directionSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTIONS_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
 	// see binding = 1 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, g_directionSSBO);
 
@@ -287,39 +268,32 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glGenBuffers(1, &g_rayStackSSBO);
+	glGenBuffers(1, &g_stackSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_rayStackSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * RAY_STACK_LENGTH * STACK_DEPTH * sizeof(GLfloat), g_rayStackBuffer, GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_stackSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
 	// see binding = 3 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_rayStackSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_stackSSBO);
 
 	//
 
-	glGenBuffers(1, &g_spheresSSBO);
+	glGenBuffers(1, &g_sphereSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_spheresSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_SPHERES * sizeof(Sphere), g_allSpheres, GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_sphereSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_SPHERES * sizeof(Sphere), g_sphereBuffer, GL_STATIC_DRAW);
 	// see binding = 4 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, g_spheresSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, g_sphereSSBO);
 
 	//
 
-	glGenBuffers(1, &g_pointLightsSSBO);
+	glGenBuffers(1, &g_pointLightSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightsSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_allSpheres, GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_sphereBuffer, GL_STATIC_DRAW);
 	// see binding = 5 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightsSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightSSBO);
 
 	//
-
-	glGenBuffers(1, &g_colorSSBO);
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_colorSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * STACK_DEPTH * sizeof(GLfloat), g_colorBuffer, GL_STATIC_DRAW);
-	// see binding = 6 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, g_colorSSBO);
 
 	return GLUS_TRUE;
 }
@@ -375,32 +349,25 @@ GLUSvoid terminate(GLUSvoid)
 		g_positionSSBO = 0;
 	}
 
-	if (g_rayStackSSBO)
+	if (g_stackSSBO)
 	{
-		glDeleteBuffers(1, &g_rayStackSSBO);
+		glDeleteBuffers(1, &g_stackSSBO);
 
-		g_rayStackSSBO = 0;
+		g_stackSSBO = 0;
 	}
 
-	if (g_spheresSSBO)
+	if (g_sphereSSBO)
 	{
-		glDeleteBuffers(1, &g_spheresSSBO);
+		glDeleteBuffers(1, &g_sphereSSBO);
 
-		g_spheresSSBO = 0;
+		g_sphereSSBO = 0;
 	}
 
-	if (g_pointLightsSSBO)
+	if (g_pointLightSSBO)
 	{
-		glDeleteBuffers(1, &g_pointLightsSSBO);
+		glDeleteBuffers(1, &g_pointLightSSBO);
 
-		g_pointLightsSSBO = 0;
-	}
-
-	if (g_colorSSBO)
-	{
-		glDeleteBuffers(1, &g_colorSSBO);
-
-		g_colorSSBO = 0;
+		g_pointLightSSBO = 0;
 	}
 
 	//
