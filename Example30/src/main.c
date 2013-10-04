@@ -19,10 +19,15 @@
 
 #define PADDING_VALUE -321.123f
 
-// 2^5-1
-#define STACK_DEPTH (2 * 2 * 2 * 2 * 2 - 1)
+// Every ray can have two sub rays (reflect and refract). This can be organized as a tree, with  breadth-first indexing.
+// So, a tree with a depth has 2^depth-1 nodes. In this case we have a MAX_DEPTH of 5
+#define NUM_STACK_NODES (2 * 2 * 2 * 2 * 2 - 1)
 
-#define NUM_STACK_ELEMENTS (4 + (3 + 1) + 4 + 4 + (3 + 1) + 4 + 1 + 1 + 1 + 1)
+// As no recursion is possible in GLSL, the following is done:
+// As the number of rays (= nodes) is known, all rays plus sub rays are executed. All needed values are stored in a stack node.
+// After this is done, the tree is traversed again from the leaf node to the root. Now the color of node can be calculated
+// by the using the sub nodes. Finally, in the root node the final color is stored.
+#define STACK_NODE_FLOATS (4 + (3 + 1) + 4 + 4 + (3 + 1) + 4 + 1 + 1 + 1 + 1)
 
 #define NUM_SPHERES 6
 #define NUM_LIGHTS 1
@@ -77,7 +82,7 @@ static GLfloat g_positionBuffer[WIDTH * HEIGHT * 4];
 
 static GLuint g_stackSSBO;
 
-static GLfloat g_stackBuffer[WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH];
+static GLfloat g_stackBuffer[WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES];
 
 //
 
@@ -229,7 +234,7 @@ GLUSboolean init(GLUSvoid)
 	// Compute shader will use these textures just for input.
 	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTION_BUFFER_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-	for (i = 0; i < WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH; i++)
+	for (i = 0; i < WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES; i++)
 	{
 		g_stackBuffer[i] = 0.0f;
 	}
@@ -261,7 +266,7 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_stackSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_stackSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * NUM_STACK_ELEMENTS * STACK_DEPTH * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
 	// see binding = 3 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_stackSSBO);
 

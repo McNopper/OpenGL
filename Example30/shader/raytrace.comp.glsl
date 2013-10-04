@@ -10,6 +10,7 @@
 // see http://en.wikipedia.org/wiki/Refractive_index Reflectivity
 #define R0 (((Air - Bubble) * (Air - Bubble)) / ((Air + Bubble) * (Air + Bubble)))
 
+// Adjust NUM_STACK_NODES in C file, if this value is changed.
 #define MAX_DEPTH 5
 
 #define NUM_SPHERES 6
@@ -110,14 +111,14 @@ layout (std430, binding = 5) buffer PointLights
 
 //
 
-precise float fresnel(vec3 incident, vec3 normal, float r0)
+float fresnel(vec3 incident, vec3 normal, float r0)
 {
 	// see http://en.wikipedia.org/wiki/Schlick%27s_approximation
 
 	return r0 + (1.0 - r0) * pow(1.0 - dot(-incident, normal), 5.0);
 }
 
-int intersectRaySphere(precise out float tNear, precise out float tFar, out bool insideSphere, vec4 rayStart, vec3 rayDirection, vec4 sphereCenter, float radius)
+int intersectRaySphere(out float tNear, out float tFar, out bool insideSphere, vec4 rayStart, vec3 rayDirection, vec4 sphereCenter, float radius)
 {
 	// see http://de.wikipedia.org/wiki/Quadratische_Gleichung (German)
 	// see Real-Time Collision Detection p177
@@ -333,7 +334,6 @@ void shade(int pixelPos, int maxLoops, int rayIndex)
 	}
 	
 	int sphereNearIndex = int(b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex);
-	bool insideSphereNear = bool(b_stacks.stack[pixelPos * maxLoops + rayIndex].insideSphere);
 	
 	if (sphereNearIndex < 0)
 	{
@@ -342,9 +342,7 @@ void shade(int pixelPos, int maxLoops, int rayIndex)
 		return;
 	}	
 
-	//
-	//
-	//
+	bool insideSphereNear = bool(b_stacks.stack[pixelPos * maxLoops + rayIndex].insideSphere);
 
 	vec4 rayPosition = b_stacks.stack[pixelPos * maxLoops + rayIndex].position;
 	vec3 rayDirection = b_stacks.stack[pixelPos * maxLoops + rayIndex].direction;
@@ -474,7 +472,7 @@ void main(void)
 		trace(pixelPos, maxLoops, i);
 	}
 		
-	// Loop from end and calculate final color.
+	// Loop from leaf nodes to root and calculate final color.
 	for (int i = maxLoops - 1; i >= 0; i--)
 	{
 		shade(pixelPos, maxLoops, i);
