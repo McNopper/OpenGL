@@ -22,7 +22,7 @@
 // 2^5-1
 #define STACK_DEPTH (2 * 2 * 2 * 2 * 2 - 1)
 
-#define NUM_STACK_ELEMENTS (4 + 3 + 1 + 1 + 1 + 4 + 2)
+#define NUM_STACK_ELEMENTS (4 + (3 + 1) + 4 + 4 + (3 + 1) + 4 + 1 + 1 + 1 + 1)
 
 #define NUM_SPHERES 6
 #define NUM_LIGHTS 1
@@ -46,16 +46,6 @@ static GLuint g_vao;
  * The texture.
  */
 static GLuint g_texture;
-
-/**
- * Width of the image.
- */
-static GLuint g_imageWidth = WIDTH;
-
-/**
- * Height of the image.
- */
-static GLuint g_imageHeight = HEIGHT;
 
 /**
  * Size of the work goups.
@@ -188,7 +178,7 @@ GLUSboolean init(GLUSvoid)
 	glBindTexture(GL_TEXTURE_2D, g_texture);
 
 	// Create an empty image.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g_imageWidth, g_imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	// Setting the texture parameters.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -289,7 +279,7 @@ GLUSboolean init(GLUSvoid)
 	glGenBuffers(1, &g_pointLightSSBO);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_sphereBuffer, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_lightBuffer, GL_STATIC_DRAW);
 	// see binding = 5 in the shader
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightSSBO);
 
@@ -309,7 +299,7 @@ GLUSboolean update(GLUSfloat time)
 	glUseProgram(g_computeProgram.program);
 
 	// Create threads depending on width, height and block size. In this case we have 1200 threads.
-	glDispatchCompute(g_imageWidth / g_localSize, g_imageHeight / g_localSize, 1);
+	glDispatchCompute(WIDTH / g_localSize, HEIGHT / g_localSize, 1);
 
 	// Switch back to the render program.
 	glUseProgram(g_program.program);

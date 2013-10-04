@@ -1,8 +1,8 @@
 #version 430 core
 
 // Indices of refraction
-#define Air 1.0f
-#define Bubble 1.06f
+#define Air 1.0
+#define Bubble 1.06
 
 // Air to glass ratio of the indices of refraction (Eta)
 #define Eta (Air / Bubble)
@@ -35,12 +35,24 @@ layout (std430, binding = 2) buffer Positions
 
 struct Stack {
 	vec4 position;
+	
 	vec3 direction;
-	float valid;
-	float sphereIndex;
-	float fresnel;
+
 	vec4 color;
-	// Padding[2]
+	
+	vec4 hitPosition;
+	
+	vec3 hitDirection;
+
+	vec4 biasedPositiveHitPosition;
+	
+	float valid;
+
+	float fresnel;
+
+	float sphereIndex;
+	
+	float insideSphere;
 };
 
 layout (std430, binding = 3) buffer Stacks
@@ -98,18 +110,14 @@ layout (std430, binding = 5) buffer PointLights
 
 //
 
-float fresnel(vec3 incident, vec3 normal, float r0)
+precise float fresnel(vec3 incident, vec3 normal, float r0)
 {
 	// see http://en.wikipedia.org/wiki/Schlick%27s_approximation
 
-	vec3 negIncident;
-
-	negIncident = incident * -1.0;
-
-	return r0 + (1.0 - r0) * pow(1.0 - dot(negIncident, normal), 5.0);
+	return r0 + (1.0 - r0) * pow(1.0 - dot(-incident, normal), 5.0);
 }
 
-int intersectRaySphere(out float tNear, out float tFar, out bool insideSphere, vec4 rayStart, vec3 rayDirection, vec4 sphereCenter, float radius)
+int intersectRaySphere(precise out float tNear, precise out float tFar, out bool insideSphere, vec4 rayStart, vec3 rayDirection, vec4 sphereCenter, float radius)
 {
 	// see http://de.wikipedia.org/wiki/Quadratische_Gleichung (German)
 	// see Real-Time Collision Detection p177
@@ -207,15 +215,6 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
 
 	vec3 ray;
 
-	vec4 hitPosition;
-	vec3 hitDirection;
-
-	vec4 biasedPositiveHitPosition;
-	vec4 biasedNegativeHitPosition;
-	vec3 biasedHitDirection;
-
-	vec3 eyeDirection;
-
 	//
 	
 	vec4 rayPosition = b_stacks.stack[pixelPos * maxLoops + rayIndex].position;
@@ -259,15 +258,16 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
 	}
 	
 	b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex = float(sphereNearIndex);	
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].insideSphere = float(insideSphereNear);
 	
 	//
 	
 	// Calculate ray hit position ...
 	ray = rayDirection * tNear;
-	hitPosition = rayPosition + vec4(ray, 0.0);
+	vec4 hitPosition = rayPosition + vec4(ray, 0.0);
 
 	// ... and normal
-	hitDirection = normalize(hitPosition - b_spheres.sphere[sphereNearIndex].center).xyz;
+	vec3 hitDirection = normalize((hitPosition - b_spheres.sphere[sphereNearIndex].center).xyz);
 
 	// If inside the sphere, reverse hit vector, as ray comes from inside.
 	if (insideSphereNear)
@@ -278,14 +278,14 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
 	//
 
 	// Biasing, to avoid artifacts.
-	biasedHitDirection = hitDirection * bias;
-	biasedPositiveHitPosition = hitPosition + vec4(biasedHitDirection, 0.0);
-	biasedNegativeHitPosition = hitPosition - vec4(biasedHitDirection, 0.0);
+	vec3 biasedHitDirection = hitDirection * bias;
+	vec4 biasedPositiveHitPosition = hitPosition + vec4(biasedHitDirection, 0.0);
+	vec4 biasedNegativeHitPosition = hitPosition - vec4(biasedHitDirection, 0.0);
 
 	//
 
 	b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel = fresnel(rayDirection, hitDirection, R0);
-
+	
 	int reflectionIndex = getReflectIndex(rayIndex);
 
 	// Reflection ...
@@ -303,12 +303,10 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
 	// ... refraction.
 	if (b_spheres.sphere[sphereNearIndex].material.alpha < 1.0 && refractionIndex < maxLoops)
 	{
-		vec3 refractionDirection;
-
 		// If inside, it is from glass to air.
 		float eta = insideSphereNear ? 1.0 / Eta : Eta;
-
-		refractionDirection = normalize(refract(rayDirection, hitDirection, eta));
+		
+		vec3 refractionDirection = normalize(refract(rayDirection, hitDirection, eta));
 
 		b_stacks.stack[pixelPos * maxLoops + refractionIndex].position = biasedNegativeHitPosition;
 		b_stacks.stack[pixelPos * maxLoops + refractionIndex].direction = refractionDirection;
@@ -316,28 +314,137 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
 	}
 	else
 	{
-		b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel = 1.0f;
+		b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel = 1.0;
 	}
+	
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].hitPosition = hitPosition;
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].hitDirection = hitDirection; 
+
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].biasedPositiveHitPosition = biasedPositiveHitPosition;
 }
 
 void shade(int pixelPos, int maxLoops, int rayIndex)
 {
+	int i, k;
+
 	if (b_stacks.stack[pixelPos * maxLoops + rayIndex].valid <= 0.0)
 	{
 		return;
 	}
 	
-	int sphereIndex = int(b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex);
-
-	if (sphereIndex < 0)
+	int sphereNearIndex = int(b_stacks.stack[pixelPos * maxLoops + rayIndex].sphereIndex);
+	bool insideSphereNear = bool(b_stacks.stack[pixelPos * maxLoops + rayIndex].insideSphere);
+	
+	if (sphereNearIndex < 0)
 	{
 		b_stacks.stack[pixelPos * maxLoops + rayIndex].color = vec4(0.8, 0.8, 0.8, 1.0);
 		
 		return;
 	}	
 
-	// TODO Calculate final color
-	b_stacks.stack[pixelPos * maxLoops + rayIndex].color = b_spheres.sphere[sphereIndex].material.diffuseColor;
+	//
+	//
+	//
+
+	vec4 rayPosition = b_stacks.stack[pixelPos * maxLoops + rayIndex].position;
+	vec3 rayDirection = b_stacks.stack[pixelPos * maxLoops + rayIndex].direction;
+
+	vec4 reflectionColor = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 refractionColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+	int reflectionIndex = getReflectIndex(rayIndex);
+
+	float fresnel = b_stacks.stack[pixelPos * maxLoops + rayIndex].fresnel;
+	
+	// Reflection ...
+	if (b_spheres.sphere[sphereNearIndex].material.reflectivity > 0.0 && reflectionIndex < maxLoops)
+	{
+		if (b_stacks.stack[pixelPos * maxLoops + reflectionIndex].valid > 0.0)
+		{
+			reflectionColor = b_stacks.stack[pixelPos * maxLoops + reflectionIndex].color;
+		}
+	}
+
+	int refractionIndex = getRefractIndex(rayIndex);
+
+	// ... refraction.
+	if (b_spheres.sphere[sphereNearIndex].material.alpha < 1.0 && refractionIndex < maxLoops)
+	{
+		if (b_stacks.stack[pixelPos * maxLoops + refractionIndex].valid > 0.0)
+		{
+			refractionColor = b_stacks.stack[pixelPos * maxLoops + refractionIndex].color;
+		}
+	}
+
+	//
+
+	vec3 eyeDirection = rayDirection * -1.0;
+
+	vec4 biasedPositiveHitPosition = b_stacks.stack[pixelPos * maxLoops + rayIndex].biasedPositiveHitPosition;
+	vec3 hitDirection = b_stacks.stack[pixelPos * maxLoops + rayIndex].hitDirection;
+
+	vec4 pixelColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+	// Diffuse and specular color
+	for (i = 0; i < NUM_LIGHTS; i++)
+	{
+		bool obstacle = false;
+
+		vec3 lightDirection = normalize((b_pointLights.pointLight[i].position - b_stacks.stack[pixelPos * maxLoops + rayIndex].hitPosition).xyz); 
+		vec3 incidentLightDirection = lightDirection * -1.0; 
+
+		// Check for obstacles between current hit point surface and point light.
+		for (k = 0; k < NUM_SPHERES; k++)
+		{
+			if (k == sphereNearIndex)
+			{
+				continue;
+			}
+			
+			float t0 = INFINITY;
+			float t1 = INFINITY;
+			bool insideSphere = false;
+			
+			int numberIntersections = intersectRaySphere(t0, t1, insideSphere, biasedPositiveHitPosition, lightDirection, b_spheres.sphere[k].center, b_spheres.sphere[k].radius);
+
+			if (numberIntersections > 0)
+			{
+				obstacle = true;
+
+				break;
+			}
+		}
+
+		// If no obstacle, illuminate hit point surface.
+		if (!obstacle)
+		{
+			float diffuseIntensity = max(0.0, dot(hitDirection, lightDirection));
+
+			if (diffuseIntensity > 0.0)
+			{
+				pixelColor += diffuseIntensity * b_spheres.sphere[sphereNearIndex].material.diffuseColor * b_pointLights.pointLight[i].color;
+
+				vec3 specularReflection = normalize(reflect(incidentLightDirection, hitDirection));
+
+				float eDotR = max(0.0, dot(eyeDirection, specularReflection));
+
+				if (eDotR > 0.0 && !insideSphereNear)
+				{
+					float specularIntensity = pow(eDotR, b_spheres.sphere[sphereNearIndex].material.shininess);
+
+					pixelColor += specularIntensity * b_spheres.sphere[sphereNearIndex].material.specularColor * b_pointLights.pointLight[i].color;
+				}
+			}
+		}
+	}
+
+	// Emissive color
+	pixelColor += b_spheres.sphere[sphereNearIndex].material.emissiveColor;
+
+	// Final color with reflection and refraction
+	pixelColor = (1.0 - fresnel) * refractionColor * (1.0 - b_spheres.sphere[sphereNearIndex].material.alpha) + pixelColor * (1.0 - b_spheres.sphere[sphereNearIndex].material.reflectivity) * b_spheres.sphere[sphereNearIndex].material.alpha + fresnel * reflectionColor * b_spheres.sphere[sphereNearIndex].material.reflectivity;  
+	
+	b_stacks.stack[pixelPos * maxLoops + rayIndex].color = pixelColor;
 }
 
 void clear(int pixelPos, int maxLoops, int rayIndex)
