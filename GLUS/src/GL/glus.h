@@ -45,6 +45,12 @@ extern "C"
 
 #include <GL/glfw.h>
 
+#ifdef _MSC_VER
+	#define GLUSINLINE static __forceinline
+#else
+	#define GLUSINLINE static inline
+#endif
+
 #ifndef GLUSAPIENTRY
 #define GLUSAPIENTRY
 #endif
@@ -1561,7 +1567,32 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2CreateMatrix3x3f(GLUSfloat matrix[9],
  * @param matrix0 The first matrix.
  * @param matrix1 The second matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4Multiplyf(GLUSfloat matrix[16], const GLUSfloat matrix0[16], const GLUSfloat matrix1[16]);
+GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix4x4Multiplyf(GLUSfloat matrix[16], const GLUSfloat matrix0[16], const GLUSfloat matrix1[16])
+{
+    GLUSint i;
+
+    GLUSfloat temp[16];
+
+    GLUSint row;
+    GLUSint column;
+	for (column = 0; column < 4; column++)
+	{
+		for (row = 0; row < 4; row++)
+		{
+			temp[column * 4 + row] = 0.0f;
+
+			for (i = 0; i < 4; i++)
+			{
+				temp[column * 4 + row] += matrix0[i * 4 + row] * matrix1[column * 4 + i];
+			}
+		}
+	}
+
+    for (i = 0; i < 16; i++)
+    {
+        matrix[i] = temp[i];
+    }
+}
 
 /**
  * Multiplies two 3x3 matrices: matrix0 * matrix1.
@@ -1570,7 +1601,32 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4Multiplyf(GLUSfloat matrix[16], const
  * @param matrix0 The first matrix.
  * @param matrix1 The second matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3Multiplyf(GLUSfloat matrix[9], const GLUSfloat matrix0[9], const GLUSfloat matrix1[9]);
+GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix3x3Multiplyf(GLUSfloat matrix[9], const GLUSfloat matrix0[9], const GLUSfloat matrix1[9])
+{
+    GLUSint i;
+
+    GLUSfloat temp[16];
+
+    GLUSint row;
+    GLUSint column;
+	for (column = 0; column < 3; column++)
+	{
+		for (row = 0; row < 3; row++)
+		{
+			temp[column * 3 + row] = 0.0f;
+
+			for (i = 0; i < 3; i++)
+			{
+				temp[column * 3 + row] += matrix0[i * 3 + row] * matrix1[column * 3 + i];
+			}
+		}
+	}
+
+    for (i = 0; i < 9; i++)
+    {
+        matrix[i] = temp[i];
+    }
+}
 
 /**
  * Multiplies two 2x2 matrices: matrix0 * matrix1.
@@ -1579,7 +1635,32 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3Multiplyf(GLUSfloat matrix[9], const 
  * @param matrix0 The first matrix.
  * @param matrix1 The second matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2Multiplyf(GLUSfloat matrix[4], const GLUSfloat matrix0[4], const GLUSfloat matrix1[4]);
+GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix2x2Multiplyf(GLUSfloat matrix[4], const GLUSfloat matrix0[4], const GLUSfloat matrix1[4])
+{
+    GLUSint i;
+
+    GLUSfloat temp[16];
+
+    GLUSint row;
+    GLUSint column;
+	for (column = 0; column < 2; column++)
+	{
+		for (row = 0; row < 2; row++)
+		{
+			temp[column * 2 + row] = 0.0f;
+
+			for (i = 0; i < 2; i++)
+			{
+				temp[column * 2 + row] += matrix0[i * 2 + row] * matrix1[column * 2 + i];
+			}
+		}
+	}
+
+    for (i = 0; i < 4; i++)
+    {
+        matrix[i] = temp[i];
+    }
+}
 
 /**
  * Adds two 4x4 matrices: matrix0 + matrix1.
