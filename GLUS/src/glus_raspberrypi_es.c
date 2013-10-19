@@ -89,7 +89,7 @@ static int translateKey(SDLKey key)
 		case SDLK_SPACE:
 			return GLFW_KEY_SPACE;
 		case SDLK_ESCAPE:
-			return GLFW_KEY_ESC;
+			return GLFW_KEY_ESCAPE;
 		case SDLK_F1:
 			return GLFW_KEY_F1;
 		case SDLK_F2:
@@ -129,17 +129,17 @@ static int translateKey(SDLKey key)
 		case SDLK_RIGHT:
 			return GLFW_KEY_RIGHT;
 		case SDLK_LSHIFT:
-			return GLFW_KEY_LSHIFT;
+			return GLFW_KEY_LEFT_SHIFT;
 		case SDLK_RSHIFT:
-			return GLFW_KEY_RSHIFT;
+			return GLFW_KEY_RIGHT_SHIFT;
 		case SDLK_LCTRL:
-			return GLFW_KEY_LCTRL;
+			return GLFW_KEY_LEFT_CONTROL;
 		case SDLK_RCTRL:
-			return GLFW_KEY_RCTRL;
+			return GLFW_KEY_RIGHT_CONTROL;
 		case SDLK_LALT:
-			return GLFW_KEY_LALT;
+			return GLFW_KEY_LEFT_ALT;
 		case SDLK_RALT:
-			return GLFW_KEY_RALT;
+			return GLFW_KEY_RIGHT_ALT;
 		case SDLK_TAB:
 			return GLFW_KEY_TAB;
 		case SDLK_RETURN:
@@ -149,11 +149,11 @@ static int translateKey(SDLKey key)
 		case SDLK_INSERT:
 			return GLFW_KEY_INSERT;
 		case SDLK_DELETE:
-			return GLFW_KEY_DEL;
+			return GLFW_KEY_DELETE;
 		case SDLK_PAGEUP:
-			return GLFW_KEY_PAGEUP;
+			return GLFW_KEY_PAGE_UP;
 		case SDLK_PAGEDOWN:
-			return GLFW_KEY_PAGEDOWN;
+			return GLFW_KEY_PAGE_DOWN;
 		case SDLK_HOME:
 			return GLFW_KEY_HOME;
 		case SDLK_END:
@@ -193,7 +193,7 @@ static int translateKey(SDLKey key)
 		case SDLK_KP_ENTER:
 			return GLFW_KEY_KP_ENTER;
 		case SDLK_NUMLOCK:
-			return GLFW_KEY_KP_NUM_LOCK;
+			return GLFW_KEY_NUM_LOCK;
 		case SDLK_CAPSLOCK:
 			return GLFW_KEY_CAPS_LOCK;
 		case SDLK_SCROLLOCK:
@@ -201,9 +201,9 @@ static int translateKey(SDLKey key)
 		case SDLK_PAUSE:
 			return GLFW_KEY_PAUSE;
 		case SDLK_LSUPER:
-			return GLFW_KEY_LSUPER;
+			return GLFW_KEY_LEFT_SUPER;
 		case SDLK_RSUPER:
-			return GLFW_KEY_RSUPER;
+			return GLFW_KEY_RIGHT_SUPER;
 		case SDLK_MENU:
 			return GLFW_KEY_MENU;
 		default:

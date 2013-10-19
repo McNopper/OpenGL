@@ -43,7 +43,7 @@ extern "C"
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #ifdef _MSC_VER
 	#define GLUSINLINE static __forceinline

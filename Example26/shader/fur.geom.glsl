@@ -1,17 +1,19 @@
 #version 150
 
-#define FUR_LAYERS 30
+#define FUR_LAYERS 29
 
 #define FUR_LENGTH 0.1
 
-layout(triangle_strip, max_vertices = 90) out;
+layout(triangles) in;
+
+layout(triangle_strip, max_vertices = 87) out;
 
 uniform mat4 u_projectionMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalMatrix;
 
-in vec3 v_g_normal[];
-in vec2 v_g_texCoord[];
+in vec3 v_g_normal[3];
+in vec2 v_g_texCoord[3];
 
 out vec3 v_normal;
 out vec2 v_texCoord;
@@ -30,7 +32,7 @@ void main(void)
 	{
 		d += FUR_DELTA;
 		
-		for(int i = 0; i < gl_in.length(); ++i)
+		for(int i = 0; i < gl_in.length(); i++)
 		{
 			normal = normalize(v_g_normal[i]);
 

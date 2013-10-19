@@ -1,6 +1,6 @@
 #version 430 core
 
-uniform image2D u_texture; 
+layout (rgba8) uniform image2D u_texture; 
 
 // see g_localSize = 16 in main.c. Also the division by 16.0 depends on this size.
 layout (local_size_x = 16, local_size_y = 16) in;

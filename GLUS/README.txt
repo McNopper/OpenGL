@@ -36,9 +36,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-14.08.2013 Norbert Nopper (norbert@nopper.tv)
+19.10.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+19.10.2013 - Added latest GLFW (3.0.3)
 
 14.08.2013 - Added latest PowerVR SDK (3.1)
 

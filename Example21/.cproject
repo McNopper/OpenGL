@@ -21,7 +21,7 @@
 							<builder buildPath="${workspace_loc:/Example01/DebugMac}" id="cdt.managedbuild.target.gnu.builder.macosx.base.1050631990" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.base"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.base.1405077800" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.base">
 								<option id="macosx.c.link.option.libs.1790265885" name="Libraries (-l)" superClass="macosx.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="glfw"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="GLUS"/>
 									<listOptionValue builtIn="false" value="glew"/>
 									<listOptionValue builtIn="false" value="m"/>
@@ -100,9 +100,11 @@
 									<listOptionValue builtIn="false" value="GL"/>
 									<listOptionValue builtIn="false" value="GLUS"/>
 									<listOptionValue builtIn="false" value="GLEW"/>
-									<listOptionValue builtIn="false" value="glfw"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="X11"/>
 									<listOptionValue builtIn="false" value="Xxf86vm"/>
+									<listOptionValue builtIn="false" value="Xrandr"/>
+									<listOptionValue builtIn="false" value="Xi"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 								</option>
@@ -165,9 +167,11 @@
 									<listOptionValue builtIn="false" value="GL"/>
 									<listOptionValue builtIn="false" value="GLUS"/>
 									<listOptionValue builtIn="false" value="GLEW"/>
-									<listOptionValue builtIn="false" value="glfw"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="X11"/>
 									<listOptionValue builtIn="false" value="Xxf86vm"/>
+									<listOptionValue builtIn="false" value="Xrandr"/>
+									<listOptionValue builtIn="false" value="Xi"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 								</option>
@@ -235,7 +239,7 @@
 								</option>
 								<option id="gnu.c.link.option.libs.305427933" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="GLUS"/>
-									<listOptionValue builtIn="false" value="glfw"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="glew32"/>
 									<listOptionValue builtIn="false" value="opengl32"/>
 									<listOptionValue builtIn="false" value="gdi32"/>
@@ -296,7 +300,7 @@
 								</option>
 								<option id="gnu.c.link.option.libs.1664142179" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="GLUS"/>
-									<listOptionValue builtIn="false" value="glfw"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="glew32"/>
 									<listOptionValue builtIn="false" value="opengl32"/>
 									<listOptionValue builtIn="false" value="gdi32"/>

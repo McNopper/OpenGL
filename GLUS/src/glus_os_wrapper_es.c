@@ -165,9 +165,9 @@ GLUSint glusInternalClose(void)
 
 GLUSvoid glusInternalKey(GLUSint key, GLUSint state)
 {
-	if (state == 0)
+	if (state == GLFW_RELEASE)
 	{
-		if (key == 257)
+		if (key == GLFW_KEY_ESCAPE)
 		{
 			g_done = GLUS_TRUE;
 

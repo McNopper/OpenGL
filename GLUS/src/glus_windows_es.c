@@ -145,10 +145,10 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
             scan_code = MapVirtualKey( VK_RSHIFT, 0 );
             if( ((lParam & 0x01ff0000) >> 16) == scan_code )
             {
-                return GLFW_KEY_RSHIFT;
+                return GLFW_KEY_RIGHT_SHIFT;
             }
 
-            return GLFW_KEY_LSHIFT;
+            return GLFW_KEY_LEFT_SHIFT;
         }
 
         // The CTRL keys require special handling
@@ -157,7 +157,7 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
             // Is this an extended key (i.e. right key)?
             if( lParam & 0x01000000 )
             {
-                return GLFW_KEY_RCTRL;
+                return GLFW_KEY_RIGHT_CONTROL;
             }
 
             // Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only
@@ -180,7 +180,7 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
                 }
             }
 
-            return GLFW_KEY_LCTRL;
+            return GLFW_KEY_LEFT_CONTROL;
         }
 
         // The ALT keys require special handling
@@ -189,10 +189,10 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
             // Is this an extended key (i.e. right key)?
             if( lParam & 0x01000000 )
             {
-                return GLFW_KEY_RALT;
+                return GLFW_KEY_RIGHT_ALT;
             }
 
-            return GLFW_KEY_LALT;
+            return GLFW_KEY_LEFT_ALT;
         }
 
         // The ENTER keys require special handling
@@ -208,15 +208,15 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
         }
 
         // Special keys (non character keys)
-        case VK_ESCAPE:        return GLFW_KEY_ESC;
+        case VK_ESCAPE:        return GLFW_KEY_ESCAPE;
         case VK_TAB:           return GLFW_KEY_TAB;
         case VK_BACK:          return GLFW_KEY_BACKSPACE;
         case VK_HOME:          return GLFW_KEY_HOME;
         case VK_END:           return GLFW_KEY_END;
-        case VK_PRIOR:         return GLFW_KEY_PAGEUP;
-        case VK_NEXT:          return GLFW_KEY_PAGEDOWN;
+        case VK_PRIOR:         return GLFW_KEY_PAGE_UP;
+        case VK_NEXT:          return GLFW_KEY_PAGE_DOWN;
         case VK_INSERT:        return GLFW_KEY_INSERT;
-        case VK_DELETE:        return GLFW_KEY_DEL;
+        case VK_DELETE:        return GLFW_KEY_DELETE;
         case VK_LEFT:          return GLFW_KEY_LEFT;
         case VK_UP:            return GLFW_KEY_UP;
         case VK_RIGHT:         return GLFW_KEY_RIGHT;
@@ -263,14 +263,14 @@ GLUSint _glusTranslateKey( WPARAM wParam, LPARAM lParam )
         case VK_SUBTRACT:      return GLFW_KEY_KP_SUBTRACT;
         case VK_ADD:           return GLFW_KEY_KP_ADD;
         case VK_DECIMAL:       return GLFW_KEY_KP_DECIMAL;
-        case VK_NUMLOCK:       return GLFW_KEY_KP_NUM_LOCK;
+        case VK_NUMLOCK:       return GLFW_KEY_NUM_LOCK;
 
         case VK_CAPITAL:       return GLFW_KEY_CAPS_LOCK;
         case VK_SCROLL:        return GLFW_KEY_SCROLL_LOCK;
         case VK_PAUSE:         return GLFW_KEY_PAUSE;
 
-        case VK_LWIN:          return GLFW_KEY_LSUPER;
-        case VK_RWIN:          return GLFW_KEY_RSUPER;
+        case VK_LWIN:          return GLFW_KEY_LEFT_SUPER;
+        case VK_RWIN:          return GLFW_KEY_RIGHT_SUPER;
         case VK_APPS:          return GLFW_KEY_MENU;
 
         // The rest (should be printable keys)

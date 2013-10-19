@@ -24,9 +24,8 @@ static GLUSint g_flags = 0;
 static GLUSint g_numberSamples = 0;
 static GLUSboolean g_noResize = GLUS_FALSE;
 
-static GLUSboolean g_windowCreated = GLUS_FALSE;
+static GLFWwindow* g_window = 0;
 static GLUSboolean g_initdone = GLUS_FALSE;
-static GLUSboolean g_done = GLUS_FALSE;
 static GLUSint g_buttons = 0;
 static GLUSint g_mouseX = 0;
 static GLUSint g_mouseY = 0;
@@ -143,7 +142,7 @@ static GLUSfloat glusGetElapsedTime(GLUSvoid)
     return currentTime - lastTime;
 }
 
-static GLUSvoid glusInternalReshape(GLUSint width, GLUSint height)
+static GLUSvoid glusInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
 {
 	if (width < 1)
 	{
@@ -160,20 +159,18 @@ static GLUSvoid glusInternalReshape(GLUSint width, GLUSint height)
     }
 }
 
-static GLUSint glusInternalClose(void)
+static GLUSvoid glusInternalClose(GLFWwindow* window)
 {
-    g_done = GLUS_TRUE;
-
-    return 0;
+	glfwSetWindowShouldClose(window, GLUS_TRUE);
 }
 
-static GLUSvoid glusInternalKey(GLUSint key, GLUSint state)
+static GLUSvoid glusInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
 {
-    if (state == 0)
+    if (action == GLFW_RELEASE)
     {
-        if (key == 257)
+        if (key == GLFW_KEY_ESCAPE)
         {
-            g_done = GLUS_TRUE;
+        	glfwSetWindowShouldClose(window, GLUS_TRUE);
 
             return;
         }
@@ -192,7 +189,7 @@ static GLUSvoid glusInternalKey(GLUSint key, GLUSint state)
     }
 }
 
-static GLUSvoid glusInternalMouse(GLUSint button, GLUSint action)
+static GLUSvoid glusInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
 {
     GLUSint usedButton = 0;
 
@@ -224,18 +221,22 @@ static GLUSvoid glusInternalMouse(GLUSint button, GLUSint action)
     }
 }
 
-static GLUSvoid glusInternalMouseWheel(GLUSint pos)
+static GLUSvoid glusInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
 {
+	static GLUSint wheelPos = 0;
+
     if (glusMouseWheel)
     {
-        glusMouseWheel(g_buttons, pos, g_mouseX, g_mouseY);
+    	wheelPos += (GLUSint)ypos;
+
+        glusMouseWheel(g_buttons, wheelPos, g_mouseX, g_mouseY);
     }
 }
 
-static GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y)
+static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
 {
-    g_mouseX = x;
-    g_mouseY = y;
+    g_mouseX = (GLUSint)x;
+    g_mouseY = (GLUSint)y;
 
     if (glusMouseMove)
     {
@@ -245,9 +246,14 @@ static GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y)
 
 GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
-    glfwCloseWindow();
+	if (g_window)
+	{
+		glfwMakeContextCurrent(0);
 
-    g_windowCreated = GLUS_FALSE;
+		glfwDestroyWindow(g_window);
+
+		g_window = 0;
+	}
 
     glfwTerminate();
 
@@ -258,7 +264,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 {
     GLUSenum err;
 
-	if (g_windowCreated)
+	if (g_window)
 	{
     	glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
 
@@ -272,16 +278,17 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
         return GLUS_FALSE;
     }
 
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, g_major);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, g_minor);
-    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, g_flags & GLUS_FORWARD_COMPATIBLE_BIT);
-    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, (g_flags & GLUS_FORWARD_COMPATIBLE_BIT) ? GLFW_OPENGL_CORE_PROFILE : GLFW_OPENGL_COMPAT_PROFILE);
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, g_numberSamples);
-    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, g_noResize);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, g_major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, g_minor);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, g_flags & GLUS_FORWARD_COMPATIBLE_BIT);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, (g_flags & GLUS_FORWARD_COMPATIBLE_BIT) ? GLFW_OPENGL_CORE_PROFILE : GLFW_OPENGL_COMPAT_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, g_numberSamples);
+    glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
+    glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
+    glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
 
-    // If we do not call this function in advance, glfwOpenWindow crashes in Debug under Windows
-    glfwSetWindowTitle("");
-    if (!glfwOpenWindow(width, height, 8, 8, 8, 8, depthBits, stencilBits, fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW))
+    g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
+    if (!g_window)
     {
     	glfwTerminate();
 
@@ -289,7 +296,8 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
         return GLUS_FALSE;
     }
-    glfwSetWindowTitle(title);
+
+    glfwMakeContextCurrent(g_window);
 
     glewExperimental = GLUS_TRUE;
 
@@ -313,16 +321,14 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
         return GLUS_FALSE;
     }
 
-    glfwSetWindowSizeCallback(glusInternalReshape);
-    glfwSetWindowCloseCallback(glusInternalClose);
-    glfwSetKeyCallback(glusInternalKey);
-    glfwSetMouseButtonCallback(glusInternalMouse);
-    glfwSetMouseWheelCallback(glusInternalMouseWheel);
-    glfwSetMousePosCallback(glusInternalMouseMove);
+    glfwSetWindowSizeCallback(g_window, glusInternalReshape);
+    glfwSetWindowCloseCallback(g_window, glusInternalClose);
+    glfwSetKeyCallback(g_window, glusInternalKey);
+    glfwSetMouseButtonCallback(g_window, glusInternalMouse);
+    glfwSetScrollCallback(g_window, glusInternalMouseWheel);
+    glfwSetCursorPosCallback(g_window, glusInternalMouseMove);
 
-    glfwGetWindowSize(&g_width, &g_height);
-
-    g_windowCreated = GLUS_TRUE;
+    glfwGetWindowSize(g_window, &g_width, &g_height);
 
     return GLUS_TRUE; // Success
 }
@@ -348,14 +354,19 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
         glusReshape(g_width, g_height);
     }
 
-    while (!g_done) // Loop That Runs While done=FALSE
+    while (!glfwWindowShouldClose(g_window)) // Loop That Runs While done=FALSE
     {
 		if (glusUpdate)
 		{
-			g_done = !glusUpdate(glusGetElapsedTime());
+			if (!glusUpdate(glusGetElapsedTime()))
+			{
+				glfwSetWindowShouldClose(g_window, GLUS_TRUE);
+			}
 		}
 
-		glfwSwapBuffers(); // Swap Buffers (Double Buffering)
+		glfwSwapBuffers(g_window); // Swap Buffers (Double Buffering)
+
+		glfwPollEvents();
    }
 
     // Terminate Game
