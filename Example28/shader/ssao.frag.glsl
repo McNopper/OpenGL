@@ -35,7 +35,7 @@ vec4 getViewPos(vec2 texCoord)
 	float y = texCoord.t * 2.0 - 1.0;
 	
 	// Assume we have a normal depth range between 0.0 and 1.0
-	float z = texture(u_depthTexture, texCoord) * 2.0 - 1.0;
+	float z = texture(u_depthTexture, texCoord).r * 2.0 - 1.0;
 	
 	vec4 posProj = vec4(x, y, z, 1.0);
 	
@@ -94,7 +94,7 @@ void main(void)
 		
 		// Get sample out of depth texture
 
-		float zSceneNDC = texture(u_depthTexture, samplePointTexCoord) * 2.0 - 1.0;
+		float zSceneNDC = texture(u_depthTexture, samplePointTexCoord).r * 2.0 - 1.0;
 		
 		float delta = samplePointNDC.z - zSceneNDC;
 		

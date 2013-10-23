@@ -1,5 +1,7 @@
 #version 410 core
 
+layout(triangles) in;
+
 layout(triangle_strip, max_vertices = 3) out;
 
 uniform mat4 u_projectionMatrix;
@@ -10,10 +12,10 @@ uniform sampler2D u_normalTexture;
 
 uniform float u_displacementScale;
 
-in vec3 v_g_tangent[];
-in vec3 v_g_bitangent[];
-in vec3 v_g_normal[];
-in vec2 v_g_texCoord[];
+in vec3 v_g_tangent[3];
+in vec3 v_g_bitangent[3];
+in vec3 v_g_normal[3];
+in vec2 v_g_texCoord[3];
 
 out vec3 v_tangent;
 out vec3 v_bitangent;

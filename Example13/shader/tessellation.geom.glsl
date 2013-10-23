@@ -1,5 +1,7 @@
 #version 410 core
 
+layout(triangles) in;
+
 // Create as the outcome a line loop
 layout(line_strip, max_vertices = 4) out;
 
