@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019" moduleId="org.eclipse.cdt.core.settings" name="x86__Windows__MinGW_Debug">
@@ -650,70 +652,202 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299" moduleId="org.eclipse.cdt.core.settings" name="x64__Linux_GLES2_GCC_Debug">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x64__Linux_GLES2_GCC_Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299" name="x64__Linux_GLES2_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299." name="/" resourcePath="">
+						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.base.1886495786" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1807341671" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+							<builder buildPath="${workspace_loc:/GLUS}/x64__Linux_GLES2_GCC_Debug" id="cdt.managedbuild.builder.gnu.cross.2005045018" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<tool errorParsers="" id="cdt.managedbuild.tool.gnu.archiver.base.1282625966" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1791702890" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option id="gnu.cpp.compiler.option.optimization.level.2029061561" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.176874842" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.base.1320740080" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<option id="gnu.c.compiler.option.include.paths.1758564919" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/opt/Mali_OpenGL_ES_SDK_v2.3.0/inc"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1237664029" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="GLUS_ES2=1"/>
+								</option>
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1718745591" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.debugging.level.484517283" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.396810756" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -Wno-deprecated-declarations" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1521481297" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1290090298" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.108616456" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
+							<tool errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.base.1516432237" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.626152411" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681" moduleId="org.eclipse.cdt.core.settings" name="x64__Linux_GLES3_GCC_Debug">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x64__Linux_GLES3_GCC_Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681" name="x64__Linux_GLES3_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681." name="/" resourcePath="">
+						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.base.1941356990" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.906294320" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+							<builder buildPath="${workspace_loc:/GLUS}/x64__Linux_GLES2_GCC_Debug" id="cdt.managedbuild.builder.gnu.cross.1631308728" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<tool errorParsers="" id="cdt.managedbuild.tool.gnu.archiver.base.1566276549" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1880058717" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option id="gnu.cpp.compiler.option.optimization.level.1612636337" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.413466040" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.base.2075988211" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<option id="gnu.c.compiler.option.include.paths.528209491" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/opt/Mali_OpenGL_ES_SDK_v2.3.0/inc"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1749113334" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="GLUS_ES3=1"/>
+								</option>
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1319275348" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.debugging.level.1550115624" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.1661467952" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -Wno-deprecated-declarations" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.681936249" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1765260045" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.582081723" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
+							<tool errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.base.346789116" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.416806191" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="GLUS.cdt.managedbuild.target.gnu.mingw.lib.275442850" name="Static Library" projectType="cdt.managedbuild.target.gnu.mingw.lib"/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
-		</configuration>
 		<configuration configurationName="DebugMac64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
-		<configuration configurationName="ReleaseVC">
-			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
-		</configuration>
-		<configuration configurationName="ReleaseLinux64">
+		<configuration configurationName="ARMv6_VC4_Linux_GLES2_GCC_Release"/>
+		<configuration configurationName="x64__Linux_GLES3_GCC_Debug"/>
+		<configuration configurationName="x64__Darwin__GCC_Debug"/>
+		<configuration configurationName="x64__Linux__GCC_Release"/>
+		<configuration configurationName="x86__Windows__MSVC_Debug"/>
+		<configuration configurationName="ARMv6_VC4_Linux_GLES2_GCC_Debug"/>
+		<configuration configurationName="x86__Linux__GCC_Debug"/>
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
 		<configuration configurationName="DebugVC">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
-		</configuration>
+		<configuration configurationName="x86__Windows__MinGW_Release"/>
 		<configuration configurationName="DebugLinux64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
 		<configuration configurationName="DebugLinux">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="x64__Linux_GLES2_GCC_Debug"/>
+		<configuration configurationName="x86__Windows__MSVC_Release"/>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
+		</configuration>
+		<configuration configurationName="x86__Windows_GLES3_MinGW_Debug"/>
+		<configuration configurationName="x86__Windows_GLES2_MinGW_Debug"/>
+		<configuration configurationName="ReleaseVC">
+			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
+		</configuration>
+		<configuration configurationName="ReleaseLinux64">
+			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
+		</configuration>
+		<configuration configurationName="x86__Windows__MinGW_Debug"/>
+		<configuration configurationName="x64__Linux__GCC_Debug"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.990009606;cdt.managedbuild.tool.gnu.c.compiler.input.1327526070">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.917309611;cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.917309611.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.release.932928409;cdt.managedbuild.tool.gnu.c.compiler.input.1996188412">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.230731514;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.230731514.;cdt.managedbuild.tool.gnu.c.compiler.base.1078283388;cdt.managedbuild.tool.gnu.c.compiler.input.137430821">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.;cdt.managedbuild.tool.gnu.c.compiler.base.1872518917;cdt.managedbuild.tool.gnu.c.compiler.input.261252466">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.132947659;cdt.managedbuild.tool.gnu.c.compiler.input.1837425149">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.1313269417;cdt.managedbuild.tool.gnu.c.compiler.input.946013880">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.1029078266;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.1029078266.;org.eclipse.cdt.msvc.cl.c.dll.debug.287379940;org.eclipse.cdt.msvc.cl.inputType.c.1513751223">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.2121099883;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.2121099883.;cdt.managedbuild.tool.gnu.c.compiler.macosx.base.568462569;cdt.managedbuild.tool.gnu.c.compiler.input.72285947">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673;cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.release.2075771780;cdt.managedbuild.tool.gnu.c.compiler.input.99223959">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.917309611;cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.917309611.;org.eclipse.cdt.msvc.cl.c.dll.debug.743866091;org.eclipse.cdt.msvc.cl.inputType.c.643786535">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673;cdt.managedbuild.config.gnu.mingw.lib.release.1071540673.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.release.2075771780;cdt.managedbuild.tool.gnu.c.compiler.input.99223959">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.1556130786;cdt.managedbuild.tool.gnu.c.compiler.input.1658856150">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.990009606;cdt.managedbuild.tool.gnu.c.compiler.input.1327526070">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.230731514;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.230731514.;cdt.managedbuild.tool.gnu.c.compiler.base.1078283388;cdt.managedbuild.tool.gnu.c.compiler.input.137430821">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.;cdt.managedbuild.tool.gnu.c.compiler.base.1320740080;cdt.managedbuild.tool.gnu.c.compiler.input.1521481297">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.1313269417;cdt.managedbuild.tool.gnu.c.compiler.input.946013880">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.;cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.132947659;cdt.managedbuild.tool.gnu.c.compiler.input.1837425149">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.1029078266;cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.1029078266.;org.eclipse.cdt.msvc.cl.c.dll.debug.287379940;org.eclipse.cdt.msvc.cl.inputType.c.1513751223">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

@@ -25,7 +25,7 @@ extern GLUSvoid _glusPollEvents(GLUSvoid);
 
 extern EGLNativeDisplayType _glusGetNativeDisplayType(GLUSvoid);
 
-extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize);
+extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID);
 
 extern GLUSvoid _glusDestroyNativeWindow(GLUSvoid);
 
@@ -256,6 +256,8 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	EGLNativeWindowType eglNativeWindowType;
 
+	EGLint nativeVisualID = 0;
+
 	if (g_windowCreated)
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
@@ -270,7 +272,9 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
-	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize);
+    eglGetConfigAttrib(g_eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, &nativeVisualID);
+
+	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize, nativeVisualID);
 
 	if (!eglNativeWindowType)
 	{

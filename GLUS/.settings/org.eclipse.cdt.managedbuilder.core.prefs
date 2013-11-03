@@ -1,5 +1,10 @@
-#Wed Jan 11 19:03:37 CET 2012
 eclipse.preferences.version=1
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/CPATH/delimiter=\:
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/CPATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/C_INCLUDE_PATH/delimiter=\:
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/C_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/append=true
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299/appendContributed=true
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019/CPATH/delimiter=;
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019/CPATH/operation=remove
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019/C_INCLUDE_PATH/delimiter=;

@@ -330,7 +330,7 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 	return EGL_DEFAULT_DISPLAY ;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize)
+EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
 {
 	const SDL_VideoInfo* videoInfo;
 
@@ -374,7 +374,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 		{
 			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: ", width, height);
 
-			return EGL_NO_SURFACE ;
+			return 0;
 		}
 
 		vc_tv_register_callback(resizeDone, 0);
@@ -385,7 +385,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
 
-			return EGL_NO_SURFACE ;
+			return 0;
 		}
 
 		waitResizeDone();
@@ -411,7 +411,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not open display");
 
-		return EGL_NO_SURFACE ;
+		return 0;
 	}
 
 	//
@@ -420,7 +420,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not initialize SDL");
 
-		return EGL_NO_SURFACE ;
+		return 0;
 	}
 
 	videoInfo = SDL_GetVideoInfo();
@@ -429,14 +429,14 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not get video info for SDL");
 
-		return EGL_NO_SURFACE ;
+		return 0;
 	}
 
 	if (!SDL_SetVideoMode(videoInfo->current_w, videoInfo->current_h, videoInfo->vfmt->BitsPerPixel, SDL_HWSURFACE))
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Set video mode for SDL failed");
 
-		return EGL_NO_SURFACE ;
+		return 0;
 	}
 
 	SDL_ShowCursor(SDL_DISABLE);
@@ -467,7 +467,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not add element");
 
-		return EGL_NO_SURFACE ;
+		return 0;
 	}
 
 	_width = windowWidth;

@@ -124,11 +124,13 @@ IF(${OpenGL} MATCHES "ES")
 		# For now, only Raspberry Pi configuration has an ARM CPU
 	
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_windows_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
 		
 	ELSE()
 		# Windows simulation
 	
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_raspberrypi_es.c)		
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
 		
 	ENDIF()	
 	
