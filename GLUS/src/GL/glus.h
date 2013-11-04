@@ -2723,7 +2723,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSs
 /**
  * Destroys the wavefront structure by freeing the allocated memory. VBOs, VAOs and textures are not freed.
  *
- * @param shape The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
+ * @param wavefront The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyGroupedObj(GLUSwavefront* wavefront);
 
@@ -2815,7 +2815,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLU
  * @param rayStart		Point, where the ray starts.
  * @param rayDirection	Ray direction vector. Has to be normalized.
  * @param sphereCenter	Center of the sphere given as a point.
- * @param sphereRadius	Radius of the sphere.
+ * @param radius		Radius of the sphere.
  *
  * @return Number of intersection points.
  */
