@@ -3,7 +3,8 @@ OpenGL examples:
 
 How to build and run the examples:
 
-1. Please make sure, you have installed a Windows OpenGL 3.2 driver. For some examples you need a OpenGL 4.2 or OpenGL 4.3 driver. As Mac OS X only supports OpenGL 3.2, these examples do not work.
+1. Please make sure, you have installed a Windows OpenGL 3.2 driver. For some examples you need a OpenGL 4.1 or OpenGL 4.3 driver.
+   As Mac OS X only supports OpenGL 3.2 and 4.1, the 4.3 examples do not work.
 2. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
 3. Extract this ZIP file and set the workspace-cpp folder as your Eclipse workspace.
 4. Import each folder as a separate, existing project.
@@ -17,7 +18,7 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-19.10.2013 Norbert Nopper (norbert@nopper.tv)
+10.11.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
 

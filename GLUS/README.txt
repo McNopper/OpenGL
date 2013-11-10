@@ -15,10 +15,15 @@ If you get build errors:
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 
-SDKs/Libraries/Images used for Raspberry Pi:
+OpenGL ES SDKs and Libraries:
 
 - OpenGL ES 3.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
+				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
 - OpenGL ES 2.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
+				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
+
+SDKs/Libraries/Images used for Raspberry Pi:
+
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
 - SDL 1.2 http://www.libsdl.org/download-1.2.php
 - Raspbian "wheezy" http://www.raspberrypi.org/downloads
@@ -36,9 +41,15 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-19.10.2013 Norbert Nopper (norbert@nopper.tv)
+10.11.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+10.11.2013 - Updated README
+
+04.11.2013 - Fixed doxygen issues
+
+28.10.2013 - Added GLES3 X11 profile
 
 19.10.2013 - Added latest GLFW (3.0.3)
 
