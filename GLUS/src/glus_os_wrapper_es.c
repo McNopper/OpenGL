@@ -303,8 +303,6 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 {
 	if (!glusStartup())
 	{
-		glusShutdown();
-
 		return GLUS_FALSE;
 	}
 
@@ -325,7 +323,7 @@ GLUSboolean GLUSAPIENTRY glusStartup(GLUSvoid)
 	{
 		if (!glusInit())
 		{
-			// No cleanup by purpose. Developer can decide what to do.
+			glusShutdown();
 
 			return GLUS_FALSE; // Exit The Program
 		}
