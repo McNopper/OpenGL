@@ -43,51 +43,51 @@ static GLUSvoid (*glusMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, 
 static GLUSvoid (*glusMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos) = NULL;
 static GLUSvoid (*glusMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos) = NULL;
 
-GLUSvoid GLUSAPIENTRY glusKeyFunc(GLUSvoid(*glusNewKey)(GLUSboolean pressed, GLUSint key))
+GLUSvoid GLUSAPIENTRY glusKeyFunc(GLUSvoid (*glusNewKey)(GLUSboolean pressed, GLUSint key))
 {
-    glusKey = glusNewKey;
+	glusKey = glusNewKey;
 }
 
-GLUSvoid GLUSAPIENTRY glusMouseFunc(GLUSvoid(*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusMouseFunc(GLUSvoid (*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
 {
-    glusMouse = glusNewMouse;
+	glusMouse = glusNewMouse;
 }
 
-GLUSvoid GLUSAPIENTRY glusMouseWheelFunc(GLUSvoid(*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
 {
-    glusMouseWheel = glusNewMouseWheel;
+	glusMouseWheel = glusNewMouseWheel;
 }
 
-GLUSvoid GLUSAPIENTRY glusMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
 {
-    glusMouseMove = glusNewMouseMove;
+	glusMouseMove = glusNewMouseMove;
 }
 
-GLUSvoid GLUSAPIENTRY glusInitFunc(GLUSboolean(*glusNewInit)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid))
 {
-    glusInit = glusNewInit;
+	glusInit = glusNewInit;
 }
 
-GLUSvoid GLUSAPIENTRY glusReshapeFunc(GLUSvoid(*glusNewReshape)(GLUSint width, GLUSint height))
+GLUSvoid GLUSAPIENTRY glusReshapeFunc(GLUSvoid (*glusNewReshape)(GLUSint width, GLUSint height))
 {
-    glusReshape = glusNewReshape;
+	glusReshape = glusNewReshape;
 }
 
-GLUSvoid GLUSAPIENTRY glusUpdateFunc(GLUSboolean(*glusNewUpdate)(GLUSfloat time))
+GLUSvoid GLUSAPIENTRY glusUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time))
 {
-    glusUpdate = glusNewUpdate;
+	glusUpdate = glusNewUpdate;
 }
 
-GLUSvoid GLUSAPIENTRY glusTerminateFunc(GLUSvoid(*glusNewTerminate)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
 {
-    glusTerminate = glusNewTerminate;
+	glusTerminate = glusNewTerminate;
 }
 
 GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint minor, const GLUSint flags)
 {
-    g_major = major;
-    g_minor = minor;
-    g_flags = flags;
+	g_major = major;
+	g_minor = minor;
+	g_flags = flags;
 
 	if (g_major < 1)
 	{
@@ -101,7 +101,7 @@ GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint mino
 
 GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples)
 {
-    g_numberSamples = numberSamples;
+	g_numberSamples = numberSamples;
 
 	if (g_numberSamples < 0)
 	{
@@ -116,30 +116,30 @@ GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize)
 
 static GLUSfloat glusGetElapsedTime(GLUSvoid)
 {
-    static GLUSboolean init = GLUS_FALSE;
-    static GLUSfloat lastTime;
-    static GLUSfloat currentTime;
+	static GLUSboolean init = GLUS_FALSE;
+	static GLUSfloat lastTime;
+	static GLUSfloat currentTime;
 
-    GLUSfloat measuredTime;
+	GLUSfloat measuredTime;
 
-    measuredTime = (GLUSfloat) glfwGetTime();
+	measuredTime = (GLUSfloat)glfwGetTime();
 
-    if (!init)
-    {
-        lastTime = measuredTime;
+	if (!init)
+	{
+		lastTime = measuredTime;
 
-        currentTime = measuredTime;
+		currentTime = measuredTime;
 
-        init = GLUS_TRUE;
-    }
-    else
-    {
-        lastTime = currentTime;
+		init = GLUS_TRUE;
+	}
+	else
+	{
+		lastTime = currentTime;
 
-        currentTime = measuredTime;
-    }
+		currentTime = measuredTime;
+	}
 
-    return currentTime - lastTime;
+	return currentTime - lastTime;
 }
 
 static GLUSvoid glusInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
@@ -153,10 +153,10 @@ static GLUSvoid glusInternalReshape(GLFWwindow* window, GLUSint width, GLUSint h
 		height = 1;
 	}
 
-    if (glusReshape && g_initdone)
-    {
-        glusReshape(width, height);
-    }
+	if (glusReshape && g_initdone)
+	{
+		glusReshape(width, height);
+	}
 }
 
 static GLUSvoid glusInternalClose(GLFWwindow* window)
@@ -166,82 +166,82 @@ static GLUSvoid glusInternalClose(GLFWwindow* window)
 
 static GLUSvoid glusInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
 {
-    if (action == GLFW_RELEASE)
-    {
-        if (key == GLFW_KEY_ESCAPE)
-        {
-        	glfwSetWindowShouldClose(window, GLUS_TRUE);
+	if (action == GLFW_RELEASE)
+	{
+		if (key == GLFW_KEY_ESCAPE)
+		{
+			glfwSetWindowShouldClose(window, GLUS_TRUE);
 
-            return;
-        }
+			return;
+		}
 
-        if (glusKey)
-        {
-            glusKey(GLUS_FALSE, tolower(key));
-        }
-    }
-    else
-    {
-        if (glusKey)
-        {
-            glusKey(GLUS_TRUE, tolower(key));
-        }
-    }
+		if (glusKey)
+		{
+			glusKey(GLUS_FALSE, tolower(key));
+		}
+	}
+	else
+	{
+		if (glusKey)
+		{
+			glusKey(GLUS_TRUE, tolower(key));
+		}
+	}
 }
 
 static GLUSvoid glusInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
 {
-    GLUSint usedButton = 0;
+	GLUSint usedButton = 0;
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT)
-    {
-        usedButton = 1;
-    }
-    else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-    {
-        usedButton = 2;
-    }
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        usedButton = 4;
-    }
+	if (button == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		usedButton = 1;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+	{
+		usedButton = 2;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+	{
+		usedButton = 4;
+	}
 
-    if (action == GLFW_PRESS)
-    {
-        g_buttons |= usedButton;
-    }
-    else
-    {
-        g_buttons ^= usedButton;
-    }
+	if (action == GLFW_PRESS)
+	{
+		g_buttons |= usedButton;
+	}
+	else
+	{
+		g_buttons ^= usedButton;
+	}
 
-    if (glusMouse)
-    {
-        glusMouse(action == GLFW_PRESS, usedButton, g_mouseX, g_mouseY);
-    }
+	if (glusMouse)
+	{
+		glusMouse(action == GLFW_PRESS, usedButton, g_mouseX, g_mouseY);
+	}
 }
 
 static GLUSvoid glusInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
 {
 	static GLUSint wheelPos = 0;
 
-    if (glusMouseWheel)
-    {
-    	wheelPos += (GLUSint)ypos;
+	if (glusMouseWheel)
+	{
+		wheelPos += (GLUSint)ypos;
 
-        glusMouseWheel(g_buttons, wheelPos, g_mouseX, g_mouseY);
-    }
+		glusMouseWheel(g_buttons, wheelPos, g_mouseX, g_mouseY);
+	}
 }
 
 static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
 {
-    g_mouseX = (GLUSint)x;
-    g_mouseY = (GLUSint)y;
+	g_mouseX = (GLUSint)x;
+	g_mouseY = (GLUSint)y;
 
-    if (glusMouseMove)
-    {
-        glusMouseMove(g_buttons, g_mouseX, g_mouseY);
-    }
+	if (glusMouseMove)
+	{
+		glusMouseMove(g_buttons, g_mouseX, g_mouseY);
+	}
 }
 
 GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
@@ -255,107 +255,129 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 		g_window = 0;
 	}
 
-    glfwTerminate();
+	glfwTerminate();
 
-    g_initdone = GLUS_FALSE;
+	g_initdone = GLUS_FALSE;
 }
 
 GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width, const GLUSint height, const GLUSint depthBits, const GLUSint stencilBits, const GLUSboolean fullscreen)
 {
-    GLUSenum err;
+	GLUSenum err;
 
 	if (g_window)
 	{
-    	glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
+		glusLogPrint(GLUS_LOG_ERROR, "Window already exists");
 
-        return GLUS_FALSE;
+		return GLUS_FALSE;
 	}
 
-    if (!glfwInit())
-    {
-    	glusLogPrint(GLUS_LOG_ERROR, "GLFW could not be initialized");
+	if (!glfwInit())
+	{
+		glusLogPrint(GLUS_LOG_ERROR, "GLFW could not be initialized");
 
-        return GLUS_FALSE;
-    }
+		return GLUS_FALSE;
+	}
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, g_major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, g_minor);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, g_flags & GLUS_FORWARD_COMPATIBLE_BIT);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, (g_flags & GLUS_FORWARD_COMPATIBLE_BIT) ? GLFW_OPENGL_CORE_PROFILE : GLFW_OPENGL_COMPAT_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, g_numberSamples);
-    glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
-    glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
-    glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, g_major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, g_minor);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, g_flags & GLUS_FORWARD_COMPATIBLE_BIT);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, (g_flags & GLUS_FORWARD_COMPATIBLE_BIT) ? GLFW_OPENGL_CORE_PROFILE : GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, g_numberSamples);
+	glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
+	glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
+	glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
 
-    g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
-    if (!g_window)
-    {
-    	glfwTerminate();
+	g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
+	if (!g_window)
+	{
+		glfwTerminate();
 
-    	glusLogPrint(GLUS_LOG_ERROR, "GLFW window could not be opened");
+		glusLogPrint(GLUS_LOG_ERROR, "GLFW window could not be opened");
 
-        return GLUS_FALSE;
-    }
+		return GLUS_FALSE;
+	}
 
-    glfwMakeContextCurrent(g_window);
+	glfwMakeContextCurrent(g_window);
 
-    glewExperimental = GLUS_TRUE;
+	glewExperimental = GLUS_TRUE;
 
-    err = glewInit();
+	err = glewInit();
 
-    if (GLUS_OK != err)
-    {
-        glusDestroyWindow();
+	if (GLUS_OK != err)
+	{
+		glusDestroyWindow();
 
-    	glusLogPrint(GLUS_LOG_ERROR, "GLEW could not be initialized: %x", err);
+		glusLogPrint(GLUS_LOG_ERROR, "GLEW could not be initialized: %x", err);
 
-        return GLUS_FALSE;
-    }
+		return GLUS_FALSE;
+	}
 
-    if (!glusIsSupported(g_major, g_minor))
-    {
-        glusDestroyWindow();
+	if (!glusIsSupported(g_major, g_minor))
+	{
+		glusDestroyWindow();
 
-        glusLogPrint(GLUS_LOG_ERROR, "OpenGL %u.%u not supported", g_major, g_minor);
+		glusLogPrint(GLUS_LOG_ERROR, "OpenGL %u.%u not supported", g_major, g_minor);
 
-        return GLUS_FALSE;
-    }
+		return GLUS_FALSE;
+	}
 
-    glfwSetWindowSizeCallback(g_window, glusInternalReshape);
-    glfwSetWindowCloseCallback(g_window, glusInternalClose);
-    glfwSetKeyCallback(g_window, glusInternalKey);
-    glfwSetMouseButtonCallback(g_window, glusInternalMouse);
-    glfwSetScrollCallback(g_window, glusInternalMouseWheel);
-    glfwSetCursorPosCallback(g_window, glusInternalMouseMove);
+	glfwSetWindowSizeCallback(g_window, glusInternalReshape);
+	glfwSetWindowCloseCallback(g_window, glusInternalClose);
+	glfwSetKeyCallback(g_window, glusInternalKey);
+	glfwSetMouseButtonCallback(g_window, glusInternalMouse);
+	glfwSetScrollCallback(g_window, glusInternalMouseWheel);
+	glfwSetCursorPosCallback(g_window, glusInternalMouseMove);
 
-    glfwGetWindowSize(g_window, &g_width, &g_height);
+	glfwGetWindowSize(g_window, &g_width, &g_height);
 
-    return GLUS_TRUE; // Success
+	return GLUS_TRUE; // Success
 }
 
 GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 {
-    // Init Engine
-    if (glusInit)
-    {
-        if (!glusInit())
-        {
-            glusDestroyWindow(); // Destroy The Window
+	if (!glusStartup())
+	{
+		return GLUS_FALSE;
+	}
 
-            return GLUS_FALSE; // Exit The Program
-        }
-    }
+	while (glusLoop())
+	{
+		// Do nothing here
+	}
 
-    g_initdone = GLUS_TRUE;
+	glusShutdown();
 
-    // Do the first reshape
-    if (glusReshape)
-    {
-        glusReshape(g_width, g_height);
-    }
+	return GLUS_TRUE; // Exit The Program
+}
 
-    while (!glfwWindowShouldClose(g_window)) // Loop That Runs While done=FALSE
-    {
+GLUSboolean GLUSAPIENTRY glusStartup(GLUSvoid)
+{
+	// Init Engine
+	if (glusInit)
+	{
+		if (!glusInit())
+		{
+			glusDestroyWindow(); // Destroy The Window
+
+			return GLUS_FALSE; // Exit The Program
+		}
+	}
+
+	g_initdone = GLUS_TRUE;
+
+	// Do the first reshape
+	if (glusReshape)
+	{
+		glusReshape(g_width, g_height);
+	}
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusLoop(GLUSvoid)
+{
+	if (!glfwWindowShouldClose(g_window))
+	{
 		if (glusUpdate)
 		{
 			if (!glusUpdate(glusGetElapsedTime()))
@@ -364,24 +386,34 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 			}
 		}
 
-		glfwSwapBuffers(g_window); // Swap Buffers (Double Buffering)
+		glfwSwapBuffers(g_window); // Swap Buffers
 
 		glfwPollEvents();
-   }
 
-    // Terminate Game
-    if (glusTerminate)
-    {
-        glusTerminate();
-    }
+		return GLUS_TRUE;
+	}
 
-    // Shutdown
-    glusDestroyWindow(); // Destroy The Window
+	return GLUS_FALSE;
+}
 
-    return GLUS_TRUE; // Exit The Program
+GLUSvoid GLUSAPIENTRY glusShutdown(GLUSvoid)
+{
+	// Terminate Game
+	if (glusTerminate)
+	{
+		glusTerminate();
+	}
+
+	// Shutdown
+	glusDestroyWindow(); // Destroy The Window
 }
 
 void* GLUSAPIENTRY glusGetProcAddress(const GLUSchar* procname)
 {
 	return glfwGetProcAddress(procname);
+}
+
+GLUSvoid GLUSAPIENTRY glusSwapInterval(GLUSint interval)
+{
+	glfwSwapInterval(interval);
 }

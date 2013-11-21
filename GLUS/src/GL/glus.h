@@ -670,6 +670,36 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid);
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid);
 
+/**
+ * Starts everything before the main loop. The init and reshape functions are called.
+ * Use this function, if glusRun can not be used.
+ *
+ * @return GLUS_ TRUE, if startup succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusStartup(GLUSvoid);
+
+/**
+ * Calls the main loop once. Update function is called.
+ * Use this function, if glusRun can not be used.
+ *
+ * @return GLUS_ TRUE, if looping should continue.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLoop(GLUSvoid);
+
+/**
+ * Called after the main loop. The terminate function is called.
+ * Use this function, if glusRun can not be used.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusShutdown(GLUSvoid);
+
+/**
+ * Specifies the minimum number of video frame periods per buffer swap for the window.
+ * Has to be called after the window is created.
+ *
+ * @param interval Specifies the minimum number of video frames that are displayed before a buffer swap will occur.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusSwapInterval(GLUSint interval);
+
 //
 // Version check functions.
 //

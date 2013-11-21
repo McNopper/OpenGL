@@ -272,7 +272,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
-    eglGetConfigAttrib(g_eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, &nativeVisualID);
+	eglGetConfigAttrib(g_eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, &nativeVisualID);
 
 	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize, nativeVisualID);
 
@@ -301,6 +301,23 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 {
+	if (!glusStartup())
+	{
+		return GLUS_FALSE;
+	}
+
+	while (glusLoop())
+	{
+		// Do nothing here
+	}
+
+	glusShutdown();
+
+	return GLUS_TRUE; // Exit The Program
+}
+
+GLUSboolean GLUSAPIENTRY glusStartup(GLUSvoid)
+{
 	// Init Engine
 	if (glusInit)
 	{
@@ -320,7 +337,12 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 		glusReshape(g_width, g_height);
 	}
 
-	while (!g_done) // Loop That Runs While done=FALSE
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusLoop(GLUSvoid)
+{
+	if (!g_done) // Loop That Runs While done=FALSE
 	{
 		if (glusUpdate)
 		{
@@ -332,6 +354,11 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 		_glusPollEvents();
 	}
 
+	return !g_done;
+}
+
+GLUSvoid GLUSAPIENTRY glusShutdown(GLUSvoid)
+{
 	// Terminate Game
 	if (glusTerminate)
 	{
@@ -340,11 +367,14 @@ GLUSboolean GLUSAPIENTRY glusRun(GLUSvoid)
 
 	// Shutdown
 	glusDestroyWindow(); // Destroy The Window
-
-	return GLUS_TRUE; // Exit The Program
 }
 
 void* GLUSAPIENTRY glusGetProcAddress(const GLUSchar* procname)
 {
 	return eglGetProcAddress(procname);
+}
+
+GLUSvoid GLUSAPIENTRY glusSwapInterval(GLUSint interval)
+{
+	eglSwapInterval(g_eglDisplay, interval);
 }
