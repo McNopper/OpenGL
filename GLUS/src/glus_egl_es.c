@@ -149,18 +149,18 @@ GLvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglCont
 
     if (*eglDisplay)
     {
-        eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglMakeCurrent(*eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
         if (eglSurface && *eglSurface)
         {
-            eglDestroySurface(eglDisplay, *eglSurface);
+            eglDestroySurface(*eglDisplay, *eglSurface);
 
             *eglSurface = EGL_NO_SURFACE;
         }
 
         if (eglContext && *eglContext)
         {
-            eglDestroyContext(eglDisplay, *eglContext);
+            eglDestroyContext(*eglDisplay, *eglContext);
 
             *eglContext = EGL_NO_CONTEXT;
         }

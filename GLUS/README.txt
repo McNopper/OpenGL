@@ -21,6 +21,8 @@ OpenGL ES SDKs and Libraries:
 				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
 - OpenGL ES 2.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
 				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
+				 ANGLE http://code.google.com/p/angleproject/
+				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
 
 SDKs/Libraries/Images used for Raspberry Pi:
 
@@ -33,7 +35,7 @@ Build configuration naming:
 [CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
 
 CPU:						ARMv6, x64, x86
-GPU (Optional):				VC4
+GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4 
 OS: 						Darwin, Linux, Windows
 OpenGL (Optional):			GLES2, GLES3
 Compiler:					GCC, MinGW, MSVC
@@ -41,9 +43,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-10.11.2013 Norbert Nopper (norbert@nopper.tv)
+26.11.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+26.11.2013 - Added GPU Emulator Option
 
 10.11.2013 - Updated README
 
