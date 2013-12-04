@@ -247,13 +247,13 @@ GLUSvoid _glusPollEvents()
 					return;
 				}
 
-				glusInternalKey(translateKey(event.key.keysym.sym), GLUS_TRUE);
+				glusInternalKey(translateKey(event.key.keysym.sym), GLFW_PRESS);
 			}
 			break;
 
 			case SDL_KEYUP:
 			{
-				glusInternalKey(translateKey(event.key.keysym.sym), GLUS_FALSE);
+				glusInternalKey(translateKey(event.key.keysym.sym), GLFW_RELEASE);
 			}
 			break;
 

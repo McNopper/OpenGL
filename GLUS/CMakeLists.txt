@@ -121,16 +121,19 @@ IF(${OpenGL} MATCHES "ES")
 	ENDIF()
 	
 	IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		# For now, only Raspberry Pi configuration has an ARM CPU
+		# Raspberry Pi
+		# ToDo Add i.MX6
 	
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_windows_es.c)
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
 		
 	ELSE()
 		# Windows simulation
 	
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_raspberrypi_es.c)		
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
 		
 	ENDIF()	
 	
