@@ -729,7 +729,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix2x2InverseRigidBodyf(GLUSfloat matrix[4])
     glusMatrix2x2Copyf(inverseRotation, matrix);
     glusMatrix2x2Transposef(inverseRotation);
 
-    glusMatrix4x4Multiplyf(matrix, inverseScale, inverseRotation);
+    glusMatrix2x2Multiplyf(matrix, inverseScale, inverseRotation);
 }
 
 GLUSvoid GLUSAPIENTRY glusMatrix4x4Transposef(GLUSfloat matrix[16])

@@ -28,7 +28,8 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Linux
 
 	IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		# For now, only Raspberry Pi configuration has an ARM CPU
+		# Raspberry Pi
+		# ToDo Add i.MX6
 		
 		SET(OpenGL "ES2")
 		
