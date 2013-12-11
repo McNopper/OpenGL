@@ -18,9 +18,11 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-23.11.2013 Norbert Nopper (norbert@nopper.tv)
+26.11.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+26.11.2013 - Added ANGLE OpenGL ES 2.0 DLLs
 
 23.11.2013 - Added AMD OpenGL ES 2.0 DLLs
 

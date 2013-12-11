@@ -14,6 +14,7 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
+- Libraries for the i.MX6 platform are not included.
 
 OpenGL ES SDKs and Libraries:
 
@@ -30,12 +31,16 @@ SDKs/Libraries/Images used for Raspberry Pi:
 - SDL 1.2 http://www.libsdl.org/download-1.2.php
 - Raspbian "wheezy" http://www.raspberrypi.org/downloads
 
+SDKs/Libraries/Images used for i.MX6:
+
+- i.MX 6 Series Software and Development Tool Resources http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=IMX6_SW
+
 Build configuration naming:
 
 [CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
 
-CPU:						ARMv6, x64, x86
-GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4 
+CPU:						ARMv6, ARMv7, x64, x86
+GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4, Vivante 
 OS: 						Darwin, Linux, Windows
 OpenGL (Optional):			GLES2, GLES3
 Compiler:					GCC, MinGW, MSVC
@@ -43,9 +48,12 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-26.11.2013 Norbert Nopper (norbert@nopper.tv)
+05.12.2013 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+05.12.2013 - Added GLUS for i.MX6
+		   - Fixed some bugs in GLUS 
 
 26.11.2013 - Added GPU Emulator Option
 
