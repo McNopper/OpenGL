@@ -85,8 +85,6 @@ static GLuint g_ssaoDepthTexture;
 
 static GLuint g_ssaoNormalTexture;
 
-static GLuint g_ssaoNormalTexture;
-
 static GLuint g_ssaoFBO;
 
 static GLuint g_ssaoRotationNoiseTexture;

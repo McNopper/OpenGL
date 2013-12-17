@@ -1,0 +1,19 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.0.1262)
+
+newmtl pawn_high_white_PawnWhiteSub0
+kd 1 1 1
+ka 0 0 0
+ks 0.675 0.675 0.675
+Ns 19.84
+illum 2
+map_kd ChessPawn.tga
+
+newmtl pawn_high_white_queen_high_whiteSub1
+kd 1 1 1
+ka 0 0 0
+ks 0.675 0.675 0.675
+Ns 19.84
+illum 2
+map_kd ChessColumn.tga
+

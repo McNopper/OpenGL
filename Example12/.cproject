@@ -5,21 +5,20 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1368823954.968976340" moduleId="org.eclipse.cdt.core.settings" name="x64__Darwin__GCC_Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="" artifactName="${ProjName}_DBG" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1368823954.968976340" name="x64__Darwin__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.exe.debug">
+				<configuration artifactExtension="" artifactName="${ProjName}_DBG" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1368823954.968976340" name="x64__Darwin__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.exe.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1368823954.968976340." name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.base.905720116" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.base">
+						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.macosx.base.905720116" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64" id="cdt.managedbuild.target.gnu.platform.macosx.base.1921207412" name="Debug Platform" osList="macosx" superClass="cdt.managedbuild.target.gnu.platform.macosx.base"/>
-							<builder buildPath="${workspace_loc:/Example01/DebugMac}" id="cdt.managedbuild.target.gnu.builder.macosx.base.1981860099" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.base"/>
-							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.base.1774103430" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.base">
+							<builder buildPath="${workspace_loc:/Example01/DebugMac}" errorParsers="org.eclipse.cdt.core.GmakeErrorParser" id="cdt.managedbuild.target.gnu.builder.macosx.base.1981860099" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.base"/>
+							<tool errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.tool.macosx.c.linker.macosx.base.1774103430" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.base">
 								<option id="macosx.c.link.option.libs.2069491641" name="Libraries (-l)" superClass="macosx.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="GLUS"/>
@@ -38,7 +37,7 @@
 								<outputType id="cdt.managedbuild.tool.macosx.c.linker.output.1637266583" outputPrefix="../../Binaries/" superClass="cdt.managedbuild.tool.macosx.c.linker.output"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.base.619312373" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.base.1775753143" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.base">
+							<tool errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.macosx.base.1775753143" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.base">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1085450167" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.macosx.base.1407831505" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.macosx.base"/>
@@ -46,7 +45,7 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1271391750" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.790516851" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.base.917409899" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.base">
+							<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.macosx.base.917409899" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.base">
 								<option id="gnu.c.compiler.option.include.paths.1733730281" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GLUS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/External/x64/Darwin/GCC/include}&quot;"/>
@@ -66,12 +65,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1382563384.1734688161" moduleId="org.eclipse.cdt.core.settings" name="x64__Linux__GCC_Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -133,12 +132,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.809860878.1482233839" moduleId="org.eclipse.cdt.core.settings" name="x86__Linux__GCC_Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -200,12 +199,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.debug.894771756.1299093232" moduleId="org.eclipse.cdt.core.settings" name="x86__Windows__MinGW_Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -261,12 +260,12 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.release.289745933.929703796" moduleId="org.eclipse.cdt.core.settings" name="x86__Windows__MinGW_Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
