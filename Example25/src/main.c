@@ -207,14 +207,14 @@ GLUSboolean init(GLUSvoid)
 	materialWalker = g_wavefront.materials;
 	while (materialWalker)
 	{
-		if (materialWalker->material.textureFilename[0] != '\0')
+		if (materialWalker->material.diffuseTextureFilename[0] != '\0')
 		{
 			// Load the image.
-			glusLoadTgaImage(materialWalker->material.textureFilename, &image);
+			glusLoadTgaImage(materialWalker->material.diffuseTextureFilename, &image);
 
 			// Generate and bind a texture.
-			glGenTextures(1, &materialWalker->material.textureName);
-			glBindTexture(GL_TEXTURE_2D, materialWalker->material.textureName);
+			glGenTextures(1, &materialWalker->material.diffuseTextureName);
+			glBindTexture(GL_TEXTURE_2D, materialWalker->material.diffuseTextureName);
 
 			// Transfer the image data from the CPU to the GPU.
 			glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
@@ -228,9 +228,9 @@ GLUSboolean init(GLUSvoid)
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
-
-			materialWalker = materialWalker->next;
 		}
+
+		materialWalker = materialWalker->next;
 	}
 
 	//
@@ -310,11 +310,11 @@ GLUSboolean update(GLUSfloat time)
 		glUniform1f(g_material.specularExponentLocation, groupWalker->group.material->shininess);
 
 		// Enable only texturing, if the material has a texture
-		if (groupWalker->group.material->textureName)
+		if (groupWalker->group.material->diffuseTextureName)
 		{
 		    glUniform1i(g_useTextureLocation, 1);
 		    glUniform1i(g_material.diffuseTextureLocation, 0);
-			glBindTexture(GL_TEXTURE_2D, groupWalker->group.material->textureName);
+			glBindTexture(GL_TEXTURE_2D, groupWalker->group.material->diffuseTextureName);
 		}
 		else
 		{
@@ -388,14 +388,14 @@ GLUSvoid terminate(GLUSvoid)
 	materialWalker = g_wavefront.materials;
 	while (materialWalker)
 	{
-		if (materialWalker->material.textureName)
+		if (materialWalker->material.diffuseTextureName)
 		{
-			glDeleteTextures(1, &materialWalker->material.textureName);
+			glDeleteTextures(1, &materialWalker->material.diffuseTextureName);
 
-			materialWalker->material.textureName = 0;
-
-			materialWalker = materialWalker->next;
+			materialWalker->material.diffuseTextureName = 0;
 		}
+
+		materialWalker = materialWalker->next;
 	}
 
 	glUseProgram(0);

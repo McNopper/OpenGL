@@ -228,9 +228,25 @@ static GLUSvoid glusInitMaterial(GLUSmaterial* material)
 
 	material->indexOfRefraction = 1.0f;
 
-	material->textureFilename[0] = 0;
+	material->ambientTextureFilename[0] = 0;
 
-	material->textureName = 0;
+	material->diffuseTextureFilename[0] = 0;
+
+	material->specularTextureFilename[0] = 0;
+
+	material->transparencyTextureFilename[0] = 0;
+
+	material->bumpTextureFilename[0] = 0;
+
+	material->ambientTextureName = 0;
+
+	material->diffuseTextureName = 0;
+
+	material->specularTextureName = 0;
+
+	material->transparencyTextureName = 0;
+
+	material->bumpTextureName = 0;
 }
 
 static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
@@ -262,7 +278,10 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 {
 	FILE* f;
 
+	GLUSint i, k;
+
 	GLUSchar buffer[GLUS_BUFFERSIZE];
+	GLUSchar* checkBuffer;
 	GLUSchar name[GLUS_MAX_STRING];
 	GLUSchar identifier[7];
 
@@ -292,11 +311,55 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 			}
 		}
 
-		if (strncmp(buffer, "newmtl", 6) == 0)
+		checkBuffer = buffer;
+
+		k = 0;
+
+		// Skip first spaces etc.
+		while (*checkBuffer)
+		{
+			if (*checkBuffer != ' ' && *checkBuffer != '\t')
+			{
+				break;
+			}
+
+			checkBuffer++;
+			k++;
+
+			if (k >= GLUS_BUFFERSIZE)
+			{
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		i = 0;
+
+		while (checkBuffer[i])
+		{
+			if (checkBuffer[i] == ' ' || checkBuffer[i] == '\t')
+			{
+				break;
+			}
+
+			checkBuffer[i] = tolower(checkBuffer[i]);
+
+			i++;
+
+			if (i >= GLUS_BUFFERSIZE - k)
+			{
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		if (strncmp(checkBuffer, "newmtl", 6) == 0)
 		{
 			GLUSmaterialList* newMaterialList = 0;
 
-			sscanf(buffer, "%s %s", identifier, name);
+			sscanf(checkBuffer, "%s %s", identifier, name);
 
 			newMaterialList = (GLUSmaterialList*)malloc(sizeof(GLUSmaterialList));
 
@@ -326,53 +389,77 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			currentMaterialList = newMaterialList;
 		}
-		else if (strncmp(buffer, "ke", 2) == 0)
+		else if (strncmp(checkBuffer, "ke", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.emissive[0], &currentMaterialList->material.emissive[1], &currentMaterialList->material.emissive[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.emissive[0], &currentMaterialList->material.emissive[1], &currentMaterialList->material.emissive[2]);
 
 			currentMaterialList->material.emissive[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "ka", 2) == 0)
+		else if (strncmp(checkBuffer, "ka", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.ambient[0], &currentMaterialList->material.ambient[1], &currentMaterialList->material.ambient[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.ambient[0], &currentMaterialList->material.ambient[1], &currentMaterialList->material.ambient[2]);
 
 			currentMaterialList->material.ambient[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "kd", 2) == 0)
+		else if (strncmp(checkBuffer, "kd", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.diffuse[0], &currentMaterialList->material.diffuse[1], &currentMaterialList->material.diffuse[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.diffuse[0], &currentMaterialList->material.diffuse[1], &currentMaterialList->material.diffuse[2]);
 
 			currentMaterialList->material.diffuse[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "ks", 2) == 0)
+		else if (strncmp(checkBuffer, "ks", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.specular[0], &currentMaterialList->material.specular[1], &currentMaterialList->material.specular[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.specular[0], &currentMaterialList->material.specular[1], &currentMaterialList->material.specular[2]);
 
 			currentMaterialList->material.specular[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "Ns", 2) == 0)
+		else if (strncmp(checkBuffer, "ns", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.shininess);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.shininess);
 		}
-		else if (strncmp(buffer, "d", 1) == 0 || strncmp(buffer, "Tr", 2) == 0)
+		else if (strncmp(checkBuffer, "d", 1) == 0 || strncmp(checkBuffer, "Tr", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.transparency);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.transparency);
 		}
-		else if (strncmp(buffer, "Ni", 2) == 0)
+		else if (strncmp(checkBuffer, "ni", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
 		}
-		else if (strncmp(buffer, "map_kd", 6) == 0)
+		else if (strncmp(checkBuffer, "map_ka", 6) == 0)
 		{
-			sscanf(buffer, "%s %s", identifier, name);
+			sscanf(checkBuffer, "%s %s", identifier, name);
 
-			strcpy(currentMaterialList->material.textureFilename, name);
+			strcpy(currentMaterialList->material.ambientTextureFilename, name);
 		}
-		else if (strncmp(buffer, "illum", 5) == 0)
+		else if (strncmp(checkBuffer, "map_kd", 6) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.diffuseTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_ks", 6) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.specularTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_d", 5) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.transparencyTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_bump", 8) == 0 || strncmp(checkBuffer, "bump", 4) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.bumpTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "illum", 5) == 0)
 		{
 			GLUSint illum;
 
-			sscanf(buffer, "%s %d", identifier, &illum);
+			sscanf(checkBuffer, "%s %d", identifier, &illum);
 
 			// Only setting reflection and refraction depending on illumination model.
 			switch (illum)

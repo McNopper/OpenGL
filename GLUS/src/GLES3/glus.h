@@ -312,14 +312,54 @@ typedef struct _GLUSmaterial
 	GLUSfloat indexOfRefraction;
 
 	/**
-	 * Diffuse color texture filename.
+	 * Ambient color texture filename.
 	 */
-	GLUSchar textureFilename[GLUS_MAX_STRING];
+	GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
 
 	/**
-	 * Can be used to store the texture name.
+	 * Diffuse color texture filename.
 	 */
-    GLUSuint textureName;
+	GLUSchar diffuseTextureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Specular color texture filename.
+	 */
+	GLUSchar specularTextureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Transparency texture filename.
+	 */
+	GLUSchar transparencyTextureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Bump texture filename.
+	 */
+	GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Can be used to store the ambient texture name.
+	 */
+    GLUSuint ambientTextureName;
+
+	/**
+	 * Can be used to store the diffuse texture name.
+	 */
+    GLUSuint diffuseTextureName;
+
+	/**
+	 * Can be used to store the specular texture name.
+	 */
+    GLUSuint specularTextureName;
+
+	/**
+	 * Can be used to store the transparency texture name.
+	 */
+    GLUSuint transparencyTextureName;
+
+	/**
+	 * Can be used to store the bump texture name.
+	 */
+    GLUSuint bumpTextureName;
 
 } GLUSmaterial;
 

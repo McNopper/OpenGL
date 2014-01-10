@@ -30,72 +30,72 @@ static GLboolean glusCopyObjData(GLUSshape* shape, GLUSushort totalNumberVertice
 		return GLUS_FALSE;
 	}
 
-    shape->numberVertices = totalNumberVertices;
+	shape->numberVertices = totalNumberVertices;
 
-    if (totalNumberVertices > 0)
-    {
-        shape->vertices = (GLUSfloat*)malloc(totalNumberVertices*4*sizeof(GLUSfloat));
+	if (totalNumberVertices > 0)
+	{
+		shape->vertices = (GLUSfloat*)malloc(totalNumberVertices * 4 * sizeof(GLUSfloat));
 
-        if (shape->vertices == 0)
-        {
-            glusDestroyShapef(shape);
+		if (shape->vertices == 0)
+		{
+			glusDestroyShapef(shape);
 
-            return GLUS_FALSE;
-        }
+			return GLUS_FALSE;
+		}
 
-        memcpy(shape->vertices, triangleVertices, totalNumberVertices*4*sizeof(GLUSfloat));
-    }
-    if (totalNumberNormals > 0)
-    {
-        shape->normals = (GLUSfloat*)malloc(totalNumberNormals*3*sizeof(GLUSfloat));
+		memcpy(shape->vertices, triangleVertices, totalNumberVertices * 4 * sizeof(GLUSfloat));
+	}
+	if (totalNumberNormals > 0)
+	{
+		shape->normals = (GLUSfloat*)malloc(totalNumberNormals * 3 * sizeof(GLUSfloat));
 
-        if (shape->normals == 0)
-        {
-            glusDestroyShapef(shape);
+		if (shape->normals == 0)
+		{
+			glusDestroyShapef(shape);
 
-            return GLUS_FALSE;
-        }
+			return GLUS_FALSE;
+		}
 
-        memcpy(shape->normals, triangleNormals, totalNumberNormals*3*sizeof(GLUSfloat));
-    }
-    if (totalNumberTexCoords > 0)
-    {
-        shape->texCoords = (GLUSfloat*)malloc(totalNumberTexCoords*2*sizeof(GLUSfloat));
+		memcpy(shape->normals, triangleNormals, totalNumberNormals * 3 * sizeof(GLUSfloat));
+	}
+	if (totalNumberTexCoords > 0)
+	{
+		shape->texCoords = (GLUSfloat*)malloc(totalNumberTexCoords * 2 * sizeof(GLUSfloat));
 
-        if (shape->texCoords == 0)
-        {
-            glusDestroyShapef(shape);
+		if (shape->texCoords == 0)
+		{
+			glusDestroyShapef(shape);
 
-            return GLUS_FALSE;
-        }
+			return GLUS_FALSE;
+		}
 
-        memcpy(shape->texCoords, triangleTexCoords, totalNumberTexCoords*2*sizeof(GLUSfloat));
-    }
+		memcpy(shape->texCoords, triangleTexCoords, totalNumberTexCoords * 2 * sizeof(GLUSfloat));
+	}
 
-    // Just create the indices from the list of vertices.
+	// Just create the indices from the list of vertices.
 
-    shape->numberIndices = totalNumberVertices;
+	shape->numberIndices = totalNumberVertices;
 
-    if (totalNumberVertices > 0)
-    {
-        shape->indices = (GLUSushort*)malloc(totalNumberVertices*sizeof(GLUSushort));
+	if (totalNumberVertices > 0)
+	{
+		shape->indices = (GLUSushort*)malloc(totalNumberVertices * sizeof(GLUSushort));
 
-        if (shape->indices == 0)
-        {
-            glusDestroyShapef(shape);
+		if (shape->indices == 0)
+		{
+			glusDestroyShapef(shape);
 
-            return GLUS_FALSE;
-        }
+			return GLUS_FALSE;
+		}
 
-        for (indicesCounter = 0; indicesCounter < totalNumberVertices; indicesCounter++)
-        {
-        	shape->indices[indicesCounter] = indicesCounter;
-        }
-    }
+		for (indicesCounter = 0; indicesCounter < totalNumberVertices; indicesCounter++)
+		{
+			shape->indices[indicesCounter] = indicesCounter;
+		}
+	}
 
-    shape->mode = GL_TRIANGLES;
+	shape->mode = GL_TRIANGLES;
 
-    return GLUS_TRUE;
+	return GLUS_TRUE;
 }
 
 static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
@@ -105,41 +105,41 @@ static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normal
 		return GLUS_FALSE;
 	}
 
-    *vertices = (GLUSfloat*)malloc(4 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*vertices)
-    {
-    	return GLUS_FALSE;
-    }
+	*vertices = (GLUSfloat*)malloc(4 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*vertices)
+	{
+		return GLUS_FALSE;
+	}
 
-    *normals = (GLUSfloat*)malloc(3 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*normals)
-    {
-    	return GLUS_FALSE;
-    }
+	*normals = (GLUSfloat*)malloc(3 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*normals)
+	{
+		return GLUS_FALSE;
+	}
 
-    *texCoords = (GLUSfloat*)malloc(2 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*texCoords)
-    {
-    	return GLUS_FALSE;
-    }
+	*texCoords = (GLUSfloat*)malloc(2 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*texCoords)
+	{
+		return GLUS_FALSE;
+	}
 
-    *triangleVertices = (GLUSfloat*)malloc(4 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*triangleVertices)
-    {
-    	return GLUS_FALSE;
-    }
+	*triangleVertices = (GLUSfloat*)malloc(4 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*triangleVertices)
+	{
+		return GLUS_FALSE;
+	}
 
-    *triangleNormals = (GLUSfloat*)malloc(3 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*triangleNormals)
-    {
-    	return GLUS_FALSE;
-    }
+	*triangleNormals = (GLUSfloat*)malloc(3 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*triangleNormals)
+	{
+		return GLUS_FALSE;
+	}
 
-    *triangleTexCoords = (GLUSfloat*)malloc(2 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
-    if (!*triangleTexCoords)
-    {
-    	return GLUS_FALSE;
-    }
+	*triangleTexCoords = (GLUSfloat*)malloc(2 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*triangleTexCoords)
+	{
+		return GLUS_FALSE;
+	}
 
 	return GLUS_TRUE;
 }
@@ -228,9 +228,25 @@ static GLUSvoid glusInitMaterial(GLUSmaterial* material)
 
 	material->indexOfRefraction = 1.0f;
 
-	material->textureFilename[0] = 0;
+	material->ambientTextureFilename[0] = 0;
 
-	material->textureName = 0;
+	material->diffuseTextureFilename[0] = 0;
+
+	material->specularTextureFilename[0] = 0;
+
+	material->transparencyTextureFilename[0] = 0;
+
+	material->bumpTextureFilename[0] = 0;
+
+	material->ambientTextureName = 0;
+
+	material->diffuseTextureName = 0;
+
+	material->specularTextureName = 0;
+
+	material->transparencyTextureName = 0;
+
+	material->bumpTextureName = 0;
 }
 
 static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
@@ -262,7 +278,10 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 {
 	FILE* f;
 
+	GLUSint i, k;
+
 	GLUSchar buffer[GLUS_BUFFERSIZE];
+	GLUSchar* checkBuffer;
 	GLUSchar name[GLUS_MAX_STRING];
 	GLUSchar identifier[7];
 
@@ -292,11 +311,55 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 			}
 		}
 
-		if (strncmp(buffer, "newmtl", 6) == 0)
+		checkBuffer = buffer;
+
+		k = 0;
+
+		// Skip first spaces etc.
+		while (*checkBuffer)
+		{
+			if (*checkBuffer != ' ' && *checkBuffer != '\t')
+			{
+				break;
+			}
+
+			checkBuffer++;
+			k++;
+
+			if (k >= GLUS_BUFFERSIZE)
+			{
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		i = 0;
+
+		while (checkBuffer[i])
+		{
+			if (checkBuffer[i] == ' ' || checkBuffer[i] == '\t')
+			{
+				break;
+			}
+
+			checkBuffer[i] = tolower(checkBuffer[i]);
+
+			i++;
+
+			if (i >= GLUS_BUFFERSIZE - k)
+			{
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		if (strncmp(checkBuffer, "newmtl", 6) == 0)
 		{
 			GLUSmaterialList* newMaterialList = 0;
 
-			sscanf(buffer, "%s %s", identifier, name);
+			sscanf(checkBuffer, "%s %s", identifier, name);
 
 			newMaterialList = (GLUSmaterialList*)malloc(sizeof(GLUSmaterialList));
 
@@ -326,53 +389,77 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			currentMaterialList = newMaterialList;
 		}
-		else if (strncmp(buffer, "ke", 2) == 0)
+		else if (strncmp(checkBuffer, "ke", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.emissive[0], &currentMaterialList->material.emissive[1], &currentMaterialList->material.emissive[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.emissive[0], &currentMaterialList->material.emissive[1], &currentMaterialList->material.emissive[2]);
 
 			currentMaterialList->material.emissive[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "ka", 2) == 0)
+		else if (strncmp(checkBuffer, "ka", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.ambient[0], &currentMaterialList->material.ambient[1], &currentMaterialList->material.ambient[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.ambient[0], &currentMaterialList->material.ambient[1], &currentMaterialList->material.ambient[2]);
 
 			currentMaterialList->material.ambient[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "kd", 2) == 0)
+		else if (strncmp(checkBuffer, "kd", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.diffuse[0], &currentMaterialList->material.diffuse[1], &currentMaterialList->material.diffuse[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.diffuse[0], &currentMaterialList->material.diffuse[1], &currentMaterialList->material.diffuse[2]);
 
 			currentMaterialList->material.diffuse[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "ks", 2) == 0)
+		else if (strncmp(checkBuffer, "ks", 2) == 0)
 		{
-			sscanf(buffer, "%s %f %f %f", identifier, &currentMaterialList->material.specular[0], &currentMaterialList->material.specular[1], &currentMaterialList->material.specular[2]);
+			sscanf(checkBuffer, "%s %f %f %f", identifier, &currentMaterialList->material.specular[0], &currentMaterialList->material.specular[1], &currentMaterialList->material.specular[2]);
 
 			currentMaterialList->material.specular[3] = 1.0f;
 		}
-		else if (strncmp(buffer, "Ns", 2) == 0)
+		else if (strncmp(checkBuffer, "ns", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.shininess);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.shininess);
 		}
-		else if (strncmp(buffer, "d", 1) == 0 || strncmp(buffer, "Tr", 2) == 0)
+		else if (strncmp(checkBuffer, "d", 1) == 0 || strncmp(checkBuffer, "Tr", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.transparency);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.transparency);
 		}
-		else if (strncmp(buffer, "Ni", 2) == 0)
+		else if (strncmp(checkBuffer, "ni", 2) == 0)
 		{
-			sscanf(buffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
+			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
 		}
-		else if (strncmp(buffer, "map_kd", 6) == 0)
+		else if (strncmp(checkBuffer, "map_ka", 6) == 0)
 		{
-			sscanf(buffer, "%s %s", identifier, name);
+			sscanf(checkBuffer, "%s %s", identifier, name);
 
-			strcpy(currentMaterialList->material.textureFilename, name);
+			strcpy(currentMaterialList->material.ambientTextureFilename, name);
 		}
-		else if (strncmp(buffer, "illum", 5) == 0)
+		else if (strncmp(checkBuffer, "map_kd", 6) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.diffuseTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_ks", 6) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.specularTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_d", 5) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.transparencyTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "map_bump", 8) == 0 || strncmp(checkBuffer, "bump", 4) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.bumpTextureFilename, name);
+		}
+		else if (strncmp(checkBuffer, "illum", 5) == 0)
 		{
 			GLUSint illum;
 
-			sscanf(buffer, "%s %d", identifier, &illum);
+			sscanf(checkBuffer, "%s %d", identifier, &illum);
 
 			// Only setting reflection and refraction depending on illumination model.
 			switch (illum)
@@ -431,31 +518,31 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 {
 	GLUSboolean result;
 
-    FILE* f;
+	FILE* f;
 
-    GLUSchar buffer[GLUS_BUFFERSIZE];
-    GLUSchar identifier[7];
+	GLUSchar buffer[GLUS_BUFFERSIZE];
+	GLUSchar identifier[7];
 
-    GLUSfloat x, y, z;
-    GLUSfloat s, t;
+	GLUSfloat x, y, z;
+	GLUSfloat s, t;
 
-    GLUSfloat* vertices = 0;
-    GLUSfloat* normals = 0;
-    GLUSfloat* texCoords = 0;
+	GLUSfloat* vertices = 0;
+	GLUSfloat* normals = 0;
+	GLUSfloat* texCoords = 0;
 
-    GLUSuint numberVertices = 0;
-    GLUSuint numberNormals = 0;
-    GLUSuint numberTexCoords = 0;
+	GLUSuint numberVertices = 0;
+	GLUSuint numberNormals = 0;
+	GLUSuint numberTexCoords = 0;
 
-    GLUSfloat* triangleVertices = 0;
-    GLUSfloat* triangleNormals = 0;
-    GLUSfloat* triangleTexCoords = 0;
+	GLUSfloat* triangleVertices = 0;
+	GLUSfloat* triangleNormals = 0;
+	GLUSfloat* triangleTexCoords = 0;
 
-    GLUSuint totalNumberVertices= 0;
-    GLUSuint totalNumberNormals= 0;
-    GLUSuint totalNumberTexCoords= 0;
+	GLUSuint totalNumberVertices = 0;
+	GLUSuint totalNumberNormals = 0;
+	GLUSuint totalNumberTexCoords = 0;
 
-    GLUSuint facesEncoding = 0;
+	GLUSuint facesEncoding = 0;
 
 	// Material and groups
 
@@ -467,42 +554,42 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 
 	GLUSgroupList* currentGroupList = 0;
 
-    if (!filename || !shape)
-    {
-        return GLUS_FALSE;
-    }
+	if (!filename || !shape)
+	{
+		return GLUS_FALSE;
+	}
 
-    memset(shape, 0, sizeof(GLUSshape));
+	memset(shape, 0, sizeof(GLUSshape));
 
-    f = fopen(filename, "r");
+	f = fopen(filename, "r");
 
-    if (!f)
-    {
-        return GLUS_FALSE;
-    }
+	if (!f)
+	{
+		return GLUS_FALSE;
+	}
 
-    if (!glusMallocTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords))
-    {
-    	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+	if (!glusMallocTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords))
+	{
+		glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-    	fclose(f);
+		fclose(f);
 
-    	return GLUS_FALSE;
-    }
+		return GLUS_FALSE;
+	}
 
-    while (!feof(f))
-    {
-        if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
-        {
-        	if (ferror(f))
-        	{
-        		glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+	while (!feof(f))
+	{
+		if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
+		{
+			if (ferror(f))
+			{
+				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                fclose(f);
+				fclose(f);
 
-                return GLUS_FALSE;
-        	}
-        }
+				return GLUS_FALSE;
+			}
+		}
 
 		if (wavefront)
 		{
@@ -591,80 +678,80 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 			}
 		}
 
-        if (strncmp(buffer, "vt", 2) == 0)
-        {
-            if (numberTexCoords == GLUS_MAX_ATTRIBUTES)
-            {
-            	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+		if (strncmp(buffer, "vt", 2) == 0)
+		{
+			if (numberTexCoords == GLUS_MAX_ATTRIBUTES)
+			{
+				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                fclose(f);
+				fclose(f);
 
-                return GLUS_FALSE;
-            }
+				return GLUS_FALSE;
+			}
 
-            sscanf(buffer, "%s %f %f", identifier, &s, &t);
+			sscanf(buffer, "%s %f %f", identifier, &s, &t);
 
-            texCoords[2 * numberTexCoords + 0] = s;
-            texCoords[2 * numberTexCoords + 1] = t;
+			texCoords[2 * numberTexCoords + 0] = s;
+			texCoords[2 * numberTexCoords + 1] = t;
 
-            numberTexCoords++;
-        }
-        else if (strncmp(buffer, "vn", 2) == 0)
-        {
-            if (numberNormals == GLUS_MAX_ATTRIBUTES)
-            {
-            	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+			numberTexCoords++;
+		}
+		else if (strncmp(buffer, "vn", 2) == 0)
+		{
+			if (numberNormals == GLUS_MAX_ATTRIBUTES)
+			{
+				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                fclose(f);
+				fclose(f);
 
-                return GLUS_FALSE;
-            }
+				return GLUS_FALSE;
+			}
 
-            sscanf(buffer, "%s %f %f %f", identifier, &x, &y, &z);
+			sscanf(buffer, "%s %f %f %f", identifier, &x, &y, &z);
 
-            normals[3 * numberNormals + 0] = x;
-            normals[3 * numberNormals + 1] = y;
-            normals[3 * numberNormals + 2] = z;
+			normals[3 * numberNormals + 0] = x;
+			normals[3 * numberNormals + 1] = y;
+			normals[3 * numberNormals + 2] = z;
 
-            numberNormals++;
-        }
-        else if (strncmp(buffer, "v", 1) == 0)
-        {
-            if (numberVertices == GLUS_MAX_ATTRIBUTES)
-            {
-            	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+			numberNormals++;
+		}
+		else if (strncmp(buffer, "v", 1) == 0)
+		{
+			if (numberVertices == GLUS_MAX_ATTRIBUTES)
+			{
+				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                fclose(f);
+				fclose(f);
 
-                return GLUS_FALSE;
-            }
+				return GLUS_FALSE;
+			}
 
-            sscanf(buffer, "%s %f %f %f", identifier, &x, &y, &z);
+			sscanf(buffer, "%s %f %f %f", identifier, &x, &y, &z);
 
-            vertices[4 * numberVertices + 0] = x;
-            vertices[4 * numberVertices + 1] = y;
-            vertices[4 * numberVertices + 2] = z;
-            vertices[4 * numberVertices + 3] = 1.0f;
+			vertices[4 * numberVertices + 0] = x;
+			vertices[4 * numberVertices + 1] = y;
+			vertices[4 * numberVertices + 2] = z;
+			vertices[4 * numberVertices + 3] = 1.0f;
 
-            numberVertices++;
-        }
-        else if (strncmp(buffer, "f", 1) == 0)
-        {
-            GLUSchar* token;
+			numberVertices++;
+		}
+		else if (strncmp(buffer, "f", 1) == 0)
+		{
+			GLUSchar* token;
 
-            GLUSint vIndex, vtIndex, vnIndex;
+			GLUSint vIndex, vtIndex, vnIndex;
 
-            GLUSuint edgeCount = 0;
+			GLUSuint edgeCount = 0;
 
-            token = strtok(buffer, " \t");
-            token = strtok(0, " \n");
+			token = strtok(buffer, " \t");
+			token = strtok(0, " \n");
 
-            if (!token)
-            {
-            	continue;
-            }
+			if (!token)
+			{
+				continue;
+			}
 
-            // Check faces
+			// Check faces
 			if (strstr(token, "//") != 0)
 			{
 				facesEncoding = 2;
@@ -678,12 +765,12 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 				GLUSchar* c = strstr(token, "/");
 
 				c++;
-				
+
 				if (!c)
 				{
 					continue;
 				}
-				
+
 				if (strstr(c, "/") == 0)
 				{
 					facesEncoding = 1;
@@ -694,148 +781,148 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 				}
 			}
 
-            while (token != 0)
-            {
-                vIndex = -1;
-                vtIndex = -1;
-                vnIndex = -1;
+			while (token != 0)
+			{
+				vIndex = -1;
+				vtIndex = -1;
+				vnIndex = -1;
 
-                switch (facesEncoding)
-                {
-                    case 0:
-                        sscanf(token, "%d", &vIndex);
-                        break;
-                    case 1:
-                        sscanf(token, "%d/%d", &vIndex, &vtIndex);
-                        break;
-                    case 2:
-                        sscanf(token, "%d//%d", &vIndex, &vnIndex);
-                        break;
-                    case 3:
-                        sscanf(token, "%d/%d/%d", &vIndex, &vtIndex, &vnIndex);
-                        break;
-                }
+				switch (facesEncoding)
+				{
+					case 0:
+						sscanf(token, "%d", &vIndex);
+					break;
+					case 1:
+						sscanf(token, "%d/%d", &vIndex, &vtIndex);
+					break;
+					case 2:
+						sscanf(token, "%d//%d", &vIndex, &vnIndex);
+					break;
+					case 3:
+						sscanf(token, "%d/%d/%d", &vIndex, &vtIndex, &vnIndex);
+					break;
+				}
 
-                vIndex--;
-                vtIndex--;
-                vnIndex--;
+				vIndex--;
+				vtIndex--;
+				vnIndex--;
 
-                if (vIndex >= 0)
-                {
-                    if (edgeCount < 3)
-                    {
-                        if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				if (vIndex >= 0)
+				{
+					if (edgeCount < 3)
+					{
+						if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleVertices[4*totalNumberVertices], &vertices[4*vIndex], 4*sizeof(GLUSfloat));
+						memcpy(&triangleVertices[4 * totalNumberVertices], &vertices[4 * vIndex], 4 * sizeof(GLUSfloat));
 
-                        totalNumberVertices++;
-                        numberIndicesGroup++;
-                    }
-                    else
-                    {
-                        if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						totalNumberVertices++;
+						numberIndicesGroup++;
+					}
+					else
+					{
+						if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleVertices[4*(totalNumberVertices)], &triangleVertices[4*(totalNumberVertices-edgeCount)], 4*sizeof(GLUSfloat));
-                        memcpy(&triangleVertices[4*(totalNumberVertices+1)], &triangleVertices[4*(totalNumberVertices-1)], 4*sizeof(GLUSfloat));
-                        memcpy(&triangleVertices[4*(totalNumberVertices+2)], &vertices[4*vIndex], 4*sizeof(GLUSfloat));
+						memcpy(&triangleVertices[4 * (totalNumberVertices)], &triangleVertices[4 * (totalNumberVertices - edgeCount)], 4 * sizeof(GLUSfloat));
+						memcpy(&triangleVertices[4 * (totalNumberVertices + 1)], &triangleVertices[4 * (totalNumberVertices - 1)], 4 * sizeof(GLUSfloat));
+						memcpy(&triangleVertices[4 * (totalNumberVertices + 2)], &vertices[4 * vIndex], 4 * sizeof(GLUSfloat));
 
-                        totalNumberVertices += 3;
-                        numberIndicesGroup +=3;
-                    }
-                }
-                if (vnIndex >= 0)
-                {
-                    if (edgeCount < 3)
-                    {
-                        if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						totalNumberVertices += 3;
+						numberIndicesGroup += 3;
+					}
+				}
+				if (vnIndex >= 0)
+				{
+					if (edgeCount < 3)
+					{
+						if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleNormals[3*totalNumberNormals], &normals[3*vnIndex], 3*sizeof(GLUSfloat));
+						memcpy(&triangleNormals[3 * totalNumberNormals], &normals[3 * vnIndex], 3 * sizeof(GLUSfloat));
 
-                        totalNumberNormals++;
-                    }
-                    else
-                    {
-                        if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						totalNumberNormals++;
+					}
+					else
+					{
+						if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleNormals[3*(totalNumberNormals)], &triangleNormals[3*(totalNumberNormals-edgeCount)], 3*sizeof(GLUSfloat));
-                        memcpy(&triangleNormals[3*(totalNumberNormals+1)], &triangleNormals[3*(totalNumberNormals-1)], 3*sizeof(GLUSfloat));
-                        memcpy(&triangleNormals[3*(totalNumberNormals+2)], &normals[3*vnIndex], 3*sizeof(GLUSfloat));
+						memcpy(&triangleNormals[3 * (totalNumberNormals)], &triangleNormals[3 * (totalNumberNormals - edgeCount)], 3 * sizeof(GLUSfloat));
+						memcpy(&triangleNormals[3 * (totalNumberNormals + 1)], &triangleNormals[3 * (totalNumberNormals - 1)], 3 * sizeof(GLUSfloat));
+						memcpy(&triangleNormals[3 * (totalNumberNormals + 2)], &normals[3 * vnIndex], 3 * sizeof(GLUSfloat));
 
-                        totalNumberNormals += 3;
-                    }
-                }
-                if (vtIndex >= 0)
-                {
-                    if (edgeCount < 3)
-                    {
-                        if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						totalNumberNormals += 3;
+					}
+				}
+				if (vtIndex >= 0)
+				{
+					if (edgeCount < 3)
+					{
+						if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleTexCoords[2*totalNumberTexCoords], &texCoords[2*vtIndex], 2*sizeof(GLUSfloat));
+						memcpy(&triangleTexCoords[2 * totalNumberTexCoords], &texCoords[2 * vtIndex], 2 * sizeof(GLUSfloat));
 
-                        totalNumberTexCoords++;
-                    }
-                    else
-                    {
-                        if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
-                        {
-                        	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						totalNumberTexCoords++;
+					}
+					else
+					{
+						if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
+						{
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-                            fclose(f);
+							fclose(f);
 
-                            return GL_FALSE;
-                        }
+							return GL_FALSE;
+						}
 
-                        memcpy(&triangleTexCoords[2*(totalNumberTexCoords)], &triangleTexCoords[2*(totalNumberTexCoords-edgeCount)], 2*sizeof(GLUSfloat));
-                        memcpy(&triangleTexCoords[2*(totalNumberTexCoords+1)], &triangleTexCoords[2*(totalNumberTexCoords-1)], 2*sizeof(GLUSfloat));
-                        memcpy(&triangleTexCoords[2*(totalNumberTexCoords+2)], &texCoords[2*vtIndex], 2*sizeof(GLUSfloat));
+						memcpy(&triangleTexCoords[2 * (totalNumberTexCoords)], &triangleTexCoords[2 * (totalNumberTexCoords - edgeCount)], 2 * sizeof(GLUSfloat));
+						memcpy(&triangleTexCoords[2 * (totalNumberTexCoords + 1)], &triangleTexCoords[2 * (totalNumberTexCoords - 1)], 2 * sizeof(GLUSfloat));
+						memcpy(&triangleTexCoords[2 * (totalNumberTexCoords + 2)], &texCoords[2 * vtIndex], 2 * sizeof(GLUSfloat));
 
-                        totalNumberTexCoords += 3;
-                    }
-                }
+						totalNumberTexCoords += 3;
+					}
+				}
 
-                edgeCount++;
+				edgeCount++;
 
-                token = strtok(0, " \n");
-            }
-        }
-    }
+				token = strtok(0, " \n");
+			}
+		}
+	}
 
-    fclose(f);
+	fclose(f);
 
 	if (wavefront && currentGroupList)
 	{
@@ -843,18 +930,17 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 		numberIndicesGroup = 0;
 	}
 
-    result = glusCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
+	result = glusCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
 
-    glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-    if (result)
-    {
-    	glusCalculateTangentSpacef(shape);
-    }
+	if (result)
+	{
+		glusCalculateTangentSpacef(shape);
+	}
 
-    return result;
+	return result;
 }
-
 
 GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape)
 {
