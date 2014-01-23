@@ -191,6 +191,33 @@ typedef struct _GLUStgaimage
 } GLUStgaimage;
 
 /**
+ * Structure used for HDR Image File loading.
+ */
+typedef struct _GLUShdrimage
+{
+	/**
+	 * Width of the HDR image.
+	 */
+	GLUSushort width;
+
+	/**
+	 * Height of the HDR image.
+	 */
+	GLUSushort height;
+
+	/**
+	 * Depth of the image.
+	 */
+	GLUSushort depth;
+
+	/**
+	 * Pixel data.
+	 */
+	GLUSfloat* data;
+
+} GLUShdrimage;
+
+/**
  * Structure for shader program handling.
  */
 typedef struct _GLUSshaderprogram
@@ -827,6 +854,23 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUS
  * @param tgaimage The TGA file structure.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage);
+
+/**
+ * Loads a HDR file.
+ *
+ * @param filename The name of the file to load.
+ * @param hdrimage The structure to fill the HDR data.
+ *
+ * @return GLUS_TRUE, if loading succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage* hdrimage);
+
+/**
+ * Destroys the content of a HDR structure. Has to be called for freeing the resources.
+ *
+ * @param hdrimage The HDR file structure.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage);
 
 //
 // File, image saving functions
