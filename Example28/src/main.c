@@ -520,9 +520,9 @@ GLUSboolean init(GLUSvoid)
 
 	for (i = 0; i < KERNEL_SIZE; i++)
 	{
-		g_kernel[i * 3 + 0] = glusRandomGetFloatf(-1.0f, 1.0f);
-		g_kernel[i * 3 + 1] = glusRandomGetFloatf(-1.0f, 1.0f);
-		g_kernel[i * 3 + 2] = glusRandomGetFloatf(0.0f, 1.0f);	// Kernel hemisphere points to positive Z-Axis.
+		g_kernel[i * 3 + 0] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
+		g_kernel[i * 3 + 1] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
+		g_kernel[i * 3 + 2] = glusRandomUniformGetFloatf(0.0f, 1.0f);	// Kernel hemisphere points to positive Z-Axis.
 
 		glusVector3Normalizef(&g_kernel[i * 3]);					// Normalize, so included in the hemisphere.
 
@@ -542,8 +542,8 @@ GLUSboolean init(GLUSvoid)
 
 	for (i = 0; i < ROTATION_NOISE_SIZE; i++)
 	{
-		g_rotationNoise[i * 3 + 0] = glusRandomGetFloatf(-1.0f, 1.0f);
-		g_rotationNoise[i * 3 + 1] = glusRandomGetFloatf(-1.0f, 1.0f);
+		g_rotationNoise[i * 3 + 0] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
+		g_rotationNoise[i * 3 + 1] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
 		g_rotationNoise[i * 3 + 2] = 0.0f;						// Rotate on x-y-plane, so z is zero.
 
 		glusVector3Normalizef(&g_rotationNoise[i * 3]);			// Normalized rotation vector.

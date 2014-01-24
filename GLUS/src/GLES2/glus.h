@@ -1421,12 +1421,20 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusLengthf(const GLUSfloat x, const GLUSfloat y,
 GLUSAPI GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed);
 
 /**
- * Returns a floating point value in the given range.
+ * Returns a uniform distributed floating point value in the given range.
  *
  * @param start Smallest possible generated value (inclusive).
  * @param end Largest possible generated value (inclusive).
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomGetFloatf(const GLUSfloat start, const GLUSfloat end);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start, const GLUSfloat end);
+
+/**
+ * Returns a random normal distributed floating point value.
+ *
+ * @param mean 				Mean.
+ * @param standardDeviation Standard deviation.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLUSfloat standardDeviation);
 
 //
 // View, projection etc. functions.

@@ -213,7 +213,7 @@ GLUSboolean init(GLUSvoid)
 	// Note: If more than 16 lights are used, make sure to store them in another matrix or buffer.
 	for (GLint i = 0; i < POINT_LIGHT_COUNT; i++)
 	{
-		g_positionMatrix[i] = glusRandomGetFloatf(0.0f, (float)POINT_LIGHT_COUNT - 2.0f);
+		g_positionMatrix[i] = glusRandomUniformGetFloatf(0.0f, (float)POINT_LIGHT_COUNT - 2.0f);
 
 		g_directionMatrix[i] = rand() % 2 == 0 ? 1.0f : -1.0f;
 	}
