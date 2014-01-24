@@ -540,6 +540,13 @@ static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 
 				scanLength += code;
 
+				if (scanLength > width)
+				{
+					fclose(file);
+
+					return -1;
+				}
+
 				elementsRead = fread(&channelValue, 1, 1, file);
 
 				if (!glusCheckFileRead(file, elementsRead, 1))
@@ -557,6 +564,13 @@ static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 				// Non-run
 
 				scanLength += code;
+
+				if (scanLength > width)
+				{
+					fclose(file);
+
+					return -1;
+				}
 
 				while (code--)
 				{
@@ -767,6 +781,17 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 
 			for (i = 0; i < scanlinePixels; i++)
 			{
+				if (y < 0)
+				{
+					free(scanline);
+
+					fclose(file);
+
+					glusDestroyHdrImage(hdrimage);
+
+					return GLUS_FALSE;
+				}
+
 				convertRGBE(rgb, &scanline[i * 4]);
 
 				hdrimage->data[(width * y + x) * 3 + 0] = rgb[0];
@@ -821,6 +846,17 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 
 		while (repeat)
 		{
+			if (y < 0)
+			{
+				free(scanline);
+
+				fclose(file);
+
+				glusDestroyHdrImage(hdrimage);
+
+				return GLUS_FALSE;
+			}
+
 			hdrimage->data[(width * y + x) * 3 + 0] = rgb[0];
 			hdrimage->data[(width * y + x) * 3 + 1] = rgb[1];
 			hdrimage->data[(width * y + x) * 3 + 2] = rgb[2];
