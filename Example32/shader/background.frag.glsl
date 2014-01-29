@@ -25,14 +25,4 @@ void main(void)
 	vec3 ray = normalize(v_ray);
 
 	fragColor = texture(u_panoramaTexture, panorama(ray));
-	
-	// TODO Remove - just for testing, if the HDR image was loaded correctly.
-	if (fragColor.r > 1.0 || fragColor.g > 1.0 || fragColor.b > 1.0)
-	{
-		fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-	}
-	else if (fragColor.r < 0.0 || fragColor.g < 0.0 || fragColor.b < 0.0)
-	{
-		fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-	}
 }

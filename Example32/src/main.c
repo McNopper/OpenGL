@@ -13,6 +13,31 @@
 
 #include "GL/glus.h"
 
+#define SCREEN_WIDTH	1024
+#define SCREEN_HEIGHT	768
+
+static GLUSshaderprogram g_fullscreenProgram;
+
+static GLint g_fullscreenTextureLocation;
+
+static GLint g_exposureLocation;
+static GLint g_gammaLocation;
+
+static GLfloat g_exposure = 3.0f;
+static GLfloat g_gamma = 2.2f;
+
+//
+
+static GLuint g_fullscreenTexture;
+
+static GLuint g_fullscreenDepthRenderbuffer;
+
+static GLuint g_fullscreenFBO;
+
+//
+//
+//
+
 static GLfloat g_projectionMatrix[16];
 
 //
@@ -50,6 +75,24 @@ GLUSboolean init(GLUSvoid)
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
+	glusLoadTextFile("../Example32/shader/fullscreen.vert.glsl", &vertexSource);
+	glusLoadTextFile("../Example32/shader/fullscreen.frag.glsl", &fragmentSource);
+
+	glusBuildProgramFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+
+	glusDestroyTextFile(&vertexSource);
+	glusDestroyTextFile(&fragmentSource);
+
+	//
+
+	g_fullscreenTextureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_fullscreenTexture");
+
+	g_exposureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
+	g_gammaLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
+
+	//
+	//
+
 	glusLoadTextFile("../Example32/shader/background.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example32/shader/background.frag.glsl", &fragmentSource);
 
@@ -65,6 +108,54 @@ GLUSboolean init(GLUSvoid)
 
 	g_vertexBackgroundLocation = glGetAttribLocation(g_programBackground.program, "a_vertex");
 
+	//
+	// Setting up the full screen frame buffer.
+	//
+
+	glGenTextures(1, &g_fullscreenTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_fullscreenTexture);
+
+	// TODO Create MSAA texture.
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GLUS_RGB, GL_FLOAT, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// No need to access the depth buffer, so a render buffer is sufficient.
+
+	glGenRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	//
+
+	glGenFramebuffers(1, &g_fullscreenFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
+
+	// Attach the color buffer ...
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_fullscreenTexture, 0);
+
+	// ... and the depth buffer.
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+		return GLUS_FALSE;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//
+	//
 	//
 
 	glGenTextures(1, &g_panoramaTexture);
@@ -117,6 +208,12 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
+	glUseProgram(g_fullscreenProgram.program);
+
+	glUniform1i(g_fullscreenTexture, 0);
+
+	//
+
 	glUseProgram(g_programBackground.program);
 
 	glUniform1i(g_panoramaTextureBackgroundLocation, 0);
@@ -140,8 +237,6 @@ GLUSboolean init(GLUSvoid)
 
 	glClearDepth(1.0f);
 
-	glEnable(GL_DEPTH_TEST);
-
 	glEnable(GL_CULL_FACE);
 
 	return GLUS_TRUE;
@@ -159,12 +254,17 @@ GLUSboolean update(GLUSfloat time)
 	GLfloat viewProjectionMatrix[16];
 	GLfloat viewMatrix[16];
 
-	// TODO Adjust look at.
-	glusLookAtf(viewMatrix, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, -1.0f, 0.0f, 1.0f, 0.0f);
+	// TODO Animate around model.
+	glusLookAtf(viewMatrix, 0.0f, 0.0f, 0.0f, 0.0f, 0.05f, -1.0f, 0.0f, 1.0f, 0.0f);
 
 	glusMatrix4x4Multiplyf(viewProjectionMatrix, g_projectionMatrix, viewMatrix);
 
-	// TODO Render to FBO and do tone mapping and gamma correction.
+	// Render to FBO.
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_panoramaTexture);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -172,9 +272,13 @@ GLUSboolean update(GLUSfloat time)
 
 	glUseProgram(g_programBackground.program);
 
+	glBindVertexArray(g_vaoBackground);
+
 	glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, viewProjectionMatrix);
 
 	glBindVertexArray(g_vaoBackground);
+
+	glEnable(GL_DEPTH_TEST);
 
 	glFrontFace(GL_CW);
 
@@ -182,7 +286,31 @@ GLUSboolean update(GLUSfloat time)
 
 	glFrontFace(GL_CCW);
 
-	// TODO Render model.
+	// TODO Render model using BRDF and IBL.
+
+	//
+	//
+	//
+
+	// Render full screen to resolve the buffer: MSAA, tone mapping and gamma correction.
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// No clear needed, as we just draw over the last content.
+
+	glUseProgram(g_fullscreenProgram.program);
+
+	// TODO Make controllable.
+	glUniform1f(g_exposureLocation, g_exposure);
+	glUniform1f(g_gammaLocation, g_gamma);
+
+	glBindVertexArray(0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_fullscreenTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	return GLUS_TRUE;
 }
@@ -230,6 +358,37 @@ GLUSvoid terminate(GLUSvoid)
 	glUseProgram(0);
 
 	glusDestroyProgram(&g_programBackground);
+
+	glusDestroyProgram(&g_fullscreenProgram);
+
+	//
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (g_fullscreenTexture)
+	{
+		glDeleteTextures(1, &g_fullscreenTexture);
+
+		g_fullscreenTexture = 0;
+	}
+
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	if (g_fullscreenDepthRenderbuffer)
+	{
+		glDeleteRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
+
+		g_fullscreenDepthRenderbuffer = 0;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	if (g_fullscreenFBO)
+	{
+		glDeleteFramebuffers(1, &g_fullscreenFBO);
+
+		g_fullscreenFBO = 0;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -244,7 +403,12 @@ int main(int argc, char* argv[])
 
 	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
 
-	if (!glusCreateWindow("GLUS Example Window", 640, 480, 24, 0, GLUS_FALSE))
+	// No resize, as it makes code easier.
+	glusPrepareNoResize(GLUS_TRUE);
+
+	// No MSAA here, as we render to an off screen MSAA buffer.
+
+	if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0, GLUS_FALSE))
 	{
 		printf("Could not create window!\n");
 		return -1;
