@@ -15,11 +15,13 @@
 
 #define SCREEN_WIDTH	1024
 #define SCREEN_HEIGHT	768
+#define MSAA_SAMPLES	4
 
 static GLUSshaderprogram g_fullscreenProgram;
 
 static GLint g_fullscreenTextureLocation;
 
+static GLint g_msaaSamplesLocation;
 static GLint g_exposureLocation;
 static GLint g_gammaLocation;
 
@@ -38,7 +40,7 @@ static GLuint g_fullscreenFBO;
 //
 //
 
-static GLfloat g_projectionMatrix[16];
+static GLfloat g_viewProjectionMatrix[16];
 
 //
 
@@ -87,6 +89,7 @@ GLUSboolean init(GLUSvoid)
 
 	g_fullscreenTextureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_fullscreenTexture");
 
+	g_msaaSamplesLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
 	g_exposureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
 	g_gammaLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
 
@@ -114,23 +117,23 @@ GLUSboolean init(GLUSvoid)
 
 	glGenTextures(1, &g_fullscreenTexture);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_fullscreenTexture);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
 
-	// TODO Create MSAA texture.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GLUS_RGB, GL_FLOAT, 0);
+	// Create MSAA texture.
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLES, GL_RGB32F, SCREEN_WIDTH, SCREEN_HEIGHT, GL_TRUE);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	// No need to access the depth buffer, so a render buffer is sufficient.
 
 	glGenRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLES, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
@@ -140,7 +143,7 @@ GLUSboolean init(GLUSvoid)
 	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
 
 	// Attach the color buffer ...
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_fullscreenTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture, 0);
 
 	// ... and the depth buffer.
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
@@ -210,7 +213,8 @@ GLUSboolean init(GLUSvoid)
 
 	glUseProgram(g_fullscreenProgram.program);
 
-	glUniform1i(g_fullscreenTexture, 0);
+	glUniform1i(g_fullscreenTextureLocation, 0);
+	glUniform1i(g_msaaSamplesLocation, MSAA_SAMPLES);
 
 	//
 
@@ -229,10 +233,6 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glBindTexture(GL_TEXTURE_2D, g_panoramaTexture);
-
-	//
-
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	glClearDepth(1.0f);
@@ -244,21 +244,20 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
+	GLfloat projectionMatrix[16];
+	GLfloat viewMatrix[16];
+
 	glViewport(0, 0, width, height);
 
-	glusPerspectivef(g_projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
+	glusPerspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
+
+	glusLookAtf(viewMatrix, 0.0f, 0.0f, 0.0f, 0.0f, 0.05f, -1.0f, 0.0f, 1.0f, 0.0f);
+
+	glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
 }
 
 GLUSboolean update(GLUSfloat time)
 {
-	GLfloat viewProjectionMatrix[16];
-	GLfloat viewMatrix[16];
-
-	// TODO Animate around model.
-	glusLookAtf(viewMatrix, 0.0f, 0.0f, 0.0f, 0.0f, 0.05f, -1.0f, 0.0f, 1.0f, 0.0f);
-
-	glusMatrix4x4Multiplyf(viewProjectionMatrix, g_projectionMatrix, viewMatrix);
-
 	// Render to FBO.
 
 	glActiveTexture(GL_TEXTURE0);
@@ -266,7 +265,9 @@ GLUSboolean update(GLUSfloat time)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_MULTISAMPLE);
+
+	// No clear needed, as background "clears" the screen.
 
 	// Render the background.
 
@@ -274,17 +275,17 @@ GLUSboolean update(GLUSfloat time)
 
 	glBindVertexArray(g_vaoBackground);
 
-	glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, viewProjectionMatrix);
+	glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 
 	glBindVertexArray(g_vaoBackground);
-
-	glEnable(GL_DEPTH_TEST);
 
 	glFrontFace(GL_CW);
 
 	glDrawElements(GL_TRIANGLES, g_numberIndicesBackground, GL_UNSIGNED_INT, 0);
 
 	glFrontFace(GL_CCW);
+
+	glEnable(GL_DEPTH_TEST);
 
 	// TODO Render model using BRDF and IBL.
 
@@ -295,6 +296,9 @@ GLUSboolean update(GLUSfloat time)
 	// Render full screen to resolve the buffer: MSAA, tone mapping and gamma correction.
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glDisable(GL_MULTISAMPLE);
+
 	// No clear needed, as we just draw over the last content.
 
 	glUseProgram(g_fullscreenProgram.program);
@@ -306,7 +310,7 @@ GLUSboolean update(GLUSfloat time)
 	glBindVertexArray(0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_fullscreenTexture);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
 
 	glDisable(GL_DEPTH_TEST);
 

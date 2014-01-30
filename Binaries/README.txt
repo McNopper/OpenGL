@@ -18,9 +18,11 @@ If you get build errors:
 - Please make sure, that you install all the needed header and libraries.
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 
-26.11.2013 Norbert Nopper (norbert@nopper.tv)
+30.01.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+30.01.2014 - Updated PowerVR OpenGL ES 3.2 DLLs
 
 26.11.2013 - Added ANGLE OpenGL ES 2.0 DLLs
 

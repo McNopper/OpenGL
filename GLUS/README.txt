@@ -48,9 +48,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-05.12.2013 Norbert Nopper (norbert@nopper.tv)
+30.01.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+30.01.2014 - Added latest PowerVR SDK (3.2)
 
 05.12.2013 - Added GLUS for i.MX6
 		   - Fixed some bugs in GLUS 
