@@ -17,16 +17,22 @@
 #define SCREEN_HEIGHT	768
 #define MSAA_SAMPLES	4
 
-static GLUSshaderprogram g_fullscreenProgram;
-
-static GLint g_fullscreenTextureLocation;
-
-static GLint g_msaaSamplesLocation;
-static GLint g_exposureLocation;
-static GLint g_gammaLocation;
-
 static GLfloat g_exposure = 3.0f;
 static GLfloat g_gamma = 2.2f;
+
+//
+
+static GLfloat g_viewProjectionMatrix[16];
+
+//
+
+static GLUSshaderprogram g_fullscreenProgram;
+
+static GLint g_framebufferTextureFullscreenLocation;
+
+static GLint g_msaaSamplesFullscreenLocation;
+static GLint g_exposureFullscreenLocation;
+static GLint g_gammaFullscreenLocation;
 
 //
 
@@ -36,19 +42,46 @@ static GLuint g_fullscreenDepthRenderbuffer;
 
 static GLuint g_fullscreenFBO;
 
-//
-//
-//
+static GLuint g_fullscreenVAO;
 
-static GLfloat g_viewProjectionMatrix[16];
-
+//
+//
 //
 
 static GLuint g_panoramaTexture;
 
 //
+//
+//
 
-static GLUSshaderprogram g_programBackground;
+static GLUSshaderprogram g_modelProgram;
+
+static GLint g_viewProjectionMatrixModelLocation;
+
+static GLint g_modelMatrixModelLocation;
+
+static GLint g_normalMatrixModelLocation;
+
+static GLint g_vertexModelLocation;
+
+static GLint g_normalModelLocation;
+
+//
+
+static GLuint g_verticesModelVBO;
+
+static GLuint g_normalsModelVBO;
+
+static GLuint g_modelVAO;
+
+//
+
+static GLuint g_numberVerticesModel;
+
+//
+//
+
+static GLUSshaderprogram g_backgroundProgram;
 
 static GLint g_viewProjectionMatrixBackgroundLocation;
 
@@ -62,7 +95,7 @@ static GLuint g_verticesBackgroundVBO;
 
 static GLuint g_indicesBackgroundVBO;
 
-static GLuint g_vaoBackground;
+static GLuint g_backgroundVAO;
 
 //
 
@@ -72,10 +105,29 @@ GLUSboolean init(GLUSvoid)
 {
 	GLUSshape backgroundSphere;
 
+	GLUSshape wavefront;
+
 	GLUShdrimage image;
 
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
+
+	glusLoadTextFile("../Example32/shader/brdf.vert.glsl", &vertexSource);
+	glusLoadTextFile("../Example32/shader/brdf.frag.glsl", &fragmentSource);
+
+	glusBuildProgramFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+
+	glusDestroyTextFile(&vertexSource);
+	glusDestroyTextFile(&fragmentSource);
+
+	g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
+	g_modelMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
+	g_normalMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
+
+	g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
+	g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
+
+	//
 
 	glusLoadTextFile("../Example32/shader/fullscreen.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example32/shader/fullscreen.frag.glsl", &fragmentSource);
@@ -87,11 +139,11 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	g_fullscreenTextureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_fullscreenTexture");
+	g_framebufferTextureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_framebufferTexture");
 
-	g_msaaSamplesLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
-	g_exposureLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
-	g_gammaLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
+	g_msaaSamplesFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
+	g_exposureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
+	g_gammaFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
 
 	//
 	//
@@ -99,17 +151,17 @@ GLUSboolean init(GLUSvoid)
 	glusLoadTextFile("../Example32/shader/background.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example32/shader/background.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_programBackground, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusBuildProgramFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
 	glusDestroyTextFile(&vertexSource);
 	glusDestroyTextFile(&fragmentSource);
 
 	//
 
-	g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_programBackground.program, "u_viewProjectionMatrix");
-	g_panoramaTextureBackgroundLocation = glGetUniformLocation(g_programBackground.program, "u_panoramaTexture");
+	g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_viewProjectionMatrix");
+	g_panoramaTextureBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_panoramaTexture");
 
-	g_vertexBackgroundLocation = glGetAttribLocation(g_programBackground.program, "a_vertex");
+	g_vertexBackgroundLocation = glGetAttribLocation(g_backgroundProgram.program, "a_vertex");
 
 	//
 	// Setting up the full screen frame buffer.
@@ -210,20 +262,58 @@ GLUSboolean init(GLUSvoid)
 	glusDestroyShapef(&backgroundSphere);
 
 	//
+	//
 
-	glUseProgram(g_fullscreenProgram.program);
+    // Use a helper function to load an wavefront object file.
+    glusLoadObjFile("venusm.obj", &wavefront);
 
-	glUniform1i(g_fullscreenTextureLocation, 0);
-	glUniform1i(g_msaaSamplesLocation, MSAA_SAMPLES);
+    g_numberVerticesModel = wavefront.numberVertices;
+
+    glGenBuffers(1, &g_verticesModelVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
+    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) wavefront.vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_normalsModelVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
+    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) wavefront.normals, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glusDestroyShapef(&wavefront);
 
 	//
 
-	glUseProgram(g_programBackground.program);
+	glUseProgram(g_modelProgram.program);
+
+	glGenVertexArrays(1, &g_modelVAO);
+	glBindVertexArray(g_modelVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
+	glVertexAttribPointer(g_vertexModelLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(g_vertexModelLocation);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
+	glVertexAttribPointer(g_normalModelLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(g_normalModelLocation);
+
+    //
+
+	glUseProgram(g_fullscreenProgram.program);
+
+	glUniform1i(g_framebufferTextureFullscreenLocation, 0);
+	glUniform1i(g_msaaSamplesFullscreenLocation, MSAA_SAMPLES);
+
+	glGenVertexArrays(1, &g_fullscreenVAO);
+	glBindVertexArray(g_fullscreenVAO);
+
+	//
+
+	glUseProgram(g_backgroundProgram.program);
 
 	glUniform1i(g_panoramaTextureBackgroundLocation, 0);
 
-	glGenVertexArrays(1, &g_vaoBackground);
-	glBindVertexArray(g_vaoBackground);
+	glGenVertexArrays(1, &g_backgroundVAO);
+	glBindVertexArray(g_backgroundVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
 	glVertexAttribPointer(g_vertexBackgroundLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
@@ -251,14 +341,19 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 	glusPerspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
-	glusLookAtf(viewMatrix, 0.0f, 0.0f, 0.0f, 0.0f, 0.05f, -1.0f, 0.0f, 1.0f, 0.0f);
+	glusLookAtf(viewMatrix, 0.0f, 2.5f, 6.0f, 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
 }
 
 GLUSboolean update(GLUSfloat time)
 {
+	GLfloat modelMatrix[16];
+	GLfloat normalMatrix[9];
+
+	//
 	// Render to FBO.
+	//
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_panoramaTexture);
@@ -267,54 +362,66 @@ GLUSboolean update(GLUSfloat time)
 
 	glEnable(GL_MULTISAMPLE);
 
-	// No clear needed, as background "clears" the screen.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render the background.
 
-	glUseProgram(g_programBackground.program);
+	// Rendering the sphere from inside, so change front facing.
+	glFrontFace(GL_CW);
 
-	glBindVertexArray(g_vaoBackground);
+	glUseProgram(g_backgroundProgram.program);
 
 	glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 
-	glBindVertexArray(g_vaoBackground);
-
-	glFrontFace(GL_CW);
+	glBindVertexArray(g_backgroundVAO);
 
 	glDrawElements(GL_TRIANGLES, g_numberIndicesBackground, GL_UNSIGNED_INT, 0);
 
 	glFrontFace(GL_CCW);
 
-	glEnable(GL_DEPTH_TEST);
+	// Render model using BRDF and IBL.
 
-	// TODO Render model using BRDF and IBL.
+	glusMatrix4x4Identityf(modelMatrix);
+	glusMatrix4x4Scalef(modelMatrix, 0.001f, 0.001f, 0.001f);
+
+	glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
+
+	glUseProgram(g_modelProgram.program);
+
+	glBindVertexArray(g_modelVAO);
+
+	glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
+	glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix3fv(g_normalMatrixModelLocation, 1, GL_FALSE, normalMatrix);
+
+	// TODO Set BRDF material. Set texture for IBL.
+
+	glDrawArrays(GL_TRIANGLES, 0, g_numberVerticesModel);
 
 	//
-	//
-	//
-
 	// Render full screen to resolve the buffer: MSAA, tone mapping and gamma correction.
+	//
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
 
 	// No clear needed, as we just draw over the last content.
+	glDisable(GL_DEPTH_TEST);
 
 	glUseProgram(g_fullscreenProgram.program);
 
-	// TODO Make controllable.
-	glUniform1f(g_exposureLocation, g_exposure);
-	glUniform1f(g_gammaLocation, g_gamma);
+	glUniform1f(g_exposureFullscreenLocation, g_exposure);
+	glUniform1f(g_gammaFullscreenLocation, g_gamma);
 
-	glBindVertexArray(0);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
-
-	glDisable(GL_DEPTH_TEST);
+	glBindVertexArray(g_fullscreenVAO);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glEnable(GL_DEPTH_TEST);
 
 	return GLUS_TRUE;
 }
@@ -334,6 +441,20 @@ GLUSvoid terminate(GLUSvoid)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	if (g_verticesModelVBO)
+	{
+		glDeleteBuffers(1, &g_verticesModelVBO);
+
+		g_verticesModelVBO = 0;
+	}
+
+	if (g_normalsModelVBO)
+	{
+		glDeleteBuffers(1, &g_normalsModelVBO);
+
+		g_normalsModelVBO = 0;
+	}
+
 	if (g_verticesBackgroundVBO)
 	{
 		glDeleteBuffers(1, &g_verticesBackgroundVBO);
@@ -352,16 +473,32 @@ GLUSvoid terminate(GLUSvoid)
 
 	glBindVertexArray(0);
 
-	if (g_vaoBackground)
+	if (g_modelVAO)
 	{
-		glDeleteVertexArrays(1, &g_vaoBackground);
+		glDeleteVertexArrays(1, &g_modelVAO);
 
-		g_vaoBackground = 0;
+		g_modelVAO = 0;
+	}
+
+	if (g_backgroundVAO)
+	{
+		glDeleteVertexArrays(1, &g_backgroundVAO);
+
+		g_backgroundVAO = 0;
+	}
+
+	if (g_fullscreenVAO)
+	{
+		glDeleteVertexArrays(1, &g_fullscreenVAO);
+
+		g_fullscreenVAO = 0;
 	}
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_programBackground);
+	glusDestroyProgram(&g_modelProgram);
+
+	glusDestroyProgram(&g_backgroundProgram);
 
 	glusDestroyProgram(&g_fullscreenProgram);
 
@@ -407,7 +544,7 @@ int main(int argc, char* argv[])
 
 	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
 
-	// No resize, as it makes code easier.
+	// No resize, as it makes code simpler.
 	glusPrepareNoResize(GLUS_TRUE);
 
 	// No MSAA here, as we render to an off screen MSAA buffer.

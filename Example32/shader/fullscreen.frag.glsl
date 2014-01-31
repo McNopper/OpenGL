@@ -1,6 +1,6 @@
 #version 410 core
 
-uniform sampler2DMS u_fullscreenTexture; 
+uniform sampler2DMS u_framebufferTexture; 
 
 uniform int u_msaaSamples;
 
@@ -29,11 +29,11 @@ void main(void)
 {
 	// MSAA sampling.
 
-	vec2 fullscreenTextureSize = vec2(textureSize(u_fullscreenTexture));
+	vec2 framebufferTextureSize = vec2(textureSize(u_framebufferTexture));
 
-	ivec2 itexCoord = ivec2(fullscreenTextureSize * v_texCoord);
+	ivec2 itexCoord = ivec2(framebufferTextureSize * v_texCoord);
 
-	vec3 hdrColor = sampleMS(u_fullscreenTexture, itexCoord).rgb;
+	vec3 hdrColor = sampleMS(u_framebufferTexture, itexCoord).rgb;
 	
 	// Tone mapping and gamma correction.
 
