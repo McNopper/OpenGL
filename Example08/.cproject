@@ -30,7 +30,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GLUS/x64__Darwin__GCC_Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/External/x64/Darwin/GCC/lib}&quot;"/>
 								</option>
-								<option id="macosx.c.link.option.ldflags.2108919299" name="Linker flags" superClass="macosx.c.link.option.ldflags" value="-framework CoreFoundation -framework OpenGL -framework Cocoa -framework IOKit" valueType="string"/>
+								<option id="macosx.c.link.option.ldflags.2108919299" name="Linker flags" superClass="macosx.c.link.option.ldflags" value="-framework CoreFoundation -framework OpenGL -framework Cocoa -framework IOKit -framework QuartzCore" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.macosx.c.linker.input.1768363088" superClass="cdt.managedbuild.tool.macosx.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
