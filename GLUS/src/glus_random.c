@@ -38,3 +38,47 @@ GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLU
 
 	return mean + standardDeviation * (sqrtf(-2.0f * logf(x1)) * cosf(2.0f * GLUS_PI * x2));
 }
+
+// see http://mathworld.wolfram.com/HammersleyPointSet.html
+// see https://github.com/wdas/brdf/blob/master/src/shaderTemplates/brdfIBL.frag
+
+GLUSboolean GLUSAPIENTRY glusRandomHammersleyf(GLUSfloat result[2], const GLUSuint sample, const GLUSubyte m)
+{
+	GLUSuint revertSample;
+	GLUSfloat binaryFractionFactor;
+
+	if (!result)
+	{
+		return GLUS_FALSE;
+	}
+
+	// Check, if m is in the allowed range, as only 32bit unsigned integer is supported.
+	if (m == 0 || m > 32)
+	{
+		return GLUS_FALSE;
+	}
+
+	// If not all bits are used: Check, if sample is out of bounds.
+	if (m < 32 && sample >= (GLUSuint)(1 << m))
+	{
+		return GLUS_FALSE;
+	}
+
+	// Revert bits by swapping blockwise. Lower bits are moved up and higher bits down.
+	revertSample = (sample << 16u) | (sample >> 16u);
+	revertSample = ((revertSample & 0x00ff00ffu) << 8u) | ((revertSample & 0xff00ff00u) >> 8u);
+	revertSample = ((revertSample & 0x0f0f0f0fu) << 4u) | ((revertSample & 0xf0f0f0f0u) >> 4u);
+	revertSample = ((revertSample & 0x33333333u) << 2u) | ((revertSample & 0xccccccccu) >> 2u);
+	revertSample = ((revertSample & 0x55555555u) << 1u) | ((revertSample & 0xaaaaaaaau) >> 1u);
+
+	// Shift back, as only m bits are used.
+	revertSample = revertSample >> (32 - m);
+
+	// Results are in range [0.0 1.0] and not [0.0, 1.0[.
+	binaryFractionFactor = 1.0f / (powf(2.0f, (GLUSfloat)m) - 1.0f);
+
+	result[0] = (GLUSfloat)revertSample * binaryFractionFactor;
+	result[1] = (GLUSfloat)sample * binaryFractionFactor;
+
+	return GLUS_TRUE;
+}

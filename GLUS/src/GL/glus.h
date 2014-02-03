@@ -1443,20 +1443,35 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusLengthf(const GLUSfloat x, const GLUSfloat y,
 GLUSAPI GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed);
 
 /**
- * Returns a uniform distributed floating point value in the given range.
+ * Returns a uniform distributed random floating point value in the given range.
  *
  * @param start Smallest possible generated value (inclusive).
  * @param end Largest possible generated value (inclusive).
+ *
+ * @return The random value.
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start, const GLUSfloat end);
 
 /**
- * Returns a random normal distributed floating point value.
+ * Returns a normal distributed random floating point value.
  *
  * @param mean 				Mean.
  * @param standardDeviation Standard deviation.
+ *
+ * @return The random value.
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLUSfloat standardDeviation);
+
+/**
+ * Samples two floating point values from a Hammersley point set.
+ *
+ * @param result 	The resulting random values.
+ * @param sample	The sample to take. Has to be in the range 0 <= sample < 2^m.
+ * @param m			Order m, which allows 2^m samples. Has to be in the range 0 < m <= 32.
+ *
+ * @return GLUS_TRUE, if sampling was successful.
+ **/
+GLUSAPI GLUSboolean GLUSAPIENTRY glusRandomHammersleyf(GLUSfloat result[2], const GLUSuint sample, const GLUSubyte m);
 
 //
 // View, projection etc. functions.
