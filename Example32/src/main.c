@@ -20,6 +20,9 @@
 static GLfloat g_exposure = 3.0f;
 static GLfloat g_gamma = 2.2f;
 
+// 2^8 = 256 samples.
+static GLuint g_m = 8;
+
 //
 
 static GLfloat g_viewProjectionMatrix[16];
@@ -61,6 +64,14 @@ static GLint g_viewProjectionMatrixModelLocation;
 static GLint g_modelMatrixModelLocation;
 
 static GLint g_normalMatrixModelLocation;
+
+static GLint g_panoramaTextureModelLocation;
+
+static GLint g_colorMaterialModelLocation;
+
+static GLint g_numberSamplesModelLocation;
+static GLint g_mModelLocation;
+static GLint g_binaryFractionFactorModelLocation;
 
 static GLint g_vertexModelLocation;
 
@@ -112,6 +123,8 @@ GLUSboolean init(GLUSvoid)
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
+	GLfloat colorMaterial[3] = { 0.8, 0.8, 0.8 };
+
 	glusLoadTextFile("../Example32/shader/brdf.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example32/shader/brdf.frag.glsl", &fragmentSource);
 
@@ -123,6 +136,12 @@ GLUSboolean init(GLUSvoid)
 	g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
 	g_modelMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
 	g_normalMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
+	g_panoramaTextureModelLocation = glGetUniformLocation(g_modelProgram.program, "u_panoramaTexture");
+	g_colorMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
+
+	g_numberSamplesModelLocation = glGetUniformLocation(g_modelProgram.program, "u_numberSamples");
+	g_mModelLocation = glGetUniformLocation(g_modelProgram.program, "u_m");
+	g_binaryFractionFactorModelLocation = glGetUniformLocation(g_modelProgram.program, "u_binaryFractionFactor");
 
 	g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
 	g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
@@ -264,26 +283,30 @@ GLUSboolean init(GLUSvoid)
 	//
 	//
 
-    // Use a helper function to load an wavefront object file.
-    glusLoadObjFile("venusm.obj", &wavefront);
+	// Use a helper function to load an wavefront object file.
+	glusLoadObjFile("venusm.obj", &wavefront);
 
-    g_numberVerticesModel = wavefront.numberVertices;
+	g_numberVerticesModel = wavefront.numberVertices;
 
-    glGenBuffers(1, &g_verticesModelVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) wavefront.vertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &g_verticesModelVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
+	glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefront.vertices, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &g_normalsModelVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) wavefront.normals, GL_STATIC_DRAW);
+	glGenBuffers(1, &g_normalsModelVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
+	glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefront.normals, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&wavefront);
+	glusDestroyShapef(&wavefront);
 
 	//
 
 	glUseProgram(g_modelProgram.program);
+
+	glUniform1i(g_panoramaTextureModelLocation, 0);
+	// TODO Set specular BRDF material.
+	glUniform3fv(g_colorMaterialModelLocation, 1, colorMaterial);
 
 	glGenVertexArrays(1, &g_modelVAO);
 	glBindVertexArray(g_modelVAO);
@@ -296,7 +319,7 @@ GLUSboolean init(GLUSvoid)
 	glVertexAttribPointer(g_normalModelLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(g_normalModelLocation);
 
-    //
+	//
 
 	glUseProgram(g_fullscreenProgram.program);
 
@@ -390,11 +413,14 @@ GLUSboolean update(GLUSfloat time)
 
 	glBindVertexArray(g_modelVAO);
 
+	glUniform1ui(g_numberSamplesModelLocation, 1 << g_m);
+	glUniform1ui(g_mModelLocation, g_m);
+	// Results are in range [0.0 1.0] and not [0.0, 1.0[.
+	glUniform1f(g_binaryFractionFactorModelLocation, 1.0f / (powf(2.0f, (GLfloat)g_m) - 1.0f));
+
 	glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 	glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix3fv(g_normalMatrixModelLocation, 1, GL_FALSE, normalMatrix);
-
-	// TODO Set BRDF material. Set texture for IBL.
 
 	glDrawArrays(GL_TRIANGLES, 0, g_numberVerticesModel);
 
