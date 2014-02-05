@@ -73,6 +73,15 @@ vec3 brdfLambert(vec2 randomPoint, mat3 basis)
 	return u_colorMaterial * texture(u_panoramaTexture, panorama(ray)).rgb;
 }
 
+// see http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+// see http://blog.selfshadow.com/publications/s2012-shading-course/burley/s2012_pbs_disney_brdf_notes_v2.pdf 
+// see http://sirkan.iit.bme.hu/~szirmay/scook.pdf
+vec3 brdfCookTorrance(vec2 randomPoint, mat3 basis)
+{
+	// TODO: Cook-Torrance BRDF as described in the above papers.
+	return vec3(0.0, 0.0, 0.0);
+}
+
 void main(void)
 {
 	vec3 color = vec3(0.0, 0.0, 0.0);
@@ -90,9 +99,11 @@ void main(void)
 	{
 		randomPoint = hammersley(sampleIndex);
 	
+		// Diffuse
 		color += brdfLambert(randomPoint, basis);
 		
-		// TODO BRDF specular.
+		// Specular
+		color += brdfCookTorrance(randomPoint, basis);
 	}
 	
 	fragColor = vec4(color / float(u_numberSamples), 1.0);
