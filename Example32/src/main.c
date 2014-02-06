@@ -17,11 +17,24 @@
 #define SCREEN_HEIGHT	768
 #define MSAA_SAMPLES	4
 
+// Not more than 2^9 = 512 samples.
+#define MAX_M	9
+
 static GLfloat g_exposure = 3.0f;
 static GLfloat g_gamma = 2.2f;
 
-// 2^8 = 256 samples.
-static GLuint g_m = 8;
+// Start with 2^6 = 64 samples.
+static GLuint g_m = 6;
+
+// Roughness of the material.
+static GLfloat g_roughness = 0.1f;
+
+// Reflection coefficient see http://en.wikipedia.org/wiki/Schlick%27s_approximation
+static GLfloat g_R0 = 0.2f;
+
+//
+
+static GLfloat g_eye[4] = { 0.0f, 2.5f, 6.0f, 1.0f };
 
 //
 
@@ -65,9 +78,13 @@ static GLint g_modelMatrixModelLocation;
 
 static GLint g_normalMatrixModelLocation;
 
+static GLint g_eyeModelLocation;
+
 static GLint g_panoramaTextureModelLocation;
 
 static GLint g_colorMaterialModelLocation;
+static GLint g_roughnessMaterialModelLocation;
+static GLint g_R0MaterialModelLocation;
 
 static GLint g_numberSamplesModelLocation;
 static GLint g_mModelLocation;
@@ -136,8 +153,11 @@ GLUSboolean init(GLUSvoid)
 	g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
 	g_modelMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
 	g_normalMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
+	g_eyeModelLocation = glGetUniformLocation(g_modelProgram.program, "u_eye");
 	g_panoramaTextureModelLocation = glGetUniformLocation(g_modelProgram.program, "u_panoramaTexture");
 	g_colorMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
+	g_roughnessMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
+	g_R0MaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
 
 	g_numberSamplesModelLocation = glGetUniformLocation(g_modelProgram.program, "u_numberSamples");
 	g_mModelLocation = glGetUniformLocation(g_modelProgram.program, "u_m");
@@ -304,8 +324,9 @@ GLUSboolean init(GLUSvoid)
 
 	glUseProgram(g_modelProgram.program);
 
+	glUniform4fv(g_eyeModelLocation, 1, g_eye);
 	glUniform1i(g_panoramaTextureModelLocation, 0);
-	// TODO Set specular BRDF material.
+	// Color is fixed.
 	glUniform3fv(g_colorMaterialModelLocation, 1, colorMaterial);
 
 	glGenVertexArrays(1, &g_modelVAO);
@@ -364,7 +385,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 	glusPerspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
-	glusLookAtf(viewMatrix, 0.0f, 2.5f, 6.0f, 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glusLookAtf(viewMatrix, g_eye[0], g_eye[1], g_eye[2], 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
 }
@@ -417,6 +438,9 @@ GLUSboolean update(GLUSfloat time)
 	glUniform1ui(g_mModelLocation, g_m);
 	// Results are in range [0.0 1.0] and not [0.0, 1.0[.
 	glUniform1f(g_binaryFractionFactorModelLocation, 1.0f / (powf(2.0f, (GLfloat)g_m) - 1.0f));
+	// Roughness of material.
+	glUniform1f(g_roughnessMaterialModelLocation, g_roughness);
+	glUniform1f(g_R0MaterialModelLocation, g_R0);
 
 	glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 	glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
@@ -558,11 +582,47 @@ GLUSvoid terminate(GLUSvoid)
 	}
 }
 
+GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
+{
+	if (pressed)
+	{
+		if (key == '1' && g_m > 1)
+		{
+			g_m--;
+		}
+		else if (key == '2' && g_m < MAX_M)
+		{
+			g_m++;
+		}
+		else if (key == '3')
+		{
+			g_roughness -= 0.1f;
+		}
+		else if (key == '4')
+		{
+			g_roughness += 0.1f;
+		}
+		else if (key == '5')
+		{
+			g_R0 -= 0.1f;
+		}
+		else if (key == '6')
+		{
+			g_R0 += 0.1f;
+		}
+	}
+
+	g_roughness = glusClampf(g_roughness, 0.0f, 1.0f);
+	g_R0 = glusClampf(g_R0, 0.0f, 1.0f);
+}
+
 int main(int argc, char* argv[])
 {
 	glusInitFunc(init);
 
 	glusReshapeFunc(reshape);
+
+	glusKeyFunc(key);
 
 	glusUpdateFunc(update);
 
@@ -580,6 +640,16 @@ int main(int argc, char* argv[])
 		printf("Could not create window!\n");
 		return -1;
 	}
+
+    // Print out the keys
+    printf("Keys:\n");
+    printf("1       = Decrease number samples\n");
+    printf("2       = Increase number samples\n");
+    printf("3       = Decrease roughness\n");
+    printf("4       = Increase roughness\n");
+    printf("5       = Decrease R0\n");
+    printf("6       = Increase R0\n");
+    printf("\n");
 
 	glusRun();
 

@@ -71,17 +71,18 @@ typedef char GLUSchar;
 typedef void GLUSvoid;
 #endif
 
-#define GLUS_OK 0
+#define GLUS_OK 	0
 #define GLUS_TRUE   1
 #define GLUS_FALSE  0
-#define GLUS_VERTEX_SHADER              0x8B31
-#define GLUS_FRAGMENT_SHADER            0x8B30
 
-#define GLUS_RED  		0x1903
-#define GLUS_ALPHA  	0x1906
-#define GLUS_RGB    	0x1907
-#define GLUS_RGBA   	0x1908
-#define GLUS_LUMINANCE  0x1909
+#define GLUS_VERTEX_SHADER              0x00008B31
+#define GLUS_FRAGMENT_SHADER            0x00008B30
+
+#define GLUS_RED  						0x00001903
+#define GLUS_ALPHA  					0x00001906
+#define GLUS_RGB    					0x00001907
+#define GLUS_RGBA   					0x00001908
+#define GLUS_LUMINANCE  				0x00001909
 
 #define GLUS_PI		3.1415926535897932384626433832795f
 

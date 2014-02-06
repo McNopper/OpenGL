@@ -83,23 +83,25 @@ typedef char GLUSchar;
 typedef void GLUSvoid;
 #endif
 
-#define GLUS_OK 0
+#define GLUS_OK 	0
 #define GLUS_TRUE   1
 #define GLUS_FALSE  0
-#define GLUS_BACKWARD_COMPATIBLE_BIT    0x0000
-#define GLUS_FORWARD_COMPATIBLE_BIT     0x0002
-#define GLUS_VERTEX_SHADER              0x8B31
-#define GLUS_FRAGMENT_SHADER            0x8B30
-#define GLUS_TESS_EVALUATION_SHADER     0x8E87
-#define GLUS_TESS_CONTROL_SHADER        0x8E88
-#define GLUS_GEOMETRY_SHADER            0x8DD9
-#define GLUS_COMPUTE_SHADER 			0x91B9
 
-#define GLUS_RED  		0x1903
-#define GLUS_ALPHA  	0x1906
-#define GLUS_RGB    	0x1907
-#define GLUS_RGBA   	0x1908
-#define GLUS_LUMINANCE  0x1909
+#define GLUS_BACKWARD_COMPATIBLE_BIT    0x00000000
+#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000002
+#define GLUS_OPENGL_DEBUG_CONTEXT   	0x00022007
+#define GLUS_VERTEX_SHADER              0x00008B31
+#define GLUS_FRAGMENT_SHADER            0x00008B30
+#define GLUS_TESS_EVALUATION_SHADER     0x00008E87
+#define GLUS_TESS_CONTROL_SHADER        0x00008E88
+#define GLUS_GEOMETRY_SHADER            0x00008DD9
+#define GLUS_COMPUTE_SHADER 			0x000091B9
+
+#define GLUS_RED  						0x00001903
+#define GLUS_ALPHA  					0x00001906
+#define GLUS_RGB    					0x00001907
+#define GLUS_RGBA   					0x00001908
+#define GLUS_LUMINANCE  				0x00001909
 
 #define GLUS_PI		3.1415926535897932384626433832795f
 
@@ -694,6 +696,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(cons
  * @param major OpenGL major version.
  * @param minor OpenGL minor version.
  * @param flags Use either GLUS_BACKWARD_COMPATIBLE_BIT for backward compatibility or GLUS_FORWARD_COMPATIBLE_BIT for forward compatibility.
+ * 				Also, GLUS_OPENGL_DEBUG_CONTEXT can be set for creating an OpenGL debug context.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint minor, const GLUSint flags);
 
