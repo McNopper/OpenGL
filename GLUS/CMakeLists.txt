@@ -61,14 +61,14 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 		add_definitions(-DGLUS_ES2)
 	
-		include_directories(C:\\Imagination\\PowerVR\\GraphicsSDK\\SDK_3.1\\Builds\\Include)	
+		include_directories(C:\\Imagination\\PowerVR\\GraphicsSDK\\SDK_3.2\\Builds\\Include)	
 
 	ELSEIF(${OpenGL} MATCHES "ES")
 		# Desktop OpenGL ES 3.0
 
 		add_definitions(-DGLUS_ES)
 	
-		include_directories(C:\\Imagination\\PowerVR\\GraphicsSDK\\SDK_3.1\\Builds\\Include)	
+		include_directories(C:\\Imagination\\PowerVR\\GraphicsSDK\\SDK_3.2\\Builds\\Include)	
 
 	ELSE()
 		# Desktop

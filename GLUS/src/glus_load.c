@@ -743,6 +743,11 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 		return GLUS_FALSE;
 	}
 
+	prevRgbe[0] = 0;
+	prevRgbe[1] = 0;
+	prevRgbe[2] = 0;
+	prevRgbe[3] = 0;
+
 	factor = 1;
 	x = 0;
 	y = height - 1;

@@ -43,14 +43,16 @@ CPU:						ARMv6, ARMv7, x64, x86
 GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4, Vivante 
 OS: 						Darwin, Linux, Windows
 OpenGL (Optional):			GLES2, GLES3
-Compiler:					GCC, MinGW, MSVC
+Compiler:					GCC, MinGW
 Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-30.01.2014 Norbert Nopper (norbert@nopper.tv)
+09.02.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+09.02.2014 - Removed MSVC build profile. Use CMakeLists.txt to create Visual C++ project
 
 30.01.2014 - Added latest PowerVR SDK (3.2)
 
