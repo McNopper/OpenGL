@@ -223,7 +223,7 @@ GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShd
 	FILE* file;
 	size_t elementsWritten;
 	GLUSubyte rgbe[4];
-	GLUSint i;
+	GLUSint x, y;
 
 	// check, if we have a valid pointer
 	if (!filename || !hdrimage)
@@ -240,9 +240,9 @@ GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShd
 	}
 
 	// Header
-	elementsWritten = fputs("#?RADIANCE\n\n", file);
+	elementsWritten = fputs("#?RADIANCE\n#Saved with GLUS\nFORMAT=32-bit_rle_rgbe\n\n", file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 13))
+	if (!glusCheckFileWrite(file, elementsWritten, 52))
 	{
 		return GLUS_FALSE;
 	}
@@ -256,15 +256,18 @@ GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShd
 	}
 
 	// Non compressed data
-	for (i = hdrimage->width * hdrimage->height - 1; i >= 0; i--)
+	for (y = hdrimage->height - 1; y >= 0; y--)
 	{
-		convertRGB(rgbe, &hdrimage->data[i * 3]);
-
-		elementsWritten = fwrite(rgbe, 1, 4 * sizeof(GLUSubyte), file);
-
-		if (!glusCheckFileWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
+		for (x = 0; x < hdrimage->width; x++)
 		{
-			return GLUS_FALSE;
+			convertRGB(rgbe, &hdrimage->data[(y * hdrimage->width + x) * 3]);
+
+			elementsWritten = fwrite(rgbe, 1, 4 * sizeof(GLUSubyte), file);
+
+			if (!glusCheckFileWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
+			{
+				return GLUS_FALSE;
+			}
 		}
 	}
 
