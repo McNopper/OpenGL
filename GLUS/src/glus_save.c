@@ -39,27 +39,27 @@ static GLUSboolean glusCheckFileWrite(FILE* f, size_t actualWrite, size_t expect
 
 static GLUSvoid glusSwapColorChannel(GLUSint width, GLUSint height, GLUSenum format, GLUSubyte* data)
 {
-    GLUSint i;
-    GLUSubyte temp;
-    GLUSint bytesPerPixel = 3;
+	GLUSint i;
+	GLUSubyte temp;
+	GLUSint bytesPerPixel = 3;
 
-    if (!data)
-    {
-        return;
-    }
+	if (!data)
+	{
+		return;
+	}
 
-    if (format == GLUS_RGBA)
-    {
-        bytesPerPixel = 4;
-    }
+	if (format == GLUS_RGBA)
+	{
+		bytesPerPixel = 4;
+	}
 
-    // swap the R and B values to get RGB since the bitmap color format is in BGR
-    for (i = 0; i < width * height * bytesPerPixel; i += bytesPerPixel)
-    {
-        temp = data[i];
-        data[i] = data[i + 2];
-        data[i + 2] = temp;
-    }
+	// swap the R and B values to get RGB since the bitmap color format is in BGR
+	for (i = 0; i < width * height * bytesPerPixel; i += bytesPerPixel)
+	{
+		temp = data[i];
+		data[i] = data[i + 2];
+		data[i + 2] = temp;
+	}
 }
 
 GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStgaimage* tgaimage)
@@ -192,3 +192,83 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 	return GLUS_TRUE;
 }
 
+static GLUSvoid convertRGB(GLUSubyte* rgbe, const GLUSfloat* rgb)
+{
+	GLUSfloat significant[3];
+	GLUSint exponent[3];
+	GLUSint maxExponent;
+
+	significant[0] = frexpf(rgb[0], &exponent[0]);
+	significant[1] = frexpf(rgb[1], &exponent[1]);
+	significant[2] = frexpf(rgb[2], &exponent[2]);
+
+	maxExponent = exponent[0];
+	if (exponent[1] > maxExponent)
+	{
+		maxExponent = exponent[1];
+	}
+	if (exponent[2] > maxExponent)
+	{
+		maxExponent = exponent[2];
+	}
+
+	rgbe[0] = (GLUSubyte)(significant[0] * 256.0f * powf(2.0f, (GLUSfloat)(exponent[0] - maxExponent)));
+	rgbe[1] = (GLUSubyte)(significant[1] * 256.0f * powf(2.0f, (GLUSfloat)(exponent[1] - maxExponent)));
+	rgbe[2] = (GLUSubyte)(significant[2] * 256.0f * powf(2.0f, (GLUSfloat)(exponent[2] - maxExponent)));
+	rgbe[3] = (GLUSubyte)(maxExponent + 128);
+}
+
+GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShdrimage* hdrimage)
+{
+	FILE* file;
+	size_t elementsWritten;
+	GLUSubyte rgbe[4];
+	GLUSint i;
+
+	// check, if we have a valid pointer
+	if (!filename || !hdrimage)
+	{
+		return GLUS_FALSE;
+	}
+
+	// open filename in "write binary" mode
+	file = fopen(filename, "wb");
+
+	if (!file)
+	{
+		return GLUS_FALSE;
+	}
+
+	// Header
+	elementsWritten = fputs("#?RADIANCE\n\n", file);
+
+	if (!glusCheckFileWrite(file, elementsWritten, 13))
+	{
+		return GLUS_FALSE;
+	}
+
+	// Resolution
+	if (fprintf(file, "-Y %d +X %d\n", hdrimage->height, hdrimage->width) < 0)
+	{
+		fclose(file);
+
+		return GLUS_FALSE;
+	}
+
+	// Non compressed data
+	for (i = hdrimage->width * hdrimage->height - 1; i >= 0; i--)
+	{
+		convertRGB(rgbe, &hdrimage->data[i * 3]);
+
+		elementsWritten = fwrite(rgbe, 1, 4 * sizeof(GLUSubyte), file);
+
+		if (!glusCheckFileWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
+		{
+			return GLUS_FALSE;
+		}
+	}
+
+	fclose(file);
+
+	return GLUS_TRUE;
+}

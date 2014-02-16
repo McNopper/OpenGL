@@ -865,6 +865,16 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage);
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStgaimage* tgaimage);
 
+/**
+ * Saves a HDR file.
+ *
+ * @param filename The name of the file to save.
+ * @param hdrimage The structure with the HDR data.
+ *
+ * @return GLUS_TRUE, if saving succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShdrimage* hdrimage);
+
 //
 // Screenshot functions
 //
