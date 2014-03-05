@@ -281,52 +281,55 @@ GLUSvoid _glusPollEvents()
 
 	struct input_event keyEvent;
 
-	ssize_t numBytes = read(_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
-
-	if (numBytes <= 0 || keyEvent.type != EV_KEY)
+	if (_keyFileDescriptor >= 0)
 	{
-		return;
-	}
+		ssize_t numBytes = read(_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
 
-	switch (keyEvent.value)
-	{
-		case 1:	// Pressed
+		if (numBytes <= 0 || keyEvent.type != EV_KEY)
 		{
-			// CTRL-C
-			if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
-			{
-				glusInternalClose();
-
-				return;
-			}
-
-			if (keyEvent.code == 29)
-			{
-				LEFT_CTRL = GLUS_TRUE;
-			}
-			else if (keyEvent.code == 97)
-			{
-				RIGHT_CTRL = GLUS_TRUE;
-			}
-
-			glusInternalKey(translateKey(keyEvent.code), GLFW_PRESS);
+			return;
 		}
-		break;
 
-		case 0: // Released
+		switch (keyEvent.value)
 		{
-			if (keyEvent.code == 29)
+			case 1:	// Pressed
 			{
-				LEFT_CTRL = GLUS_FALSE;
-			}
-			else if (keyEvent.code == 97)
-			{
-				RIGHT_CTRL = GLUS_FALSE;
-			}
+				// CTRL-C
+				if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
+				{
+					glusInternalClose();
 
-			glusInternalKey(translateKey(keyEvent.code), GLFW_RELEASE);
+					return;
+				}
+
+				if (keyEvent.code == 29)
+				{
+					LEFT_CTRL = GLUS_TRUE;
+				}
+				else if (keyEvent.code == 97)
+				{
+					RIGHT_CTRL = GLUS_TRUE;
+				}
+
+				glusInternalKey(translateKey(keyEvent.code), GLFW_PRESS);
+			}
+			break;
+
+			case 0: // Released
+			{
+				if (keyEvent.code == 29)
+				{
+					LEFT_CTRL = GLUS_FALSE;
+				}
+				else if (keyEvent.code == 97)
+				{
+					RIGHT_CTRL = GLUS_FALSE;
+				}
+
+				glusInternalKey(translateKey(keyEvent.code), GLFW_RELEASE);
+			}
+			break;
 		}
-		break;
 	}
 }
 
@@ -359,9 +362,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 
 	if (_keyFileDescriptor < 0)
 	{
-		glusLogPrint(GLUS_LOG_ERROR, "Could not open key input device");
-
-		return 0;
+		glusLogPrint(GLUS_LOG_WARNING, "Could not open key input device");
 	}
 
 	_nativeWindow = fbCreateWindow(_nativeDisplay, 0, 0, width, height);
