@@ -16,11 +16,7 @@
 
 #include <EGL/eglvivante.h>
 
-#ifdef GLUS_ES2
-#include "GLES2/glus.h"
-#else
-#include "GLES3/glus.h"
-#endif
+#include "GL/glus.h"
 
 #include <time.h>
 

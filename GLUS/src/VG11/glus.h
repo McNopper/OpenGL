@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - OpenVG 1.1 Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,20 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#if (GLUS_ES || GLUS_ES2 || GLUS_ES3)
-
-#ifdef GLUS_ES2
-#include "../GLES2/glus.h"
-#else
-#include "../GLES3/glus.h"
-#endif
-
-#elif (GLUS_VG || GLUS_VG11)  /*GLUS_ES || GLUS_ES2 || GLUS_ES3*/
-
-#include "../VG11/glus.h"
-
-#else /* GLUS_VG || GLUS_VG11 */
 
 #ifndef __glus_h_
 #define __glus_h_
@@ -44,10 +30,8 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
+#include <VG/openvg.h>
+#include <EGL/egl.h>
 
 #ifdef _MSC_VER
 	#define GLUSINLINE static __forceinline
@@ -91,16 +75,6 @@ typedef void GLUSvoid;
 #define GLUS_TRUE   1
 #define GLUS_FALSE  0
 
-#define GLUS_BACKWARD_COMPATIBLE_BIT    0x00000000
-#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000002
-#define GLUS_OPENGL_DEBUG_CONTEXT   	0x00022007
-#define GLUS_VERTEX_SHADER              0x00008B31
-#define GLUS_FRAGMENT_SHADER            0x00008B30
-#define GLUS_TESS_EVALUATION_SHADER     0x00008E87
-#define GLUS_TESS_CONTROL_SHADER        0x00008E88
-#define GLUS_GEOMETRY_SHADER            0x00008DD9
-#define GLUS_COMPUTE_SHADER 			0x000091B9
-
 #define GLUS_RED  						0x00001903
 #define GLUS_ALPHA  					0x00001906
 #define GLUS_RGB    					0x00001907
@@ -119,10 +93,14 @@ typedef void GLUSvoid;
 #define GLUS_VERTICES_FACTOR 4
 #define GLUS_VERTICES_DIVISOR 4
 
-#define GLUS_MAX_VERTICES 1048576
+#define GLUS_MAX_VERTICES 65536
 #define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
 
 #define GLUS_MAX_STRING  256
+
+#define GLUS_DEFAULT_CLIENT_VERSION 2
+
+#define GLUS_EGL_API EGL_OPENVG_API
 
 /**
  * Structure used for text file loading.
@@ -223,406 +201,45 @@ typedef struct _GLUShdrimage
 
 } GLUShdrimage;
 
-/**
- * Structure for shader program handling.
- */
-typedef struct _GLUSshaderprogram
-{
-	/**
-	 * The created program.
-	 */
-    GLUSuint program;
-
-    /**
-     * Compute shader.
-     */
-    GLUSuint compute;
-
-    /**
-     * Vertex shader.
-     */
-    GLUSuint vertex;
-
-    /**
-     * Tessellation control shader.
-     */
-    GLUSuint control;
-
-    /**
-     * Tessellation evaluation shader.
-     */
-    GLUSuint evaluation;
-
-    /**
-     * Geometry shader.
-     */
-    GLUSuint geometry;
-
-    /**
-     * Fragment shader.
-     */
-    GLUSuint fragment;
-
-} GLUSshaderprogram;
+//
+// EGL helper functions.
+//
 
 /**
- * Structure for holding geometry data.
+ * Creates the context and all needed EGL elements.
+ *
+ * @param eglNativeDisplayType		Native display type.
+ * @param eglDisplay  				EGL display.
+ * @param eglConfig  				EGL configuration.
+ * @param eglContext 				EGL context.
+ * @param attribList 				EGL attribute list.
+ * @param eglContextClientVersion	EGL context client version.
+ *
+ * @return EGL_TRUE, when creation of context succeeded.
  */
-typedef struct _GLUSshape
-{
-	/**
-	 * Vertices in homogeneous coordinates.
-	 */
-    GLUSfloat* vertices;
-
-    /**
-     * Normals.
-     */
-    GLUSfloat* normals;
-
-    /**
-     * Tangents.
-     */
-    GLUSfloat* tangents;
-
-    /**
-     * Bitangents.
-     */
-    GLUSfloat* bitangents;
-
-    /**
-     * Texture coordinates.
-     */
-    GLUSfloat* texCoords;
-
-    /**
-     * All above values in one array. Not created by the model loader.
-     */
-    GLUSfloat* allAttributes;
-
-    /**
-     * Indices.
-     */
-    GLUSuint* indices;
-
-    /**
-     * Number of vertices.
-     */
-    GLUSuint numberVertices;
-
-    /**
-     * Number of indices.
-     */
-    GLUSuint numberIndices;
-
-    /**
-     * Triangle render mode - could be either:
-     *
-     * GL_TRIANGLES
-     * GL_TRIANGLE_STRIP
-     */
-    GLUSenum mode;
-
-} GLUSshape;
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint attribList[], const EGLint eglContextClientVersion);
 
 /**
- * Structure for holding material data.
+ * Creates a window surface and sets it as current.
+ *
+ * @param eglNativeWindowType   	Native window type.
+ * @param eglDisplay 				EGL display.
+ * @param eglConfig  				EGL configuration.
+ * @param eglContext 				EGL context.
+ * @param eglSurface 				EGL surface.
+ *
+ * @return EGL_TRUE, when creation of window and setting of context succeeded.
  */
-typedef struct _GLUSmaterial
-{
-	/**
-	 * Name of the material.
-	 */
-	GLUSchar name[GLUS_MAX_STRING];
-
-	/**
-	 * Emissive color.
-	 */
-	GLUSfloat emissive[4];
-
-	/**
-	 * Ambient color.
-	 */
-	GLUSfloat ambient[4];
-
-	/**
-	 * Diffuse color.
-	 */
-	GLUSfloat diffuse[4];
-
-	/**
-	 * Specular color.
-	 */
-	GLUSfloat specular[4];
-
-	/**
-	 * Shininess.
-	 */
-	GLUSfloat shininess;
-
-	/**
-	 * Transparency, which is the alpha value.
-	 */
-	GLUSfloat transparency;
-
-	/**
-	 * Reflection.
-	 */
-	GLUSboolean reflection;
-
-	/**
-	 * Refraction.
-	 */
-	GLUSboolean refraction;
-
-	/**
-	 * Index of refraction.
-	 */
-	GLUSfloat indexOfRefraction;
-
-	/**
-	 * Ambient color texture filename.
-	 */
-	GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Diffuse color texture filename.
-	 */
-	GLUSchar diffuseTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Specular color texture filename.
-	 */
-	GLUSchar specularTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Transparency texture filename.
-	 */
-	GLUSchar transparencyTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Bump texture filename.
-	 */
-	GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Can be used to store the ambient texture name.
-	 */
-    GLUSuint ambientTextureName;
-
-	/**
-	 * Can be used to store the diffuse texture name.
-	 */
-    GLUSuint diffuseTextureName;
-
-	/**
-	 * Can be used to store the specular texture name.
-	 */
-    GLUSuint specularTextureName;
-
-	/**
-	 * Can be used to store the transparency texture name.
-	 */
-    GLUSuint transparencyTextureName;
-
-	/**
-	 * Can be used to store the bump texture name.
-	 */
-    GLUSuint bumpTextureName;
-
-} GLUSmaterial;
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface);
 
 /**
- * Structure for holding material data list.
+ * Terminates EGL an frees all resources.
+ *
+ * @param eglDisplay EGL display.
+ * @param eglContext EGL context.
+ * @param eglSurface EGL surface.
  */
-typedef struct _GLUSmaterialList
-{
-	/**
-	 * The material data.
-	 */
-	GLUSmaterial material;
-
-	/**
-	 * The pointer to the next element.
-	 */
-	struct _GLUSmaterialList* next;
-
-} GLUSmaterialList;
-
-/**
- * Group of geometry.
- */
-typedef struct _GLUSgroup
-{
-		/**
-		 * Name of the group.
-		 */
-		GLUSchar name[GLUS_MAX_STRING];
-
-		/**
-		 * Name of the material.
-		 */
-		GLUSchar materialName[GLUS_MAX_STRING];
-
-		/**
-		 * Pointer to the material.
-		 */
-		GLUSmaterial* material;
-
-	    /**
-	     * Indices.
-	     */
-	    GLUSuint* indices;
-
-	    /**
-	     * Indices VBO.
-	     */
-	    GLUSuint indicesVBO;
-
-	    /**
-	     * VAO of this group.
-	     */
-	    GLUSuint vao;
-
-	    /**
-	     * Number of indices.
-	     */
-	    GLUSuint numberIndices;
-
-	    /**
-	     * Triangle render mode - could be either:
-	     *
-	     * GL_TRIANGLES
-	     * GL_TRIANGLE_STRIP
-	     */
-	    GLUSenum mode;
-
-} GLUSgroup;
-
-/**
- * Structure for holding the group data list.
- */
-typedef struct _GLUSgroupList
-{
-		/**
-		 * The group data.
-		 */
-		GLUSgroup group;
-
-	    /**
-	     * The pointer to the next group element.
-	     */
-	    struct _GLUSgroupList* next;
-
-} GLUSgroupList;
-
-/**
- * Structure for a complete wavefront object file.
- */
-typedef struct _GLUSwavefront
-{
-		/**
-		 * Vertices in homogeneous coordinates.
-		 */
-	    GLUSfloat* vertices;
-
-	    /**
-	     * Vertices VBO.
-	     */
-	    GLUSuint verticesVBO;
-
-	    /**
-	     * Normals.
-	     */
-	    GLUSfloat* normals;
-
-	    /**
-	     * Normals VBO.
-	     */
-	    GLUSuint normalsVBO;
-
-	    /**
-	     * Tangents.
-	     */
-	    GLUSfloat* tangents;
-
-	    /**
-	     * Tangents VBO.
-	     */
-	    GLUSuint tangentsVBO;
-
-	    /**
-	     * Bitangents.
-	     */
-	    GLUSfloat* bitangents;
-
-	    /**
-	     * Bitangents VBO.
-	     */
-	    GLUSuint bitangentsVBO;
-
-	    /**
-	     * Texture coordinates.
-	     */
-	    GLUSfloat* texCoords;
-
-	    /**
-	     * Texture corrdinates VBO.
-	     */
-	    GLUSuint texCoordsVBO;
-
-	    /**
-	     * Number of vertices.
-	     */
-	    GLUSuint numberVertices;
-
-	    /**
-	     * Pointer to the first element of the groups.
-	     */
-	    GLUSgroupList* groups;
-
-	    /**
-	     * Pointer to the first element of the materials.
-	     */
-	    GLUSmaterialList* materials;
-
-} GLUSwavefront;
-
-/**
- * Structure for holding line data.
- */
-typedef struct _GLUSline
-{
-	/**
-	 * Vertices in homogeneous coordinates.
-	 */
-    GLUSfloat* vertices;
-
-    /**
-     * Indices.
-     */
-    GLUSuint* indices;
-
-    /**
-     * Number of vertices.
-     */
-    GLUSuint numberVertices;
-
-    /**
-     * Number of indices.
-     */
-    GLUSuint numberIndices;
-
-    /**
-     * Line render mode - could be either:
-     *
-     * GL_LINES​
-     * GL_LINE_STRIP​
-     * GL_LINE_LOOP​
-     */
-    GLUSenum mode;
-
-} GLUSline;
+GLUSAPI GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglContext, EGLSurface* eglSurface);
 
 //
 // Callback functions.
@@ -695,21 +312,11 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(cons
 //
 
 /**
- * Prepare the OpenGL context. Must be called before windows creation.
+ * Prepare the EGL context. Must be called before windows creation. Default is 2.
  *
- * @param major OpenGL major version.
- * @param minor OpenGL minor version.
- * @param flags Use either GLUS_BACKWARD_COMPATIBLE_BIT for backward compatibility or GLUS_FORWARD_COMPATIBLE_BIT for forward compatibility.
- * 				Also, GLUS_OPENGL_DEBUG_CONTEXT can be set for creating an OpenGL debug context.
+ * @param version EGL context version.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint minor, const GLUSint flags);
-
-/**
- * Prepare the OpenGL context. Must be called before windows creation.
- *
- * @param numberSamples Number of MSAA.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint version);
 
 /**
  * Prepare the window. Must be called before windows creation.
@@ -724,13 +331,12 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize);
  * @param title Title of the window.
  * @param width Width of the window.
  * @param height Height of the window.
- * @param depthBits Number of bits for the depth buffer.
- * @param stencilBits Number of bits for the stencil buffer.
+ * @param attribList EGL attribute list.
  * @param fullscreen Flag for setting the window to fullscreen.
  *
- * @return GLUS_TRUE, if creation of OpenGL context and window succeeded.
+ * @return GLUS_TRUE, if creation of OpenVG context and window succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSint depthBits, const GLUSint stencilBits, const GLUSboolean fullscreen);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const EGLint* attribList, const GLUSboolean fullscreen);
 
 /**
  * Cleans up the window and frees all resources. Only needs to be called, if creation of the window failed.
@@ -775,22 +381,11 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusShutdown(GLUSvoid);
 GLUSAPI GLUSvoid GLUSAPIENTRY glusSwapInterval(GLUSint interval);
 
 //
-// Version check functions.
-//
-
-/**
- * Checks, if the given OpenGL version is supported. The function reads out and parses the version string.
- *
- * @return GLUS_TRUE, if the given version is supported.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusIsSupported(const GLUSint major, const GLUSint minor);
-
-//
 // Extension functions.
 //
 
 /**
- * Checks, if an OpenGL extension is supported.
+ * Checks, if an OpenVG extension is supported.
  *
  * @param extension The name of the extension.
  *
@@ -2533,365 +2128,6 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3],
 GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
 
 //
-// Shader creation function.
-//
-
-/**
- * Creates a program by compiling the giving sources. Linking has to be done in a separate step.
- *
- * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
- * @param vertexSource Vertex shader source code.
- * @param controlSource Tessellation control shader source code. Optional.
- * @param evaluationSource Tessellation evaluation shader source code. Optional.
- * @param geometrySource Geometry shader source code. Optional.
- * @param fragmentSource Fragment shader source code.
- *
- * @return GLUS_TRUE, if compiling and creation of program succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSchar** vertexSource, const GLUSchar** controlSource, const GLUSchar** evaluationSource, const GLUSchar** geometrySource, const GLUSchar** fragmentSource);
-
-/**
- * Creates a compute shader program by compiling the giving source. Linking has to be done in a separate step.
- *
- * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
- * @param computeSource Compute shader source code.
- *
- * @return GLUS_TRUE, if compiling and creation of program succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateComputeProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSchar** computeSource);
-
-/**
- * Links a formerly created program.
- *
- * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
- *
- * @return GLUS_TRUE, if linking of program succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusLinkProgram(GLUSshaderprogram* shaderProgram);
-
-/**
- * Builds a program by compiling and linking the giving sources.
- *
- * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
- * @param vertexSource Vertex shader source code.
- * @param controlSource Tessellation control shader source code. Optional.
- * @param evaluationSource Tessellation evaluation shader source code. Optional.
- * @param geometrySource Geometry shader source code. Optional.
- * @param fragmentSource Fragment shader source code.
- *
- * @return GLUS_TRUE, if compiling and linking of program succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSchar** vertexSource, const GLUSchar** controlSource, const GLUSchar** evaluationSource, const GLUSchar** geometrySource, const GLUSchar** fragmentSource);
-
-/**
- * Builds a compute shader program by compiling and linking the giving source.
- *
- * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
- * @param computeSource Compute shader source code.
- *
- * @return GLUS_TRUE, if compiling and linking of program succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildComputeProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSchar** computeSource);
-
-/**
- * Destroys a program by freeing all resources.
- *
- * @param shaderprogram This structure holds the necessary information of the program and the different shaders.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyProgram(GLUSshaderprogram* shaderprogram);
-
-//
-// Shape / geometry functions.
-//
-
-/**
- * Creates a quadratic plane.
- *
- * @param shape The data is stored into this structure.
- * @param halfExtend The length from the center point to any border of the plane.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat halfExtend);
-
-/**
- * Creates a rectangular plane.
- *
- * @param shape The data is stored into this structure.
- * @param horizontalExtend The length from the center point to the left/right border of the plane.
- * @param verticalExtend The length from the center point to the upper/lower border of the plane.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend);
-
-/**
- * Creates a rectangular plane organized as a grid with given number rows and columns.
- *
- * @param shape The data is stored into this structure.
- * @param horizontalExtend The length from the center point to the left/right border of the plane.
- * @param verticalExtend The length from the center point to the upper/lower border of the plane.
- * @param rows The number of rows the grid should have.
- * @param columns The number of columns the grid should have.
- * @param triangleStrip Set to GLUS_TRUE, if a triangle strip should be created.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip);
-
-/**
- * Creates a disc with the given radius and number sectors. More sectors makes the disc more round.
- *
- * @param shape The data is stored into this structure.
- * @param radius The radius of the disc.
- * @param numberSectors The number of sectors the disc should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors);
-
-/**
- * Creates a cube.
- *
- * @param shape The data is stored into this structure.
- * @param halfExtend The distance from the center point to any face of the cube.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfExtend);
-
-/**
- * Creates a sphere. More slices makes the sphere more round.
- *
- * @param shape The data is stored into this structure.
- * @param radius The radius of the sphere.
- * @param numberSlices The number of slices the sphere should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
-
-/**
- * Creates a dome. More slices makes the dome more round.
- *
- * @param shape The data is stored into this structure.
- * @param radius The radius of the dome.
- * @param numberSlices The number of slices the dome should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
-
-/**
- * Creates a torus / doughnut. More slices and stacks makes the torus more round.
- *
- * @param shape The data is stored into this structure.
- * @param innerRadius The inner radius of the torus. This is the distance from the center point to the closest point from the torus surface.
- * @param outerRadius The outer radius of the torus. This is the distance from the center point to the farthest point from the torus surface.
- * @param numberSlices The number of slices the torus should have.
- * @param numberStacks The number of stacks / elements the torus should have per slice.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks);
-
-/**
- * Creates a cylinder. More slices makes the cylinder more round.
- *
- * @param shape The data is stored into this structure.
- * @param halfExtend The distance from the center point to the bottom and top disc of the cylinder.
- * @param radius The radius of the cylinder.
- * @param numberSlices The number of slices the cylinder should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices);
-
-/**
- * Creates a cone. More slices and stacks makes the torus more round and smooth.
- *
- * @param shape The data is stored into this structure.
- * @param halfExtend The distance from the center point to the bottom disc of the cone.
- * @param radius The radius of the cone at the bottom.
- * @param numberSlices The number of slices the cone should have.
- * @param numberStacks The number of stacks the cone should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks);
-
-/**
- * Calculates and creates the tangent and bitangent vectors. Uses the previous created memory for the tangents and bitangents.
- *
- * @param shape The structure which will be filled with the calculated vectors.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape);
-
-/**
- * Copies the shape.
- *
- * @param shape  The target shape.
- * @param source The source shape.
- *
- * @return GLUS_TRUE, if copy succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* source);
-
-/**
- * Destroys the shape by freeing the allocated memory.
- *
- * @param shape The structure which contains the dynamic allocated shape data, which will be freed by this function.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape);
-
-//
-// Shape adjacency
-//
-
-/**
- * Creates a shape with adjacent index data for a triangle. Can be used in the geometry shader.
- *
- * @param adjacencyShape 	The shape with additional adjacent index data.
- * @param sourceShape 		The source shape.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, const GLUSshape* sourceShape);
-
-//
-// Shape texture coordinate generation
-//
-
-/**
- * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
- *
- * @param shape 	The shape, where the texture coordinates are created.
- * @param sSizeX 	Size of the s texture coordinate, considering x axis.
- * @param sSizeZ 	Size of the s texture coordinate, considering z axis.
- * @param tSizeY 	Size of the t texture coordinate, considering y axis.
- * @param tSizeZ 	Size of the t texture coordinate, considering z axis.
- * @param sOffset 	Offset in the s texture coordinate direction.
- * @param tOffset 	Offset in the t texture coordinate direction.
- *
- * @return GLUS_TURE. if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset);
-
-/**
- * Creates the texture coordinates of a shape. Already existing texture coordinates are deleted.
- *
- * @param shape 	The shape, where the texture coordinates are created.
- * @param sPlane 	The plane for calculating the s coordinate.
- * @param tPlane 	The plane for calculating the t coordinate.
- * @param sSize 	The size in s direction.
- * @param tSize 	The size in t direction.
- * @param sOffset 	The offset in s direction.
- * @param tOffset 	The offset in t direction.
- *
- * @return GLUS_TURE. if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset);
-
-//
-// Line / geometry functions.
-//
-
-/**
- * Creates a line out of two points.
- *
- * @param line The data is stored into this structure.
- * @param point0 The starting point.
- * @param point1 The ending point.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[4], const GLUSfloat point1[4]);
-
-/**
- * Creates a square out of lines.
- *
- * @param line The data is stored into this structure.
- * @param halfExtend The length from the center point to edge of the square.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfExtend);
-
-/**
- * Creates a rectangular grid out of lines. The grid is centered.
- *
- * @param line The data is stored into this structure.
- * @param horizontalExtend The width of the grid.
- * @param verticalExtend The height of the grid.
- * @param rows Number of rows of the grid.
- * @param columns Number of columns of the grid.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns);
-
-/**
- * Creates a circle out of lines with the given radius and number sectors. More sectors makes the circle more round.
- *
- * @param line The data is stored into this structure.
- * @param radius The radius of the circle.
- * @param numberSectors The number of sectors the circle should have.
- *
- * @return GLUS_TRUE, if creation succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors);
-
-/**
- * Copies the line.
- *
- * @param line The target line.
- * @param source The source line.
- *
- * @return GLUS_TRUE, if copy succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source);
-
-/**
- * Destroys the line by freeing the allocated memory.
- *
- * @param line The structure which contains the dynamic allocated line data, which will be freed by this function.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line);
-
-//
-// Model loading functions.
-//
-
-/**
- * Loads a wavefront object file.
- *
- * @param filename The name of the wavefront file including extension.
- * @param shape The data is stored into this structure.
- *
- * @return GLUS_TRUE, if loading succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape);
-
-/**
- * Destroys the wavefront structure by freeing the allocated memory. VBOs, VAOs and textures are not freed.
- *
- * @param wavefront The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyGroupedObj(GLUSwavefront* wavefront);
-
-/**
- * Loads a wavefront object file with groups and materials.
- *
- * @param filename The name of the wavefront file including extension.
- * @param wavefront The data is stored into this structure.
- *
- * @return GLUS_TRUE, if loading succeeded.
- */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwavefront* wavefront);
-
-//
 // Logging
 //
 
@@ -2975,10 +2211,218 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLU
  */
 GLUSAPI GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat* tNear, GLUSfloat* tFar, GLUSboolean* insideSphere, const GLUSfloat rayStart[4], const GLUSfloat rayDirection[3], const GLUSfloat sphereCenter[4], const GLUSfloat radius);
 
+//
+// GLFW Start. Internally, some GLFW functions are used. See copyright informations in C file.
+//
+
+/*! @name Key and button actions
+ *  @{ */
+/*! @brief The key or button was released.
+ *  @ingroup input
+ */
+#define GLFW_RELEASE                0
+/*! @brief The key or button was pressed.
+ *  @ingroup input
+ */
+#define GLFW_PRESS                  1
+/*! @brief The key was held down until it repeated.
+ *  @ingroup input
+ */
+#define GLFW_REPEAT                 2
+/*! @} */
+
+/*! @defgroup keys Keyboard keys
+ *
+ * These key codes are inspired by the *USB HID Usage Tables v1.12* (p. 53-60),
+ * but re-arranged to map to 7-bit ASCII for printable keys (function keys are
+ * put in the 256+ range).
+ *
+ * The naming of the key codes follow these rules:
+ *  - The US keyboard layout is used
+ *  - Names of printable alpha-numeric characters are used (e.g. "A", "R",
+ *    "3", etc.)
+ *  - For non-alphanumeric characters, Unicode:ish names are used (e.g.
+ *    "COMMA", "LEFT_SQUARE_BRACKET", etc.). Note that some names do not
+ *    correspond to the Unicode standard (usually for brevity)
+ *  - Keys that lack a clear US mapping are named "WORLD_x"
+ *  - For non-printable keys, custom names are used (e.g. "F4",
+ *    "BACKSPACE", etc.)
+ *
+ *  @ingroup input
+ *  @{
+ */
+
+/* The unknown key */
+#define GLFW_KEY_UNKNOWN            -1
+
+/* Printable keys */
+#define GLFW_KEY_SPACE              32
+#define GLFW_KEY_APOSTROPHE         39  /* ' */
+#define GLFW_KEY_COMMA              44  /* , */
+#define GLFW_KEY_MINUS              45  /* - */
+#define GLFW_KEY_PERIOD             46  /* . */
+#define GLFW_KEY_SLASH              47  /* / */
+#define GLFW_KEY_0                  48
+#define GLFW_KEY_1                  49
+#define GLFW_KEY_2                  50
+#define GLFW_KEY_3                  51
+#define GLFW_KEY_4                  52
+#define GLFW_KEY_5                  53
+#define GLFW_KEY_6                  54
+#define GLFW_KEY_7                  55
+#define GLFW_KEY_8                  56
+#define GLFW_KEY_9                  57
+#define GLFW_KEY_SEMICOLON          59  /* ; */
+#define GLFW_KEY_EQUAL              61  /* = */
+#define GLFW_KEY_A                  65
+#define GLFW_KEY_B                  66
+#define GLFW_KEY_C                  67
+#define GLFW_KEY_D                  68
+#define GLFW_KEY_E                  69
+#define GLFW_KEY_F                  70
+#define GLFW_KEY_G                  71
+#define GLFW_KEY_H                  72
+#define GLFW_KEY_I                  73
+#define GLFW_KEY_J                  74
+#define GLFW_KEY_K                  75
+#define GLFW_KEY_L                  76
+#define GLFW_KEY_M                  77
+#define GLFW_KEY_N                  78
+#define GLFW_KEY_O                  79
+#define GLFW_KEY_P                  80
+#define GLFW_KEY_Q                  81
+#define GLFW_KEY_R                  82
+#define GLFW_KEY_S                  83
+#define GLFW_KEY_T                  84
+#define GLFW_KEY_U                  85
+#define GLFW_KEY_V                  86
+#define GLFW_KEY_W                  87
+#define GLFW_KEY_X                  88
+#define GLFW_KEY_Y                  89
+#define GLFW_KEY_Z                  90
+#define GLFW_KEY_LEFT_BRACKET       91  /* [ */
+#define GLFW_KEY_BACKSLASH          92  /* \ */
+#define GLFW_KEY_RIGHT_BRACKET      93  /* ] */
+#define GLFW_KEY_GRAVE_ACCENT       96  /* ` */
+#define GLFW_KEY_WORLD_1            161 /* non-US #1 */
+#define GLFW_KEY_WORLD_2            162 /* non-US #2 */
+
+/* Function keys */
+#define GLFW_KEY_ESCAPE             256
+#define GLFW_KEY_ENTER              257
+#define GLFW_KEY_TAB                258
+#define GLFW_KEY_BACKSPACE          259
+#define GLFW_KEY_INSERT             260
+#define GLFW_KEY_DELETE             261
+#define GLFW_KEY_RIGHT              262
+#define GLFW_KEY_LEFT               263
+#define GLFW_KEY_DOWN               264
+#define GLFW_KEY_UP                 265
+#define GLFW_KEY_PAGE_UP            266
+#define GLFW_KEY_PAGE_DOWN          267
+#define GLFW_KEY_HOME               268
+#define GLFW_KEY_END                269
+#define GLFW_KEY_CAPS_LOCK          280
+#define GLFW_KEY_SCROLL_LOCK        281
+#define GLFW_KEY_NUM_LOCK           282
+#define GLFW_KEY_PRINT_SCREEN       283
+#define GLFW_KEY_PAUSE              284
+#define GLFW_KEY_F1                 290
+#define GLFW_KEY_F2                 291
+#define GLFW_KEY_F3                 292
+#define GLFW_KEY_F4                 293
+#define GLFW_KEY_F5                 294
+#define GLFW_KEY_F6                 295
+#define GLFW_KEY_F7                 296
+#define GLFW_KEY_F8                 297
+#define GLFW_KEY_F9                 298
+#define GLFW_KEY_F10                299
+#define GLFW_KEY_F11                300
+#define GLFW_KEY_F12                301
+#define GLFW_KEY_F13                302
+#define GLFW_KEY_F14                303
+#define GLFW_KEY_F15                304
+#define GLFW_KEY_F16                305
+#define GLFW_KEY_F17                306
+#define GLFW_KEY_F18                307
+#define GLFW_KEY_F19                308
+#define GLFW_KEY_F20                309
+#define GLFW_KEY_F21                310
+#define GLFW_KEY_F22                311
+#define GLFW_KEY_F23                312
+#define GLFW_KEY_F24                313
+#define GLFW_KEY_F25                314
+#define GLFW_KEY_KP_0               320
+#define GLFW_KEY_KP_1               321
+#define GLFW_KEY_KP_2               322
+#define GLFW_KEY_KP_3               323
+#define GLFW_KEY_KP_4               324
+#define GLFW_KEY_KP_5               325
+#define GLFW_KEY_KP_6               326
+#define GLFW_KEY_KP_7               327
+#define GLFW_KEY_KP_8               328
+#define GLFW_KEY_KP_9               329
+#define GLFW_KEY_KP_DECIMAL         330
+#define GLFW_KEY_KP_DIVIDE          331
+#define GLFW_KEY_KP_MULTIPLY        332
+#define GLFW_KEY_KP_SUBTRACT        333
+#define GLFW_KEY_KP_ADD             334
+#define GLFW_KEY_KP_ENTER           335
+#define GLFW_KEY_KP_EQUAL           336
+#define GLFW_KEY_LEFT_SHIFT         340
+#define GLFW_KEY_LEFT_CONTROL       341
+#define GLFW_KEY_LEFT_ALT           342
+#define GLFW_KEY_LEFT_SUPER         343
+#define GLFW_KEY_RIGHT_SHIFT        344
+#define GLFW_KEY_RIGHT_CONTROL      345
+#define GLFW_KEY_RIGHT_ALT          346
+#define GLFW_KEY_RIGHT_SUPER        347
+#define GLFW_KEY_MENU               348
+#define GLFW_KEY_LAST               GLFW_KEY_MENU
+
+/*! @} */
+
+/*! @defgroup mods Modifier key flags
+ *  @ingroup input
+ *  @{ */
+
+/*! @brief If this bit is set one or more Shift keys were held down.
+ */
+#define GLFW_MOD_SHIFT           0x0001
+/*! @brief If this bit is set one or more Control keys were held down.
+ */
+#define GLFW_MOD_CONTROL         0x0002
+/*! @brief If this bit is set one or more Alt keys were held down.
+ */
+#define GLFW_MOD_ALT             0x0004
+/*! @brief If this bit is set one or more Super keys were held down.
+ */
+#define GLFW_MOD_SUPER           0x0008
+
+/*! @} */
+
+/*! @defgroup buttons Mouse buttons
+ *  @ingroup input
+ *  @{ */
+#define GLFW_MOUSE_BUTTON_1         0
+#define GLFW_MOUSE_BUTTON_2         1
+#define GLFW_MOUSE_BUTTON_3         2
+#define GLFW_MOUSE_BUTTON_4         3
+#define GLFW_MOUSE_BUTTON_5         4
+#define GLFW_MOUSE_BUTTON_6         5
+#define GLFW_MOUSE_BUTTON_7         6
+#define GLFW_MOUSE_BUTTON_8         7
+#define GLFW_MOUSE_BUTTON_LAST      GLFW_MOUSE_BUTTON_8
+#define GLFW_MOUSE_BUTTON_LEFT      GLFW_MOUSE_BUTTON_1
+#define GLFW_MOUSE_BUTTON_RIGHT     GLFW_MOUSE_BUTTON_2
+#define GLFW_MOUSE_BUTTON_MIDDLE    GLFW_MOUSE_BUTTON_3
+/*! @} */
+//
+// GLFW End
+//
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /*__glus_h_*/
-
-#endif /*GLUS_ES*/

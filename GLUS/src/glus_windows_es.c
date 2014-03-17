@@ -20,11 +20,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#ifdef GLUS_ES2
-#include "GLES2/glus.h"
-#else
-#include "GLES3/glus.h"
-#endif
+#include "GL/glus.h"
 
 extern GLUSvoid glusInternalReshape(GLUSint width, GLUSint height);
 
@@ -82,7 +78,7 @@ GLUSvoid _glusInputMouseClick(GLUSint button, GLUSint action)
 	}
 }
 
-GLvoid _glusInputKey(GLUSint key, GLUSint action)
+GLUSvoid _glusInputKey(GLUSint key, GLUSint action)
 {
 	if (key < 0 || key > GLFW_KEY_LAST)
 	{

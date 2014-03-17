@@ -15,11 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef GLUS_ES2
-#include "GLES2/glus.h"
-#else
-#include "GLES3/glus.h"
-#endif
+#include "GL/glus.h"
 
 extern GLUSvoid _glusPollEvents(GLUSvoid);
 

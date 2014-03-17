@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GLES2/glus.h"
+#include "GL/glus.h"
 
 static GLUSvoid glusInitLinef(GLUSline* line)
 {

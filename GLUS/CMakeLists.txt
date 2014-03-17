@@ -90,6 +90,7 @@ list(APPEND ONLY_GL_C_FILES 	${GLUS_SOURCE_DIR}/src/glus_glfw.c
 								${GLUS_SOURCE_DIR}/src/glus_perlin.c
 								${GLUS_SOURCE_DIR}/src/glus_shaderprogram.c
 								${GLUS_SOURCE_DIR}/src/glus_shape_adjacency.c
+								${GLUS_SOURCE_DIR}/src/glus_version.c
 )
 
 # Files not for OpenGL ES 2.0 context
@@ -103,11 +104,14 @@ list(APPEND NOT_GLES2_C_FILES	${GLUS_SOURCE_DIR}/src/glus_line.c
 file(GLOB C_FILES ${GLUS_SOURCE_DIR}/src/*.c)
 file(GLOB ES_C_FILES ${GLUS_SOURCE_DIR}/src/*_es.c)
 file(GLOB ES2_C_FILES ${GLUS_SOURCE_DIR}/src/*_es2.c)
+file(GLOB VG_C_FILES ${GLUS_SOURCE_DIR}/src/*_vg.c)
 
 # Header files
 file(GLOB_RECURSE H_FILES ${GLUS_SOURCE_DIR}/src/*.h)
 
 IF(${OpenGL} MATCHES "ES")
+
+	list(REMOVE_ITEM C_FILES ${VG_C_FILES})
 
 	IF(${OpenGL} MATCHES "ES2")
 		# OpenGL ES 2.0
@@ -141,7 +145,7 @@ IF(${OpenGL} MATCHES "ES")
 ELSE()
 	# OpenGL 3 and 4
 	
-	list(REMOVE_ITEM C_FILES ${ES_C_FILES} ${ES2_C_FILES})
+	list(REMOVE_ITEM C_FILES ${ES_C_FILES} ${ES2_C_FILES} ${VG_C_FILES})
 	
 ENDIF()
 

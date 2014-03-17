@@ -50,7 +50,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -102,7 +102,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h|glus_linux.c|glus_mac.c|glus_windows.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h|glus_linux.c|glus_mac.c|glus_windows.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -154,7 +154,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -207,7 +207,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -259,7 +259,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -311,7 +311,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -370,7 +370,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -429,7 +429,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -489,7 +489,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -548,7 +548,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -605,7 +605,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -662,7 +662,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -719,7 +719,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -776,7 +776,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -834,7 +834,65 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_raspberrypi_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_raspberrypi_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097" moduleId="org.eclipse.cdt.core.settings" name="x86_Khronos_Windows_VG11_MinGW_Debug">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/GLUS"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/GLUS/x86_Khronos_Windows_VG11_MinGW_Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="GLUS" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097" name="x86_Khronos_Windows_VG11_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.285349130" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.1117781865" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
+							<builder buildPath="${workspace_loc:/GLUS/Debug}" id="cdt.managedbuild.builder.gnu.cross.1537860359" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.lib.debug.445934534" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.lib.debug">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1712803594" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.lib.debug.1723185313" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.lib.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.lib.debug.199560913" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.lib.debug">
+								<option id="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level.1891941317" name="Optimization Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level.1171022525" name="Debug Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug.289638989" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.lib.debug">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.mingw.lib.debug.option.optimization.level.250997399" name="Optimization Level" superClass="gnu.c.compiler.mingw.lib.debug.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.mingw.lib.debug.option.debugging.level.1577803629" name="Debug Level" superClass="gnu.c.compiler.mingw.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.2123311928" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;C:\Development\Libraries\cpp\ri_package_1.1\ri\include&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.warnings.wconversion.1982013946" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.warnings.extrawarn.2004285559" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.warnings.pedantic.32891774" name="Pedantic (-pedantic)" superClass="gnu.c.compiler.option.warnings.pedantic" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.misc.other.2020061968" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -std=c99" valueType="string"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2052732676" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="GLUS_VG11=1"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1174085692" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.1085722820" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.953407371" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base"/>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1180798284" name="glus.h" rcbsApplicability="disable" resourcePath="src/GLES2/glus.h" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="glus_version.c|glus_shape_texgen_es2.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_extension.c|GLES2/glus.h|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

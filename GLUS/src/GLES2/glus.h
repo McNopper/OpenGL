@@ -103,6 +103,8 @@ typedef void GLUSvoid;
 
 #define GLUS_DEFAULT_CLIENT_VERSION 2
 
+#define GLUS_EGL_API EGL_OPENGL_ES_API
+
 /**
  * Structure used for text file loading.
  */
@@ -711,7 +713,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize);
  * @param attribList EGL attribute list.
  * @param fullscreen Flag for setting the window to fullscreen.
  *
- * @return GLUS_TRUE, if creation of OPenGL context and window succeeded.
+ * @return GLUS_TRUE, if creation of OpenGL context and window succeeded.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const EGLint* attribList, const GLUSboolean fullscreen);
 

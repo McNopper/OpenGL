@@ -15,11 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef GLUS_ES2
-#include "GLES2/glus.h"
-#else
-#include "GLES3/glus.h"
-#endif
+#include "GL/glus.h"
 
 EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext,  const EGLint attribList[], const EGLint eglContextClientVersion)
 {
@@ -59,6 +55,15 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     }
 
     glusLogPrint(GLUS_LOG_INFO, "EGL version: %d.%d", majorVersion, minorVersion);
+
+    if (!eglBindAPI(GLUS_EGL_API))
+    {
+        glusLogPrint(GLUS_LOG_ERROR, "Could not bind API");
+
+        glusEGLTerminate(display, 0, 0);
+
+        return EGL_FALSE;
+    }
 
     // Choose config
     if (!eglChooseConfig(display, attribList, &config, 1, &numConfigs))
@@ -138,7 +143,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowTyp
     return EGL_TRUE;
 }
 
-GLvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglContext, EGLSurface* eglSurface)
+GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglContext, EGLSurface* eglSurface)
 {
     if (!eglDisplay)
     {
