@@ -2,7 +2,8 @@
 # GLUS CMake file
 #
 # Note: Set OpenGL=ES or OpenGL=ES2 for Windows OpenGL ES 3.0 or 2.0 simulation.
-#       Raspberry Pi is default OpenGL ES 2.0.
+#       Raspberry Pi and i.MX6 is default OpenGL ES 2.0.
+#		Set SoC=iMX6 for i.MX6
 #
 # (c) Norbert Nopper
 # 
@@ -22,21 +23,30 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 	set(ENV_DIR ${Processor}/${OperatingSystem}/${Compiler})
 	
-	include_directories(${GLUS_SOURCE_DIR}/../External/${ENV_DIR}/include)		
+	include_directories(${GLUS_SOURCE_DIR}/../External/${ENV_DIR}/include)
 
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Linux
 
 	IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		# Raspberry Pi
-		# ToDo Add i.MX6
+		# Raspberry Pi and i.MX6
 		
 		SET(OpenGL "ES2")
 		
 		add_definitions(-DGLUS_ES2)
-		
-		include_directories(/opt/vc/include /opt/vc/include/interface/vcos/pthreads /opt/vc/include/interface/vmcs_host/linux)		
 
+		IF(${SoC} MATCHES "iMX6")
+			# i.MX6
+
+			# Everything is in /usr/include
+
+		ELSE()
+			# Raspberry Pi
+
+			include_directories(/opt/vc/include /opt/vc/include/interface/vcos/pthreads /opt/vc/include/interface/vmcs_host/linux)		
+
+		ENDIF()
+		
 	ELSE()
 		# Support only desktop
 	
@@ -126,12 +136,22 @@ IF(${OpenGL} MATCHES "ES")
 	ENDIF()
 	
 	IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		# Raspberry Pi
-		# ToDo Add i.MX6
-	
+		# Raspberry Pi and i.MX6
+
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_windows_es.c)
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
+		
+		IF(${SoC} MATCHES "iMX6")			
+			# i.MX6
+			
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_raspberrypi_es.c)
+			
+		ELSE()
+			# Raspberry Pi
+		
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
+			
+		ENDIF()
 		
 	ELSE()
 		# Windows simulation
