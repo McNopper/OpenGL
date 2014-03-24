@@ -2910,6 +2910,34 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusRaytraceLookAtf(GLUSfloat* positionBuffer, GLU
 GLUSAPI GLUSint GLUSAPIENTRY glusIntersectRaySpheref(GLUSfloat* tNear, GLUSfloat* tFar, GLUSboolean* insideSphere, const GLUSfloat rayStart[4], const GLUSfloat rayDirection[3], const GLUSfloat sphereCenter[4], const GLUSfloat radius);
 
 //
+// Texture sampling
+//
+
+/**
+ * Samples a RGB color value from a HDR 2D image.
+ * Sampling uses a bilinear filter.
+ *
+ * @param rgb 		The resulting, sampled RGB color value.
+ * @param hdrimage 	The HDR image structure, containing the 2D texel data.
+ * @param st		Texture coordinate, where to sample the 2D texture.
+ *
+ * @return GLUS_TRUE, if sampling succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexImage2DSampleHdrImage(GLUSfloat rgb[3], const GLUShdrimage* hdrimage, const GLUSfloat st[2]);
+
+/**
+ * Samples a RGBA color value from a TGA 2D image.
+ * Sampling uses a bilinear filter.
+ *
+ * @param rgba 		The resulting, sampled RGBA color value.
+ * @param hdrimage 	The TGA image structure, containing the 2D texel data.
+ * @param st		Texture coordinate, where to sample the 2D texture.
+ *
+ * @return GLUS_TRUE, if sampling succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusTexImage2DSampleTgaImage(GLUSubyte rgba[4], const GLUStgaimage* tgaimage, const GLUSfloat st[2]);
+
+//
 // GLFW Start. Internally, some GLFW functions are used. See copyright informations in C file.
 //
 
