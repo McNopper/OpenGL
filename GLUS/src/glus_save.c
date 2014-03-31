@@ -231,6 +231,11 @@ GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShd
 		return GLUS_FALSE;
 	}
 
+	if (hdrimage->format != GLUS_RGB)
+	{
+		return GLUS_FALSE;
+	}
+
 	// open filename in "write binary" mode
 	file = fopen(filename, "wb");
 
@@ -269,6 +274,64 @@ GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShd
 				return GLUS_FALSE;
 			}
 		}
+	}
+
+	fclose(file);
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusSaveBinaryFile(const GLUSchar* filename, const GLUSbinaryfile* binaryfile)
+{
+	FILE* file;
+	size_t elementsWritten;
+
+	if (!filename || !binaryfile)
+	{
+		return GLUS_FALSE;
+	}
+
+	file = fopen(filename, "wb");
+
+	if (!file)
+	{
+		return GLUS_FALSE;
+	}
+
+	elementsWritten = fwrite(binaryfile->binary, 1, binaryfile->length * sizeof(GLUSubyte), file);
+
+	if (!glusCheckFileWrite(file, elementsWritten, binaryfile->length * sizeof(GLUSubyte)))
+	{
+		return GLUS_FALSE;
+	}
+
+	fclose(file);
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusSaveTextFile(const GLUSchar* filename, const GLUStextfile* textfile)
+{
+	FILE* file;
+	size_t elementsWritten;
+
+	if (!filename || !textfile)
+	{
+		return GLUS_FALSE;
+	}
+
+	file = fopen(filename, "w");
+
+	if (!file)
+	{
+		return GLUS_FALSE;
+	}
+
+	elementsWritten = fwrite(textfile->text, 1, textfile->length * sizeof(GLUSchar), file);
+
+	if (!glusCheckFileWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
+	{
+		return GLUS_FALSE;
 	}
 
 	fclose(file);

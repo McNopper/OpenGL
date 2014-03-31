@@ -112,7 +112,15 @@ GLUSboolean GLUSAPIENTRY glusTexImage2DSampleHdrImage(GLUSfloat rgb[3], const GL
 		return GLUS_FALSE;
 	}
 
-	stride = 3;
+	stride = 1;
+	if (hdrimage->format == GLUS_RGB)
+	{
+		stride = 3;
+	}
+	else if (hdrimage->format == GLUS_RGBA)
+	{
+		stride = 4;
+	}
 
 	glusGatherSamplePoints(sampleIndex, sampelWeight, st, hdrimage->width, hdrimage->height, stride);
 
@@ -178,6 +186,84 @@ GLUSboolean GLUSAPIENTRY glusTexImage2DSampleTgaImage(GLUSubyte rgba[4], const G
 			rgba[3] = 255;
 		}
 	}
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusCreateTgaImage(GLUStgaimage* tgaimage, GLUSint width, GLUSint height, GLUSint depth, GLUSenum format)
+{
+	GLUSint stride;
+
+	if (!tgaimage || width < 1 || height < 1 || depth < 1)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (format == GLUS_RED || format == GLUS_ALPHA || format == GLUS_LUMINANCE)
+	{
+		stride = 1;
+	}
+	else if (format == GLUS_RGB)
+	{
+		stride = 3;
+	}
+	else if (format == GLUS_RGBA)
+	{
+		stride = 4;
+	}
+	else
+	{
+		return GLUS_FALSE;
+	}
+
+	tgaimage->data = (GLUSubyte*)malloc(width * height * depth * stride * sizeof(GLUSubyte));
+	if (!tgaimage->data)
+	{
+		return GLUS_FALSE;
+	}
+	tgaimage->width = width;
+	tgaimage->height = height;
+	tgaimage->depth = depth;
+	tgaimage->format = format;
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusCreateHdrImage(GLUShdrimage* hdrimage, GLUSint width, GLUSint height, GLUSint depth, GLUSenum format)
+{
+	GLUSint stride;
+
+	if (!hdrimage || width < 1 || height < 1 || depth < 1)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (format == GLUS_RED || format == GLUS_ALPHA || format == GLUS_LUMINANCE)
+	{
+		stride = 1;
+	}
+	else if (format == GLUS_RGB)
+	{
+		stride = 3;
+	}
+	else if (format == GLUS_RGBA)
+	{
+		stride = 4;
+	}
+	else
+	{
+		return GLUS_FALSE;
+	}
+
+	hdrimage->data = (GLUSfloat*)malloc(width * height * depth * stride * sizeof(GLUSfloat));
+	if (!hdrimage->data)
+	{
+		return GLUS_FALSE;
+	}
+	hdrimage->width = width;
+	hdrimage->height = height;
+	hdrimage->depth = depth;
+	hdrimage->format = format;
 
 	return GLUS_TRUE;
 }

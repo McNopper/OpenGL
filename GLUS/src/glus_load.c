@@ -717,6 +717,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 	hdrimage->width = (GLUSushort)width;
 	hdrimage->height = (GLUSushort)height;
 	hdrimage->depth = 1;
+	hdrimage->format = GLUS_RGB;
 
 	hdrimage->data = (GLUSfloat*)malloc(width * height * 3 * sizeof(GLUSfloat));
 
@@ -908,4 +909,6 @@ GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage)
 	hdrimage->height = 0;
 
 	hdrimage->depth = 0;
+
+	hdrimage->format = 0;
 }

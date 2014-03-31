@@ -221,6 +221,11 @@ typedef struct _GLUShdrimage
 	 */
 	GLUSfloat* data;
 
+    /**
+     * Format of the HDR image.
+     */
+    GLUSenum format;
+
 } GLUShdrimage;
 
 /**
@@ -856,6 +861,19 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyBinaryFile(GLUSbinaryfile* binaryfile);
 GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage* tgaimage);
 
 /**
+ * Creates a TGA image.
+ *
+ * @param tgaimage	The structure to fill the TGA data.
+ * @param width 	Width of the image.
+ * @param height 	Height of the image.
+ * @param depth 	Depth of the image.
+ * @param format 	Format of the image.
+ *
+ * @return GLUS_TRUE, if creating succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateTgaImage(GLUStgaimage* tgaimage, GLUSint width, GLUSint height, GLUSint depth, GLUSenum format);
+
+/**
  * Destroys the content of a TGA structure. Has to be called for freeing the resources.
  *
  * @param tgaimage The TGA file structure.
@@ -871,6 +889,19 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage);
  * @return GLUS_TRUE, if loading succeeded.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage* hdrimage);
+
+/**
+ * Creates a HDR image.
+ *
+ * @param hdrimage	The structure to fill the HDR data.
+ * @param width 	Width of the image.
+ * @param height 	Height of the image.
+ * @param depth 	Depth of the image.
+ * @param format 	Format of the image.
+ *
+ * @return GLUS_TRUE, if creating succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateHdrImage(GLUShdrimage* hdrimage, GLUSint width, GLUSint height, GLUSint depth, GLUSenum format);
 
 /**
  * Destroys the content of a HDR structure. Has to be called for freeing the resources.
@@ -902,6 +933,26 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, cons
  * @return GLUS_TRUE, if saving succeeded.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveHdrImage(const GLUSchar* filename, const GLUShdrimage* hdrimage);
+
+/**
+ * Saves a binary file.
+ *
+ * @param filename		The name of the file to save.
+ * @param binaryfile 	The structure with the binary data.
+ *
+ * @return GLUS_TRUE, if saving succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveBinaryFile(const GLUSchar* filename, const GLUSbinaryfile* binaryfile);
+
+/**
+ * Saves a text file.
+ *
+ * @param filename	The name of the file to save.
+ * @param textfile 	The structure with the text data.
+ *
+ * @return GLUS_TRUE, if saving succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusSaveTextFile(const GLUSchar* filename, const GLUStextfile* textfile);
 
 //
 // Screenshot functions
