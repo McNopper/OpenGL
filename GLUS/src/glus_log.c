@@ -69,3 +69,42 @@ GLUSvoid GLUSAPIENTRY glusLogPrint(GLUSuint verbosity, const char* format, ...)
 		va_end(argList);
 	}
 }
+
+GLUSvoid GLUSAPIENTRY glusLogPrintError(GLUSuint verbosity, const char* format, ...)
+{
+	GLUSenum error;
+
+	if (g_verbosity == GLUS_LOG_NOTHING)
+	{
+		return;
+	}
+
+	error = glGetError();
+
+	if (verbosity < GLUS_LOG_DEBUG && error == GL_NO_ERROR)
+	{
+		return;
+	}
+
+	if (g_verbosity >= verbosity)
+	{
+		const char* logString = "UNKNOWN";
+		char buffer[GLUS_MAX_CHARS_LOGGING + 1];
+		va_list argList;
+
+		if (verbosity > GLUS_LOG_NOTHING && verbosity <= GLUS_LOG_SEVERE)
+		{
+			logString = GLUS_LOG_STRINGS[verbosity];
+		}
+
+		buffer[GLUS_MAX_CHARS_LOGGING] = '\0';
+
+		va_start(argList, format);
+
+		vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
+
+		printf("LOG [%s]: glGetError() = 0x%x %s\n", logString, error, buffer);
+
+		va_end(argList);
+	}
+}
