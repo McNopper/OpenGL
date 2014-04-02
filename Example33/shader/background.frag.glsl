@@ -1,6 +1,4 @@
-#version 430 core
-
-#define GLUS_PI 3.1415926535897932384626433832795
+#version 410 core
 
 uniform samplerCubeArray u_texture;
 
@@ -12,5 +10,6 @@ void main(void)
 {
 	vec3 ray = normalize(v_ray);
 
+	// Roughness 0.0 can be used as the environment.
 	fragColor = texture(u_texture, vec4(ray, 0.0));
 }

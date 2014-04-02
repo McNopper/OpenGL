@@ -42,7 +42,7 @@ GLUSuint GLUSAPIENTRY glusLogGetLevel()
 
 GLUSvoid GLUSAPIENTRY glusLogPrint(GLUSuint verbosity, const char* format, ...)
 {
-	if (g_verbosity == GLUS_LOG_NOTHING)
+	if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
 	{
 		return;
 	}
@@ -74,12 +74,12 @@ GLUSvoid GLUSAPIENTRY glusLogPrintError(GLUSuint verbosity, const char* format, 
 {
 	GLUSenum error;
 
-	if (g_verbosity == GLUS_LOG_NOTHING)
+	error = glGetError();
+
+	if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
 	{
 		return;
 	}
-
-	error = glGetError();
 
 	if (verbosity < GLUS_LOG_DEBUG && error == GL_NO_ERROR)
 	{

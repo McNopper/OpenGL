@@ -13,26 +13,24 @@
 
 #include "GL/glus.h"
 
-#define NUMBER_ROUGHNESS	3
+// Number of roughness layers per specular cube map side
+#define NUMBER_ROUGHNESS	6
 
 #define SCREEN_WIDTH	1024
 #define SCREEN_HEIGHT	768
 #define MSAA_SAMPLES	4
 
-// Not more than 2^9 = 512 samples.
-#define MAX_M	9
-
 static GLfloat g_exposure = 3.0f;
 static GLfloat g_gamma = 2.2f;
-
-// Start with 2^6 = 64 samples.
-static GLuint g_m = 6;
 
 // Roughness of the material.
 static GLfloat g_roughness = 0.1f;
 
 // Reflection coefficient see http://en.wikipedia.org/wiki/Schlick%27s_approximation
 static GLfloat g_R0 = 0.2f;
+
+// Base color.
+static GLfloat g_colorMaterial[3] = { 0.8, 0.8, 0.8 };
 
 //
 
@@ -66,7 +64,7 @@ static GLuint g_fullscreenVAO;
 //
 //
 
-static GLuint g_texture[2];
+static GLuint g_texture[3];
 
 //
 //
@@ -84,14 +82,12 @@ static GLint g_eyeModelLocation;
 
 static GLint g_textureSpecularModelLocation;
 static GLint g_textureDiffuseModelLocation;
+static GLint g_textureLUTModelLocation;
 
 static GLint g_colorMaterialModelLocation;
 static GLint g_roughnessMaterialModelLocation;
+static GLint g_roughnessScaleModelLocation;
 static GLint g_R0MaterialModelLocation;
-
-static GLint g_numberSamplesModelLocation;
-static GLint g_mModelLocation;
-static GLint g_binaryFractionFactorModelLocation;
 
 static GLint g_vertexModelLocation;
 
@@ -138,17 +134,24 @@ GLUSboolean init(GLUSvoid)
 
 	GLUSshape wavefront;
 
-	// 6 sides, all roughness levels, diffuse and specular.
-	GLUShdrimage image[6 * NUMBER_ROUGHNESS * 2];
+	// 6 sides of diffuse and specular; all roughness levels of specular.
+	GLUShdrimage image[6 * NUMBER_ROUGHNESS + 6];
+
+	// The look up table (LUT) is stored in a raw binary file.
+	GLUSbinaryfile rawimage;
 
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
-	GLfloat colorMaterial[3] = { 0.8, 0.8, 0.8 };
-
 	GLchar buffer[27] = "doge2/doge2_POS_X_00_s.hdr";
 
 	GLint i, k, m;
+
+	//
+
+	glusLogPrintError(GLUS_LOG_NOTHING, "Catching GLEW error");
+
+	//
 
 	glusLoadTextFile("../Example33/shader/brdf.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example33/shader/brdf.frag.glsl", &fragmentSource);
@@ -164,13 +167,11 @@ GLUSboolean init(GLUSvoid)
 	g_eyeModelLocation = glGetUniformLocation(g_modelProgram.program, "u_eye");
 	g_textureSpecularModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureSpecular");
 	g_textureDiffuseModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureDiffuse");
+	g_textureLUTModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureLUT");
 	g_colorMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
 	g_roughnessMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
+	g_roughnessScaleModelLocation = glGetUniformLocation(g_modelProgram.program, "u_roughnessScale");
 	g_R0MaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
-
-	g_numberSamplesModelLocation = glGetUniformLocation(g_modelProgram.program, "u_numberSamples");
-	g_mModelLocation = glGetUniformLocation(g_modelProgram.program, "u_m");
-	g_binaryFractionFactorModelLocation = glGetUniformLocation(g_modelProgram.program, "u_binaryFractionFactor");
 
 	g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
 	g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
@@ -274,6 +275,11 @@ GLUSboolean init(GLUSvoid)
 
 		for (k = 0; k < NUMBER_ROUGHNESS; k++)
 		{
+			if (i == 1 && k > 0)
+			{
+				continue;
+			}
+
 			buffer[18] = '0' + k / 10;
 			buffer[19] = '0' + k % 10;
 
@@ -325,16 +331,17 @@ GLUSboolean init(GLUSvoid)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAX_LEVEL, NUMBER_ROUGHNESS);
-
 	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F, image[0].width, image[0].height, 6*NUMBER_ROUGHNESS, 0, GL_RGB, GL_FLOAT, 0);
+
+	glusLogPrintError(GLUS_LOG_INFO, "glTexImage3D()");
 
     for (i = 0; i < NUMBER_ROUGHNESS; i++)
     {
         for (k = 0; k < 6; k++)
         {
         	glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0,  6*i + k, image[i*6 + k].width, image[i*6 + k].height, 1, image[i*6 + k].format, GL_FLOAT, image[i*6 + k].data);
+
+        	glusLogPrintError(GLUS_LOG_INFO, "glTexSubImage3D() %d %d", i, k);
         }
     }
 
@@ -349,27 +356,68 @@ GLUSboolean init(GLUSvoid)
 
     glGenTextures(1, &g_texture[1]);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[1]);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAX_LEVEL, NUMBER_ROUGHNESS);
-
-	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F, image[0].width, image[0].height, 6*NUMBER_ROUGHNESS, 0, GL_RGB, GL_FLOAT, 0);
-
-    for (i = 0; i < NUMBER_ROUGHNESS; i++)
+    for (i = 0; i < 6; i++)
     {
-        for (k = 0; k < 6; k++)
-        {
-			glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, 6*i + k, image[i*6 + k + 6*NUMBER_ROUGHNESS].width, image[i*6 + k + 6*NUMBER_ROUGHNESS].height, 1, image[i*6 + k + 6*NUMBER_ROUGHNESS].format, GL_FLOAT, image[i*6 + k + 6*NUMBER_ROUGHNESS].data);
-        }
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image[i + 6*NUMBER_ROUGHNESS].format, image[i + 6*NUMBER_ROUGHNESS].width, image[i + 6*NUMBER_ROUGHNESS].height, 0, image[i + 6*NUMBER_ROUGHNESS].format, GL_FLOAT, image[i + 6*NUMBER_ROUGHNESS].data);
+
+    	glusLogPrintError(GLUS_LOG_INFO, "glTexImage2D() %d", i);
     }
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    //
+
+	printf("Loading 'doge2/EnvironmentBRDF_1024.data' ...");
+    if (!glusLoadBinaryFile("doge2/EnvironmentBRDF_1024.data", &rawimage))
+    {
+		printf(" error!\n");
+    }
+    else
+    {
+    	printf(" done.\n");
+    }
+
+    glGenTextures(1, &g_texture[2]);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, g_texture[2]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, 1024, 1024, 0, GL_RG, GL_FLOAT, (GLfloat*)rawimage.binary);
+
+    glusLogPrintError(GLUS_LOG_INFO, "glTexImage2D()");
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glusDestroyBinaryFile(&rawimage);
+
+    //
+
+	for (i = 0; i < 2; i++)
+	{
+		for (k = 0; k < NUMBER_ROUGHNESS; k++)
+		{
+			if (i == 1 && k > 0)
+			{
+				continue;
+			}
+
+			for (m = 0; m < 6; m++)
+			{
+				glusDestroyHdrImage(&image[i*NUMBER_ROUGHNESS*6 + k*6 + m]);
+			}
+		}
+	}
 
 	//
 
@@ -417,8 +465,8 @@ GLUSboolean init(GLUSvoid)
 	glUniform4fv(g_eyeModelLocation, 1, g_eye);
 	glUniform1i(g_textureSpecularModelLocation, 0);
 	glUniform1i(g_textureDiffuseModelLocation, 1);
-	// Color is fixed.
-	glUniform3fv(g_colorMaterialModelLocation, 1, colorMaterial);
+	glUniform1i(g_textureLUTModelLocation, 2);
+	glUniform1f(g_roughnessScaleModelLocation, (GLfloat)(NUMBER_ROUGHNESS - 1));
 
 	glGenVertexArrays(1, &g_modelVAO);
 	glBindVertexArray(g_modelVAO);
@@ -494,7 +542,11 @@ GLUSboolean update(GLUSfloat time)
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[1]);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, g_texture[2]);
+
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
@@ -529,13 +581,10 @@ GLUSboolean update(GLUSfloat time)
 
 	glBindVertexArray(g_modelVAO);
 
-	glUniform1ui(g_numberSamplesModelLocation, 1 << g_m);
-	glUniform1ui(g_mModelLocation, g_m);
-	// Results are in range [0.0 1.0] and not [0.0, 1.0[.
-	glUniform1f(g_binaryFractionFactorModelLocation, 1.0f / (powf(2.0f, (GLfloat)g_m) - 1.0f));
 	// Roughness of material.
 	glUniform1f(g_roughnessMaterialModelLocation, g_roughness);
 	glUniform1f(g_R0MaterialModelLocation, g_R0);
+	glUniform3fv(g_colorMaterialModelLocation, 1, g_colorMaterial);
 
 	glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 	glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
@@ -575,12 +624,29 @@ GLUSvoid terminate(GLUSvoid)
 {
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
-	if (g_texture[0] || g_texture[1])
+	if (g_texture[0])
 	{
-		glDeleteTextures(2, g_texture);
+		glDeleteTextures(1, &g_texture[0]);
 
 		g_texture[0] = 0;
+	}
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	if (g_texture[1])
+	{
+		glDeleteTextures(1, &g_texture[1]);
+
 		g_texture[1] = 0;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (g_texture[2])
+	{
+		glDeleteTextures(1, &g_texture[2]);
+
+		g_texture[2] = 0;
 	}
 
 	//
@@ -698,10 +764,38 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		{
 			g_R0 += 0.1f;
 		}
+		else if (key == '5')
+		{
+			g_colorMaterial[0] -= 0.1f;
+		}
+		else if (key == '6')
+		{
+			g_colorMaterial[0] += 0.1f;
+		}
+		else if (key == '7')
+		{
+			g_colorMaterial[1] -= 0.1f;
+		}
+		else if (key == '8')
+		{
+			g_colorMaterial[1] += 0.1f;
+		}
+		else if (key == '9')
+		{
+			g_colorMaterial[2] -= 0.1f;
+		}
+		else if (key == '0')
+		{
+			g_colorMaterial[2] += 0.1f;
+		}
 	}
 
 	g_roughness = glusClampf(g_roughness, 0.0f, 1.0f);
 	g_R0 = glusClampf(g_R0, 0.0f, 1.0f);
+
+	g_colorMaterial[0] = glusClampf(g_colorMaterial[0], 0.0f, 1.0f);
+	g_colorMaterial[1] = glusClampf(g_colorMaterial[1], 0.0f, 1.0f);
+	g_colorMaterial[2] = glusClampf(g_colorMaterial[2], 0.0f, 1.0f);
 }
 
 int main(int argc, char* argv[])
@@ -716,7 +810,7 @@ int main(int argc, char* argv[])
 
 	glusTerminateFunc(terminate);
 
-	glusPrepareContext(4, 3, GLUS_FORWARD_COMPATIBLE_BIT);
+	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
 
 	// No resize, as it makes code simpler.
 	glusPrepareNoResize(GLUS_TRUE);
@@ -735,6 +829,12 @@ int main(int argc, char* argv[])
     printf("2       = Increase roughness\n");
     printf("3       = Decrease R0\n");
     printf("4       = Increase R0\n");
+    printf("5       = Decrease Red\n");
+    printf("6       = Increase Red\n");
+    printf("7       = Decrease Green\n");
+    printf("8       = Increase Green\n");
+    printf("9       = Decrease Blue\n");
+    printf("0       = Increase Blue\n");
     printf("\n");
 
 	glusRun();
