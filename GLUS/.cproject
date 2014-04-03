@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019" moduleId="org.eclipse.cdt.core.settings" name="x86__Windows__MinGW_Debug">
@@ -14,11 +12,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -52,7 +50,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -69,11 +67,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -104,7 +102,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h|glus_linux.c|glus_mac.c|glus_windows.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h|glus_linux.c|glus_mac.c|glus_windows.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -121,11 +119,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -156,7 +154,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -174,11 +172,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -209,7 +207,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -226,11 +224,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -261,7 +259,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -278,11 +276,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -313,7 +311,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_linux_es.c|glus_os_wrapper_es.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_shaderprogram_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -331,11 +329,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -372,7 +370,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen_es2.c|glus_texgen_es2.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_line_es2.c|glus_raspberrypi_es.c|GLES2/glus.h|glus_wavefront_es2.c|glus_shape_es2.c|GLES2/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -390,11 +388,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -431,7 +429,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -449,11 +447,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -491,7 +489,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -508,11 +506,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -550,7 +548,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -567,13 +565,13 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -607,7 +605,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -624,13 +622,13 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -664,7 +662,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_shape_es2.c|glus_line_es2.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_shape_es2.c|glus_line_es2.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_windows_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -680,11 +678,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -721,7 +719,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -737,11 +735,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -778,7 +776,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -794,11 +792,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -837,7 +835,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_raspberrypi_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log_vg.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_raspberrypi_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -853,11 +851,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -895,7 +893,7 @@
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1180798284" name="glus.h" rcbsApplicability="disable" resourcePath="src/GLES2/glus.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="glus_version.c|glus_shape_texgen_es2.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_extension.c|GLES2/glus.h|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log.c|glus_version.c|glus_shape_texgen_es2.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_extension.c|GLES2/glus.h|glus_imx6_es.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -911,11 +909,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -955,7 +953,7 @@
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653.src/GLES2/glus.h" name="glus.h" rcbsApplicability="disable" resourcePath="src/GLES2/glus.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="glus_windows_es.c|glus_version.c|glus_shape_texgen_es2.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_extension.c|GLES2/glus.h|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log.c|glus_windows_es.c|glus_version.c|glus_shape_texgen_es2.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_extension.c|GLES2/glus.h|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_raspberrypi_sdl_es.c|glus_sdl_es.c|glus_raspberrypi_es.c|GLES3/glus.h|glus_wavefront.c|glus_shape.c|glus_line.c|GLES3/glus_es.h|glus_linux_es.c|glus_glfw.c|glus_shaderprogram.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -971,11 +969,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -1014,7 +1012,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_wavefront_es2.c|glus_shape_texgen_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_imx6_es.c|glus_extension.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log.c|glus_wavefront_es2.c|glus_shape_texgen_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_imx6_es.c|glus_extension.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -1030,11 +1028,11 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -1073,7 +1071,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_wavefront_es2.c|glus_shape_texgen_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_imx6_es.c|glus_extension.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_log.c|glus_wavefront_es2.c|glus_shape_texgen_es2.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_screenshot.c|glus_line_es2.c|glus_imx6_es.c|glus_extension.c|glus_version.c|glus_version_vg.c|glus_extension_vg.c|glus_shape_texgen.c|glus_texgen.c|glus_perlin.c|glus_shape_adjacency.c|glus_wavefront.c|glus_shape.c|glus_shaderprogram.c|glus_line.c|glus_glfw.c|glus_linux_es.c|glus_platform_es.c|glus_windows_es.c|GLES3/glus.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
