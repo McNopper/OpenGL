@@ -2990,7 +2990,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusTexImage2DSampleHdrImage(GLUSfloat rgb[3], 
  * Sampling uses a bilinear filter.
  *
  * @param rgba 		The resulting, sampled RGBA color value.
- * @param hdrimage 	The TGA image structure, containing the 2D texel data.
+ * @param tgaimage 	The TGA image structure, containing the 2D texel data.
  * @param st		Texture coordinate, where to sample the 2D texture.
  *
  * @return GLUS_TRUE, if sampling succeeded.

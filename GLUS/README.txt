@@ -26,6 +26,10 @@ OpenGL ES SDKs and Libraries:
 				 ANGLE http://code.google.com/p/angleproject/
 				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
 
+OpenVG SDKs and Libraries:
+
+- OpenVG 1.1: Sample Implementation http://www.khronos.org/registry/vg/
+
 SDKs/Libraries/Images used for Raspberry Pi:
 
 - GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
@@ -41,17 +45,19 @@ Build configuration naming:
 [CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
 
 CPU:						ARMv6, ARMv7, x64, x86
-GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4, Vivante 
+GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4, Vivante, Khronos 
 OS: 						Darwin, Linux, Windows
-OpenGL (Optional):			GLES2, GLES3
+OpenGL/OpenVG (Optional):	GLES2, GLES3, VG11
 Compiler:					GCC, MinGW
 Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-16.02.2014 Norbert Nopper (norbert@nopper.tv)
+04.04.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+04.04.2013 - Added OpenVG profile.
 
 16.02.2014 - Updated README
 
