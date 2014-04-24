@@ -4,7 +4,7 @@ OpenGL Utilities (GLUS):
 How to build GLUS:
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
-   For building with Visual C++ 2010, CMake and the Windows SDK 8.1 are needed. 
+   For building with Visual C++ 2012, CMake and the Windows SDK 8.1 are needed. 
 2. Extract this ZIP file and set GLUS-master folder as your Eclipse workspace.
 3. Import GLUS as an existing project.
 4. Set the build configuration in Eclipse to your operating system.
@@ -53,11 +53,13 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-04.04.2014 Norbert Nopper (norbert@nopper.tv)
+24.04.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
 
-04.04.2013 - Added OpenVG profile.
+24.04.2014 - Upgraded to Visual C++ 2012
+
+04.04.2014 - Added OpenVG profile.
 
 16.02.2014 - Updated README
 
