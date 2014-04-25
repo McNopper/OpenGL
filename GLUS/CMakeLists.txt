@@ -1,7 +1,7 @@
 #
 # GLUS CMake file
 #
-# Note: Set OpenGL=ES or OpenGL=ES2 for Windows OpenGL ES 3.0 or 2.0 simulation.
+# Note: Set OpenGL=ES. OpenGL=ES31 or OpenGL=ES2 for Windows OpenGL ES 3.0, 3.1 or 2.0 simulation.
 #       Raspberry Pi and i.MX6 is default OpenGL ES 2.0.
 #		Set SoC=iMX6 for i.MX6
 #
@@ -66,7 +66,14 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
-	IF(${OpenGL} MATCHES "ES2")
+	IF(${OpenGL} MATCHES "ES31")
+		# Desktop OpenGL ES 3.1
+
+		add_definitions(-DGLUS_ES31)
+	
+		include_directories(C:\\Imagination\\PowerVR\\GraphicsSDK\\SDK_3.3\\Builds\\Include)	
+
+	ELSEIF(${OpenGL} MATCHES "ES2")
 		# Desktop OpenGL ES 2.0
 
 		add_definitions(-DGLUS_ES2)
@@ -114,6 +121,7 @@ list(APPEND NOT_GLES2_C_FILES	${GLUS_SOURCE_DIR}/src/glus_line.c
 file(GLOB C_FILES ${GLUS_SOURCE_DIR}/src/*.c)
 file(GLOB ES_C_FILES ${GLUS_SOURCE_DIR}/src/*_es.c)
 file(GLOB ES2_C_FILES ${GLUS_SOURCE_DIR}/src/*_es2.c)
+file(GLOB ES31_C_FILES ${GLUS_SOURCE_DIR}/src/*_es31.c)
 file(GLOB VG_C_FILES ${GLUS_SOURCE_DIR}/src/*_vg.c)
 
 # Header files
@@ -123,15 +131,20 @@ IF(${OpenGL} MATCHES "ES")
 
 	list(REMOVE_ITEM C_FILES ${VG_C_FILES})
 
-	IF(${OpenGL} MATCHES "ES2")
+	IF(${OpenGL} MATCHES "ES31")
+		# OpenGL ES 3.1
+		
+		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES2_C_FILES})
+
+	ELSEIF(${OpenGL} MATCHES "ES2")
 		# OpenGL ES 2.0
 		
-		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${NOT_GLES2_C_FILES})
+		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES31_C_FILES} ${NOT_GLES2_C_FILES})
 
 	ELSE()		
 		# OpenGL ES 3.0
 		
-		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES2_C_FILES})
+		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES31_C_FILES} ${ES2_C_FILES})
 	
 	ENDIF()
 	
@@ -165,7 +178,7 @@ IF(${OpenGL} MATCHES "ES")
 ELSE()
 	# OpenGL 3 and 4
 	
-	list(REMOVE_ITEM C_FILES ${ES_C_FILES} ${ES2_C_FILES} ${VG_C_FILES})
+	list(REMOVE_ITEM C_FILES ${ES_C_FILES} ${ES2_C_FILES} ${ES31_C_FILES} ${VG_C_FILES})
 	
 ENDIF()
 

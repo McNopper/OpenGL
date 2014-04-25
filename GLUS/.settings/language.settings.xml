@@ -138,4 +138,5 @@
 			<provider-reference id="org.eclipse.cdt.ui.UserLanguageSettingsProvider" ref="shared-provider"/>
 		</extension>
 	</configuration>
+	<configuration id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1144375164" name="x86_PowerVR_Windows_GLES31_MinGW_Debug"/>
 </project>
