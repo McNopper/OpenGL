@@ -517,8 +517,8 @@ int main(int argc, char* argv[])
     printf("Keys:\n");
     printf("1       = Decrease wrap\n");
     printf("2       = Increase wrap\n");
-    printf("3       = Decrease scattter width\n");
-    printf("4       = Increase scattter width\n");
+    printf("3       = Decrease scatter width\n");
+    printf("4       = Increase scatter width\n");
     printf("\n");
 
     glusRun();
