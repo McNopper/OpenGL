@@ -34,6 +34,8 @@ static GLUSfloat g_wrap = 0.1f;
 
 static GLUSfloat g_scatterWidth = 0.5f;
 
+static GLUSfloat g_scatterFalloff = 1.0f;
+
 /**
  * Matrix, to convert from scene world space to depth pass projection space.
  */
@@ -64,6 +66,8 @@ static GLint g_nearFarLocation;
 static GLint g_wrapLocation;
 
 static GLint g_scatterWidthLocation;
+
+static GLint g_scatterFalloffLocation;
 
 static GLint g_vertexLocation;
 
@@ -167,6 +171,7 @@ GLUSboolean init(GLUSvoid)
     g_nearFarLocation = glGetUniformLocation(g_program.program, "u_nearFar");
     g_wrapLocation = glGetUniformLocation(g_program.program, "u_wrap");
     g_scatterWidthLocation = glGetUniformLocation(g_program.program, "u_scatterWidth");
+    g_scatterFalloffLocation = glGetUniformLocation(g_program.program, "u_scatterFalloff");
 
     g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
 
@@ -391,6 +396,7 @@ GLUSboolean update(GLUSfloat time)
     glUniform2f(g_nearFarLocation, g_near, g_far);
     glUniform1f(g_wrapLocation, g_wrap);
     glUniform1f(g_scatterWidthLocation, g_scatterWidth);
+    glUniform1f(g_scatterFalloffLocation, g_scatterFalloff);
 
     glBindVertexArray(g_vao);
     glDrawArrays(GL_TRIANGLES, 0, g_numberVertices);
@@ -487,10 +493,19 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		{
 			g_scatterWidth += 0.1f;
 		}
+		else if (key == '5')
+		{
+			g_scatterFalloff -= 0.5f;
+		}
+		else if (key == '6')
+		{
+			g_scatterFalloff += 0.5f;
+		}
 	}
 
 	g_wrap = glusClampf(g_wrap, 0.0f, 1.0f);
 	g_scatterWidth = glusClampf(g_scatterWidth, 0.0f, 1.0f);
+	g_scatterFalloff = glusClampf(g_scatterFalloff, 0.0f, 10.0f);
 }
 
 int main(int argc, char* argv[])
@@ -519,6 +534,8 @@ int main(int argc, char* argv[])
     printf("2       = Increase wrap\n");
     printf("3       = Decrease scatter width\n");
     printf("4       = Increase scatter width\n");
+    printf("5       = Decrease scatter falloff\n");
+    printf("6       = Increase scatter falloff\n");
     printf("\n");
 
     glusRun();

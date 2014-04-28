@@ -8,6 +8,7 @@ uniform sampler2DShadow u_depthPassTexture;
 uniform vec2 u_nearFar;
 uniform float u_wrap;
 uniform float u_scatterWidth;
+uniform float u_scatterFalloff;
 
 in vec3 v_normal;
 in vec4 v_projCoord;
@@ -47,7 +48,7 @@ void main(void)
 	float zIn = getDepthPassSpaceZ(zInNDC); 
 	float zOut = getDepthPassSpaceZ(zOutNDC);
 	
-	float scatterFalloff = exp(-abs(zOut - zIn));
+	float scatterFalloff = exp(-abs(zOut - zIn) * u_scatterFalloff);
 	
 	//
 	
