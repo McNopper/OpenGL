@@ -34,7 +34,7 @@ static GLUSfloat g_wrap = 0.1f;
 
 static GLUSfloat g_scatterWidth = 0.5f;
 
-static GLUSfloat g_scatterFalloff = 1.0f;
+static GLUSfloat g_scatterFalloff = 5.0f;
 
 /**
  * Matrix, to convert from scene world space to depth pass projection space.
@@ -127,6 +127,8 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat lightDirection[3];
 
+    glusLogPrintError(GLUS_LOG_NOTHING, "Start");
+
     lightDirection[0] = g_lightPosition[0];
     lightDirection[1] = g_lightPosition[1];
     lightDirection[2] = g_lightPosition[2];
@@ -168,12 +170,13 @@ GLUSboolean init(GLUSvoid)
     g_depthPassMatrixLocation = glGetUniformLocation(g_program.program, "u_depthPassMatrix");
     g_diffuseColorLocation = glGetUniformLocation(g_program.program, "u_diffuseColor");
     g_scatterColorLocation = glGetUniformLocation(g_program.program, "u_scatterColor");
+    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_depthPassTextureLocation = glGetUniformLocation(g_program.program, "u_depthPassTexture");
     g_nearFarLocation = glGetUniformLocation(g_program.program, "u_nearFar");
     g_wrapLocation = glGetUniformLocation(g_program.program, "u_wrap");
     g_scatterWidthLocation = glGetUniformLocation(g_program.program, "u_scatterWidth");
     g_scatterFalloffLocation = glGetUniformLocation(g_program.program, "u_scatterFalloff");
 
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
@@ -189,8 +192,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -223,7 +224,6 @@ GLUSboolean init(GLUSvoid)
 
     // Use a helper function to load an wavefront object file.
     glusLoadObjFile("dragon.obj", &wavefrontObj);
-    //glusCreateSpheref(&wavefrontObj, 0.5f, 32);
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -495,17 +495,17 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		}
 		else if (key == '5')
 		{
-			g_scatterFalloff -= 0.5f;
+			g_scatterFalloff -= 5.0f;
 		}
 		else if (key == '6')
 		{
-			g_scatterFalloff += 0.5f;
+			g_scatterFalloff += 5.0f;
 		}
 	}
 
 	g_wrap = glusClampf(g_wrap, 0.0f, 1.0f);
 	g_scatterWidth = glusClampf(g_scatterWidth, 0.0f, 1.0f);
-	g_scatterFalloff = glusClampf(g_scatterFalloff, 0.0f, 10.0f);
+	g_scatterFalloff = glusClampf(g_scatterFalloff, 0.0f, 50.0f);
 }
 
 int main(int argc, char* argv[])

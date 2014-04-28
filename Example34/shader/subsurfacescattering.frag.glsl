@@ -3,7 +3,7 @@
 uniform vec4 u_diffuseColor;
 uniform vec4 u_scatterColor;
 uniform vec3 u_lightDirection;
-uniform sampler2DShadow u_depthPassTexture;
+uniform sampler2D u_depthPassTexture;
 
 uniform vec2 u_nearFar;
 uniform float u_wrap;
@@ -32,21 +32,24 @@ float scatterTint(float x, float scatterWidth)
 	return smoothstep(0.0, scatterWidth, x) * smoothstep(scatterWidth * 2.0, scatterWidth, x); 
 }
 
-float getDepthPassSpaceZ(float z)
+float getDepthPassSpaceZ(float zWC)
 {
 	float n = u_nearFar.x;
 	float f = u_nearFar.y;
+	
+	// Assume standard depth range [0..1]
+	float zNDC = (zWC - 0.5) * 2.0;
 
-	return -2*f*n / (z*(n-f)+f+n);
+	return -2*f*n / (zNDC*(n-f)+f+n);
 }
 
 void main(void)
 {
-	float zInNDC = textureProj(u_depthPassTexture, v_projCoord);	
-	float zOutNDC = v_projCoord.z / v_projCoord.w;
+	float zInWC = texture(u_depthPassTexture, v_projCoord.xy / v_projCoord.w).r;
+	float zOutWC = v_projCoord.z / v_projCoord.w;
 	
-	float zIn = getDepthPassSpaceZ(zInNDC); 
-	float zOut = getDepthPassSpaceZ(zOutNDC);
+	float zIn = getDepthPassSpaceZ(zInWC); 
+	float zOut = getDepthPassSpaceZ(zOutWC);
 	
 	float scatterFalloff = exp(-abs(zOut - zIn) * u_scatterFalloff);
 	
