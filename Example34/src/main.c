@@ -127,8 +127,6 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat lightDirection[3];
 
-    glusLogPrintError(GLUS_LOG_NOTHING, "Start");
-
     lightDirection[0] = g_lightPosition[0];
     lightDirection[1] = g_lightPosition[1];
     lightDirection[2] = g_lightPosition[2];

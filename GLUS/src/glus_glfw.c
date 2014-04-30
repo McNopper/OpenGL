@@ -312,6 +312,9 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
+	// Catch all OpenGL errors so far.
+	glGetError();
+
 	if (!glusIsSupported(g_major, g_minor))
 	{
 		glusDestroyWindow();

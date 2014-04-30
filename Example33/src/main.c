@@ -149,10 +149,6 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLogPrintError(GLUS_LOG_NOTHING, "Catching GLEW error");
-
-	//
-
 	glusLoadTextFile("../Example33/shader/brdf.vert.glsl", &vertexSource);
 	glusLoadTextFile("../Example33/shader/brdf.frag.glsl", &fragmentSource);
 
