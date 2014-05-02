@@ -26,7 +26,7 @@ void main(void)
 		srcColor = texture(u_framebufferTexture, vec3(v_texCoord, layer));
 		
 		// Blend using "default" blend equation.
-		dstColor = vec4(srcColor.rgb * srcColor.a + dstColor.rgb * (1.0 - srcColor.a), 1.0);
+		dstColor = vec4(mix(dstColor.rgb, srcColor.rgb, srcColor.a), 1.0);
 	}
 
 	fragColor = dstColor;		
