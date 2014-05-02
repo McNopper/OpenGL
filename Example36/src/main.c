@@ -1,5 +1,5 @@
 /**
- * OpenGL 3 - Example 35
+ * OpenGL 4 - Example 36
  *
  * @author	Norbert Nopper norbert@nopper.tv
  *
@@ -15,8 +15,12 @@
 #define SCREEN_WIDTH  1024
 #define SCREEN_HEIGHT 768
 
-// Number of peel layers. 8 is enough to peel completely the dragon.
-#define LAYERS	8
+// Maximum number of nodes in the linked list. Shared for all fragments.
+#define MAX_NODES (8*SCREEN_WIDTH*SCREEN_HEIGHT)
+
+#define BINDING_ATOMIC_FREE_INDEX 0
+#define BINDING_IMAGE_HEAD_INDEX 0
+#define BINDING_BUFFER_LINKED_LIST 0
 
 /**
  * Properties of the light.
@@ -68,21 +72,17 @@ static GLfloat g_viewMatrix[16];
 
 static GLUSshaderprogram g_program;
 
-static GLint g_biasMatrixLocation;
-
 static GLint g_projectionMatrixLocation;
 
 static GLint g_modelViewMatrixLocation;
 
 static GLint g_normalMatrixLocation;
 
+static GLint g_maxNodesLocation;
+
 static GLint g_vertexLocation;
 
 static GLint g_normalLocation;
-
-static GLint g_peelTextureLocation;
-
-static GLint g_layerLocation;
 
 static struct LightLocations g_light;
 
@@ -100,21 +100,21 @@ static GLuint g_numberVertices;
 
 //
 
-static GLuint g_colorTexture;
-
-static GLuint g_depthTexture[2];
-
-static GLuint g_blendFullscreenFBO;
-
 static GLuint g_blendFullscreenVAO;
 
 //
 
 static GLUSshaderprogram g_blendFullscreenProgram;
 
-static GLint g_framebufferTextureBlendFullscreenLocation;
+//
 
-static GLint g_layersBlendFullscreenLocation;
+static GLuint g_freeNodeIndex;
+
+static GLuint g_headIndexTexture;
+
+static GLuint g_clearBuffer;
+
+static GLuint g_linkedListBuffer;
 
 GLUSboolean init(GLUSvoid)
 {
@@ -124,15 +124,26 @@ GLUSboolean init(GLUSvoid)
     // Green color material with white specular color, half transparent.
     struct MaterialProperties material = { { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 20.0f, 0.5f };
 
-    static GLfloat biasMatrix[] = { 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f };
+    // Buffer for cleaning the head index testure.
+    static GLuint clearBuffer[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
     GLUSshape wavefrontObj;
 
-    glusLoadTextFile("../Example35/shader/phong_depth_peel.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example35/shader/phong_depth_peel.frag.glsl", &fragmentSource);
+    GLuint i;
+
+    for (i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
+    {
+    	// 0xffffffff means end of list, so for the start tehre is no entry.
+    	clearBuffer[i] = 0xffffffff;
+    }
+
+    //
+
+    glusLoadTextFile("../Example36/shader/phong_linked_list.vert.glsl", &vertexSource);
+    glusLoadTextFile("../Example36/shader/phong_linked_list.frag.glsl", &fragmentSource);
 
     glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
@@ -141,7 +152,6 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    g_biasMatrixLocation = glGetUniformLocation(g_program.program, "u_biasMatrix");
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
     g_modelViewMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
     g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
@@ -157,29 +167,60 @@ GLUSboolean init(GLUSvoid)
     g_material.specularExponentLocation = glGetUniformLocation(g_program.program, "u_material.specularExponent");
     g_material.alphaLocation = glGetUniformLocation(g_program.program, "u_material.alpha");
 
-    g_peelTextureLocation = glGetUniformLocation(g_program.program, "u_peelTexture");
-    g_layerLocation = glGetUniformLocation(g_program.program, "u_layer");
-
+    g_maxNodesLocation = glGetUniformLocation(g_program.program, "u_maxNodes");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
 
     //
 
-	glusLoadTextFile("../Example35/shader/fullscreen_blend.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example35/shader/fullscreen_blend.frag.glsl", &fragmentSource);
+	glusLoadTextFile("../Example36/shader/fullscreen_blend.vert.glsl", &vertexSource);
+	glusLoadTextFile("../Example36/shader/fullscreen_blend.frag.glsl", &fragmentSource);
 
 	glusBuildProgramFromSource(&g_blendFullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
 	glusDestroyTextFile(&vertexSource);
 	glusDestroyTextFile(&fragmentSource);
 
+	// Atomic counter to gather a free node slot concurrently.
+
+	glGenBuffers(1, &g_freeNodeIndex);
+
+	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, BINDING_ATOMIC_FREE_INDEX, g_freeNodeIndex);
+	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), 0, GL_DYNAMIC_DRAW);
+
+	// Head index texture/image, which contains the
+
+	glGenTextures(1, &g_headIndexTexture);
+
+	glBindTexture(GL_TEXTURE_2D, g_headIndexTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindImageTexture(BINDING_IMAGE_HEAD_INDEX, g_headIndexTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+	// Buffer to clear/reset the head pointers.
+
+	glGenBuffers(1, &g_clearBuffer);
+
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, g_clearBuffer);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(GLuint), clearBuffer, GL_STATIC_COPY);
+
+	// Buffer for the linked list.
+
+	glGenBuffers(1, &g_linkedListBuffer);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_LINKED_LIST, g_linkedListBuffer);
+	// Size is RGBA, depth (5 * GLfloat), next pointer (1 * GLuint) and 2 paddings (2 * GLfloat).
+	glBufferData(GL_SHADER_STORAGE_BUFFER, MAX_NODES * (sizeof(GLfloat) * 5 + sizeof(GLuint) * 1) + sizeof(GLfloat) * 2, 0, GL_DYNAMIC_DRAW);
+
 	//
-
-	g_framebufferTextureBlendFullscreenLocation = glGetUniformLocation(g_blendFullscreenProgram.program, "u_framebufferTexture");
-	g_layersBlendFullscreenLocation = glGetUniformLocation(g_blendFullscreenProgram.program, "u_layers");
-
-    //
 
     // Use a helper function to load an wavefront object file.
     glusLoadObjFile("dragon.obj", &wavefrontObj);
@@ -200,85 +241,10 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-	//
-	// Setting up the frame buffer.
-	//
-
-	glGenTextures(1, &g_colorTexture);
-	glActiveTexture(GL_TEXTURE0);
-
-	glBindTexture(GL_TEXTURE_2D_ARRAY, g_colorTexture);
-
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, LAYERS, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-	//
-
-	glGenTextures(2, g_depthTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, g_depthTexture[0]);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-    // Peel depth test "function". See shader for more information.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_GREATER);
-
-	glBindTexture(GL_TEXTURE_2D, g_depthTexture[1]);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-    // Peel depth test "function". See shader for more information.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_GREATER);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	//
-
-	glGenFramebuffers(1, &g_blendFullscreenFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, g_blendFullscreenFBO);
-
-	// Attach the color buffer ...
-	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, g_colorTexture, 0, 0);
-
-	// ... and the depth buffer,
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, g_depthTexture[1], 0);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-		return GLUS_FALSE;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //
-
 	glUseProgram(g_blendFullscreenProgram.program);
 
 	glGenVertexArrays(1, &g_blendFullscreenVAO);
 	glBindVertexArray(g_blendFullscreenVAO);
-
-	glUniform1i(g_framebufferTextureBlendFullscreenLocation, 0);
-	glUniform1i(g_layersBlendFullscreenLocation, LAYERS);
 
     glBindVertexArray(0);
 
@@ -323,17 +289,11 @@ GLUSboolean init(GLUSvoid)
     glUniform1f(g_material.specularExponentLocation, material.specularExponent);
     glUniform1f(g_material.alphaLocation, material.alpha);
 
-	glUniform1i(g_peelTextureLocation, 1);
-
-	glUniformMatrix4fv(g_biasMatrixLocation, 1, GL_FALSE, biasMatrix);
+    glUniform1ui(g_maxNodesLocation, MAX_NODES);
 
     //
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-    glClearDepth(1.0f);
-
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
 
     return GLUS_TRUE;
 }
@@ -354,7 +314,7 @@ GLUSboolean update(GLUSfloat time)
 {
     static GLfloat angle = 0.0f;
 
-    GLint peelLayer, defaultDepth, peelDepth;
+    static GLuint zero = 0;
 
     GLfloat modelViewMatrix[16];
     GLfloat normalMatrix[9];
@@ -373,62 +333,35 @@ GLUSboolean update(GLUSfloat time)
     glUniformMatrix4fv(g_modelViewMatrixLocation, 1, GL_FALSE, modelViewMatrix);
     glUniformMatrix3fv(g_normalMatrixLocation, 1, GL_FALSE, normalMatrix);
 
-    // Depth peeling passes.
-	// see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.9286&rep=rep1&type=pdf
+    //
+    // Linked list rendering pass.
+    //
 
-    // Disable color texture ...
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    // Reset the atomic counter.
+    glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zero);
 
-	for (peelLayer = 0; peelLayer < LAYERS; peelLayer++)
-	{
-	    glUniform1i(g_layerLocation, peelLayer);
+    // Reset the head pointers by copying the clear buffer into the texture.
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, g_clearBuffer);
 
-		peelDepth = peelLayer % 2;
-		defaultDepth = (peelLayer + 1) % 2;
+    glBindTexture(GL_TEXTURE_2D, g_headIndexTexture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-		// ... and activate the peeling depth texture.
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, g_depthTexture[peelDepth]);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, g_blendFullscreenFBO);
+    //
 
-		// Now color buffer ...
-		glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, g_colorTexture, 0, peelLayer);
+	glDrawArrays(GL_TRIANGLES, 0, g_numberVertices);
 
-		// ... and default depth buffer can be used as the frame buffer.
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, g_depthTexture[defaultDepth], 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-			return GLUS_FALSE;
-		}
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glDrawArrays(GL_TRIANGLES, 0, g_numberVertices);
-	}
-
+	//
     // Fullscreen quad rendering.
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, g_colorTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//
 
     glUseProgram(g_blendFullscreenProgram.program);
     glBindVertexArray(g_blendFullscreenVAO);
 
-	glDisable(GL_DEPTH_TEST);
-
-	// Blending is happening in the shader.
+	// Resolving and blending is happening in the shader.
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glEnable(GL_DEPTH_TEST);
 
     angle += 30.0f * time;
 
@@ -476,41 +409,51 @@ GLUSvoid terminate(GLUSvoid)
     glusDestroyProgram(&g_blendFullscreenProgram);
 
     //
+    //
+    //
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
-	if (g_colorTexture)
+	if (g_freeNodeIndex)
 	{
-		glDeleteTextures(1, &g_colorTexture);
+		glDeleteBuffers(1, &g_freeNodeIndex);
 
-		g_colorTexture = 0;
+		g_freeNodeIndex = 0;
 	}
 
-	glActiveTexture(GL_TEXTURE1);
+	//
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (g_depthTexture[0])
-	{
-		glDeleteTextures(1, &g_depthTexture[0]);
+	glBindImageTexture(BINDING_IMAGE_HEAD_INDEX, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-		g_depthTexture[0] = 0;
+	if (g_headIndexTexture)
+	{
+		glDeleteTextures(1, &g_headIndexTexture);
+
+		g_headIndexTexture = 0;
 	}
 
-	if (g_depthTexture[1])
-	{
-		glDeleteTextures(1, &g_depthTexture[1]);
+	//
 
-		g_depthTexture[1] = 0;
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+	if (g_clearBuffer)
+	{
+		glDeleteBuffers(1, &g_clearBuffer);
+
+		g_clearBuffer = 0;
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//
 
-	if (g_blendFullscreenFBO)
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	if (g_linkedListBuffer)
 	{
-		glDeleteFramebuffers(1, &g_blendFullscreenFBO);
+		glDeleteBuffers(1, &g_linkedListBuffer);
 
-		g_blendFullscreenFBO = 0;
+		g_linkedListBuffer = 0;
 	}
 }
 
@@ -524,7 +467,7 @@ int main(int argc, char* argv[])
 
     glusTerminateFunc(terminate);
 
-    glusPrepareContext(3, 2, GLUS_FORWARD_COMPATIBLE_BIT);
+    glusPrepareContext(4, 4, GLUS_FORWARD_COMPATIBLE_BIT);
 
     glusPrepareNoResize(GLUS_TRUE);
 

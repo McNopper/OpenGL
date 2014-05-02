@@ -78,3 +78,5 @@ Example33 - Real-Time BRDF and IBL rendering (OpenGL 4.1, not Mac)
 Example34 - Subsurface scattering
 
 Example35 - Order independent transparency using depth peeling
+
+Example36 - Order independent transparency using linked list (OpenGL 4.4, AMD hardware has artifacts)
