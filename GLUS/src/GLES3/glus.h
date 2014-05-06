@@ -1404,6 +1404,84 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusPlaneDistancePoint4f(const GLUSfloat plane[4]
 GLUSAPI GLUSvoid GLUSAPIENTRY glusPlaneGetPoint4f(GLUSfloat point[4], const GLUSfloat plane[4]);
 
 //
+// Sphere functions.
+//
+
+/**
+ * Copies a sphere.
+ *
+ * @param resultCenter Destination center.
+ * @param resultRadius Destination radius.
+ * @param center	   Source center.
+ * @param radius	   Source radius.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusSphereCopyf(GLUSfloat resultCenter[4], GLUSfloat resultRadius, const GLUSfloat center[4], const GLUSfloat radius);
+
+/**
+ * Calculates the signed distance from a sphere to a point. If the value is negative, the point is inside the sphere.
+ *
+ * @param center The center of the sphere.
+ * @param radius The radius of the sphere.
+ * @param point	 The used point.
+ *
+ * @return The signed distance.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusSphereDistancePoint4f(const GLUSfloat center[4], const GLUSfloat radius, const GLUSfloat point[4]);
+
+//
+// Axis Aligned Box functions.
+//
+
+/**
+ * Copies an axis aligned box.
+ *
+ * @param resultCenter	   Destination center.
+ * @param resultHalfExtend Destination half extend.
+ * @param center	   	   Source center.
+ * @param halfExtend	   Source half extend.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusAxisAlignedBoxCopyf(GLUSfloat resultCenter[4], GLUSfloat resultHalfExtend[3], const GLUSfloat center[4], const GLUSfloat halfExtend[3]);
+
+/**
+ * Calculates the signed distance from an axis aligned box to a point. If the value is negative, the point is inside the box.
+ *
+ * @param center	 The center of the box.
+ * @param halfExtend The length from the center point to the planes of the box.
+ * @param point		 The used point.
+ *
+ * @return The signed distance.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusAxisAlignedBoxDistancePoint4f(const GLUSfloat center[4], const GLUSfloat halfExtend[3], const GLUSfloat point[4]);
+
+//
+// Oriented Box functions.
+//
+
+/**
+ * Copies an oriented box.
+ *
+ * @param resultCenter	    Destination center.
+ * @param resultHalfExtend  Destination half extend.
+ * @param resultOrientation Destination orientation.
+ * @param center	   	    Source center.
+ * @param halfExtend	    Source half extend.
+ * @param orientation	    Source orientation.
+ */
+GLUSvoid GLUSAPIENTRY glusOrientedBoxCopyf(GLUSfloat resultCenter[4], GLUSfloat resultHalfExtend[3], GLUSfloat resultOrientation[3], const GLUSfloat center[4], const GLUSfloat halfExtend[3], const GLUSfloat orientation[3]);
+
+/**
+ * Calculates the signed distance from an oriented box to a point. If the value is negative, the point is inside the box.
+ *
+ * @param center	  The center of the box.
+ * @param halfExtend  The length from the center point to the planes of the box.
+ * @param orientation The orientation of the box.
+ * @param point		  The used point.
+ *
+ * @return The signed distance.
+ */
+GLUSfloat GLUSAPIENTRY glusOrientedBoxDistancePoint4f(const GLUSfloat center[4], const GLUSfloat halfExtend[3], const GLUSfloat orientation[3], const GLUSfloat point[4]);
+
+//
 // Math functions
 //
 
