@@ -227,7 +227,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSushort rows, const GLUSushort columns, const GLUSboolean triangleStrip)
+GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip)
 {
     GLUSuint i, currentRow, currentColumn;
 
@@ -354,7 +354,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSushort numberSectors)
+GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors)
 {
     GLUSuint i;
 
@@ -567,7 +567,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfE
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSushort numberSlices)
+GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -665,7 +665,7 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSushort numberSlices)
+GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -767,7 +767,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radiu
  * @author Pablo Alonso-Villaverde Roza
  * @author Norbert Nopper
  */
-GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSushort numberSlices, const GLUSushort numberStacks)
+GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks)
 {
     // s, t = parametric values of the equations, in the range [0,1]
     GLUSfloat s = 0;
@@ -912,7 +912,7 @@ GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat inne
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSushort numberSlices)
+GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -1124,7 +1124,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSushort numberSlices, const GLUSushort numberStacks)
+GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks)
 {
     GLUSuint i, j;
 

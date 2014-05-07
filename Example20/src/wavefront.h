@@ -11,7 +11,7 @@
 #ifndef WAVEFRONT_H_
 #define WAVEFRONT_H_
 
-#include "GLES3/glus.h"
+#include "GL/glus.h"
 
 /**
  * Properties of the camera.

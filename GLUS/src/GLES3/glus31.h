@@ -15,22 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if (GLUS_ES || GLUS_ES2 || GLUS_ES3 || GLUS_ES31)
-
-#ifdef GLUS_ES31
-#include "../GLES3/glus31.h"
-#elif GLUS_ES2
-#include "../GLES2/glus2.h"
-#else
-#include "../GLES3/glus3.h"
-#endif
-
-#elif (GLUS_VG || GLUS_VG11)  /*GLUS_ES || GLUS_ES2 || GLUS_ES3 || GLUS_ES31*/
-
-#include "../VG/glus.h"
-
-#else /* GLUS_VG || GLUS_VG11 */
-
 #ifndef __glus_h_
 #define __glus_h_
 
@@ -46,10 +30,8 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
+#include <GLES3/gl31.h>
+#include <EGL/egl.h>
 
 #ifdef _MSC_VER
 	#define GLUSINLINE static __forceinline
@@ -93,15 +75,9 @@ typedef void GLUSvoid;
 #define GLUS_TRUE   1
 #define GLUS_FALSE  0
 
-#define GLUS_BACKWARD_COMPATIBLE_BIT    0x00000000
-#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000002
-#define GLUS_OPENGL_DEBUG_CONTEXT   	0x00022007
 #define GLUS_VERTEX_SHADER              0x00008B31
 #define GLUS_FRAGMENT_SHADER            0x00008B30
-#define GLUS_TESS_EVALUATION_SHADER     0x00008E87
-#define GLUS_TESS_CONTROL_SHADER        0x00008E88
-#define GLUS_GEOMETRY_SHADER            0x00008DD9
-#define GLUS_COMPUTE_SHADER 			0x000091B9
+#define GLUS_COMPUTE_SHADER             0x000091B9
 
 #define GLUS_RED  						0x00001903
 #define GLUS_ALPHA  					0x00001906
@@ -125,6 +101,10 @@ typedef void GLUSvoid;
 #define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
 
 #define GLUS_MAX_STRING  256
+
+#define GLUS_DEFAULT_CLIENT_VERSION 3
+
+#define GLUS_EGL_API EGL_OPENGL_ES_API
 
 /**
  * Structure used for text file loading.
@@ -249,21 +229,6 @@ typedef struct _GLUSshaderprogram
      * Vertex shader.
      */
     GLUSuint vertex;
-
-    /**
-     * Tessellation control shader.
-     */
-    GLUSuint control;
-
-    /**
-     * Tessellation evaluation shader.
-     */
-    GLUSuint evaluation;
-
-    /**
-     * Geometry shader.
-     */
-    GLUSuint geometry;
 
     /**
      * Fragment shader.
@@ -632,6 +597,12 @@ typedef struct _GLUSline
 } GLUSline;
 
 //
+// EGL helper functions.
+//
+
+#include "../GLUS/glus_egl.h"
+
+//
 // Callback functions.
 //
 
@@ -641,13 +612,7 @@ typedef struct _GLUSline
 // Window preparation and creation functions.
 //
 
-#include "../GLUS/glus_glfw.h"
-
-//
-// Version check functions.
-//
-
-#include "../GLUS/glus_version.h"
+#include "../GLUS/glus_os_wrapper_es.h"
 
 //
 // Extension functions.
@@ -755,19 +720,13 @@ typedef struct _GLUSline
 // Shader creation function.
 //
 
-#include "../GLUS/glus_shaderprogram.h"
+#include "../GLUS/glus_shaderprogram_es31.h"
 
 //
 // Shape / geometry functions.
 //
 
 #include "../GLUS/glus_shape.h"
-
-//
-// Shape adjacency
-//
-
-#include "../GLUS/glus_shape_adjacency.h"
 
 //
 // Shape texture coordinate generation
@@ -811,10 +770,14 @@ typedef struct _GLUSline
 
 #include "../GLUS/glus_texture.h"
 
+//
+// Internally, some GLFW functions are used. See copyright informations in C file.
+//
+
+#include "../GLUS/glus_glfw_es.h"
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /*__glus_h_*/
-
-#endif /*GLUS_ES*/

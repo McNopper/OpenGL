@@ -195,7 +195,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfl
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSushort numberSectors)
+GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors)
 {
 	GLUSuint i;
 	float singleStep;

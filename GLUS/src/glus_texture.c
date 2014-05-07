@@ -199,7 +199,7 @@ GLUSboolean GLUSAPIENTRY glusCreateTgaImage(GLUStgaimage* tgaimage, GLUSint widt
 		return GLUS_FALSE;
 	}
 
-	if (format == GLUS_RED || format == GLUS_ALPHA || format == GLUS_LUMINANCE)
+	if (format == GLUS_ALPHA || format == GLUS_LUMINANCE)
 	{
 		stride = 1;
 	}
@@ -238,7 +238,7 @@ GLUSboolean GLUSAPIENTRY glusCreateHdrImage(GLUShdrimage* hdrimage, GLUSint widt
 		return GLUS_FALSE;
 	}
 
-	if (format == GLUS_RED || format == GLUS_ALPHA || format == GLUS_LUMINANCE)
+	if (format == GLUS_ALPHA || format == GLUS_LUMINANCE)
 	{
 		stride = 1;
 	}
