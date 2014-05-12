@@ -45,7 +45,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildComputeProgramPipeline(GLUSprogrampipe
 /**
  * Destroys a program pipeline by freeing the pipeline. The programs are not freed.
  *
- * @param programpipeline This structure holds the necessary information of the program pipeline and the different shader programs.
+ * @param programPipeline This structure holds the necessary information of the program pipeline and the different shader programs.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyProgramPipeline(GLUSprogrampipeline* programPipeline);
 
