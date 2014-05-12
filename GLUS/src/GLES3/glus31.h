@@ -79,6 +79,11 @@ typedef void GLUSvoid;
 #define GLUS_FRAGMENT_SHADER            0x00008B30
 #define GLUS_COMPUTE_SHADER             0x000091B9
 
+#define GLUS_VERTEX_SHADER_BIT 			0x00000001
+#define GLUS_FRAGMENT_SHADER_BIT 		0x00000002
+#define GLUS_COMPUTE_SHADER_BIT 		0x00000020
+#define GL_ALL_SHADER_BITS 				0xFFFFFFFF
+
 #define GLUS_RED  						0x00001903
 #define GLUS_ALPHA  					0x00001906
 #define GLUS_RGB    					0x00001907
@@ -236,6 +241,33 @@ typedef struct _GLUSshaderprogram
     GLUSuint fragment;
 
 } GLUSshaderprogram;
+
+/**
+ * Structure for program pipeline handling.
+ */
+typedef struct _GLUSprogrampipeline
+{
+	/**
+	 * The created pipeline.
+	 */
+    GLUSuint pipeline;
+
+    /**
+     * Compute shader program.
+     */
+    GLUSuint computeProgram;
+
+    /**
+     * Vertex shader program.
+     */
+    GLUSuint vertexProgram;
+
+    /**
+     * Fragment shader program.
+     */
+    GLUSuint fragmentProgram;
+
+} GLUSprogrampipeline;
 
 /**
  * Structure for holding geometry data.
@@ -721,6 +753,8 @@ typedef struct _GLUSline
 //
 
 #include "../GLUS/glus_shaderprogram_es31.h"
+
+#include "../GLUS/glus_programpipeline_es31.h"
 
 //
 // Shape / geometry functions.

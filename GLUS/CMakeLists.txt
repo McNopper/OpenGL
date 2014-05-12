@@ -103,7 +103,8 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 ENDIF()
 
 # Files only valid for desktop OpenGL
-list(APPEND ONLY_GL_C_FILES 	${GLUS_SOURCE_DIR}/src/glus_glfw.c
+list(APPEND ONLY_GL_C_FILES		${GLUS_SOURCE_DIR}/src/glus_glfw.c
+								${GLUS_SOURCE_DIR}/src/glus_programpipeline.c
 								${GLUS_SOURCE_DIR}/src/glus_shaderprogram.c
 								${GLUS_SOURCE_DIR}/src/glus_shape_adjacency.c
 								${GLUS_SOURCE_DIR}/src/glus_version.c

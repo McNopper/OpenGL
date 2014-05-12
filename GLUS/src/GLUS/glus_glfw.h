@@ -43,6 +43,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples);
 GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize);
 
 /**
+ * The runtime environment is prepared with a debug context and a debug message callback. Also the log is changed to the debug level.
+ * Only supported since OpenGL 4.3 and greater.
+ *
+ * @param debug GLUS_TRUE, if a debug context should be created and a default debug message callback should be used.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareDebug(const GLUSboolean debug);
+
+/**
  * Creates the window. In this function, mainly GLEW and GLFW functions are used. By default, a RGBA color buffer is created.
  *
  * @param title Title of the window.

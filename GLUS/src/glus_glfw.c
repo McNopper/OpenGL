@@ -23,6 +23,7 @@ static GLUSint g_flags = 0;
 
 static GLUSint g_numberSamples = 0;
 static GLUSboolean g_noResize = GLUS_FALSE;
+static GLUSboolean g_debug = GLUS_FALSE;
 
 static GLFWwindow* g_window = 0;
 static GLUSboolean g_initdone = GLUS_FALSE;
@@ -112,6 +113,11 @@ GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples)
 GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize)
 {
 	g_noResize = noResize;
+}
+
+GLUSvoid GLUSAPIENTRY glusPrepareDebug(const GLUSboolean debug)
+{
+	g_debug = debug;
 }
 
 static GLUSfloat glusGetElapsedTime(GLUSvoid)
@@ -244,6 +250,11 @@ static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
 	}
 }
 
+static GLUSvoid APIENTRY glusInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, GLUSvoid* userParam)
+{
+	glusLogPrint(GLUS_LOG_DEBUG, "source: 0x%04X type: 0x%04X id: %u severity: 0x%04X '%s'", source, type, id, severity, message);
+}
+
 GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
 	if (g_window)
@@ -286,6 +297,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
 	glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
 	glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, g_debug | (g_flags & GLUS_DEBUG_CONTEXT_BIT));
 
 	g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
 	if (!g_window)
@@ -332,6 +344,13 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	glfwSetCursorPosCallback(g_window, glusInternalMouseMove);
 
 	glfwGetWindowSize(g_window, &g_width, &g_height);
+
+	if (g_debug && glusIsSupported(4, 3))
+	{
+		glusLogSetLevel(GLUS_LOG_DEBUG);
+
+		glDebugMessageCallback(&glusInternalDebugMessage, 0);
+	}
 
 	return GLUS_TRUE; // Success
 }

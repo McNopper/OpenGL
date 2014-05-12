@@ -368,6 +368,68 @@ GLUSboolean GLUSAPIENTRY glusBuildComputeProgramFromSource(GLUSshaderprogram* sh
     return glusLinkProgram(shaderProgram);
 }
 
+GLUSboolean GLUSAPIENTRY glusBuildShaderProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSenum type, const GLUSchar** source)
+{
+    GLUSint linked;
+
+    GLUSint logLength, charsWritten;
+
+    char* log;
+
+    if (!glusIsSupported(4, 1))
+    {
+        glusLogPrint(GLUS_LOG_ERROR, "Function needs OpenGL version 4.1 or higher");
+
+        return GLUS_FALSE;
+    }
+
+    if (!shaderProgram || !source)
+    {
+        return GLUS_FALSE;
+    }
+
+    shaderProgram->program = 0;
+    shaderProgram->compute = 0;
+    shaderProgram->vertex = 0;
+    shaderProgram->control = 0;
+    shaderProgram->evaluation = 0;
+    shaderProgram->geometry = 0;
+    shaderProgram->fragment = 0;
+
+    shaderProgram->program = glCreateShaderProgramv(type, 1, (const char**)source);
+
+    glGetProgramiv(shaderProgram->program, GL_LINK_STATUS, &linked);
+
+    if (!linked)
+    {
+        glGetProgramiv(shaderProgram->program, GL_INFO_LOG_LENGTH, &logLength);
+
+        log = (char*) malloc((size_t)logLength);
+
+        if (!log)
+        {
+            glusDestroyProgram(shaderProgram);
+
+            return GLUS_FALSE;
+        }
+
+        glGetProgramInfoLog(shaderProgram->program, logLength, &charsWritten, log);
+
+        glusLogPrint(GLUS_LOG_ERROR, "Shader program link error:");
+        glusLogPrint(GLUS_LOG_ERROR, "%s", log);
+
+        free(log);
+
+        shaderProgram->program = 0;
+
+        glusDestroyProgram(shaderProgram);
+
+        return GLUS_FALSE;
+    }
+
+    return GLUS_TRUE;
+}
+
 GLUSvoid GLUSAPIENTRY glusDestroyProgram(GLUSshaderprogram* shaderprogram)
 {
     if (!shaderprogram)

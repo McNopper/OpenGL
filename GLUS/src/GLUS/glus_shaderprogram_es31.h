@@ -70,6 +70,17 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildProgramFromSource(GLUSshaderprogram* s
 GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildComputeProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSchar** computeSource);
 
 /**
+ * Builds a stand-alone, separable shader program by compiling and linking the giving source.
+ *
+ * @param shaderProgram This structure holds the necessary information of the program and the different shaders.
+ * @param type			The type of the shader.
+ * @param source 		Shader source code.
+ *
+ * @return GLUS_TRUE, if compiling and creation of program succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildShaderProgramFromSource(GLUSshaderprogram* shaderProgram, const GLUSenum type, const GLUSchar** source);
+
+/**
  * Destroys a program by freeing all resources.
  *
  * @param shaderprogram This structure holds the necessary information of the program and the different shaders.

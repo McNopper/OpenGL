@@ -94,14 +94,23 @@ typedef void GLUSvoid;
 #define GLUS_FALSE  0
 
 #define GLUS_BACKWARD_COMPATIBLE_BIT    0x00000000
-#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000002
-#define GLUS_OPENGL_DEBUG_CONTEXT   	0x00022007
+#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000001
+#define GLUS_DEBUG_CONTEXT_BIT   		0x00000002
+
 #define GLUS_VERTEX_SHADER              0x00008B31
 #define GLUS_FRAGMENT_SHADER            0x00008B30
 #define GLUS_TESS_EVALUATION_SHADER     0x00008E87
 #define GLUS_TESS_CONTROL_SHADER        0x00008E88
 #define GLUS_GEOMETRY_SHADER            0x00008DD9
 #define GLUS_COMPUTE_SHADER 			0x000091B9
+
+#define GLUS_VERTEX_SHADER_BIT 			0x00000001
+#define GLUS_FRAGMENT_SHADER_BIT 		0x00000002
+#define GLUS_GEOMETRY_SHADER_BIT 		0x00000004
+#define GLUS_TESS_CONTROL_SHADER_BIT 	0x00000008
+#define GLUS_TESS_EVALUATION_SHADER_BIT 0x00000010
+#define GLUS_COMPUTE_SHADER_BIT 		0x00000020
+#define GL_ALL_SHADER_BITS 				0xFFFFFFFF
 
 #define GLUS_RED  						0x00001903
 #define GLUS_ALPHA  					0x00001906
@@ -271,6 +280,48 @@ typedef struct _GLUSshaderprogram
     GLUSuint fragment;
 
 } GLUSshaderprogram;
+
+/**
+ * Structure for program pipeline handling.
+ */
+typedef struct _GLUSprogrampipeline
+{
+	/**
+	 * The created pipeline.
+	 */
+    GLUSuint pipeline;
+
+    /**
+     * Compute shader program.
+     */
+    GLUSuint computeProgram;
+
+    /**
+     * Vertex shader program.
+     */
+    GLUSuint vertexProgram;
+
+    /**
+     * Tessellation control shader program.
+     */
+    GLUSuint controlProgram;
+
+    /**
+     * Tessellation evaluation shader program.
+     */
+    GLUSuint evaluationProgram;
+
+    /**
+     * Geometry shader program.
+     */
+    GLUSuint geometryProgram;
+
+    /**
+     * Fragment shader program.
+     */
+    GLUSuint fragmentProgram;
+
+} GLUSprogrampipeline;
 
 /**
  * Structure for holding geometry data.
@@ -756,6 +807,8 @@ typedef struct _GLUSline
 //
 
 #include "../GLUS/glus_shaderprogram.h"
+
+#include "../GLUS/glus_programpipeline.h"
 
 //
 // Shape / geometry functions.
