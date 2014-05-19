@@ -17,6 +17,7 @@
 
 #include "GL/glus.h"
 
+#define GLUS_MAX_OBJECTS 1
 #define GLUS_MAX_ATTRIBUTES (GLUS_MAX_VERTICES/GLUS_VERTICES_DIVISOR)
 #define GLUS_MAX_TRIANGLE_ATTRIBUTES GLUS_MAX_VERTICES
 #define GLUS_BUFFERSIZE 1024
@@ -554,6 +555,10 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 
 	GLUSgroupList* currentGroupList = 0;
 
+	// Objects
+
+	GLUSuint numberObjects = 0;
+
 	if (!filename || !shape)
 	{
 		return GLUS_FALSE;
@@ -678,7 +683,20 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 			}
 		}
 
-		if (strncmp(buffer, "vt", 2) == 0)
+		if (strncmp(buffer, "o", 1) == 0)
+		{
+			if (numberObjects == GLUS_MAX_OBJECTS)
+			{
+				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			numberObjects++;
+		}
+		else if (strncmp(buffer, "vt", 2) == 0)
 		{
 			if (numberTexCoords == GLUS_MAX_ATTRIBUTES)
 			{
