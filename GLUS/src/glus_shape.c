@@ -1320,6 +1320,10 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     	shape->tangents[i * 3] = 0.0f;
     	shape->tangents[i * 3 + 1] = 0.0f;
     	shape->tangents[i * 3 + 2] = 0.0f;
+
+    	shape->bitangents[i * 3] = 0.0f;
+    	shape->bitangents[i * 3 + 1] = 0.0f;
+    	shape->bitangents[i * 3 + 2] = 0.0f;
     }
 
     if (shape->numberIndices > 0)
@@ -1328,6 +1332,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     	float Q1[4];
     	float Q2[4];
     	float tangent[3];
+    	float bitangent[3];
     	float scalar;
 
     	for (i = 0; i < shape->numberIndices; i += 3)
@@ -1348,7 +1353,13 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     		tangent[1] = scalar * (t2 * Q1[1] - t1 * Q2[1]);
     		tangent[2] = scalar * (t2 * Q1[2] - t1 * Q2[2]);
 
+    		bitangent[0] = scalar * (-s2 * Q1[0] + s1 * Q2[0]);
+    		bitangent[1] = scalar * (-s2 * Q1[1] + s1 * Q2[1]);
+    		bitangent[2] = scalar * (-s2 * Q1[2] + s1 * Q2[2]);
+
     		glusVector3Normalizef(tangent);
+
+    		glusVector3Normalizef(bitangent);
 
         	shape->tangents[3 * shape->indices[i]] += tangent[0];
         	shape->tangents[3 * shape->indices[i] + 1] += tangent[1];
@@ -1361,6 +1372,19 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
         	shape->tangents[3 * shape->indices[i+2]] += tangent[0];
         	shape->tangents[3 * shape->indices[i+2] + 1] += tangent[1];
         	shape->tangents[3 * shape->indices[i+2] + 2] += tangent[2];
+
+
+        	shape->bitangents[3 * shape->indices[i]] += bitangent[0];
+        	shape->bitangents[3 * shape->indices[i] + 1] += bitangent[1];
+        	shape->bitangents[3 * shape->indices[i] + 2] += bitangent[2];
+
+        	shape->bitangents[3 * shape->indices[i+1]] += bitangent[0];
+        	shape->bitangents[3 * shape->indices[i+1] + 1] += bitangent[1];
+        	shape->bitangents[3 * shape->indices[i+1] + 2] += bitangent[2];
+
+        	shape->bitangents[3 * shape->indices[i+2]] += bitangent[0];
+        	shape->bitangents[3 * shape->indices[i+2] + 1] += bitangent[1];
+        	shape->bitangents[3 * shape->indices[i+2] + 2] += bitangent[2];
     	}
     }
     else
@@ -1369,6 +1393,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     	float Q1[4];
     	float Q2[4];
     	float tangent[3];
+    	float bitangent[3];
     	float scalar;
 
     	for (i = 0; i < shape->numberVertices; i += 3)
@@ -1389,7 +1414,13 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     		tangent[1] = scalar * (t2 * Q1[1] - t1 * Q2[1]);
     		tangent[2] = scalar * (t2 * Q1[2] - t1 * Q2[2]);
 
+    		bitangent[0] = scalar * (-s2 * Q1[0] + s1 * Q2[0]);
+    		bitangent[1] = scalar * (-s2 * Q1[1] + s1 * Q2[1]);
+    		bitangent[2] = scalar * (-s2 * Q1[2] + s1 * Q2[2]);
+
     		glusVector3Normalizef(tangent);
+
+    		glusVector3Normalizef(bitangent);
 
         	shape->tangents[3 * i] += tangent[0];
         	shape->tangents[3 * i + 1] += tangent[1];
@@ -1402,6 +1433,19 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
         	shape->tangents[3 * (i+2)] += tangent[0];
         	shape->tangents[3 * (i+2) + 1] += tangent[1];
         	shape->tangents[3 * (i+2) + 2] += tangent[2];
+
+
+        	shape->bitangents[3 * i] += bitangent[0];
+        	shape->bitangents[3 * i + 1] += bitangent[1];
+        	shape->bitangents[3 * i + 2] += bitangent[2];
+
+        	shape->bitangents[3 * (i+1)] += bitangent[0];
+        	shape->bitangents[3 * (i+1) + 1] += bitangent[1];
+        	shape->bitangents[3 * (i+1) + 2] += bitangent[2];
+
+        	shape->bitangents[3 * (i+2)] += bitangent[0];
+        	shape->bitangents[3 * (i+2) + 1] += bitangent[1];
+        	shape->bitangents[3 * (i+2) + 2] += bitangent[2];
     	}
     }
 
@@ -1409,12 +1453,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     for (i = 0; i < shape->numberVertices; i++)
     {
 		glusVector3Normalizef(&(shape->tangents[i * 3]));
-    }
-
-    // Calculate bitangents out of tangents and normals
-    for (i = 0; i < shape->numberVertices; i++)
-    {
-        glusVector3Crossf(&(shape->bitangents[i * 3]), &(shape->normals[i * 3]), &(shape->tangents[i * 3]));
+		glusVector3Normalizef(&(shape->bitangents[i * 3]));
     }
 
     return GLUS_TRUE;
