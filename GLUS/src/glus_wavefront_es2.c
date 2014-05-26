@@ -620,14 +620,54 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 			}
 			else if (strncmp(buffer, "usemtl", 6) == 0)
 			{
-				if (!currentGroupList)
+				if (!currentGroupList || currentGroupList->group.materialName[0] != '\0')
 				{
-					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+					GLUSgroupList* newGroupList;
 
-					fclose(f);
+					newGroupList = (GLUSgroupList*)malloc(sizeof(GLUSgroupList));
 
-					return GLUS_FALSE;
+					if (!newGroupList)
+					{
+						glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+						fclose(f);
+
+						return GLUS_FALSE;
+					}
+
+					memset(newGroupList, 0, sizeof(GLUSgroupList));
+
+					strcpy(newGroupList->group.name, name);
+
+					if (numberGroups == 0)
+					{
+						wavefront->groups = newGroupList;
+					}
+					else
+					{
+						if (!currentGroupList)
+						{
+							free(newGroupList);
+
+							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+
+							fclose(f);
+
+							return GLUS_FALSE;
+						}
+
+						currentGroupList->next = newGroupList;
+
+						currentGroupList->group.numberIndices = numberIndicesGroup;
+						numberIndicesGroup = 0;
+					}
+
+					currentGroupList = newGroupList;
+
+					numberGroups++;
 				}
+
+				//
 
 				sscanf(buffer, "%s %s", identifier, name);
 

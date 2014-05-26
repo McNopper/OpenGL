@@ -239,8 +239,19 @@ static GLUSvoid glusSwapColorChannel(GLUSint width, GLUSint height, GLUSenum for
 GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage* tgaimage)
 {
 	FILE* file;
-	GLUSubyte type;
+
+	GLUSboolean hasColorMap = GLUS_FALSE;
+
+	GLUSubyte imageType;
 	GLUSubyte bitsPerPixel;
+
+	GLUSushort firstEntryIndex;
+	GLUSushort colorMapLength;
+	GLUSubyte colorMapEntrySize;
+	GLUSubyte* colorMap = 0;
+
+	GLUSuint i, k;
+
 	size_t elementsRead;
 
 	// check, if we have a valid pointer
@@ -271,8 +282,8 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 		return GLUS_FALSE;
 	}
 
-	// read the type
-	elementsRead = fread(&type, 1, 1, file);
+	// read the image type
+	elementsRead = fread(&imageType, 1, 1, file);
 
 	if (!glusCheckFileRead(file, elementsRead, 1))
 	{
@@ -280,19 +291,64 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 	}
 
 	// check the type
-	if (type != 2 && type != 10 && type != 11)
+	if (imageType != 1 && imageType != 2 && imageType != 3 && imageType != 9 && imageType != 10 && imageType != 11)
 	{
 		fclose(file);
 
 		return GLUS_FALSE;
 	}
 
-	// seek through the tga header, up to the width/height:
-	if (fseek(file, 9, SEEK_CUR))
+	if (imageType == 1 || imageType == 9)
 	{
-		fclose(file);
+		hasColorMap = GLUS_TRUE;
+	}
 
-		return GLUS_FALSE;
+	if (!hasColorMap)
+	{
+		// seek through the tga header, up to the width/height:
+		if (fseek(file, 9, SEEK_CUR))
+		{
+			fclose(file);
+
+			return GLUS_FALSE;
+		}
+	}
+	else
+	{
+		elementsRead = fread(&firstEntryIndex, 2, 1, file);
+
+		if (!glusCheckFileRead(file, elementsRead, 1))
+		{
+			glusDestroyTgaImage(tgaimage);
+
+			return GLUS_FALSE;
+		}
+
+		elementsRead = fread(&colorMapLength, 2, 1, file);
+
+		if (!glusCheckFileRead(file, elementsRead, 1))
+		{
+			glusDestroyTgaImage(tgaimage);
+
+			return GLUS_FALSE;
+		}
+
+		elementsRead = fread(&colorMapEntrySize, 1, 1, file);
+
+		if (!glusCheckFileRead(file, elementsRead, 1))
+		{
+			glusDestroyTgaImage(tgaimage);
+
+			return GLUS_FALSE;
+		}
+
+		// seek through the tga header, up to the width/height:
+		if (fseek(file, 4, SEEK_CUR))
+		{
+			fclose(file);
+
+			return GLUS_FALSE;
+		}
 	}
 
 	// read the width
@@ -373,6 +429,44 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 		return GLUS_FALSE;
 	}
 
+	if (hasColorMap)
+	{
+		// Create color map space.
+
+		GLUSint bytesPerPixel = colorMapEntrySize / 8;
+
+		colorMap = (GLUSubyte*)malloc((size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte));
+
+		if (!colorMap)
+		{
+			fclose(file);
+
+			glusDestroyTgaImage(tgaimage);
+
+			return GLUS_FALSE;
+		}
+
+		// Read in the color map.
+
+		elementsRead = fread(colorMap, 1, (size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte), file);
+
+		if (!glusCheckFileRead(file, elementsRead, (size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte)))
+		{
+			glusDestroyTgaImage(tgaimage);
+
+			free(colorMap);
+			colorMap = 0;
+
+			return GLUS_FALSE;
+		}
+
+		// swap the color if necessary
+		if (colorMapEntrySize == 24 || colorMapEntrySize == 32)
+		{
+			glusSwapColorChannel(colorMapLength, 1, colorMapEntrySize == 24 ? GLUS_RGB : GLUS_RGBA, colorMap);
+		}
+	}
+
 	// allocate enough memory for the targa  data
 	tgaimage->data = (GLUSubyte*)malloc((size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8);
 
@@ -383,10 +477,16 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		glusDestroyTgaImage(tgaimage);
 
+		if (hasColorMap)
+		{
+			free(colorMap);
+			colorMap = 0;
+		}
+
 		return GLUS_FALSE;
 	}
 
-	if (type == 2)
+	if (imageType == 1 || imageType == 2 || imageType == 3)
 	{
 		// read in the raw data
 		elementsRead = fread(tgaimage->data, 1, (size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8, file);
@@ -394,6 +494,12 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 		if (!glusCheckFileRead(file, elementsRead, (size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8))
 		{
 			glusDestroyTgaImage(tgaimage);
+
+			if (hasColorMap)
+			{
+				free(colorMap);
+				colorMap = 0;
+			}
 
 			return GLUS_FALSE;
 		}
@@ -413,6 +519,12 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 			{
 				glusDestroyTgaImage(tgaimage);
 
+				if (hasColorMap)
+				{
+					free(colorMap);
+					colorMap = 0;
+				}
+
 				return GLUS_FALSE;
 			}
 
@@ -431,6 +543,12 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 				if (!glusCheckFileRead(file, elementsRead, bitsPerPixel / 8))
 				{
 					glusDestroyTgaImage(tgaimage);
+
+					if (hasColorMap)
+					{
+						free(colorMap);
+						colorMap = 0;
+					}
 
 					return GLUS_FALSE;
 				}
@@ -456,6 +574,12 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 				{
 					glusDestroyTgaImage(tgaimage);
 
+					if (hasColorMap)
+					{
+						free(colorMap);
+						colorMap = 0;
+					}
+
 					return GLUS_FALSE;
 				}
 			}
@@ -472,6 +596,60 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 	// close the file
 	fclose(file);
+
+	if (hasColorMap)
+	{
+		GLUSubyte* data = tgaimage->data;
+
+		GLUSint bytesPerPixel;
+
+		// Allocating new memory, as current memory is a look up table index and not a color.
+
+		bytesPerPixel = colorMapEntrySize / 8;
+
+		tgaimage->data = (GLUSubyte*)malloc((size_t)tgaimage->width * tgaimage->height * bytesPerPixel);
+
+		if (!tgaimage->data)
+		{
+			glusDestroyTgaImage(tgaimage);
+
+			free(data);
+			data = 0;
+
+			free(colorMap);
+			colorMap = 0;
+
+			return GLUS_FALSE;
+		}
+
+		tgaimage->format = GLUS_LUMINANCE;
+		if (colorMapEntrySize == 24)
+		{
+			tgaimage->format = GLUS_RGB;
+		}
+		else if (colorMapEntrySize == 32)
+		{
+			tgaimage->format = GLUS_RGBA;
+		}
+
+		// Copy color values from the color map into the image data.
+
+		for (i = 0; i < tgaimage->width * tgaimage->height; i++)
+		{
+			for (k = 0; k < bytesPerPixel; k++)
+			{
+				tgaimage->data[i * bytesPerPixel + k] = colorMap[(firstEntryIndex + data[i]) * bytesPerPixel + k];
+			}
+		}
+
+		// Freeing data.
+
+		free(data);
+		data = 0;
+
+		free(colorMap);
+		colorMap = 0;
+	}
 
 	return GLUS_TRUE;
 }
