@@ -332,6 +332,12 @@ typedef struct _GLUShdrimage
 #include "../GLUS/glus_log.h"
 
 //
+// Profiling
+//
+
+#include "../GLUS/glus_profile.h"
+
+//
 // Ray tracing
 //
 
