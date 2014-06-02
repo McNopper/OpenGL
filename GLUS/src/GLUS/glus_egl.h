@@ -46,6 +46,27 @@ GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNat
 GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface);
 
 /**
+ * Returns the created default EGL display.
+ *
+ * @return the EGL display.
+ */
+GLUSAPI EGLDisplay GLUSAPIENTRY glusEGLGetDefaultDisplay(GLUSvoid);
+
+/**
+ * Returns the created default EGL surface.
+ *
+ * @return the EGL surface.
+ */
+GLUSAPI EGLSurface GLUSAPIENTRY glusEGLGetDefaultSurface(GLUSvoid);
+
+/**
+ * Returns the created default EGL context.
+ *
+ * @return the EGL context.
+ */
+GLUSAPI EGLContext GLUSAPIENTRY glusEGLGetDefaultContext(GLUSvoid);
+
+/**
  * Terminates EGL an frees all resources.
  *
  * @param eglDisplay EGL display.

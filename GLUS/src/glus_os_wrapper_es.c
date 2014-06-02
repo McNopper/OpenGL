@@ -374,3 +374,20 @@ GLUSvoid GLUSAPIENTRY glusSwapInterval(GLUSint interval)
 {
 	eglSwapInterval(g_eglDisplay, interval);
 }
+
+//
+
+EGLDisplay GLUSAPIENTRY glusEGLGetDefaultDisplay(GLUSvoid)
+{
+	return g_eglDisplay;
+}
+
+EGLSurface GLUSAPIENTRY glusEGLGetDefaultSurface(GLUSvoid)
+{
+	return g_eglSurface;
+}
+
+EGLContext GLUSAPIENTRY glusEGLGetDefaultContext(GLUSvoid)
+{
+	return g_eglContext;
+}
