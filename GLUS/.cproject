@@ -805,14 +805,12 @@
 				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958" name="ARMv7_Vivante_Linux_GLES2_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.303613930" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
-							<option id="cdt.managedbuild.option.gnu.cross.prefix.52176155" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-none-linux-gnueabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.852334020" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/opt/freescale/usr/local/gcc-4.6.2-glibc-2.13-linaro-multilib-2011.12/fsl-linaro-toolchain/bin" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.52176155" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-poky-linux-gnueabi-" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.852334020" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="../Development/iMX6/fsl-release-bsp/build-fb/tmp/sysroots/x86_64-linux/usr/bin/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.1151695622" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/GLUS/DebugRaspberryPi}" id="cdt.managedbuild.builder.gnu.cross.1792868863" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.456557538" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
-								<option id="gnu.c.compiler.option.include.paths.942214462" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="${workspace_loc:}/../iMX6/rootfs/usr/include"/>
-								</option>
+								<option id="gnu.c.compiler.option.include.paths.942214462" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath"/>
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.948880553" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1767961074" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.280346410" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
@@ -822,6 +820,7 @@
 									<listOptionValue builtIn="false" value="EGL_API_FB"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1659310510" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.108915604" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -mfloat-abi=hard" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1542108826" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1411257822" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -922,14 +921,12 @@
 				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653" name="ARMv7_Vivante_Linux_VG11_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.711146439" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
-							<option id="cdt.managedbuild.option.gnu.cross.prefix.670609574" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-none-linux-gnueabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.435599303" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/opt/freescale/usr/local/gcc-4.6.2-glibc-2.13-linaro-multilib-2011.12/fsl-linaro-toolchain/bin" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.670609574" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-poky-linux-gnueabi-" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.435599303" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="../Development/iMX6/fsl-release-bsp/build-fb/tmp/sysroots/x86_64-linux/usr/bin/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.355614978" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/GLUS}/ARMv7_Vivante_Linux_VG11_GCC_Release" id="cdt.managedbuild.builder.gnu.cross.1462541966" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.2107608634" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
-								<option id="gnu.c.compiler.option.include.paths.27081246" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:}/../iMX6/rootfs/usr/include&quot;"/>
-								</option>
+								<option id="gnu.c.compiler.option.include.paths.27081246" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.788382398" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GLUS_VG11=1"/>
 									<listOptionValue builtIn="false" value="LINUX"/>
@@ -939,6 +936,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.836103916" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1963642320" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.dialect.std.711593890" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.1974659191" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -mfloat-abi=hard" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1759641763" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.501682402" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -1141,6 +1139,7 @@
 		<project id="GLUS.cdt.managedbuild.target.gnu.mingw.lib.275442850" name="Static Library" projectType="cdt.managedbuild.target.gnu.mingw.lib"/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="ARMv6_VC4_Linux_VG11_GCC_Release"/>
 		<configuration configurationName="ARMv6_VC4_Linux_GLES2_GCC_Release"/>
 		<configuration configurationName="x64_Mali_Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="x64__Linux_GLES3_GCC_Debug"/>
@@ -1148,39 +1147,43 @@
 		<configuration configurationName="DebugLinux64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
-		<configuration configurationName="x86__Windows__MSVC_Release"/>
+		<configuration configurationName="ARMv7_Vivante_Linux_VG11_GCC_Release"/>
 		<configuration configurationName="x64_Mali_Linux_GLES3_GCC_Debug"/>
+		<configuration configurationName="x86__Windows__MSVC_Release"/>
 		<configuration configurationName="x86__Windows_GLES3_MinGW_Debug"/>
 		<configuration configurationName="ReleaseLinux64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
 		<configuration configurationName="x64__Linux__GCC_Debug"/>
 		<configuration configurationName="x86_PowerVR_Windows_GLES2_MinGW_Debug"/>
-		<configuration configurationName="ARMv7_Vivante_Linux_GLES2_GCC_Release"/>
 		<configuration configurationName="DebugMac64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="ARMv7_Vivante_Linux_GLES2_GCC_Release"/>
+		<configuration configurationName="ARMv6_VC4_Linux_VG11_GCC_Debug"/>
+		<configuration configurationName="x86_PowerVR_Windows_GLES31_MinGW_Debug"/>
 		<configuration configurationName="x64__Linux__GCC_Release"/>
 		<configuration configurationName="x64__Darwin__GCC_Debug"/>
 		<configuration configurationName="x86_ANGLE_Windows_GLES2_MinGW_Debug"/>
 		<configuration configurationName="ARMv6_VC4_Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="x86__Linux__GCC_Debug"/>
-		<configuration configurationName="x86__Windows__MinGW_Release"/>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
-		</configuration>
 		<configuration configurationName="DebugVC">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
+		</configuration>
+		<configuration configurationName="x86__Windows__MinGW_Release"/>
+		<configuration configurationName="x64__Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="DebugLinux">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
-		<configuration configurationName="x64__Linux_GLES2_GCC_Debug"/>
-		<configuration configurationName="x86_AMD_Windows_GLES2_MinGW_Debug"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="x86_AMD_Windows_GLES2_MinGW_Debug"/>
 		<configuration configurationName="x86__Windows_GLES2_MinGW_Debug"/>
+		<configuration configurationName="x86_Khronos_Windows_VG11_MinGW_Debug"/>
 		<configuration configurationName="ReleaseVC">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
