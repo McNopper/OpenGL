@@ -297,7 +297,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
 	glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
 	glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, g_debug | (g_flags & GLUS_DEBUG_CONTEXT_BIT));
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, g_debug || (g_flags & GLUS_DEBUG_CONTEXT_BIT));
 
 	g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
 	if (!g_window)
