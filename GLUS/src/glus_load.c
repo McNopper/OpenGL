@@ -1122,6 +1122,12 @@ GLUSboolean GLUSAPIENTRY glusLoadPkmImage(const GLUSchar* filename, GLUSpkmimage
 	pkmimage->depth = 1;
 
 	pkmimage->imageSize = binaryfile.length - 16;
+	if (pkmimage->imageSize <= 0)
+	{
+		glusDestroyBinaryFile(&binaryfile);
+
+		return GLUS_FALSE;
+	}
 
 	pkmimage->data = (GLUSubyte*)malloc(pkmimage->imageSize * sizeof(GLUSubyte));
 	if (!pkmimage->data)
