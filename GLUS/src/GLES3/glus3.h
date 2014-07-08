@@ -84,6 +84,17 @@ typedef void GLUSvoid;
 #define GLUS_RGBA   					0x00001908
 #define GLUS_LUMINANCE  				0x00001909
 
+#define GLUS_COMPRESSED_R11_EAC                            0x9270
+#define GLUS_COMPRESSED_SIGNED_R11_EAC                     0x9271
+#define GLUS_COMPRESSED_RG11_EAC                           0x9272
+#define GLUS_COMPRESSED_SIGNED_RG11_EAC                    0x9273
+#define GLUS_COMPRESSED_RGB8_ETC2                          0x9274
+#define GLUS_COMPRESSED_SRGB8_ETC2                         0x9275
+#define GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2      0x9276
+#define GLUS_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2     0x9277
+#define GLUS_COMPRESSED_RGBA8_ETC2_EAC                     0x9278
+#define GLUS_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC              0x9279
+
 #define GLUS_PI		3.1415926535897932384626433832795f
 
 #define GLUS_LOG_NOTHING	0
@@ -208,6 +219,43 @@ typedef struct _GLUShdrimage
     GLUSenum format;
 
 } GLUShdrimage;
+
+/**
+ * Structure used for PKM Image File loading.
+ */
+typedef struct _GLUSpkmimage
+{
+	/**
+	 * Width of the PKM image.
+	 */
+	GLUSushort width;
+
+	/**
+	 * Height of the PKM image.
+	 */
+	GLUSushort height;
+
+	/**
+	 * Depth of the image.
+	 */
+	GLUSushort depth;
+
+	/**
+	 * Pixel data.
+	 */
+	GLUSubyte* data;
+
+    /**
+     * The image size in bytes.
+     */
+    GLUSint imageSize;
+
+    /**
+     * Internal format of the PKM image.
+     */
+    GLUSenum internalformat;
+
+} GLUSpkmimage;
 
 /**
  * Structure for shader program handling.
@@ -582,9 +630,9 @@ typedef struct _GLUSline
     /**
      * Line render mode - could be either:
      *
-     * GL_LINES​
-     * GL_LINE_STRIP​
-     * GL_LINE_LOOP​
+     * GL_LINES
+     * GL_LINE_STRIP
+     * GL_LINE_LOOP
      */
     GLUSenum mode;
 

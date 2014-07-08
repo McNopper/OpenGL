@@ -112,4 +112,21 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateHdrImage(GLUShdrimage* hdrimage, GLUS
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage);
 
+/**
+ * Loads a PKM image.
+ *
+ * @param filename			The name of the file to load.
+ * @param pkmimage			The structure to fill the PKM data.
+ *
+ * @return GLUS_TRUE, if loading succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLoadPkmImage(const GLUSchar* filename, GLUSpkmimage* pkmimage);
+
+/**
+ * Destroys the content of a PKM structure. Has to be called for freeing the resources.
+ *
+ * @param pkmimage The PKM file structure.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyPkmImage(GLUSpkmimage* pkmimage);
+
 #endif /* GLUS_LOAD_H_ */

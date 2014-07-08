@@ -1090,3 +1090,121 @@ GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage)
 
 	hdrimage->format = 0;
 }
+
+GLUSboolean GLUSAPIENTRY glusLoadPkmImage(const GLUSchar* filename, GLUSpkmimage* pkmimage)
+{
+	GLUSbinaryfile binaryfile;
+
+	GLUSubyte* buffer;
+
+	GLUSubyte type;
+
+	// check, if we have a valid pointer
+	if (!filename || !pkmimage)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (!glusLoadBinaryFile(filename, &binaryfile))
+	{
+		return GLUS_FALSE;
+	}
+
+	buffer = binaryfile.binary;
+	if (!(buffer[0] == 'P' && buffer[1] == 'K' && buffer[2] == 'M' && buffer[3] == ' '))
+	{
+		glusDestroyBinaryFile(&binaryfile);
+
+		return GLUS_FALSE;
+	}
+	buffer += 7;
+
+	pkmimage->depth = 1;
+
+	pkmimage->imageSize = binaryfile.length - 16;
+
+	pkmimage->data = (GLUSubyte*)malloc(pkmimage->imageSize * sizeof(GLUSubyte));
+	if (!pkmimage->data)
+	{
+		glusDestroyBinaryFile(&binaryfile);
+
+		return GLUS_FALSE;
+	}
+
+	type = *buffer;
+	switch (type)
+	{
+		case 1:
+			pkmimage->internalformat = GLUS_COMPRESSED_RGB8_ETC2;
+		break;
+		case 3:
+			pkmimage->internalformat = GLUS_COMPRESSED_RGBA8_ETC2_EAC;
+		break;
+		case 4:
+			pkmimage->internalformat = GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+		break;
+		case 5:
+			pkmimage->internalformat = GLUS_COMPRESSED_R11_EAC;
+		break;
+		case 6:
+			pkmimage->internalformat = GLUS_COMPRESSED_RG11_EAC;
+		break;
+		case 7:
+			pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_R11_EAC;
+		break;
+		case 8:
+			pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_RG11_EAC;
+		break;
+		default:
+		{
+			glusDestroyPkmImage(pkmimage);
+
+			glusDestroyBinaryFile(&binaryfile);
+
+			return GLUS_FALSE;
+		}
+		break;
+	}
+	buffer += 5;
+
+	pkmimage->width = (GLUSushort)(*buffer) * 256;
+	buffer += 1;
+	pkmimage->width += (GLUSushort)(*buffer);
+	buffer += 1;
+
+	pkmimage->height = (GLUSushort)(*buffer) * 256;
+	buffer += 1;
+	pkmimage->height += (GLUSushort)(*buffer);
+	buffer += 1;
+
+	memcpy(pkmimage->data, buffer, pkmimage->imageSize);
+
+	glusDestroyBinaryFile(&binaryfile);
+
+	return GLUS_TRUE;
+}
+
+GLUSvoid GLUSAPIENTRY glusDestroyPkmImage(GLUSpkmimage* pkmimage)
+{
+	if (!pkmimage)
+	{
+		return;
+	}
+
+	if (pkmimage->data)
+	{
+		free(pkmimage->data);
+
+		pkmimage->data = 0;
+	}
+
+	pkmimage->width = 0;
+
+	pkmimage->height = 0;
+
+	pkmimage->depth = 0;
+
+	pkmimage->internalformat = 0;
+
+	pkmimage->imageSize = 0;
+}
