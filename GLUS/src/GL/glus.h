@@ -39,6 +39,7 @@ extern "C"
 {
 #endif
 
+#include <complex.h>
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -82,6 +83,12 @@ typedef float GLUSclampf;
 typedef double GLUSdouble;
 typedef double GLUSclampd;
 typedef char GLUSchar;
+
+#ifdef _MSC_VER
+	typedef _C_float_complex GLUScomplex;
+#else
+	typedef float complex GLUScomplex;
+#endif
 
 #ifdef __cplusplus
 #define GLUSvoid void
@@ -846,6 +853,24 @@ typedef struct _GLUSline
 //
 
 #include "../GLUS/glus_quaternion.h"
+
+//
+// Complex numbers and vector functions.
+//
+
+#ifndef _MSC_VER
+
+#include "../GLUS/glus_complex_matrix.h"
+
+#include "../GLUS/glus_complex_vector.h"
+
+#endif
+
+//
+// Fourier functions.
+//
+
+#include "../GLUS/glus_fourier.h"
 
 //
 // Shader creation function.

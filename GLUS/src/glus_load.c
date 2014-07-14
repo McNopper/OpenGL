@@ -634,9 +634,9 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		// Copy color values from the color map into the image data.
 
-		for (i = 0; i < tgaimage->width * tgaimage->height; i++)
+		for (i = 0; i < (GLUSuint)tgaimage->width * (GLUSuint)tgaimage->height; i++)
 		{
-			for (k = 0; k < bytesPerPixel; k++)
+			for (k = 0; k < (GLUSuint)bytesPerPixel; k++)
 			{
 				tgaimage->data[i * bytesPerPixel + k] = colorMap[(firstEntryIndex + data[i]) * bytesPerPixel + k];
 			}
