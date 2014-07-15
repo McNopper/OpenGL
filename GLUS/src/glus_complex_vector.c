@@ -33,8 +33,8 @@ GLUSvoid GLUSAPIENTRY glusVectorNConvertToFloatc(GLUSfloat* result, const GLUSco
 
 	for (i = 0; i < n; i++)
 	{
-		result[2 * i + 0] = crealf(vector[i]);
-		result[2 * i + 1] = cimagf(vector[i]);
+		result[2 * i + 0] = vector[i].real;
+		result[2 * i + 1] = vector[i].imaginary;
 	}
 }
 
@@ -44,17 +44,18 @@ GLUSvoid GLUSAPIENTRY glusVectorNConvertToComplexc(GLUScomplex* result, const GL
 
 	for (i = 0; i < n; i++)
 	{
-		result[i] = vector[2 * i + 0] + vector[2 * i + 1] * I;
+		result[i].real = vector[2 * i + 0];
+		result[i].imaginary = vector[2 * i + 1];
 	}
 }
 
-GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUScomplex scalar)
+GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUSfloat scalar)
 {
 	GLUSint i;
 
 	for (i = 0; i < n; i++)
 	{
-		result[i] = vector[i] * scalar;
+		glusComplexMultiplyScalarc(&result[i], &vector[i], scalar);
 	}
 }
 
@@ -64,6 +65,6 @@ GLUSvoid GLUSAPIENTRY glusVectorNConjugatec(GLUScomplex* result, const GLUScompl
 
 	for (i = 0; i < n; i++)
 	{
-		result[i] = conjf(vector[i]);
+		glusComplexConjugatec(&result[i], &vector[i]);
 	}
 }

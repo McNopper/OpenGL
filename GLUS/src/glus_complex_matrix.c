@@ -23,6 +23,8 @@ GLUSboolean GLUSAPIENTRY glusMatrixNxNMultiplyVectorNc(GLUScomplex* result, cons
 
 	GLUScomplex* temp = (GLUScomplex*)malloc(n * sizeof(GLUScomplex));
 
+	GLUScomplex muliplication;
+
 	if (!temp)
 	{
 		return GLUS_FALSE;
@@ -34,10 +36,12 @@ GLUSboolean GLUSAPIENTRY glusMatrixNxNMultiplyVectorNc(GLUScomplex* result, cons
 		{
 			if (column == 0)
 			{
-				temp[row] = 0.0f + 0.0f * I;
+				temp[row].real = 0.0f;
+				temp[row].imaginary = 0.0f;
 			}
 
-			temp[row] += matrix[column * n + row] * vector[column];
+			glusComplexMultiplyComplexc(&muliplication, &matrix[column * n + row], &vector[column]);
+			glusComplexAddComplexc(&temp[row], &temp[row], &muliplication);
 		}
 	}
 

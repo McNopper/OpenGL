@@ -34,9 +34,13 @@ static GLUSboolean glusIsPowerOfTwo(const GLUSint n)
 	return test == 1;
 }
 
-GLUScomplex glusRootOfUnityc(const GLUSint n, const GLUSint k)
+GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k)
 {
-	return cexpf(I * 2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n);
+	GLUScomplex exponent;
+	exponent.real = 0.0f;
+	exponent.imaginary = 2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n;
+
+	glusComplexExpComplexc(result, &exponent);
 }
 
 GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
@@ -48,6 +52,8 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 
 	if (n > 0)
 	{
+		GLUSboolean status;
+
 		GLUSint row, column;
 
 		GLUScomplex* dftMatrix = (GLUScomplex*)malloc(n * n * sizeof(GLUScomplex));
@@ -61,15 +67,15 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 		{
 			for (row = 0; row < n; row++)
 			{
-				dftMatrix[column * n + row] = glusRootOfUnityc(n, -row * column);
+				glusRootOfUnityc(&dftMatrix[column * n + row], n, -row * column);
 			}
 		}
 
-		glusMatrixNxNMultiplyVectorNc(result, dftMatrix, vector, n);
+		status = glusMatrixNxNMultiplyVectorNc(result, dftMatrix, vector, n);
 
 		free(dftMatrix);
 
-		return GLUS_TRUE;
+		return status;
 	}
 
 	return GLUS_FALSE;
@@ -84,9 +90,11 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 
 	if (n > 0)
 	{
+		GLUSboolean status;
+
 		GLUSint row, column;
 
-		GLUScomplex scalar = 1.0f / (GLUSfloat)n + 0.0f * I;
+		GLUSfloat scalar = 1.0f / (GLUSfloat)n + 0.0f;
 
 		GLUScomplex* dftInverseMatrix = (GLUScomplex*)malloc(n * n * sizeof(GLUScomplex));
 
@@ -99,17 +107,17 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 		{
 			for (row = 0; row < n; row++)
 			{
-				dftInverseMatrix[column * n + row] = glusRootOfUnityc(n, row * column);
+				glusRootOfUnityc(&dftInverseMatrix[column * n + row], n, row * column);
 			}
 		}
 
-		glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
+		status = glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
 
 		glusVectorNMultiplyScalarc(result, result, n, scalar);
 
 		free(dftInverseMatrix);
 
-		return GLUS_TRUE;
+		return status;
 	}
 
 	return GLUS_FALSE;
@@ -137,19 +145,28 @@ static GLUSvoid glusFastFourierTransformRecursiveFunctionc(GLUScomplex* vector, 
 		glusFastFourierTransformRecursiveFunctionc(vector, m, offset);
 		glusFastFourierTransformRecursiveFunctionc(vector, m, offset + m);
 
-		GLUScomplex currentW = 1.0f + 0.0f * I;
+		GLUScomplex currentW;
+		currentW.real = 1.0f;
+		currentW.imaginary = 0.0f;
 
-		GLUScomplex w = glusRootOfUnityc(n, -1);
+		GLUScomplex w;
+		glusRootOfUnityc(&w, n, -1);
 
 		for (i = 0; i < m; i++)
 		{
-			GLUScomplex addition = vector[offset + i] + currentW * vector[offset + i + m];
-			GLUScomplex subtraction = vector[offset + i] - currentW * vector[offset + i + m];
+			GLUScomplex multiply;
+			GLUScomplex addition;
+			GLUScomplex subtraction;
+
+			glusComplexMultiplyComplexc(&multiply, &currentW, &vector[offset + i + m]);
+
+			glusComplexAddComplexc(&addition, &vector[offset + i], &multiply);
+			glusComplexSubtractComplexc(&subtraction, &vector[offset + i], &multiply);
 
 			vector[offset + i] = addition;
 			vector[offset + i + m] = subtraction;
 
-			currentW *= w;
+			glusComplexMultiplyComplexc(&currentW, &currentW, &w);
 		}
 	}
 	else
@@ -186,7 +203,7 @@ GLUSboolean glusFastFourierTransformInverseRecursivec(GLUScomplex* result, const
 
 	if (glusIsPowerOfTwo(n))
 	{
-		GLUScomplex scalar = 1.0f / (GLUSfloat)n + 0.0f * I;
+		GLUSfloat scalar = 1.0f / (GLUSfloat)n + 0.0f;
 
 		glusVectorNCopyc(result, vector, n);
 
@@ -276,22 +293,31 @@ static GLUSvoid glusFastFourierTransformButterflyFunctionc(GLUScomplex* vector, 
 	{
 		for (currentSection = 0; currentSection < numberSections; currentSection++)
 		{
-			GLUScomplex currentW = 1.0f + 0.0f * I;
+			GLUScomplex currentW;
+			currentW.real = 1.0f;
+			currentW.imaginary = 0.0f;
 
-			GLUScomplex w = glusRootOfUnityc(numberButterfliesInSection * 2, -1);
+			GLUScomplex w;
+			glusRootOfUnityc(&w, numberButterfliesInSection * 2, -1);
 
 			for (currentButterfly = 0; currentButterfly < numberButterfliesInSection; currentButterfly++)
 			{
 				GLUSint leftIndex = currentButterfly + currentSection * numberButterfliesInSection * 2;
 				GLUSint rightIndex = currentButterfly + numberButterfliesInSection + currentSection * numberButterfliesInSection * 2;
 
-				GLUScomplex addition = vector[leftIndex] + currentW * vector[rightIndex];
-				GLUScomplex subtraction = vector[leftIndex] - currentW * vector[rightIndex];
+				GLUScomplex multiply;
+				GLUScomplex addition;
+				GLUScomplex subtraction;
+
+				glusComplexMultiplyComplexc(&multiply, &currentW, &vector[rightIndex]);
+
+				glusComplexAddComplexc(&addition, &vector[leftIndex], &multiply);
+				glusComplexSubtractComplexc(&subtraction, &vector[leftIndex], &multiply);
 
 				vector[leftIndex] = addition;
 				vector[rightIndex] = subtraction;
 
-				currentW *= w;
+				glusComplexMultiplyComplexc(&currentW, &currentW, &w);
 			}
 		}
 
@@ -330,7 +356,7 @@ GLUSboolean glusFastFourierTransformInverseButterflyc(GLUScomplex* result, const
 
 	if (glusIsPowerOfTwo(n))
 	{
-		GLUScomplex scalar = 1.0f / (GLUSfloat)n + 0.0f * I;
+		GLUSfloat scalar = 1.0f / (GLUSfloat)n + 0.0f;
 
 		glusVectorNCopyc(result, vector, n);
 

@@ -21,10 +21,11 @@
 /**
  * Calculates the root of unity.
  *
- * @param n	The nth root of unity.
- * @param k	k element. Maybe negative.
+ * @param result The root of unity.
+ * @param n		 The nth root of unity.
+ * @param k		 k element. Maybe negative.
  */
-GLUSAPI GLUScomplex glusRootOfUnityc(const GLUSint n, const GLUSint k);
+GLUSAPI GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k);
 
 /**
  * Performs a direct fourier transform on a given vector with N elements.

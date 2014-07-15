@@ -181,19 +181,4 @@ ELSE()
 	
 ENDIF()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	# Windows
-	
-	# Populate ignore list
-	list(APPEND IGNORE_C_FILES ${GLUS_SOURCE_DIR}/src/glus_complex_matrix.c ${GLUS_SOURCE_DIR}/src/glus_complex_vector.c ${GLUS_SOURCE_DIR}/src/glus_fourier.c)
-			
-	list(REMOVE_ITEM C_FILES ${IGNORE_C_FILES})
-			
-	# Populate ignore list
-	list(APPEND IGNORE_H_FILES ${GLUS_SOURCE_DIR}/src/GLUS/glus_complex_matrix.h ${GLUS_SOURCE_DIR}/src/GLUS/glus_complex_vector.h ${GLUS_SOURCE_DIR}/src/GLUS/glus_fourier.h)
-
-	list(REMOVE_ITEM H_FILES ${IGNORE_H_FILES})
-						
-ENDIF()
-
 add_library(GLUS ${C_FILES} ${H_FILES})

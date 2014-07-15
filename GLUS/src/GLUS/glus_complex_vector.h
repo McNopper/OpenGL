@@ -53,7 +53,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNConvertToComplexc(GLUScomplex* result, 
  * @param n 	 The number of elements.
  * @param scalar The scalar.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUScomplex scalar);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUSfloat scalar);
 
 /**
  * Calculates the complex conjugate of a Vector with N elements.
