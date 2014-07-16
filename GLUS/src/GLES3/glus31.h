@@ -878,6 +878,12 @@ typedef struct _GLUSline
 #include "../GLUS/glus_texture.h"
 
 //
+// Padding
+//
+
+#include "../GLUS/glus_padding.h"
+
+//
 // Internally, some GLFW functions are used. See copyright informations in C file.
 //
 

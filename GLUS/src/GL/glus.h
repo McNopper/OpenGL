@@ -937,6 +937,12 @@ typedef struct _GLUSline
 
 #include "../GLUS/glus_texture.h"
 
+//
+// Padding
+//
+
+#include "../GLUS/glus_padding.h"
+
 #ifdef __cplusplus
 }
 #endif
