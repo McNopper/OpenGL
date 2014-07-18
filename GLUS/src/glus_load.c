@@ -30,12 +30,9 @@ static GLUSboolean glusCheckFileRead(FILE* f, size_t actualRead, size_t expected
 
 	if (actualRead < expectedRead)
 	{
-		if (ferror(f))
-		{
-			fclose(f);
+		fclose(f);
 
-			return GLUS_FALSE;
-		}
+		return GLUS_FALSE;
 	}
 
 	return GLUS_TRUE;
@@ -55,7 +52,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTextFile(const GLUSchar* filename, GLUStextfile
 
 	textfile->length = 0;
 
-	f = fopen(filename, "r");
+	f = fopen(filename, "rb");
 
 	if (!f)
 	{
