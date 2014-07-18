@@ -1,13 +1,21 @@
 #version 430 core
 
-// Number of iterations the spring constraints and collisions are updated.
-#define ITERATIONS 4
+// Number of iterations the spring constraints and collisions are relaxed.
+// The more relaxations, the more calm, but also slower is the simulation. 
+#define RELAXATIONS 4
+
+// Influences the spring relaxation vector. Has to be:
+// 0.0 < STIFFNESS < 1.0
+#define STIFFNESS 0.7
+
+// Simulating friction. The less friction, the faster the cloth drops down the sphere.
+#define FRICTION 1.0
 
 // Unit: kg * m * s*s
-#define FORCE vec4(0.0, -0.2, 0.0, 0.0)
+#define GRAVITY_FORCE vec4(0.0, -0.2, 0.0, 0.0)
 
 // Unit: kg
-#define MASS 0.5
+#define MASS 0.1
 
 // Offset, that a particle is not inside the sphere surface.
 #define RADIUS_TOLERANCE 0.01
@@ -18,6 +26,8 @@ uniform float u_deltaTime;
 
 // Distance at rest between vertical and horizontal particle.
 uniform float u_distanceRest;
+// Distance at rest between disagonal particle.
+uniform float u_distanceDiagonalRest;
 
 // One coliding sphere.
 uniform vec4 u_sphereCenter;
@@ -43,190 +53,344 @@ layout(std430, binding=4) buffer NormalOut {
 // (ROWS+1)^2
 layout (local_size_x = 1024) in;
 
-void calculateDeltaVector(out vec4 deltaVector, vec4 a, vec4 b)
+vec4 calculateSpringVector(vec4 a, vec4 b, float distanceRest)
 {
-	vec4 vector = a - b;
-	
-	float deltaLength = length(vector);
+    vec4 deltaVector = a - b;
+    
+    float deltaLength = length(deltaVector);
+    
+    return 0.5 * deltaVector * (distanceRest - deltaLength) / deltaLength * STIFFNESS;
+}
 
-	// 0.5 because this happens on each side.
-	deltaVector = vector * 0.5 * (u_distanceRest - deltaLength) / deltaLength;
+vec3 gramSchmidt(vec3 u, vec3 v)
+{
+    vec3 uProjV;
+    
+    float vDotU;
+    
+    float uDotU = dot(u, u);
+    
+    if (uDotU == 0.0)
+    {
+        return vec3(0.0, 0.0, 0.0);
+    }
+    
+    vDotU = dot(v, u);
+    
+    uProjV = u * (vDotU / uDotU);
+    
+    return v - uProjV;
 }
 
 // see http://web.archive.org/web/20070610223835/http://www.teknikus.dk/tj/gdc2001.htm
 //     http://developer.download.nvidia.com/SDK/10/direct3d/Source/Cloth/doc/Cloth.pdf
 void main(void)
 {
-    int currentIndex = int(gl_GlobalInvocationID.x) + int(gl_GlobalInvocationID.y) * u_verticesPerRow;
+    int currentIndex = int(gl_GlobalInvocationID.x);
+    
+    int currentColumn = currentIndex % u_verticesPerRow;
+    int currentRow = currentIndex / u_verticesPerRow;
+    
+    //
+    // Summing and calcualting all forces, to get the acceleration.
+    // 
+    
+    vec4 force = vec4(0.0, 0.0, 0.0, 0.0);
+    
+    vec4 normalVector = b_vertexInCurrent[currentIndex] - u_sphereCenter;
+    
+    // Test, if particle is on sphere.
+    if (length(normalVector) <= u_sphereRadius + RADIUS_TOLERANCE)
+    {
+        vec3 tangentVector = vec3(0.0, 0.0, 0.0);
+        
+        normalVector = normalize(normalVector);
 
-    int currentIndexRow = currentIndex % u_verticesPerRow;
-    int currentIndexColumn = currentIndex / u_verticesPerRow;
-
-	//
-	// Summing all forces, to get the acceleration. In this case, only one force directing downwards is used to simulate gravity.
-	// 
-	
-	vec4 a = FORCE / MASS;
-
-	//
-	// Verlet integration.
-	//
-
-	float squareDeltaTime = u_deltaTime * u_deltaTime;
-		
-	vec4 x = b_vertexInCurrent[currentIndex];
-	 
-	vec4 xPrev = b_vertexInPrevious[currentIndex];
-
+        float cosAlpha = max(dot(normalVector.xyz, vec3(0.0, 1.0, 0.0)), 0.0); 
+        
+        if (cosAlpha != 1.0)
+        {
+            tangentVector = normalize(gramSchmidt(normalVector.xyz, vec3(0.0, 1.0, 0.0)));
+        }
+        
+        //
+        // Add grade restistance and friction force.
+        //
+        
+        vec4 Fa = length(GRAVITY_FORCE) * sin(acos(cosAlpha)) * vec4(-tangentVector, 0.0);
+        vec4 Fr = FRICTION * length(GRAVITY_FORCE) * cosAlpha * vec4(-tangentVector, 0.0);
+        
+        force += Fa - Fr;
+    }
+    else
+    {
+        //
+        // Add plain gravity force.
+        //
+        
+        force += GRAVITY_FORCE;
+    }
+    
+    vec4 a = force / MASS;
+    
+    //
+    // Verlet integration.
+    //
+    
+    float squareDeltaTime = u_deltaTime * u_deltaTime;
+    
+    vec4 x = b_vertexInCurrent[currentIndex];
+    
+    vec4 xPrev = b_vertexInPrevious[currentIndex];
+    
     b_vertexOut[currentIndex] = 2.0 * x - xPrev + a * squareDeltaTime;
     
     memoryBarrierBuffer();
     
-	//
-	// Relaxation iterations.
-	//
-	for (int iteration = 0; iteration < ITERATIONS; iteration++)
-	{
-	    //
-	    // Process spring constraints.
-	    //
-	    
-		// Alternating "even" and "odd" cells to avoid dependencies.  
-		for (int evenOdd = 0; evenOdd < 2; evenOdd++)
-		{
-			int rightIndex;
-			int bellowIndex;
-			int diagonalIndex;
-			
-			vec4 deltaVector;
-	
-			if (currentIndexRow % 2 == evenOdd && currentIndexColumn % 2 == evenOdd)
-			{    
-				rightIndex = currentIndex + 1;
-				if (rightIndex % u_verticesPerRow > currentIndexRow)
-				{
-					calculateDeltaVector(deltaVector, b_vertexOut[currentIndex], b_vertexOut[rightIndex]);
-				
-					b_vertexOut[currentIndex] += deltaVector;
-					b_vertexOut[rightIndex] -= deltaVector;
-					
-					memoryBarrierBuffer();  
-				}    			
-			
-			
-				bellowIndex = currentIndex + u_verticesPerRow;
-				if (bellowIndex < u_verticesPerRow * u_verticesPerRow)			
-				{
-					calculateDeltaVector(deltaVector, b_vertexOut[currentIndex], b_vertexOut[bellowIndex]);
-				
-					b_vertexOut[currentIndex] += deltaVector;
-					b_vertexOut[bellowIndex] -= deltaVector;
-					
-					memoryBarrierBuffer();  
-				}
-			
-			
-				diagonalIndex = currentIndex + 1 + u_verticesPerRow;
-				if (diagonalIndex < u_verticesPerRow * u_verticesPerRow && diagonalIndex % u_verticesPerRow > currentIndexRow)
-				{
-					calculateDeltaVector(deltaVector, b_vertexOut[rightIndex], b_vertexOut[diagonalIndex]);
-			
-					b_vertexOut[rightIndex] += deltaVector;
-					b_vertexOut[diagonalIndex] -= deltaVector;  
-			
-					memoryBarrierBuffer();
-			
-					calculateDeltaVector(deltaVector, b_vertexOut[bellowIndex], b_vertexOut[diagonalIndex]);
-			
-					b_vertexOut[bellowIndex] += deltaVector;
-					b_vertexOut[diagonalIndex] -= deltaVector;
-					
-					memoryBarrierBuffer();  
-				}
-			}
-			else if (evenOdd == 1 && currentIndexRow % 2 == 1 && currentIndexColumn == 0)
-			{
-				// First row spring, when processing odd pass. 
-				
-				rightIndex = currentIndex + 1;
-				if (rightIndex < u_verticesPerRow)
-				{
-					calculateDeltaVector(deltaVector, b_vertexOut[currentIndex], b_vertexOut[rightIndex]);
-			
-					b_vertexOut[currentIndex] += deltaVector;
-					b_vertexOut[rightIndex] -= deltaVector;
-					
-					memoryBarrierBuffer();  
-				}
-			}
-			
-			barrier();
-		}
-		
-		//
-		// Process collision constraints.
-		//
-	
-		vec4 sphereVector = b_vertexOut[currentIndex] - u_sphereCenter;
-		
-		// If particle is inside sphere ...
-		if (length(sphereVector) < u_sphereRadius + RADIUS_TOLERANCE)
-		{
-			// ... move it outside the sphere.
-			b_vertexOut[currentIndex] = u_sphereCenter + normalize(sphereVector) * (u_sphereRadius + RADIUS_TOLERANCE); 
-			
-			memoryBarrierBuffer();
-		}
-		
-		barrier();		
-	}	
-	
+    barrier();
+    
+    //
+    // Relaxation iterations.
+    //
+    for (int relax = 0; relax < RELAXATIONS; relax++)
+    {
+        //
+        // Process spring constraints.
+        //
+        
+        // Alternating "even" and "odd" cells to avoid dependencies.
+        for (int evenOdd = 0; evenOdd < 2; evenOdd++)
+        {
+            int rightIndex;
+            int belowIndex;
+            int diagonalIndex;
+            
+            vec4 springVector;
+            
+            if (currentRow % 2 == evenOdd && currentColumn % 2 == evenOdd)
+            {
+                vec4 current = b_vertexOut[currentIndex];
+                vec4 right;
+                vec4 below;
+                vec4 diagonal;
+                
+                rightIndex = currentIndex + 1;
+                if (rightIndex % u_verticesPerRow > currentColumn)
+                {
+                    right = b_vertexOut[rightIndex];
+                
+                    springVector = calculateSpringVector(current, right, u_distanceRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[rightIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                }
+                
+                
+                belowIndex = currentIndex + u_verticesPerRow;
+                if (belowIndex < u_verticesPerRow * u_verticesPerRow)
+                {
+                    below = b_vertexOut[belowIndex];
+                    
+                    springVector = calculateSpringVector(current, below, u_distanceRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[belowIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();  
+                }
+                
+                
+                diagonalIndex = currentIndex + 1 + u_verticesPerRow;
+                if (diagonalIndex < u_verticesPerRow * u_verticesPerRow && (diagonalIndex % u_verticesPerRow) > currentColumn)
+                {
+                    diagonal = b_vertexOut[diagonalIndex];
+                    
+                    springVector = calculateSpringVector(right, diagonal, u_distanceRest);
+                    
+                    b_vertexOut[rightIndex] += springVector;
+                    b_vertexOut[diagonalIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                    
+                    springVector = calculateSpringVector(below, diagonal, u_distanceRest);
+                    
+                    b_vertexOut[belowIndex] += springVector;
+                    b_vertexOut[diagonalIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                    
+                    //
+                    // Diagonal
+                    //
+                    
+                    springVector = calculateSpringVector(current, diagonal, u_distanceDiagonalRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[diagonalIndex] -= springVector;
+
+					// No memory barrier by purpose
+                    
+                    springVector = calculateSpringVector(right, below, u_distanceDiagonalRest);
+                    
+                    b_vertexOut[rightIndex] += springVector;
+                    b_vertexOut[belowIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                }
+            }
+            else if (evenOdd == 1 && currentColumn % 2 == 1 && currentRow == 0)
+            {
+                // First row springs, when processing odd pass.
+                
+                rightIndex = currentIndex + 1;
+                if (rightIndex < u_verticesPerRow)
+                {
+                    springVector = calculateSpringVector(b_vertexOut[currentIndex], b_vertexOut[rightIndex], u_distanceRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[rightIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                }
+            }
+            else if (evenOdd == 1 && currentRow % 2 == 1 && currentColumn == 0)
+            {
+                // First column springs, when processing odd pass.
+                
+                belowIndex = currentIndex + u_verticesPerRow;
+                if (belowIndex < u_verticesPerRow * u_verticesPerRow)
+                {
+                    springVector = calculateSpringVector(b_vertexOut[currentIndex], b_vertexOut[belowIndex], u_distanceRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[belowIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                }
+            }
+            
+            barrier();
+        }
+        
+        //
+        // Separate diagonal iterations.
+        //
+        
+        // Alternating "even" and "odd" cells to avoid dependencies.
+        for (int evenOdd = 0; evenOdd < 2; evenOdd++)
+        {
+            int rightIndex;
+            int belowIndex;
+            int diagonalIndex;
+            
+            vec4 springVector;
+            
+            if (currentRow % 2 == evenOdd && (currentColumn + 1) % 2 == evenOdd)
+            {
+                vec4 current = b_vertexOut[currentIndex];
+                vec4 right;
+                vec4 below;
+                vec4 diagonal;
+                
+                rightIndex = currentIndex + 1;
+                belowIndex = currentIndex + u_verticesPerRow;
+                diagonalIndex = currentIndex + 1 + u_verticesPerRow;
+                if (diagonalIndex < u_verticesPerRow * u_verticesPerRow && (diagonalIndex % u_verticesPerRow) > currentColumn)
+                {
+                    right = b_vertexOut[rightIndex];
+                    below = b_vertexOut[belowIndex];
+                    diagonal = b_vertexOut[diagonalIndex];
+                    
+                    //
+                    // Diagonal
+                    //
+                    springVector = calculateSpringVector(current, diagonal, u_distanceDiagonalRest);
+                    
+                    b_vertexOut[currentIndex] += springVector;
+                    b_vertexOut[diagonalIndex] -= springVector;
+                    
+                    // No memory barrier by purpose
+                    
+                    springVector = calculateSpringVector(right, below, u_distanceDiagonalRest);
+                    
+                    b_vertexOut[rightIndex] += springVector;
+                    b_vertexOut[belowIndex] -= springVector;
+                    
+                    memoryBarrierBuffer();
+                }
+            }
+            
+            barrier();
+        }
+        
+        //
+        // Process collision constraints.
+        //
+        
+        vec4 sphereVector = b_vertexOut[currentIndex] - u_sphereCenter;
+        
+        // If particle is inside sphere ...
+        if (length(sphereVector) < u_sphereRadius + RADIUS_TOLERANCE)
+        {
+            // ... move back on top of sphere.
+            b_vertexOut[currentIndex] = u_sphereCenter + normalize(sphereVector) * (u_sphereRadius + RADIUS_TOLERANCE);
+            
+            memoryBarrierBuffer();
+        }
+        
+        barrier();
+    }
+    
     //
     // Calculate normal.
     //
     
     vec3 normal = vec3(0.0, 0.0, 0.0);
+        
+    vec3 tangent;
+    vec3 bitangent;
     
-	vec3 tangent;
-	vec3 bitangent;
-
-	// Taking all neighbour particles, if available, into account.
-    if (currentIndexRow + 1 < u_verticesPerRow)
+    // Taking all neighbour particles, if available, into account.
+    if (currentColumn < u_verticesPerRow - 1)
     {
-    	tangent = normalize((b_vertexOut[currentIndex + 1] - b_vertexOut[currentIndex]).xyz);
-    	
-	    if (currentIndexColumn + 1 < u_verticesPerRow)
-	    {
-	    	bitangent = normalize((b_vertexOut[currentIndex + u_verticesPerRow] - b_vertexOut[currentIndex]).xyz);
-	    	
-	    	normal += normalize(cross(bitangent, tangent));
-	    }    	
-	    if (currentIndexColumn - 1 >= 0)
-	    {
-	    	bitangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - u_verticesPerRow]).xyz);
-	    	
-	    	normal += normalize(cross(bitangent, tangent));
-	    }    	
+        tangent = normalize((b_vertexOut[currentIndex + 1] - b_vertexOut[currentIndex]).xyz);
+        
+        if (currentRow < u_verticesPerRow - 1)
+        {
+            bitangent = normalize((b_vertexOut[currentIndex + u_verticesPerRow] - b_vertexOut[currentIndex]).xyz);
+            
+            normal += normalize(cross(bitangent, tangent));
+        }
+        if (currentRow > 0)
+        {
+            bitangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - u_verticesPerRow]).xyz);
+            
+            normal += normalize(cross(bitangent, tangent));
+        }
     }
-    if (currentIndexRow - 1 >= 0)
+    if (currentColumn > 0)
     {
-    	tangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - 1]).xyz);
-    	
-	    if (currentIndexColumn + 1 < u_verticesPerRow)
-	    {
-	    	bitangent = normalize((b_vertexOut[currentIndex + u_verticesPerRow] - b_vertexOut[currentIndex]).xyz);
-	    	
-	    	normal += normalize(cross(bitangent, tangent));
-	    }    	
-	    if (currentIndexColumn - 1 >= 0)
-	    {
-	    	bitangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - u_verticesPerRow]).xyz);
-	    	
-	    	normal += normalize(cross(bitangent, tangent));
-	    }    	
+        tangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - 1]).xyz);
+        
+        if (currentRow < u_verticesPerRow - 1)
+        {
+            bitangent = normalize((b_vertexOut[currentIndex + u_verticesPerRow] - b_vertexOut[currentIndex]).xyz);
+            
+            normal += normalize(cross(bitangent, tangent));
+        }
+        if (currentRow > 0)
+        {
+            bitangent = normalize((b_vertexOut[currentIndex] - b_vertexOut[currentIndex - u_verticesPerRow]).xyz);
+            
+            normal += normalize(cross(bitangent, tangent));
+        }
     }
     
     //
-        
+    
     b_normalOut[currentIndex] = normalize(normal);
+    
+    memoryBarrierBuffer();
 }

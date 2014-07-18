@@ -32,6 +32,7 @@ static GLint g_verticesPerRowLocation;
 static GLint g_deltaTimeLocation;
 
 static GLint g_distanceRestLocation;
+static GLint g_distanceDiagonalRestLocation;
 
 static GLint g_sphereCenterLocation;
 static GLint g_sphereRadiusLocation;
@@ -84,8 +85,9 @@ GLUSboolean init(GLUSvoid)
     GLfloat* normals;
 
     GLfloat distanceRest;
+    GLfloat distanceDiagonalRest;
 
-    GLfloat sphereCenter[4] = {-0.25f, 0.0f, 0.0f, 1.0f};
+    GLfloat sphereCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     GLfloat sphereRadius = 1.0f;
 
     glusLoadTextFile("../Example40/shader/cloth.comp.glsl", &computeSource);
@@ -108,6 +110,7 @@ GLUSboolean init(GLUSvoid)
     g_verticesPerRowLocation = glGetUniformLocation(g_computeProgram.program, "u_verticesPerRow");
     g_deltaTimeLocation = glGetUniformLocation(g_computeProgram.program, "u_deltaTime");
     g_distanceRestLocation = glGetUniformLocation(g_computeProgram.program, "u_distanceRest");
+    g_distanceDiagonalRestLocation = glGetUniformLocation(g_computeProgram.program, "u_distanceDiagonalRest");
     g_sphereCenterLocation = glGetUniformLocation(g_computeProgram.program, "u_sphereCenter");
     g_sphereRadiusLocation = glGetUniformLocation(g_computeProgram.program, "u_sphereRadius");
 
@@ -123,10 +126,11 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a grid plane.
-    glusCreateRectangularGridPlanef(&g_gridPlane, 3.0f, 3.0f, ROWS, ROWS, GLUS_FALSE);
+    glusCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE);
 
     // Use x, as only horizontal and vertical springs are used. Adapt this, if diagonal or a non square grid is used.
     distanceRest = g_gridPlane.vertices[4] - g_gridPlane.vertices[0];
+    distanceDiagonalRest = sqrtf(2.0f * distanceRest * distanceRest);
 
     // Rotate by 90 degrees, that the grid is in the x-z-plane.
     glusMatrix4x4Identityf(matrix);
@@ -211,6 +215,7 @@ GLUSboolean init(GLUSvoid)
     glUniform1i(g_verticesPerRowLocation, ROWS + 1);
 
     glUniform1f(g_distanceRestLocation, distanceRest);
+    glUniform1f(g_distanceDiagonalRestLocation, distanceDiagonalRest);
 
     glUniform4fv(g_sphereCenterLocation, 1, sphereCenter);
     glUniform1f(g_sphereRadiusLocation, sphereRadius);
