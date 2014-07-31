@@ -12,6 +12,12 @@
 
 #include "GL/glus.h"
 
+#define BINDING_BUFFER_COMP_FFT_VERTICES_IN 1
+#define BINDING_BUFFER_COMP_FFT_VERTICES_OUT 2
+
+#define BINDING_BUFFER_COMP_NORMAL_VERTICES_IN 1
+#define BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT 2
+
 // Theory and References see:
 // 2D FFT
 // http://paulbourke.net/miscellaneous/dft/
@@ -26,6 +32,15 @@
 
 // Number of vertices on one side of the ocean grid. Has to be power of two.
 #define N	128
+
+static GLUSshaderprogram g_computeFftProgram;
+
+static GLint g_xFactorLocation;
+static GLint g_yFactorLocation;
+
+static GLint g_deltaTimeLocation;
+
+static GLUSshaderprogram g_computeNormalProgram;
 
 //
 
@@ -43,13 +58,19 @@ static GLint g_vertexLocation;
 
 static GLint g_normalLocation;
 
-static GLuint g_verticesVBO;
-
-static GLuint g_normalsVBO;
-
 static GLuint g_indicesVBO;
 
 static GLuint g_vao;
+
+//
+
+static GLuint g_verticesInBuffer;
+
+static GLuint g_verticesTempBuffer;
+
+static GLuint g_verticesOutBuffer;
+
+static GLuint g_normalsOutBuffer;
 
 //
 
@@ -60,13 +81,27 @@ GLUSboolean init(GLUSvoid)
     GLfloat lightDirection[3] = { 1.0f, 1.0f, 1.0f };
     GLfloat color[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
 
+    GLUStextfile computeSource;
+
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
     GLint i;
     GLfloat matrix[16];
 
-    // TODO Load ocean compute shader.
+    glusLoadTextFile("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
+
+    glusBuildComputeProgramFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
+
+    glusDestroyTextFile(&computeSource);
+
+
+    glusLoadTextFile("../Example41/shader/ocean_normal.comp.glsl", &computeSource);
+
+    glusBuildComputeProgramFromSource(&g_computeNormalProgram, (const GLchar**) &computeSource.text);
+
+    glusDestroyTextFile(&computeSource);
+
 
     glusLoadTextFile("../Example41/shader/ocean.vert.glsl", &vertexSource);
     glusLoadTextFile("../Example41/shader/ocean.frag.glsl", &fragmentSource);
@@ -78,7 +113,11 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    // TODO Gather locations in compute shader.
+    g_xFactorLocation = glGetUniformLocation(g_computeFftProgram.program, "u_xFactor");
+    g_yFactorLocation = glGetUniformLocation(g_computeFftProgram.program, "u_yFactor");
+
+    g_deltaTimeLocation = glGetUniformLocation(g_computeFftProgram.program, "u_deltaTime");
+
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
     g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
@@ -101,16 +140,6 @@ GLUSboolean init(GLUSvoid)
     	glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[4 * i], matrix, &g_gridPlane.vertices[4 * i]);
     }
 
-    glGenBuffers(1, &g_verticesVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) g_gridPlane.vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &g_normalsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_gridPlane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) g_gridPlane.normals, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_gridPlane.numberIndices * sizeof(GLuint), (GLuint*) g_gridPlane.indices, GL_STATIC_DRAW);
@@ -119,7 +148,25 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    // TODO Create / use buffers for compute shader.
+	glGenBuffers(1, &g_verticesInBuffer);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesInBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &g_verticesTempBuffer);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesTempBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &g_verticesOutBuffer);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesOutBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &g_normalsOutBuffer);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_normalsOutBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
 
     //
 
@@ -128,12 +175,12 @@ GLUSboolean init(GLUSvoid)
     glGenVertexArrays(1, &g_vao);
     glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_verticesOutBuffer);
 	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(g_vertexLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-	glVertexAttribPointer(g_normalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, g_normalsOutBuffer);
+	glVertexAttribPointer(g_normalLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(g_normalLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
@@ -202,7 +249,65 @@ GLUSboolean update(GLUSfloat time)
     // Simulation part.
     //
 
-    // TODO Implement.
+    glUseProgram(g_computeFftProgram.program);
+
+    glUniform1f(g_deltaTimeLocation, time);
+
+    //
+    // FFT per row pass.
+    //
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, g_verticesInBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, g_verticesTempBuffer);
+
+    // Setting index factors, that a row is processed. See shader code for more details.
+    glUniform1i(g_xFactorLocation, 1);
+    glUniform1i(g_yFactorLocation, N);
+
+    // Process all vertices. N threads as N rows are processed. One work group is one row.
+    glDispatchCompute(1, N, 1);
+
+    // Make sure, all vertices are written.
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+
+    //
+    // FFT per column pass.
+    //
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, g_verticesTempBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, g_verticesOutBuffer);
+
+    // Setting index factors, that a column is processed. See shader code for more details.
+    glUniform1i(g_xFactorLocation, N);
+    glUniform1i(g_yFactorLocation, 1);
+
+    // Process all vertices. N threads as N columns are processed. One work group is one column.
+    glDispatchCompute(1, N, 1);
+
+    // Make sure, all vertices are written.
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, 0);
+
+    //
+    // Calculating normals pass.
+    //
+
+    glUseProgram(g_computeNormalProgram.program);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_VERTICES_IN, g_verticesOutBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT, g_normalsOutBuffer);
+
+    // Process all vertices. Launch NxN threads, as now nothing has to be synchronized.
+    glDispatchCompute(N, N, 1);
+
+    // Make sure, all normals are written.
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_VERTICES_IN, 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT, 0);
 
     //
     // Drawing part.
@@ -222,20 +327,6 @@ GLUSboolean update(GLUSfloat time)
 GLUSvoid terminate(GLUSvoid)
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    if (g_verticesVBO)
-    {
-        glDeleteBuffers(1, &g_verticesVBO);
-
-        g_verticesVBO = 0;
-    }
-
-    if (g_normalsVBO)
-    {
-        glDeleteBuffers(1, &g_normalsVBO);
-
-        g_normalsVBO = 0;
-    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -257,7 +348,43 @@ GLUSvoid terminate(GLUSvoid)
 
     //
 
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	if (g_verticesInBuffer)
+	{
+		glDeleteBuffers(1, &g_verticesInBuffer);
+
+		g_verticesInBuffer = 0;
+	}
+
+	if (g_verticesTempBuffer)
+	{
+		glDeleteBuffers(1, &g_verticesTempBuffer);
+
+		g_verticesTempBuffer = 0;
+	}
+
+	if (g_verticesOutBuffer)
+	{
+		glDeleteBuffers(1, &g_verticesOutBuffer);
+
+		g_verticesOutBuffer = 0;
+	}
+
+	if (g_normalsOutBuffer)
+	{
+		glDeleteBuffers(1, &g_normalsOutBuffer);
+
+		g_normalsOutBuffer = 0;
+	}
+
+    //
+
     glUseProgram(0);
+
+    glusDestroyProgram(&g_computeFftProgram);
+
+    glusDestroyProgram(&g_computeNormalProgram);
 
     glusDestroyProgram(&g_program);
 

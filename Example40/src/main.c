@@ -19,9 +19,6 @@
 #define BINDING_BUFFER_COMP_VERTICES_OUT 3
 #define BINDING_BUFFER_COMP_NORMALS_OUT 4
 
-#define BINDING_BUFFER_VERT_VERTICES 1
-#define BINDING_BUFFER_VERT_NORMALS 2
-
 // Row is between two vertices, so 31 rows generates 32 vertices per side.
 #define ROWS	31
 
@@ -87,7 +84,7 @@ GLUSboolean init(GLUSvoid)
     GLfloat distanceRest;
     GLfloat distanceDiagonalRest;
 
-    GLfloat sphereCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    GLfloat sphereCenter[4] = {0.0f, 0.0f, -0.01f, 1.0f};
     GLfloat sphereRadius = 1.0f;
 
     glusLoadTextFile("../Example40/shader/cloth.comp.glsl", &computeSource);
@@ -193,9 +190,6 @@ GLUSboolean init(GLUSvoid)
 	glEnableVertexAttribArray(g_vertexLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 
@@ -307,7 +301,7 @@ GLUSboolean update(GLUSfloat time)
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMALS_OUT, g_normalsBuffer);
 
     // Process all vertices.
-    glDispatchCompute((ROWS + 1) * (ROWS + 1), 1, 1);
+    glDispatchCompute(1, 1, 1);
 
     // Make sure, all vertices and normals are written.
     glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
@@ -326,12 +320,9 @@ GLUSboolean update(GLUSfloat time)
     glBindVertexArray(g_vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBuffer[currentOutput]);
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsBuffer);
+	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     glDrawElements(GL_TRIANGLES, g_numberIndicesPlane, GL_UNSIGNED_INT, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 
