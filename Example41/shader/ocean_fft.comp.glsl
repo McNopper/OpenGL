@@ -1,33 +1,39 @@
 #version 430 core
 
 // see same define in main.c
-#define N 128
+#define N 512
 
-uniform int u_xFactor;
-uniform int u_yFactor;
+uniform int u_processColumn;
+
+layout (binding = 0, rg32f) uniform image2D u_imageIn; 
+layout (binding = 1, rg32f) uniform image2D u_imageOut;
 
 uniform float u_deltaTime;
 
-layout(std430, binding=1) buffer VertexIn {
-    vec4 b_vertexIn[];
-};
-
-layout(std430, binding=2) buffer VertexOut {
-    vec4 b_vertexOut[];
-};
-
-// as N = 128, so local size is 128/2 = 64
-layout (local_size_x = 64) in;
+// as N = 512, so local size is 512/2 = 256
+layout (local_size_x = 256) in;
 
 void main(void)
 {
-	int evenIndex = 2 * int(gl_GlobalInvocationID.x) * u_xFactor + int(gl_GlobalInvocationID.y) * u_yFactor;
-	int oddIndex = 2 * int(gl_GlobalInvocationID.x) * u_xFactor + int(gl_GlobalInvocationID.y) * u_yFactor + u_xFactor;
-
-	//
-	// Calculate vertices.
-	//
+	ivec2 evenStorePos;
+	ivec2 oddStorePos;
 	
-	b_vertexOut[evenIndex] = b_vertexIn[evenIndex];
-	b_vertexOut[oddIndex] = b_vertexIn[oddIndex];
+	if (u_processColumn == 0)
+	{
+		evenStorePos = ivec2(2 * int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
+		oddStorePos = ivec2(2 * int(gl_GlobalInvocationID.x) + 1, int(gl_GlobalInvocationID.y));
+	}
+	else
+	{
+		evenStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x));
+		oddStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x) + 1);
+	}
+
+	// TODO Do inverse FFT.
+
+	vec2 evenValue = vec2(1.0, 0.0);
+	vec2 oddValue = vec2(1.0, 0.0);
+
+	imageStore(u_imageOut, evenStorePos, vec4(evenValue, 0.0, 0.0));
+	imageStore(u_imageOut, oddStorePos, vec4(oddValue, 0.0, 0.0));
 }

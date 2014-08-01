@@ -28,19 +28,27 @@
 // http://graphics.ucsd.edu/courses/rendering/2005/jdewall/tessendorf.pdf
 
 // Length of the ocean grid.
-#define L	500.0f
+#define LENGTH	500.0f
 
 // Number of vertices on one side of the ocean grid. Has to be power of two.
-#define N	128
+#define N	512
 
-static GLUSshaderprogram g_computeFftProgram;
+#define GRAVITY 9.81f
 
-static GLint g_xFactorLocation;
-static GLint g_yFactorLocation;
+#define AMPLITUDE 2.0f
+#define WIND_SPEED 4.0f
+
+static GLUSshaderprogram g_computeProgram;
+
+static GLint g_processColumnLocation;
 
 static GLint g_deltaTimeLocation;
 
-static GLUSshaderprogram g_computeNormalProgram;
+//
+
+static GLuint g_textureH0;
+static GLuint g_textureH;
+static GLuint g_textureDisplacement[2];
 
 //
 
@@ -56,7 +64,11 @@ static GLint g_colorLocation;
 
 static GLint g_vertexLocation;
 
-static GLint g_normalLocation;
+static GLint g_texCoordLocation;
+
+static GLuint g_verticesVBO;
+
+static GLuint g_texCoordsVBO;
 
 static GLuint g_indicesVBO;
 
@@ -64,17 +76,17 @@ static GLuint g_vao;
 
 //
 
-static GLuint g_verticesInBuffer;
-
-static GLuint g_verticesTempBuffer;
-
-static GLuint g_verticesOutBuffer;
-
-static GLuint g_normalsOutBuffer;
+static GLuint g_numberIndices;
 
 //
 
-static GLUSshape g_gridPlane;
+static GLfloat phillipsSpectrum(GLfloat A, GLfloat L, GLfloat waveDirection[2], GLfloat windDirection[2])
+{
+	GLfloat k = glusVector2Lengthf(waveDirection);
+	GLfloat waveDotWind = glusVector2Dotf(waveDirection, windDirection);
+
+	return A * expf(-1.0f / (k * L * k * L)) / (k * k * k * k) * waveDotWind * waveDotWind;
+}
 
 GLUSboolean init(GLUSvoid)
 {
@@ -86,19 +98,25 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    GLint i;
+    GLUSshape gridPlane;
+
+    GLint i, k;
     GLfloat matrix[16];
+
+    GLfloat* h0Data;
+
+    GLfloat L = WIND_SPEED * WIND_SPEED / GRAVITY;
+
+    GLfloat waveDirection[2];
+    GLfloat windDirection[2] = {1.0f, 1.0f};
+    GLfloat phillipsSpectrumValue;
+
+    // TODO Load compute shader for H calculation.
+
 
     glusLoadTextFile("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
-
-    glusDestroyTextFile(&computeSource);
-
-
-    glusLoadTextFile("../Example41/shader/ocean_normal.comp.glsl", &computeSource);
-
-    glusBuildComputeProgramFromSource(&g_computeNormalProgram, (const GLchar**) &computeSource.text);
+    glusBuildComputeProgramFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
 
     glusDestroyTextFile(&computeSource);
 
@@ -113,10 +131,9 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    g_xFactorLocation = glGetUniformLocation(g_computeFftProgram.program, "u_xFactor");
-    g_yFactorLocation = glGetUniformLocation(g_computeFftProgram.program, "u_yFactor");
+    g_processColumnLocation = glGetUniformLocation(g_computeProgram.program, "u_processColumn");
 
-    g_deltaTimeLocation = glGetUniformLocation(g_computeFftProgram.program, "u_deltaTime");
+    g_deltaTimeLocation = glGetUniformLocation(g_computeProgram.program, "u_deltaTime");
 
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
@@ -125,48 +142,125 @@ GLUSboolean init(GLUSvoid)
     g_colorLocation = glGetUniformLocation(g_program.program, "u_color");
 
 	g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
-	g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
+	g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
 
     //
 
     // Use a helper function to create a grid plane.
-    glusCreateRectangularGridPlanef(&g_gridPlane, L, L, N - 1, N - 1, GLUS_FALSE);
+    glusCreateRectangularGridPlanef(&gridPlane, LENGTH, LENGTH, N - 1, N - 1, GLUS_FALSE);
+
+    g_numberIndices = gridPlane.numberIndices;
 
     // Rotate by 90 degrees, that the grid is in the x-z-plane.
     glusMatrix4x4Identityf(matrix);
     glusMatrix4x4RotateRxf(matrix, -90.0f);
-    for (i = 0; i < g_gridPlane.numberVertices; i++)
+    for (i = 0; i < gridPlane.numberVertices; i++)
     {
-    	glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[4 * i], matrix, &g_gridPlane.vertices[4 * i]);
+    	glusMatrix4x4MultiplyPoint4f(&gridPlane.vertices[4 * i], matrix, &gridPlane.vertices[4 * i]);
     }
+
+    glGenBuffers(1, &g_verticesVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
+    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) gridPlane.vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_texCoordsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
+    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*) gridPlane.texCoords, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_gridPlane.numberIndices * sizeof(GLuint), (GLuint*) g_gridPlane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridPlane.numberIndices * sizeof(GLuint), (GLuint*) gridPlane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    glusDestroyShapef(&gridPlane);
+
     //
 
-	glGenBuffers(1, &g_verticesInBuffer);
+    //
+    // Generate H0.
+    //
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesInBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_STATIC_DRAW);
+    h0Data = (GLfloat*)malloc(N * N * 2 * sizeof(GLfloat));
 
-	glGenBuffers(1, &g_verticesTempBuffer);
+    if (!h0Data)
+    {
+    	return GLUS_FALSE;
+    }
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesTempBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+    glusVector2Normalizef(windDirection);
 
-	glGenBuffers(1, &g_verticesOutBuffer);
+    for (i = 0; i < N; i++)
+    {
+    	// Positive N, that it matches with OpenGL z-axis.
+    	waveDirection[1] = ((GLfloat)N / 2.0f - (GLfloat)i) * (2.0f * GLUS_PI / LENGTH);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesOutBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+        for (k = 0; k < N; k++)
+        {
+        	waveDirection[0] = ((GLfloat)-N / 2.0f + (GLfloat)k) * (2.0f * GLUS_PI / LENGTH);
 
-	glGenBuffers(1, &g_normalsOutBuffer);
+        	phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, L, waveDirection, windDirection);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_normalsOutBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+        	h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
+        	h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
+        }
+    }
+
+    //
+
+    // TODO Generate indices needed for inverse FFT butterfly algorithm.
+
+    //
+
+    glGenTextures(1, &g_textureH0);
+    glBindTexture(GL_TEXTURE_2D, g_textureH0);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, h0Data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    glGenTextures(1, &g_textureH);
+    glBindTexture(GL_TEXTURE_2D, g_textureH);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    glGenTextures(1, &g_textureDisplacement[0]);
+    glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[0]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    glGenTextures(1, &g_textureDisplacement[1]);
+    glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    free(h0Data);
 
     //
 
@@ -175,13 +269,13 @@ GLUSboolean init(GLUSvoid)
     glGenVertexArrays(1, &g_vao);
     glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesOutBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
 	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(g_vertexLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsOutBuffer);
-	glVertexAttribPointer(g_normalLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_normalLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
+	glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(g_texCoordLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
 
@@ -249,7 +343,14 @@ GLUSboolean update(GLUSfloat time)
     // Simulation part.
     //
 
-    glUseProgram(g_computeFftProgram.program);
+    //
+    // Update H pass.
+    //
+
+    // TODO Calculate H depending on time.
+
+
+    glUseProgram(g_computeProgram.program);
 
     glUniform1f(g_deltaTimeLocation, time);
 
@@ -257,57 +358,35 @@ GLUSboolean update(GLUSfloat time)
     // FFT per row pass.
     //
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, g_verticesInBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, g_verticesTempBuffer);
+    glBindImageTexture(0, g_textureH, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
-    // Setting index factors, that a row is processed. See shader code for more details.
-    glUniform1i(g_xFactorLocation, 1);
-    glUniform1i(g_yFactorLocation, N);
+    glUniform1i(g_processColumnLocation, 0);
 
     // Process all vertices. N threads as N rows are processed. One work group is one row.
     glDispatchCompute(1, N, 1);
 
     // Make sure, all vertices are written.
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
     //
     // FFT per column pass.
     //
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, g_verticesTempBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, g_verticesOutBuffer);
+    glBindImageTexture(0, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
-    // Setting index factors, that a column is processed. See shader code for more details.
-    glUniform1i(g_xFactorLocation, N);
-    glUniform1i(g_yFactorLocation, 1);
+    glUniform1i(g_processColumnLocation, 1);
 
     // Process all vertices. N threads as N columns are processed. One work group is one column.
     glDispatchCompute(1, N, 1);
 
     // Make sure, all vertices are written.
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_IN, 0);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_FFT_VERTICES_OUT, 0);
-
-    //
-    // Calculating normals pass.
-    //
-
-    glUseProgram(g_computeNormalProgram.program);
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_VERTICES_IN, g_verticesOutBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT, g_normalsOutBuffer);
-
-    // Process all vertices. Launch NxN threads, as now nothing has to be synchronized.
-    glDispatchCompute(N, N, 1);
-
-    // Make sure, all normals are written.
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_VERTICES_IN, 0);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT, 0);
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     //
     // Drawing part.
@@ -317,7 +396,13 @@ GLUSboolean update(GLUSfloat time)
 
     glBindVertexArray(g_vao);
 
-    glDrawElements(GL_TRIANGLES, g_gridPlane.numberIndices, GL_UNSIGNED_INT, 0);
+    // TODO Revert, just for debugging.
+    //glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
+    glBindTexture(GL_TEXTURE_2D, g_textureH0);
+
+    glDrawElements(GL_TRIANGLES, g_numberIndices, GL_UNSIGNED_INT, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindVertexArray(0);
 
@@ -326,7 +411,53 @@ GLUSboolean update(GLUSfloat time)
 
 GLUSvoid terminate(GLUSvoid)
 {
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if (g_textureH0)
+    {
+        glDeleteTextures(1, &g_textureH0);
+
+        g_textureH0 = 0;
+    }
+
+    if (g_textureH)
+    {
+        glDeleteTextures(1, &g_textureH);
+
+        g_textureH = 0;
+    }
+
+    if (g_textureDisplacement[0])
+    {
+        glDeleteTextures(1, &g_textureDisplacement[0]);
+
+        g_textureDisplacement[0] = 0;
+    }
+
+    if (g_textureDisplacement[1])
+    {
+        glDeleteTextures(1, &g_textureDisplacement[1]);
+
+        g_textureDisplacement[1] = 0;
+    }
+
+	//
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    if (g_verticesVBO)
+    {
+        glDeleteBuffers(1, &g_verticesVBO);
+
+        g_verticesVBO = 0;
+    }
+
+    if (g_texCoordsVBO)
+    {
+        glDeleteBuffers(1, &g_texCoordsVBO);
+
+        g_texCoordsVBO = 0;
+    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -348,49 +479,11 @@ GLUSvoid terminate(GLUSvoid)
 
     //
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-	if (g_verticesInBuffer)
-	{
-		glDeleteBuffers(1, &g_verticesInBuffer);
-
-		g_verticesInBuffer = 0;
-	}
-
-	if (g_verticesTempBuffer)
-	{
-		glDeleteBuffers(1, &g_verticesTempBuffer);
-
-		g_verticesTempBuffer = 0;
-	}
-
-	if (g_verticesOutBuffer)
-	{
-		glDeleteBuffers(1, &g_verticesOutBuffer);
-
-		g_verticesOutBuffer = 0;
-	}
-
-	if (g_normalsOutBuffer)
-	{
-		glDeleteBuffers(1, &g_normalsOutBuffer);
-
-		g_normalsOutBuffer = 0;
-	}
-
-    //
-
     glUseProgram(0);
 
-    glusDestroyProgram(&g_computeFftProgram);
-
-    glusDestroyProgram(&g_computeNormalProgram);
+    glusDestroyProgram(&g_computeProgram);
 
     glusDestroyProgram(&g_program);
-
-    //
-
-    glusDestroyShapef(&g_gridPlane);
 }
 
 int main(int argc, char* argv[])
