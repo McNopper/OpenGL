@@ -1,7 +1,7 @@
 #version 430 core
 
 // TODO Remove texture, just for debugging purpose right now.
-layout(binding = 0, rg32f) uniform sampler2D u_displacementMap;
+layout(binding = 0) uniform sampler2D u_displacementMap;
 
 uniform vec3 u_lightDirection;
 uniform vec4 u_color;

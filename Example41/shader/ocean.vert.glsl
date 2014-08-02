@@ -1,6 +1,6 @@
 #version 430 core
 
-layout(binding = 0, rg32f) uniform sampler2D u_displacementMap;
+layout(binding = 0) uniform sampler2D u_displacementMap;
 
 uniform mat4 u_modelViewProjectionMatrix;
 uniform mat3 u_normalMatrix;
