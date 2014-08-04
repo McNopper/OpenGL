@@ -13,7 +13,9 @@ out vec4 fragColor;
 
 void main(void)
 {
+	vec2 rg = texture(u_displacementMap, v_texCoord).rg;
+
 	// TODO Remove texture, just for debugging purpose right now.
-	fragColor = vec4(texture(u_displacementMap, v_texCoord).rg, 0.0, 1.0);
+	fragColor = vec4(rg, 0.0, 1.0);
 	//fragColor = u_color * max(dot(normalize(v_normal), u_lightDirection), 0.0);
 }

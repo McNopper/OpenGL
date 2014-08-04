@@ -12,12 +12,6 @@
 
 #include "GL/glus.h"
 
-#define BINDING_BUFFER_COMP_FFT_VERTICES_IN 1
-#define BINDING_BUFFER_COMP_FFT_VERTICES_OUT 2
-
-#define BINDING_BUFFER_COMP_NORMAL_VERTICES_IN 1
-#define BINDING_BUFFER_COMP_NORMAL_NORMALS_OUT 2
-
 // Theory and References see:
 // 2D FFT
 // http://paulbourke.net/miscellaneous/dft/
@@ -35,14 +29,21 @@
 
 #define GRAVITY 9.81f
 
-#define AMPLITUDE 2.0f
+#define AMPLITUDE 1.0f
 #define WIND_SPEED 4.0f
 
-static GLUSshaderprogram g_computeProgram;
+static GLUSshaderprogram g_computeUpdateHtProgram;
 
-static GLint g_processColumnLocation;
+static GLint g_totalTimeUpdateHtLocation;
 
-static GLint g_deltaTimeLocation;
+
+static GLUSshaderprogram g_computeFftProgram;
+
+static GLint g_processColumnFftLocation;
+
+static GLint g_stepsFftLocation;
+
+static GLint g_indicesFftLocation;
 
 //
 
@@ -78,12 +79,16 @@ static GLuint g_vao;
 
 static GLuint g_numberIndices;
 
-//
-
 static GLfloat phillipsSpectrum(GLfloat A, GLfloat L, GLfloat waveDirection[2], GLfloat windDirection[2])
 {
 	GLfloat k = glusVector2Lengthf(waveDirection);
 	GLfloat waveDotWind = glusVector2Dotf(waveDirection, windDirection);
+
+	// Avoid division by zero.
+	if (L == 0.0f || k == 0.0f)
+	{
+		return 0.0f;
+	}
 
 	return A * expf(-1.0f / (k * L * k * L)) / (k * k * k * k) * waveDotWind * waveDotWind;
 }
@@ -105,18 +110,37 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat* h0Data;
 
+    GLint* butterflyIndices;
+
     GLfloat L = WIND_SPEED * WIND_SPEED / GRAVITY;
 
     GLfloat waveDirection[2];
     GLfloat windDirection[2] = {1.0f, 1.0f};
     GLfloat phillipsSpectrumValue;
 
-    // TODO Load compute shader for H calculation.
+    //
+
+	GLint steps = 0;
+	GLint temp = N;
+
+	while (!(temp & 0x1))
+	{
+		temp = temp >> 1;
+		steps++;
+	}
+
+    //
+
+    glusLoadTextFile("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource);
+
+    glusBuildComputeProgramFromSource(&g_computeUpdateHtProgram, (const GLchar**) &computeSource.text);
+
+    glusDestroyTextFile(&computeSource);
 
 
     glusLoadTextFile("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
+    glusBuildComputeProgramFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
 
     glusDestroyTextFile(&computeSource);
 
@@ -131,9 +155,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    g_processColumnLocation = glGetUniformLocation(g_computeProgram.program, "u_processColumn");
+    g_totalTimeUpdateHtLocation = glGetUniformLocation(g_computeUpdateHtProgram.program, "u_totalTime");
 
-    g_deltaTimeLocation = glGetUniformLocation(g_computeProgram.program, "u_deltaTime");
+
+    g_processColumnFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_processColumn");
+    g_stepsFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_steps");
+    g_indicesFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_indices");
 
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
@@ -210,10 +237,6 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    // TODO Generate indices needed for inverse FFT butterfly algorithm.
-
-    //
-
     glGenTextures(1, &g_textureH0);
     glBindTexture(GL_TEXTURE_2D, g_textureH0);
 
@@ -221,8 +244,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
     glGenTextures(1, &g_textureH);
@@ -232,8 +255,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
     glGenTextures(1, &g_textureDisplacement[0]);
@@ -243,8 +266,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
     glGenTextures(1, &g_textureDisplacement[1]);
@@ -254,13 +277,41 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     free(h0Data);
+
+    //
+    // Generate indices needed for inverse FFT butterfly algorithm.
+    //
+
+    butterflyIndices = (GLint*)malloc(N * sizeof(GLint));
+
+    if (!butterflyIndices)
+    {
+    	return GLUS_FALSE;
+    }
+
+    for (i = 0; i < N; i++)
+    {
+    	butterflyIndices[i] = i;
+    }
+
+    glusFastFourierTransformButterflyShufflei(butterflyIndices, butterflyIndices, N);
+
+    //
+
+    glUseProgram(g_computeFftProgram.program);
+
+    glUniform1i(g_stepsFftLocation, steps);
+
+    glUniform1iv(g_indicesFftLocation, N, butterflyIndices);
+
+	free(butterflyIndices);
 
     //
 
@@ -337,6 +388,8 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
+	static GLfloat totalTime = 0.0f;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //
@@ -347,12 +400,25 @@ GLUSboolean update(GLUSfloat time)
     // Update H pass.
     //
 
-    // TODO Calculate H depending on time.
+    glUseProgram(g_computeUpdateHtProgram.program);
+
+    glBindImageTexture(0, g_textureH0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureH, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+
+    glUniform1f(g_totalTimeUpdateHtLocation, totalTime);
+
+    // Process all vertices. No synchronization needed, so start NxN threads with local size of 1x1.
+    glDispatchCompute(N, N, 1);
+
+    // Make sure, all values are written.
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 
-    glUseProgram(g_computeProgram.program);
+    //
+    // FFT pass.
+    //
 
-    glUniform1f(g_deltaTimeLocation, time);
+    glUseProgram(g_computeFftProgram.program);
 
     //
     // FFT per row pass.
@@ -361,12 +427,12 @@ GLUSboolean update(GLUSfloat time)
     glBindImageTexture(0, g_textureH, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
     glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
-    glUniform1i(g_processColumnLocation, 0);
+    glUniform1i(g_processColumnFftLocation, 0);
 
     // Process all vertices. N threads as N rows are processed. One work group is one row.
     glDispatchCompute(1, N, 1);
 
-    // Make sure, all vertices are written.
+    // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
     //
@@ -376,17 +442,14 @@ GLUSboolean update(GLUSfloat time)
     glBindImageTexture(0, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
     glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
-    glUniform1i(g_processColumnLocation, 1);
+    glUniform1i(g_processColumnFftLocation, 1);
 
     // Process all vertices. N threads as N columns are processed. One work group is one column.
     glDispatchCompute(1, N, 1);
 
-    // Make sure, all vertices are written.
+    // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
-
-    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     //
     // Drawing part.
@@ -396,15 +459,19 @@ GLUSboolean update(GLUSfloat time)
 
     glBindVertexArray(g_vao);
 
-    // TODO Revert, just for debugging.
+    // TODO Just for debugging.
+    glBindTexture(GL_TEXTURE_2D, g_textureH);
     //glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
-    glBindTexture(GL_TEXTURE_2D, g_textureH0);
 
     glDrawElements(GL_TRIANGLES, g_numberIndices, GL_UNSIGNED_INT, 0);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindVertexArray(0);
+
+    //
+
+    totalTime += time;
 
     return GLUS_TRUE;
 }
@@ -481,7 +548,9 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_computeProgram);
+    glusDestroyProgram(&g_computeUpdateHtProgram);
+
+    glusDestroyProgram(&g_computeFftProgram);
 
     glusDestroyProgram(&g_program);
 }

@@ -18,6 +18,9 @@ void main(void)
 	
 	v_texCoord = a_texCoord;
 
-	// TODO Do displacement.
-	gl_Position = u_modelViewProjectionMatrix * a_vertex;
+	// TODO Add amplitude.
+	vec4 displacement = vec4(0.0, texture(u_displacementMap, a_texCoord).r, 0.0, 0.0);
+
+	// TODO Add displacement.
+	gl_Position = u_modelViewProjectionMatrix * (a_vertex);
 }
