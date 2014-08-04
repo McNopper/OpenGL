@@ -17,6 +17,8 @@
 
 #include "GL/glus.h"
 
+#define GLUS_UNIFORM_RANDOM_BIAS 0.0000001f
+
 GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed)
 {
 	srand(seed);
@@ -24,7 +26,8 @@ GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed)
 
 GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start, const GLUSfloat end)
 {
-	return ((GLUSfloat)rand() / (GLUSfloat)RAND_MAX) * (end - start) + start;
+	// Make sure, to be within range.
+	return glusClampf(((GLUSfloat)rand() / (GLUSfloat)RAND_MAX) * (end - start) + start, start, end);
 }
 
 // see http://mathworld.wolfram.com/Box-MullerTransformation.html
@@ -33,10 +36,12 @@ GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLU
 {
 	GLUSfloat x1, x2;
 
-	x1 = glusRandomUniformGetFloatf(0.0f, 1.0f);
+	// Avoid logf(0.0f) and logf(1.0f)
+	x1 = glusRandomUniformGetFloatf(GLUS_UNIFORM_RANDOM_BIAS, 1.0f - GLUS_UNIFORM_RANDOM_BIAS);
 	x2 = glusRandomUniformGetFloatf(0.0f, 1.0f);
 
-	return mean + standardDeviation * (sqrtf(-2.0f * logf(x1)) * cosf(2.0f * GLUS_PI * x2));
+	// Make sure, to be within range.
+	return glusClampf(mean + standardDeviation * (sqrtf(-2.0f * logf(x1)) * cosf(2.0f * GLUS_PI * x2)), 0.0f, 1.0f);
 }
 
 // see http://mathworld.wolfram.com/HammersleyPointSet.html

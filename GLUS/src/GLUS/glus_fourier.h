@@ -83,6 +83,17 @@ GLUSAPI GLUSboolean glusFastFourierTransformInverseRecursivec(GLUScomplex* resul
 GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
+ * Shuffles a index vector with N elements, that the indices can be used for a FFT butterfly algorithm.
+ *
+ * @param result The transformed vector.
+ * @param vector The source vector.
+ * @param n 	 The number of elements.
+ *
+ * @return GLUS_TRUE, if shuffle succeeded.
+ */
+GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflei(GLUSint* result, const GLUSint* vector, const GLUSint n);
+
+/**
  * Performs a fast fourier transform on a given vector with N elements, using a butterfly algorithm.
  * Shuffling of the elements is done in this function.
  *

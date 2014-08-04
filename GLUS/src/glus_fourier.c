@@ -374,3 +374,56 @@ GLUSboolean glusFastFourierTransformInverseButterflyc(GLUScomplex* result, const
 
 	return GLUS_FALSE;
 }
+
+static GLUSvoid glusFastFourierTransformButterflyShuffleFunctioni(GLUSint* vector, const GLUSint n, const GLUSint offset)
+{
+	if (n > 1)
+	{
+		GLUSint i, k;
+
+		GLUSint m = n / 2;
+
+		GLUSint temp;
+		for (i = 1; i < m; i++)
+		{
+			for (k = 0; k < m - i; k++)
+			{
+				temp = vector[offset + 2 * k + i];
+				vector[offset + 2 * k + i] = vector[offset + 2 * k + 1 + i];
+				vector[offset + 2 * k + 1 + i] = temp;
+			}
+		}
+
+		glusFastFourierTransformButterflyShuffleFunctioni(vector, m, offset);
+		glusFastFourierTransformButterflyShuffleFunctioni(vector, m, offset + m);
+	}
+	else
+	{
+		// c0 = v0, so do nothing.
+	}
+}
+
+GLUSboolean glusFastFourierTransformButterflyShufflei(GLUSint* result, const GLUSint* vector, const GLUSint n)
+{
+	if (!result || !vector)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (glusIsPowerOfTwo(n))
+	{
+		GLUSint i;
+
+		for (i = 0; i < n; i++)
+		{
+			result[i] = vector[i];
+		}
+
+		glusFastFourierTransformButterflyShuffleFunctioni(result, n, 0);
+
+		return GLUS_TRUE;
+	}
+
+	return GLUS_FALSE;
+}
+
