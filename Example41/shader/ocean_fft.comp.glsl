@@ -1,9 +1,8 @@
 #version 430 core
 
-#define GLUS_PI	3.1415926535897932384626433832795
-
 // see same define in main.c
-#define N 512
+#define N 256
+#define GLUS_PI	3.1415926535897932384626433832795
 
 uniform int u_processColumn;
 
@@ -14,18 +13,8 @@ uniform int u_indices[N];
 layout (binding = 0, rg32f) uniform image2D u_imageIn; 
 layout (binding = 1, rg32f) uniform image2D u_imageOut;
 
-// as N = 512, so local size is 512/2 = 256
-layout (local_size_x = 256) in;
-
-vec2 expc(vec2 c)
-{
-	vec2 result;
-
-	result.x = exp(c.x) * cos(c.y);
-	result.y = exp(c.x) * sin(c.y);
-	
-	return result;
-}
+// as N = 256, so local size is 256/2 = 128. Processing two fields per invocation.
+layout (local_size_x = 128) in;
 
 vec2 mulc(vec2 a, vec2 b)
 {
@@ -39,11 +28,12 @@ vec2 mulc(vec2 a, vec2 b)
 
 vec2 rootOfUnityc(int n, int k)
 {
-	vec2 exponent;
-	exponent.x = 0.0;
-	exponent.y = 2.0 * GLUS_PI * float(k) / float(n);
+	vec2 result;
+	
+	result.x = cos(2.0 * GLUS_PI * float(k) / float(n));
+	result.y = sin(2.0 * GLUS_PI * float(k) / float(n));
 
-	return expc(exponent);
+	return result;
 }
 
 void main(void)
@@ -71,14 +61,15 @@ void main(void)
 		rightStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x) + 1);
 	}
 
+	// Copy and swizzle values for butterfly algortihm.
 	vec2 leftValue = imageLoad(u_imageIn, leftLoadPos).xy;
 	vec2 rightValue = imageLoad(u_imageIn, rightLoadPos).xy;
 
 	imageStore(u_imageOut, leftStorePos, vec4(leftValue, 0.0, 0.0));
 	imageStore(u_imageOut, rightStorePos, vec4(rightValue, 0.0, 0.0));
 
-	memoryBarrier();
-	
+	// Make sure that all values are stored and visible after the barrier. 
+	memoryBarrier();	
 	barrier();
 	
 	//
@@ -89,6 +80,7 @@ void main(void)
 	int currentSection = int(gl_GlobalInvocationID.x);
 	int currentButterfly = 0;
 
+	// Performing needed FFT steps per either row or column.
 	for (int currentStep = 0; currentStep < u_steps; currentStep++)
 	{	
 		int leftIndex = currentButterfly + currentSection * numberButterfliesInSection * 2;
@@ -108,9 +100,10 @@ void main(void)
 		leftValue = imageLoad(u_imageOut, leftStorePos).xy;
 		rightValue = imageLoad(u_imageOut, rightStorePos).xy;
 	
-		//
-						
-		vec2 currentW = rootOfUnityc(numberButterfliesInSection * 2, -currentButterfly);
+		// "Butterfly" math.
+		
+		// Note: To improve performance, put root of unity calculation in look up texture or buffer. 		 						
+		vec2 currentW = rootOfUnityc(numberButterfliesInSection * 2, currentButterfly);
 	
 		vec2 multiply;
 		vec2 addition;
@@ -127,8 +120,7 @@ void main(void)
 		// Make sure, that values are written.		
 		memoryBarrier();
 
-		// Change conditions for index calculation.
-		
+		// Change parameters for butterfly and section index calculation.		
 		numberButterfliesInSection *= 2;
 		numberSections /= 2;
 
@@ -137,5 +129,26 @@ void main(void)
 
 		// Make sure, that all shaders are at the same stage, as now indices are changed.
 		barrier();
+	}
+	
+	// Process twiddle factor for second pass FFT. 
+	if (u_processColumn == 1)
+	{
+		if ((leftStorePos.x + leftStorePos.y) % 2 == 0)
+		{
+			leftValue = imageLoad(u_imageOut, leftStorePos).xy;
+			
+			leftValue.x *= -1.0;
+			
+			imageStore(u_imageOut, leftStorePos, vec4(leftValue, 0.0, 0.0));		
+		}
+		if ((rightStorePos.x + rightStorePos.y) % 2 == 0)
+		{
+			rightValue = imageLoad(u_imageOut, rightStorePos).xy;
+
+			rightValue.x *= -1.0;
+			
+			imageStore(u_imageOut, rightStorePos, vec4(rightValue, 0.0, 0.0));
+		}
 	}
 }

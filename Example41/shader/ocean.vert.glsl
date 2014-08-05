@@ -13,14 +13,12 @@ out vec2 v_texCoord;
 
 void main(void)
 {
-	// TODO Calculate normal.
+	// TODO Calculate normal out of displacement map.
 	v_normal = u_normalMatrix * vec3(0.0, 1.0, 0.0);
 	
 	v_texCoord = a_texCoord;
 
-	// TODO Add amplitude.
 	vec4 displacement = vec4(0.0, texture(u_displacementMap, a_texCoord).r, 0.0, 0.0);
 
-	// TODO Add displacement.
-	gl_Position = u_modelViewProjectionMatrix * (a_vertex);
+	gl_Position = u_modelViewProjectionMatrix * (a_vertex + displacement);
 }

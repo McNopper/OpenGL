@@ -17,20 +17,37 @@
 // http://paulbourke.net/miscellaneous/dft/
 //
 // Simulating Ocean Waves/Water
-// http://www.edxgraphics.com/blog/simulating-ocean-waves-with-fft-on-gpu
-// https://developer.nvidia.com/sites/default/files/akamai/gamedev/files/sdk/11/OceanCS_Slides.pdf
 // http://graphics.ucsd.edu/courses/rendering/2005/jdewall/tessendorf.pdf
+//
+// http://www.edxgraphics.com/blog/simulating-ocean-waves-with-fft-on-gpu
+//
+// https://developer.nvidia.com/sites/default/files/akamai/gamedev/files/sdk/11/OceanCS_Slides.pdf
+//
+// http://www.keithlantz.net/2011/10/ocean-simulation-part-one-using-the-discrete-fourier-transform/
+// http://www.keithlantz.net/2011/11/ocean-simulation-part-two-using-the-fast-fourier-transform/
 
 // Length of the ocean grid.
-#define LENGTH	500.0f
+#define LENGTH	250.0f
 
 // Number of vertices on one side of the ocean grid. Has to be power of two.
-#define N	512
+#define N	256
 
+// Gravity.
 #define GRAVITY 9.81f
 
-#define AMPLITUDE 1.0f
-#define WIND_SPEED 4.0f
+// Amplitude of the wave.
+#define AMPLITUDE 0.0025f
+
+// Wind speed.
+#define WIND_SPEED 10.0f
+
+// Wind direction.
+#define WIND_DIRECTION {1.0f, 1.0f}
+
+// Largest possible wave arising.
+#define LPWA (WIND_SPEED * WIND_SPEED / GRAVITY)
+
+//
 
 static GLUSshaderprogram g_computeUpdateHtProgram;
 
@@ -48,7 +65,7 @@ static GLint g_indicesFftLocation;
 //
 
 static GLuint g_textureH0;
-static GLuint g_textureH;
+static GLuint g_textureHt;
 static GLuint g_textureDisplacement[2];
 
 //
@@ -112,10 +129,8 @@ GLUSboolean init(GLUSvoid)
 
     GLint* butterflyIndices;
 
-    GLfloat L = WIND_SPEED * WIND_SPEED / GRAVITY;
-
     GLfloat waveDirection[2];
-    GLfloat windDirection[2] = {1.0f, 1.0f};
+    GLfloat windDirection[2] = WIND_DIRECTION;
     GLfloat phillipsSpectrumValue;
 
     //
@@ -228,7 +243,7 @@ GLUSboolean init(GLUSvoid)
         {
         	waveDirection[0] = ((GLfloat)-N / 2.0f + (GLfloat)k) * (2.0f * GLUS_PI / LENGTH);
 
-        	phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, L, waveDirection, windDirection);
+        	phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, LPWA, waveDirection, windDirection);
 
         	h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
         	h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
@@ -248,8 +263,8 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
-    glGenTextures(1, &g_textureH);
-    glBindTexture(GL_TEXTURE_2D, g_textureH);
+    glGenTextures(1, &g_textureHt);
+    glBindTexture(GL_TEXTURE_2D, g_textureHt);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, 0);
 
@@ -373,9 +388,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     // This model matrix is a rigid body transform. So no need for the inverse, transposed matrix.
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 1000.0f);
+    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 2000.0f);
 
-    glusLookAtf(viewMatrix, 0.0f, 400.0f, 700.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusLookAtf(viewMatrix, 0.0f, 100.0f, 400.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(viewProjectionMatrix, projectionMatrix, viewMatrix);
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, viewProjectionMatrix, modelMatrix);
@@ -403,7 +418,7 @@ GLUSboolean update(GLUSfloat time)
     glUseProgram(g_computeUpdateHtProgram.program);
 
     glBindImageTexture(0, g_textureH0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, g_textureH, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureHt, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     glUniform1f(g_totalTimeUpdateHtLocation, totalTime);
 
@@ -412,7 +427,6 @@ GLUSboolean update(GLUSfloat time)
 
     // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
-
 
     //
     // FFT pass.
@@ -424,16 +438,20 @@ GLUSboolean update(GLUSfloat time)
     // FFT per row pass.
     //
 
-    glBindImageTexture(0, g_textureH, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(0, g_textureHt, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
     glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     glUniform1i(g_processColumnFftLocation, 0);
 
-    // Process all vertices. N threads as N rows are processed. One work group is one row.
+    // Process all vertices. N groups as N rows are processed. One work group is one row.
     glDispatchCompute(1, N, 1);
 
     // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+
+    // FIXME Needed on AMD hardware, otherwise values are not written before fetched.
+    //		 Seems, that if two times the same compute shader is executed, the above barrier does not work.
+    glFinish();
 
     //
     // FFT per column pass.
@@ -444,12 +462,11 @@ GLUSboolean update(GLUSfloat time)
 
     glUniform1i(g_processColumnFftLocation, 1);
 
-    // Process all vertices. N threads as N columns are processed. One work group is one column.
+    // Process all vertices. N groups as N columns are processed. One work group is one column.
     glDispatchCompute(1, N, 1);
 
     // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
-
 
     //
     // Drawing part.
@@ -459,9 +476,7 @@ GLUSboolean update(GLUSfloat time)
 
     glBindVertexArray(g_vao);
 
-    // TODO Just for debugging.
-    glBindTexture(GL_TEXTURE_2D, g_textureH);
-    //glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
+    glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
 
     glDrawElements(GL_TRIANGLES, g_numberIndices, GL_UNSIGNED_INT, 0);
 
@@ -487,11 +502,11 @@ GLUSvoid terminate(GLUSvoid)
         g_textureH0 = 0;
     }
 
-    if (g_textureH)
+    if (g_textureHt)
     {
-        glDeleteTextures(1, &g_textureH);
+        glDeleteTextures(1, &g_textureHt);
 
-        g_textureH = 0;
+        g_textureHt = 0;
     }
 
     if (g_textureDisplacement[0])

@@ -67,7 +67,7 @@ GLUSvoid GLUSAPIENTRY glusComplexDivideComplexc(GLUScomplex* result, const GLUSc
 GLUSvoid GLUSAPIENTRY glusComplexMultiplyScalarc(GLUScomplex* result, const GLUScomplex* complex, const GLUSfloat scalar)
 {
 	result->real = complex->real * scalar;
-	result->imaginary = complex->real * scalar;
+	result->imaginary = complex->imaginary * scalar;
 }
 
 GLUSvoid GLUSAPIENTRY glusComplexExpComplexc(GLUScomplex* result, const GLUScomplex* complex)

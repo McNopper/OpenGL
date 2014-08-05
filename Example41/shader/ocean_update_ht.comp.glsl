@@ -1,9 +1,8 @@
 #version 430 core
 
 // see same define in main.c
-#define N 512
-#define LENGTH	500.0
-
+#define N 256
+#define LENGTH	250.0
 #define GRAVITY 9.81
 #define GLUS_PI	3.1415926535897932384626433832795
 
@@ -26,20 +25,17 @@ void main(void)
 	waveDirection.x = (float(-N) / 2.0 + gl_GlobalInvocationID.x) * (2.0 * GLUS_PI / LENGTH);
     waveDirection.y = (float(N) / 2.0 - gl_GlobalInvocationID.y) * (2.0 * GLUS_PI / LENGTH);
 
-	float wk = GRAVITY * length(waveDirection);
+	// Note: To improve performance, put w2k in a look up texture.
+	float w2k = GRAVITY * length(waveDirection);
 
-	// FIXME Check formula again!
-	float wktime = sqrt(wk) * u_totalTime;
+	float wktime = sqrt(w2k) * u_totalTime;
 
 	float cos_wktime = cos(wktime);
 	float sin_wktime = sin(wktime);
 
-	float cos_negative_wktime = cos(-wktime);
-	float sin_negative_wktime = sin(-wktime);
-
 	vec2 ht;
-	ht.x = (h0.x * cos_wktime - h0.y * sin_wktime) + (h0_negative.x * cos_negative_wktime - h0_negative.y * sin_negative_wktime); 
-	ht.y = (h0.x * sin_wktime + h0.y * cos_wktime) + (h0_negative.x * sin_negative_wktime + h0_negative.y * cos_negative_wktime); 
+	ht.x = (h0.x * cos_wktime - h0.y * sin_wktime) + (h0_negative.x * cos_wktime - h0_negative.y * sin_wktime); 
+	ht.y = (h0.x * sin_wktime + h0.y * cos_wktime) + (h0_negative.x * sin_wktime + h0_negative.y * cos_wktime); 
 
 	imageStore(u_imageOut, storePos, vec4(ht, 0.0, 0.0));
 }

@@ -24,8 +24,9 @@
  * @param result The root of unity.
  * @param n		 The nth root of unity.
  * @param k		 k element. Maybe negative.
+ * @param dir 	 The direction. Negative is clockwise.
  */
-GLUSAPI GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k);
+GLUSAPI GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k, const GLUSfloat dir);
 
 /**
  * Performs a direct fourier transform on a given vector with N elements.
