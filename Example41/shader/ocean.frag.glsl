@@ -1,21 +1,18 @@
 #version 430 core
 
-// TODO Remove texture, just for debugging purpose right now.
-layout(binding = 0) uniform sampler2D u_displacementMap;
+layout(binding = 1) uniform sampler2D u_normalMap;
 
+uniform mat3 u_normalMatrix;
 uniform vec3 u_lightDirection;
 uniform vec4 u_color;
 
-in vec3 v_normal;
 in vec2 v_texCoord;
 
 out vec4 fragColor;
 
 void main(void)
 {
-	float height = texture(u_displacementMap, v_texCoord).r;
+	vec3 normal = u_normalMatrix * normalize(texture(u_normalMap, v_texCoord).xyz);
 
-	// TODO Remove texture, just for debugging purpose right now.
-	fragColor = vec4(height, height, height, 1.0);
-	//fragColor = u_color * max(dot(normalize(v_normal), u_lightDirection), 0.0);
+	fragColor = u_color * max(dot(normal, u_lightDirection), 0.0);
 }

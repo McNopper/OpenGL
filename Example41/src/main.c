@@ -12,6 +12,7 @@
 
 #include "GL/glus.h"
 
+//
 // Theory and References see:
 // 2D FFT
 // http://paulbourke.net/miscellaneous/dft/
@@ -25,18 +26,21 @@
 //
 // http://www.keithlantz.net/2011/10/ocean-simulation-part-one-using-the-discrete-fourier-transform/
 // http://www.keithlantz.net/2011/11/ocean-simulation-part-two-using-the-fast-fourier-transform/
+//
+
+// Note: If N and LENGTH is changed, the values has to be changed in the shaders as well.
+
+// Number of vertices on one side of the ocean grid. Has to be power of two.
+#define N 512
 
 // Length of the ocean grid.
 #define LENGTH	250.0f
-
-// Number of vertices on one side of the ocean grid. Has to be power of two.
-#define N	256
 
 // Gravity.
 #define GRAVITY 9.81f
 
 // Amplitude of the wave.
-#define AMPLITUDE 0.0025f
+#define AMPLITUDE 0.002f
 
 // Wind speed.
 #define WIND_SPEED 10.0f
@@ -60,13 +64,16 @@ static GLint g_processColumnFftLocation;
 
 static GLint g_stepsFftLocation;
 
-static GLint g_indicesFftLocation;
+
+static GLUSshaderprogram g_computeUpdateNormalProgram;
 
 //
 
 static GLuint g_textureH0;
 static GLuint g_textureHt;
+static GLuint g_textureIndices;
 static GLuint g_textureDisplacement[2];
+static GLuint g_textureNormal;
 
 //
 
@@ -113,7 +120,7 @@ static GLfloat phillipsSpectrum(GLfloat A, GLfloat L, GLfloat waveDirection[2], 
 GLUSboolean init(GLUSvoid)
 {
     GLfloat lightDirection[3] = { 1.0f, 1.0f, 1.0f };
-    GLfloat color[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat color[4] = { 0.0f, 0.8f, 0.8f, 1.0f };
 
     GLUStextfile computeSource;
 
@@ -128,6 +135,7 @@ GLUSboolean init(GLUSvoid)
     GLfloat* h0Data;
 
     GLint* butterflyIndices;
+    GLfloat* butterflyIndicesAsFloat;
 
     GLfloat waveDirection[2];
     GLfloat windDirection[2] = WIND_DIRECTION;
@@ -160,6 +168,13 @@ GLUSboolean init(GLUSvoid)
     glusDestroyTextFile(&computeSource);
 
 
+    glusLoadTextFile("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource);
+
+    glusBuildComputeProgramFromSource(&g_computeUpdateNormalProgram, (const GLchar**) &computeSource.text);
+
+    glusDestroyTextFile(&computeSource);
+
+
     glusLoadTextFile("../Example41/shader/ocean.vert.glsl", &vertexSource);
     glusLoadTextFile("../Example41/shader/ocean.frag.glsl", &fragmentSource);
 
@@ -175,7 +190,6 @@ GLUSboolean init(GLUSvoid)
 
     g_processColumnFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_processColumn");
     g_stepsFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_steps");
-    g_indicesFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_indices");
 
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
@@ -220,8 +234,6 @@ GLUSboolean init(GLUSvoid)
     glusDestroyShapef(&gridPlane);
 
     //
-
-    //
     // Generate H0.
     //
 
@@ -262,6 +274,8 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    free(h0Data);
+
 
     glGenTextures(1, &g_textureHt);
     glBindTexture(GL_TEXTURE_2D, g_textureHt);
@@ -290,15 +304,24 @@ GLUSboolean init(GLUSvoid)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, N, N, 0, GL_RG, GL_FLOAT, 0);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+    glGenTextures(1, &g_textureNormal);
+    glBindTexture(GL_TEXTURE_2D, g_textureNormal);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, N, N, 0, GL_RGBA, GL_FLOAT, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    free(h0Data);
 
     //
     // Generate indices needed for inverse FFT butterfly algorithm.
@@ -311,6 +334,15 @@ GLUSboolean init(GLUSvoid)
     	return GLUS_FALSE;
     }
 
+    butterflyIndicesAsFloat = (GLfloat*)malloc(N * sizeof(GLfloat));
+
+    if (!butterflyIndicesAsFloat)
+    {
+    	free(butterflyIndices);
+
+    	return GLUS_FALSE;
+    }
+
     for (i = 0; i < N; i++)
     {
     	butterflyIndices[i] = i;
@@ -318,15 +350,33 @@ GLUSboolean init(GLUSvoid)
 
     glusFastFourierTransformButterflyShufflei(butterflyIndices, butterflyIndices, N);
 
+    for (i = 0; i < N; i++)
+    {
+    	butterflyIndicesAsFloat[i] = (GLfloat)butterflyIndices[i];
+    }
+
+    free(butterflyIndices);
+
+    glGenTextures(1, &g_textureIndices);
+    glBindTexture(GL_TEXTURE_1D, g_textureIndices);
+
+    // FIXME: On AMD hardware, an integer texture can not be created. So floats are used as a workaround.
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, N, 0, GL_RED, GL_FLOAT, butterflyIndicesAsFloat);
+
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_1D, 0);
+
+    free(butterflyIndicesAsFloat);
+
     //
 
     glUseProgram(g_computeFftProgram.program);
 
     glUniform1i(g_stepsFftLocation, steps);
-
-    glUniform1iv(g_indicesFftLocation, N, butterflyIndices);
-
-	free(butterflyIndices);
 
     //
 
@@ -382,15 +432,13 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    // For now, the grid is just on the "ground".
     glusMatrix4x4Identityf(modelMatrix);
 
-    // This model matrix is a rigid body transform. So no need for the inverse, transposed matrix.
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
     glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 2000.0f);
 
-    glusLookAtf(viewMatrix, 0.0f, 100.0f, 400.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusLookAtf(viewMatrix, 0.0f, 5.0f, LENGTH / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(viewProjectionMatrix, projectionMatrix, viewMatrix);
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, viewProjectionMatrix, modelMatrix);
@@ -434,12 +482,14 @@ GLUSboolean update(GLUSfloat time)
 
     glUseProgram(g_computeFftProgram.program);
 
-    //
+    glBindImageTexture(2, g_textureIndices, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+
+
     // FFT per row pass.
-    //
+
 
     glBindImageTexture(0, g_textureHt, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
 
     glUniform1i(g_processColumnFftLocation, 0);
 
@@ -449,16 +499,14 @@ GLUSboolean update(GLUSfloat time)
     // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
-    // FIXME Needed on AMD hardware, otherwise values are not written before fetched.
-    //		 Seems, that if two times the same compute shader is executed, the above barrier does not work.
-    glFinish();
+    // Note: If N <= 256, the above barrier does not work on AMD hardware. Add a glFinish() as a workaround.
 
-    //
+
     // FFT per column pass.
-    //
+
 
     glBindImageTexture(0, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
 
     glUniform1i(g_processColumnFftLocation, 1);
 
@@ -467,6 +515,25 @@ GLUSboolean update(GLUSfloat time)
 
     // Make sure, all values are written.
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+
+    // Note: If N <= 256, the above barrier does not work on AMD hardware. Add a glFinish() as a workaround.
+
+    //
+    // Update normal map pass.
+    //
+
+    glUseProgram(g_computeUpdateNormalProgram.program);
+
+    glBindImageTexture(0, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, g_textureNormal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+    // Process all vertices. No synchronization needed, so start NxN threads with local size of 1x1.
+    glDispatchCompute(N, N, 1);
+
+    // Make sure, all values are written.
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+
+    // FIXME: On NVIDIA hardware, generating the normal map causes artifacts.
 
     //
     // Drawing part.
@@ -477,9 +544,13 @@ GLUSboolean update(GLUSfloat time)
     glBindVertexArray(g_vao);
 
     glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, g_textureNormal);
 
     glDrawElements(GL_TRIANGLES, g_numberIndices, GL_UNSIGNED_INT, 0);
 
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindVertexArray(0);
@@ -493,6 +564,15 @@ GLUSboolean update(GLUSfloat time)
 
 GLUSvoid terminate(GLUSvoid)
 {
+    glBindTexture(GL_TEXTURE_1D, 0);
+
+    if (g_textureIndices)
+    {
+        glDeleteTextures(1, &g_textureIndices);
+
+        g_textureIndices = 0;
+    }
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if (g_textureH0)
@@ -521,6 +601,13 @@ GLUSvoid terminate(GLUSvoid)
         glDeleteTextures(1, &g_textureDisplacement[1]);
 
         g_textureDisplacement[1] = 0;
+    }
+
+    if (g_textureNormal)
+    {
+        glDeleteTextures(1, &g_textureNormal);
+
+        g_textureNormal = 0;
     }
 
 	//
@@ -566,6 +653,8 @@ GLUSvoid terminate(GLUSvoid)
     glusDestroyProgram(&g_computeUpdateHtProgram);
 
     glusDestroyProgram(&g_computeFftProgram);
+
+    glusDestroyProgram(&g_computeUpdateNormalProgram);
 
     glusDestroyProgram(&g_program);
 }

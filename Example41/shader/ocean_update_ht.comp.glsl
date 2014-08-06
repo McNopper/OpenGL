@@ -1,7 +1,7 @@
 #version 430 core
 
 // see same define in main.c
-#define N 256
+#define N 512
 #define LENGTH	250.0
 #define GRAVITY 9.81
 #define GLUS_PI	3.1415926535897932384626433832795
@@ -11,7 +11,7 @@ layout (binding = 1, rg32f) uniform image2D u_imageOut;
 
 uniform float u_totalTime;
 
-layout (local_size_x = 1) in;
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 void main(void)
 {

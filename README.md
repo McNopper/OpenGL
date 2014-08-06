@@ -88,3 +88,5 @@ Example38 - Basic usage of program pipeline and separable programs(OpenGL 4.1)
 Example39 - Basic usage of program pipeline, separable programs and shader subroutines (OpenGL 4.1, AMD hardware does not work properly)
 
 Example40 - Cloth simulation using compute shader (OpenGL 4.3)
+
+Example41 - Ocean wave height/normal map calculation with FFT using compute shader (OpenGL 4.3, NVIDIA hardware has artifacts)

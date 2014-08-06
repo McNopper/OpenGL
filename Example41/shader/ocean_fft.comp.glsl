@@ -1,20 +1,24 @@
 #version 430 core
 
 // see same define in main.c
-#define N 256
+#define N 512
 #define GLUS_PI	3.1415926535897932384626433832795
 
 uniform int u_processColumn;
 
 uniform int u_steps;
 
-uniform int u_indices[N];
-
 layout (binding = 0, rg32f) uniform image2D u_imageIn; 
 layout (binding = 1, rg32f) uniform image2D u_imageOut;
 
-// as N = 256, so local size is 256/2 = 128. Processing two fields per invocation.
-layout (local_size_x = 128) in;
+// FIXME: On AMD hardware, an integer texture can not be created.
+// Note: If a shader storage buffer is used, the driver on AMD hardware crashes.
+//		 If a uniform int array is used and N >= 512, the shader linker on NVIDIA hardware (GT640, Linux)
+//       reports an internal error and exits.
+layout (binding = 2, r32f) uniform image1D u_imageIndices;
+
+// as N = 512, so local size is 512/2 = 256. Processing two fields per invocation.
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 vec2 mulc(vec2 a, vec2 b)
 {
@@ -44,18 +48,21 @@ void main(void)
 	ivec2 leftStorePos;
 	ivec2 rightStorePos;
 
+	int leftIndex = int(imageLoad(u_imageIndices, 2 * int(gl_GlobalInvocationID.x)).r);
+	int rightIndex = int(imageLoad(u_imageIndices, 2 * int(gl_GlobalInvocationID.x) + 1).r);
+
 	if (u_processColumn == 0)
 	{
-		leftLoadPos = ivec2(u_indices[2 * int(gl_GlobalInvocationID.x)], int(gl_GlobalInvocationID.y));
-		rightLoadPos = ivec2(u_indices[2 * int(gl_GlobalInvocationID.x) + 1], int(gl_GlobalInvocationID.y));
+		leftLoadPos = ivec2(leftIndex, int(gl_GlobalInvocationID.y));
+		rightLoadPos = ivec2(rightIndex, int(gl_GlobalInvocationID.y));
 
 		leftStorePos = ivec2(2 * int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
 		rightStorePos = ivec2(2 * int(gl_GlobalInvocationID.x) + 1, int(gl_GlobalInvocationID.y));
 	}
 	else
 	{
-		leftLoadPos = ivec2(int(gl_GlobalInvocationID.y), u_indices[2 * int(gl_GlobalInvocationID.x)]);
-		rightLoadPos = ivec2(int(gl_GlobalInvocationID.y), u_indices[2 * int(gl_GlobalInvocationID.x) + 1]);
+		leftLoadPos = ivec2(int(gl_GlobalInvocationID.y), leftIndex);
+		rightLoadPos = ivec2(int(gl_GlobalInvocationID.y), rightIndex);
 
 		leftStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x));
 		rightStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x) + 1);
