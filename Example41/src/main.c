@@ -529,8 +529,6 @@ GLUSboolean update(GLUSfloat time)
     // Make sure, all values are written.
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-    // FIXME: On NVIDIA hardware, generating the normal map causes artifacts.
-
     //
     // Drawing part.
     //

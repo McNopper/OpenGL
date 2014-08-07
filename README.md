@@ -89,4 +89,4 @@ Example39 - Basic usage of program pipeline, separable programs and shader subro
 
 Example40 - Cloth simulation using compute shader (OpenGL 4.3)
 
-Example41 - Ocean wave height/normal map calculation with FFT using compute shader (OpenGL 4.3, NVIDIA hardware has artifacts)
+Example41 - Ocean wave height/normal map calculation with FFT using compute shader (OpenGL 4.3, NVIDIA hardware under Linux has artifacts)
