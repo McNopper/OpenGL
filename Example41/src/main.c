@@ -474,7 +474,7 @@ GLUSboolean update(GLUSfloat time)
     glDispatchCompute(N, N, 1);
 
     // Make sure, all values are written.
-    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     //
     // FFT pass.
@@ -484,12 +484,12 @@ GLUSboolean update(GLUSfloat time)
 
     glBindImageTexture(2, g_textureIndices, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
 
-
+    //
     // FFT per row pass.
-
+    //
 
     glBindImageTexture(0, g_textureHt, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     glUniform1i(g_processColumnFftLocation, 0);
 
@@ -497,16 +497,14 @@ GLUSboolean update(GLUSfloat time)
     glDispatchCompute(1, N, 1);
 
     // Make sure, all values are written.
-    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-    // Note: If N <= 256, the above barrier does not work on AMD hardware. Add a glFinish() as a workaround.
-
-
+    //
     // FFT per column pass.
-
+    //
 
     glBindImageTexture(0, g_textureDisplacement[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
+    glBindImageTexture(1, g_textureDisplacement[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
 
     glUniform1i(g_processColumnFftLocation, 1);
 
@@ -514,9 +512,7 @@ GLUSboolean update(GLUSfloat time)
     glDispatchCompute(1, N, 1);
 
     // Make sure, all values are written.
-    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
-
-    // Note: If N <= 256, the above barrier does not work on AMD hardware. Add a glFinish() as a workaround.
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     //
     // Update normal map pass.
@@ -531,7 +527,7 @@ GLUSboolean update(GLUSfloat time)
     glDispatchCompute(N, N, 1);
 
     // Make sure, all values are written.
-    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     // FIXME: On NVIDIA hardware, generating the normal map causes artifacts.
 

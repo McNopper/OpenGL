@@ -17,6 +17,9 @@ layout (binding = 1, rg32f) uniform image2D u_imageOut;
 //       reports an internal error and exits.
 layout (binding = 2, r32f) uniform image1D u_imageIndices;
 
+// Faster, when stored in shared memory compared to global memory.
+shared vec2 sharedStore[N];
+
 // as N = 512, so local size is 512/2 = 256. Processing two fields per invocation.
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
@@ -42,49 +45,57 @@ vec2 rootOfUnityc(int n, int k)
 
 void main(void)
 {
-	ivec2 leftLoadPos;
-	ivec2 rightLoadPos;
-
 	ivec2 leftStorePos;
 	ivec2 rightStorePos;
 
-	int leftIndex = int(imageLoad(u_imageIndices, 2 * int(gl_GlobalInvocationID.x)).r);
-	int rightIndex = int(imageLoad(u_imageIndices, 2 * int(gl_GlobalInvocationID.x) + 1).r);
+	ivec2 leftLoadPos;
+	ivec2 rightLoadPos;
 
+	int xIndex = int(gl_GlobalInvocationID.x);
+	int yIndex = int(gl_GlobalInvocationID.y);
+
+	int leftStoreIndex = 2 * xIndex;
+	int rightStoreIndex = 2 * xIndex + 1;
+
+	// Load the swizzled indices.
+	int leftLoadIndex = int(imageLoad(u_imageIndices, leftStoreIndex).r);
+	int rightLoadIndex = int(imageLoad(u_imageIndices, rightStoreIndex).r);
+
+	// Loading and storing position depends on processing per row or column.
 	if (u_processColumn == 0)
 	{
-		leftLoadPos = ivec2(leftIndex, int(gl_GlobalInvocationID.y));
-		rightLoadPos = ivec2(rightIndex, int(gl_GlobalInvocationID.y));
+		leftLoadPos = ivec2(leftLoadIndex, yIndex);
+		rightLoadPos = ivec2(rightLoadIndex, yIndex);
 
-		leftStorePos = ivec2(2 * int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
-		rightStorePos = ivec2(2 * int(gl_GlobalInvocationID.x) + 1, int(gl_GlobalInvocationID.y));
+		leftStorePos = ivec2(leftStoreIndex, yIndex);
+		rightStorePos = ivec2(rightStoreIndex, yIndex);
 	}
 	else
 	{
-		leftLoadPos = ivec2(int(gl_GlobalInvocationID.y), leftIndex);
-		rightLoadPos = ivec2(int(gl_GlobalInvocationID.y), rightIndex);
+		leftLoadPos = ivec2(yIndex, leftLoadIndex);
+		rightLoadPos = ivec2(yIndex, rightLoadIndex);
 
-		leftStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x));
-		rightStorePos = ivec2(int(gl_GlobalInvocationID.y), 2 * int(gl_GlobalInvocationID.x) + 1);
+		leftStorePos = ivec2(yIndex, leftStoreIndex);
+		rightStorePos = ivec2(yIndex, rightStoreIndex);
 	}
 
-	// Copy and swizzle values for butterfly algortihm.
+	// Copy and swizzle values for butterfly algortihm into the shared memory.
 	vec2 leftValue = imageLoad(u_imageIn, leftLoadPos).xy;
 	vec2 rightValue = imageLoad(u_imageIn, rightLoadPos).xy;
 
-	imageStore(u_imageOut, leftStorePos, vec4(leftValue, 0.0, 0.0));
-	imageStore(u_imageOut, rightStorePos, vec4(rightValue, 0.0, 0.0));
+	sharedStore[leftStoreIndex] = leftValue;
+	sharedStore[rightStoreIndex] = rightValue;
 
 	// Make sure that all values are stored and visible after the barrier. 
-	memoryBarrier();	
+	memoryBarrierShared();
 	barrier();
 	
 	//
-
+	
 	int numberSections = N / 2;
 	int numberButterfliesInSection = 1;
 
-	int currentSection = int(gl_GlobalInvocationID.x);
+	int currentSection = xIndex;
 	int currentButterfly = 0;
 
 	// Performing needed FFT steps per either row or column.
@@ -93,19 +104,8 @@ void main(void)
 		int leftIndex = currentButterfly + currentSection * numberButterfliesInSection * 2;
 		int rightIndex = currentButterfly + numberButterfliesInSection + currentSection * numberButterfliesInSection * 2;
 	
-		if (u_processColumn == 0)
-		{
-			leftStorePos = ivec2(leftIndex, int(gl_GlobalInvocationID.y));
-			rightStorePos = ivec2(rightIndex, int(gl_GlobalInvocationID.y));
-		}
-		else
-		{
-			leftStorePos = ivec2(int(gl_GlobalInvocationID.y), leftIndex);
-			rightStorePos = ivec2(int(gl_GlobalInvocationID.y), rightIndex);
-		}
-	
-		leftValue = imageLoad(u_imageOut, leftStorePos).xy;
-		rightValue = imageLoad(u_imageOut, rightStorePos).xy;
+		leftValue = sharedStore[leftIndex];
+		rightValue = sharedStore[rightIndex];
 	
 		// "Butterfly" math.
 		
@@ -121,18 +121,18 @@ void main(void)
 		addition = leftValue + multiply;
 		subtraction = leftValue - multiply; 
 
-		imageStore(u_imageOut, leftStorePos, vec4(addition, 0.0, 0.0));
-		imageStore(u_imageOut, rightStorePos, vec4(subtraction, 0.0, 0.0));
+		sharedStore[leftIndex] = addition;
+		sharedStore[rightIndex] = subtraction;		
 
 		// Make sure, that values are written.		
-		memoryBarrier();
+		memoryBarrierShared();
 
 		// Change parameters for butterfly and section index calculation.		
 		numberButterfliesInSection *= 2;
 		numberSections /= 2;
 
 		currentSection /= 2;
-		currentButterfly = int(gl_GlobalInvocationID.x) % numberButterfliesInSection;
+		currentButterfly = xIndex % numberButterfliesInSection;
 
 		// Make sure, that all shaders are at the same stage, as now indices are changed.
 		barrier();
@@ -143,19 +143,18 @@ void main(void)
 	{
 		if ((leftStorePos.x + leftStorePos.y) % 2 == 0)
 		{
-			leftValue = imageLoad(u_imageOut, leftStorePos).xy;
-			
-			leftValue.x *= -1.0;
-			
-			imageStore(u_imageOut, leftStorePos, vec4(leftValue, 0.0, 0.0));		
+			sharedStore[leftStoreIndex] *= -1.0;
 		}
 		if ((rightStorePos.x + rightStorePos.y) % 2 == 0)
 		{
-			rightValue = imageLoad(u_imageOut, rightStorePos).xy;
-
-			rightValue.x *= -1.0;
-			
-			imageStore(u_imageOut, rightStorePos, vec4(rightValue, 0.0, 0.0));
+			sharedStore[rightStoreIndex] *= -1.0;			
 		}
+		
+		// Make sure, that values are written.		
+		memoryBarrierShared();
 	}
+	
+	// Store from shared to global memory.
+	imageStore(u_imageOut, leftStorePos, vec4(sharedStore[leftStoreIndex], 0.0, 0.0));
+	imageStore(u_imageOut, rightStorePos, vec4(sharedStore[rightStoreIndex], 0.0, 0.0));
 }
