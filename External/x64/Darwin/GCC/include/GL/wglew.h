@@ -1,5 +1,6 @@
 /*
 ** The OpenGL Extension Wrangler Library
+** Copyright (C) 2008-2014, Nigel Stewart <nigels[]users sourceforge net>
 ** Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
 ** Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
@@ -181,6 +182,15 @@ typedef BOOL (WINAPI * PFNWGLSAVEBUFFERREGIONARBPROC) (HANDLE hRegion, int x, in
 #define WGLEW_ARB_buffer_region WGLEW_GET_VAR(__WGLEW_ARB_buffer_region)
 
 #endif /* WGL_ARB_buffer_region */
+
+/* --------------------- WGL_ARB_context_flush_control --------------------- */
+
+#ifndef WGL_ARB_context_flush_control
+#define WGL_ARB_context_flush_control 1
+
+#define WGLEW_ARB_context_flush_control WGLEW_GET_VAR(__WGLEW_ARB_context_flush_control)
+
+#endif /* WGL_ARB_context_flush_control */
 
 /* ------------------------- WGL_ARB_create_context ------------------------ */
 
@@ -928,6 +938,19 @@ typedef BOOL (WINAPI * PFNWGLCOPYIMAGESUBDATANVPROC) (HGLRC hSrcRC, GLuint srcNa
 
 #endif /* WGL_NV_copy_image */
 
+/* ------------------------ WGL_NV_delay_before_swap ----------------------- */
+
+#ifndef WGL_NV_delay_before_swap
+#define WGL_NV_delay_before_swap 1
+
+typedef BOOL (WINAPI * PFNWGLDELAYBEFORESWAPNVPROC) (HDC hDC, GLfloat seconds);
+
+#define wglDelayBeforeSwapNV WGLEW_GET_FUN(__wglewDelayBeforeSwapNV)
+
+#define WGLEW_NV_delay_before_swap WGLEW_GET_VAR(__WGLEW_NV_delay_before_swap)
+
+#endif /* WGL_NV_delay_before_swap */
+
 /* -------------------------- WGL_NV_float_buffer -------------------------- */
 
 #ifndef WGL_NV_float_buffer
@@ -1291,6 +1314,8 @@ WGLEW_FUN_EXPORT PFNWGLDXUNREGISTEROBJECTNVPROC __wglewDXUnregisterObjectNV;
 
 WGLEW_FUN_EXPORT PFNWGLCOPYIMAGESUBDATANVPROC __wglewCopyImageSubDataNV;
 
+WGLEW_FUN_EXPORT PFNWGLDELAYBEFORESWAPNVPROC __wglewDelayBeforeSwapNV;
+
 WGLEW_FUN_EXPORT PFNWGLCREATEAFFINITYDCNVPROC __wglewCreateAffinityDCNV;
 WGLEW_FUN_EXPORT PFNWGLDELETEDCNVPROC __wglewDeleteDCNV;
 WGLEW_FUN_EXPORT PFNWGLENUMGPUDEVICESNVPROC __wglewEnumGpuDevicesNV;
@@ -1334,6 +1359,7 @@ WGLEW_VAR_EXPORT GLboolean __WGLEW_3DFX_multisample;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_3DL_stereo_control;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_AMD_gpu_association;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_ARB_buffer_region;
+WGLEW_VAR_EXPORT GLboolean __WGLEW_ARB_context_flush_control;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_ARB_create_context;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_ARB_create_context_profile;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_ARB_create_context_robustness;
@@ -1371,6 +1397,7 @@ WGLEW_VAR_EXPORT GLboolean __WGLEW_I3D_swap_frame_usage;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_DX_interop;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_DX_interop2;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_copy_image;
+WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_delay_before_swap;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_float_buffer;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_gpu_affinity;
 WGLEW_VAR_EXPORT GLboolean __WGLEW_NV_multisample_coverage;
