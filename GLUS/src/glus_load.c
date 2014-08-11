@@ -816,7 +816,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 
 	elementsRead = fread(buffer, 10, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 10))
+	if (!glusCheckFileRead(file, elementsRead, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -931,7 +931,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 	{
 		elementsRead = fread(buffer, 4, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 4))
+		if (!glusCheckFileRead(file, elementsRead, 1))
 		{
 			free(scanline);
 
