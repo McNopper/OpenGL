@@ -250,7 +250,7 @@ static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
 	}
 }
 
-static GLUSvoid APIENTRY glusInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, GLUSvoid* userParam)
+static GLUSvoid GLUSAPIENTRY glusInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, const GLUSvoid* userParam)
 {
 	glusLogPrint(GLUS_LOG_DEBUG, "source: 0x%04X type: 0x%04X id: %u severity: 0x%04X '%s'", source, type, id, severity, message);
 }

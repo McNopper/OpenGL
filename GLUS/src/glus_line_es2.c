@@ -50,8 +50,8 @@ GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[
     line->numberVertices = 2;
     line->numberIndices = 2;
 
-    line->vertices = (GLUSfloat*) malloc(4 * line->numberVertices * sizeof(GLUSfloat));
-    line->indices = (GLUSushort*) malloc(line->numberIndices * sizeof(GLUSushort));
+    line->vertices = (GLUSfloat*) glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+    line->indices = (GLUSushort*) glusMalloc(line->numberIndices * sizeof(GLUSushort));
 
     line->mode = GL_LINES;
 
@@ -82,8 +82,8 @@ GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfE
     line->numberVertices = 4;
     line->numberIndices = 4;
 
-    line->vertices = (GLUSfloat*) malloc(4 * line->numberVertices * sizeof(GLUSfloat));
-    line->indices = (GLUSushort*) malloc(line->numberIndices * sizeof(GLUSushort));
+    line->vertices = (GLUSfloat*) glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+    line->indices = (GLUSushort*) glusMalloc(line->numberIndices * sizeof(GLUSushort));
 
     line->mode = GL_LINE_LOOP;
 
@@ -138,8 +138,8 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfl
 	line->numberVertices = numberVertices;
 	line->numberIndices = numberIndices;
 
-	line->vertices = (GLUSfloat*)malloc(4 * line->numberVertices * sizeof(GLUSfloat));
-	line->indices = (GLUSushort*)malloc(line->numberIndices * sizeof(GLUSushort));
+	line->vertices = (GLUSfloat*)glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSushort*)glusMalloc(line->numberIndices * sizeof(GLUSushort));
 
 	line->mode = GL_LINES;
 
@@ -213,8 +213,8 @@ GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radiu
     line->numberVertices = numberSectors;
     line->numberIndices = numberSectors;
 
-    line->vertices = (GLUSfloat*) malloc(4 * line->numberVertices * sizeof(GLUSfloat));
-    line->indices = (GLUSushort*) malloc(line->numberIndices * sizeof(GLUSushort));
+    line->vertices = (GLUSfloat*) glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+    line->indices = (GLUSushort*) glusMalloc(line->numberIndices * sizeof(GLUSushort));
 
     line->mode = GL_LINE_LOOP;
 
@@ -256,7 +256,7 @@ GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
 
     if (source->numberVertices)
     {
-    	line->vertices = (GLUSfloat*) malloc(4 * source->numberVertices * sizeof(GLUSfloat));
+    	line->vertices = (GLUSfloat*) glusMalloc(4 * source->numberVertices * sizeof(GLUSfloat));
     	if (!line->vertices)
     	{
     		glusDestroyLinef(line);
@@ -268,7 +268,7 @@ GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
 
     if (source->indices)
     {
-    	line->indices = (GLUSushort*) malloc(source->numberIndices * sizeof(GLUSushort));
+    	line->indices = (GLUSushort*) glusMalloc(source->numberIndices * sizeof(GLUSushort));
     	if (!line->indices)
     	{
     		glusDestroyLinef(line);
@@ -292,14 +292,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line)
 
     if (line->vertices)
     {
-        free(line->vertices);
+        glusFree(line->vertices);
 
         line->vertices = 0;
     }
 
     if (line->indices)
     {
-        free(line->indices);
+        glusFree(line->indices);
 
         line->indices = 0;
     }

@@ -55,7 +55,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 
 		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
-		GLUScomplex* dftMatrix = (GLUScomplex*)malloc(n * n * sizeof(GLUScomplex));
+		GLUScomplex* dftMatrix = (GLUScomplex*)glusMalloc(n * n * sizeof(GLUScomplex));
 
 		if (!dftMatrix)
 		{
@@ -74,7 +74,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 
 		glusVectorNMultiplyScalarc(result, result, n, scalar);
 
-		free(dftMatrix);
+		glusFree(dftMatrix);
 
 		return status;
 	}
@@ -95,7 +95,7 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 
 		GLUSint row, column;
 
-		GLUScomplex* dftInverseMatrix = (GLUScomplex*)malloc(n * n * sizeof(GLUScomplex));
+		GLUScomplex* dftInverseMatrix = (GLUScomplex*)glusMalloc(n * n * sizeof(GLUScomplex));
 
 		if (!dftInverseMatrix)
 		{
@@ -112,7 +112,7 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 
 		status = glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
 
-		free(dftInverseMatrix);
+		glusFree(dftInverseMatrix);
 
 		return status;
 	}

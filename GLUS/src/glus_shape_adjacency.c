@@ -193,8 +193,8 @@ GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, co
 
 	adjacencyShape->numberIndices = numberIndices;
 
-	free(adjacencyShape->indices);
-	adjacencyShape->indices = (GLUSuint*)malloc(numberIndices * sizeof(GLUSuint));
+	glusFree(adjacencyShape->indices);
+	adjacencyShape->indices = (GLUSuint*)glusMalloc(numberIndices * sizeof(GLUSuint));
 
 	adjacencyShape->mode = GL_TRIANGLES_ADJACENCY;
 

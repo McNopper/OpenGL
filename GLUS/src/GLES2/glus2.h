@@ -26,6 +26,7 @@ extern "C"
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,7 +41,11 @@ extern "C"
 #endif
 
 #ifndef GLUSAPIENTRY
-#define GLUSAPIENTRY
+	#ifdef GLAPIENTRY
+		#define GLUSAPIENTRY GLAPIENTRY
+	#else
+		#define GLUSAPIENTRY
+	#endif
 #endif
 #ifndef GLUSAPIENTRYP
 #define GLUSAPIENTRYP GLUSAPIENTRY *
@@ -634,6 +639,12 @@ typedef struct _GLUSline
     GLUSenum mode;
 
 } GLUSline;
+
+//
+// Memory manager.
+//
+
+#include "../GLUS/glus_memory.h"
 
 //
 // EGL helper functions.

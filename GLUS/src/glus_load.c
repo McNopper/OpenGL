@@ -77,7 +77,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTextFile(const GLUSchar* filename, GLUStextfile
 		return GLUS_FALSE;
 	}
 
-	textfile->text = (GLUSchar*)malloc((size_t)textfile->length + 1);
+	textfile->text = (GLUSchar*)glusMalloc((size_t)textfile->length + 1);
 
 	if (!textfile->text)
 	{
@@ -115,7 +115,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyTextFile(GLUStextfile* textfile)
 
 	if (textfile->text)
 	{
-		free(textfile->text);
+		glusFree(textfile->text);
 
 		textfile->text = 0;
 	}
@@ -162,7 +162,7 @@ GLUSboolean GLUSAPIENTRY glusLoadBinaryFile(const GLUSchar* filename, GLUSbinary
 		return GLUS_FALSE;
 	}
 
-	binaryfile->binary = (GLUSubyte*)malloc((size_t)binaryfile->length);
+	binaryfile->binary = (GLUSubyte*)glusMalloc((size_t)binaryfile->length);
 
 	if (!binaryfile->binary)
 	{
@@ -200,7 +200,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyBinaryFile(GLUSbinaryfile* binaryfile)
 
 	if (binaryfile->binary)
 	{
-		free(binaryfile->binary);
+		glusFree(binaryfile->binary);
 
 		binaryfile->binary = 0;
 	}
@@ -432,7 +432,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		GLUSint bytesPerPixel = colorMapEntrySize / 8;
 
-		colorMap = (GLUSubyte*)malloc((size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte));
+		colorMap = (GLUSubyte*)glusMalloc((size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte));
 
 		if (!colorMap)
 		{
@@ -451,7 +451,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 		{
 			glusDestroyTgaImage(tgaimage);
 
-			free(colorMap);
+			glusFree(colorMap);
 			colorMap = 0;
 
 			return GLUS_FALSE;
@@ -465,7 +465,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 	}
 
 	// allocate enough memory for the targa  data
-	tgaimage->data = (GLUSubyte*)malloc((size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8);
+	tgaimage->data = (GLUSubyte*)glusMalloc((size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8);
 
 	// verify memory allocation
 	if (!tgaimage->data)
@@ -476,7 +476,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		if (hasColorMap)
 		{
-			free(colorMap);
+			glusFree(colorMap);
 			colorMap = 0;
 		}
 
@@ -494,7 +494,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 			if (hasColorMap)
 			{
-				free(colorMap);
+				glusFree(colorMap);
 				colorMap = 0;
 			}
 
@@ -518,7 +518,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 				if (hasColorMap)
 				{
-					free(colorMap);
+					glusFree(colorMap);
 					colorMap = 0;
 				}
 
@@ -543,7 +543,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 					if (hasColorMap)
 					{
-						free(colorMap);
+						glusFree(colorMap);
 						colorMap = 0;
 					}
 
@@ -573,7 +573,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 					if (hasColorMap)
 					{
-						free(colorMap);
+						glusFree(colorMap);
 						colorMap = 0;
 					}
 
@@ -604,16 +604,16 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		bytesPerPixel = colorMapEntrySize / 8;
 
-		tgaimage->data = (GLUSubyte*)malloc((size_t)tgaimage->width * tgaimage->height * bytesPerPixel);
+		tgaimage->data = (GLUSubyte*)glusMalloc((size_t)tgaimage->width * tgaimage->height * bytesPerPixel);
 
 		if (!tgaimage->data)
 		{
 			glusDestroyTgaImage(tgaimage);
 
-			free(data);
+			glusFree(data);
 			data = 0;
 
-			free(colorMap);
+			glusFree(colorMap);
 			colorMap = 0;
 
 			return GLUS_FALSE;
@@ -641,10 +641,10 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 
 		// Freeing data.
 
-		free(data);
+		glusFree(data);
 		data = 0;
 
-		free(colorMap);
+		glusFree(colorMap);
 		colorMap = 0;
 	}
 
@@ -660,7 +660,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyTgaImage(GLUStgaimage* tgaimage)
 
 	if (tgaimage->data)
 	{
-		free(tgaimage->data);
+		glusFree(tgaimage->data);
 
 		tgaimage->data = 0;
 	}
@@ -894,7 +894,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 	hdrimage->depth = 1;
 	hdrimage->format = GLUS_RGB;
 
-	hdrimage->data = (GLUSfloat*)malloc(width * height * 3 * sizeof(GLUSfloat));
+	hdrimage->data = (GLUSfloat*)glusMalloc(width * height * 3 * sizeof(GLUSfloat));
 
 	if (!hdrimage->data)
 	{
@@ -906,11 +906,11 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 	}
 
 	// Scanlines
-	scanline = (GLUSubyte*)malloc(width * 4 * sizeof(GLUSubyte));
+	scanline = (GLUSubyte*)glusMalloc(width * 4 * sizeof(GLUSubyte));
 
 	if (!scanline)
 	{
-		free(scanline);
+		glusFree(scanline);
 
 		fclose(file);
 
@@ -933,7 +933,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 
 		if (!glusCheckFileRead(file, elementsRead, 1))
 		{
-			free(scanline);
+			glusFree(scanline);
 
 			glusDestroyHdrImage(hdrimage);
 
@@ -951,7 +951,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 
 			if (scanlinePixels < 0)
 			{
-				free(scanline);
+				glusFree(scanline);
 
 				// File already closed
 
@@ -964,7 +964,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 			{
 				if (y < 0)
 				{
-					free(scanline);
+					glusFree(scanline);
 
 					fclose(file);
 
@@ -1029,7 +1029,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 		{
 			if (y < 0)
 			{
-				free(scanline);
+				glusFree(scanline);
 
 				fclose(file);
 
@@ -1058,7 +1058,7 @@ GLUSboolean GLUSAPIENTRY glusLoadHdrImage(const GLUSchar* filename, GLUShdrimage
 		prevRgbe[3] = rgbe[3];
 	}
 
-	free(scanline);
+	glusFree(scanline);
 
 	fclose(file);
 
@@ -1074,7 +1074,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyHdrImage(GLUShdrimage* hdrimage)
 
 	if (hdrimage->data)
 	{
-		free(hdrimage->data);
+		glusFree(hdrimage->data);
 
 		hdrimage->data = 0;
 	}
@@ -1126,7 +1126,7 @@ GLUSboolean GLUSAPIENTRY glusLoadPkmImage(const GLUSchar* filename, GLUSpkmimage
 		return GLUS_FALSE;
 	}
 
-	pkmimage->data = (GLUSubyte*)malloc(pkmimage->imageSize * sizeof(GLUSubyte));
+	pkmimage->data = (GLUSubyte*)glusMalloc(pkmimage->imageSize * sizeof(GLUSubyte));
 	if (!pkmimage->data)
 	{
 		glusDestroyBinaryFile(&binaryfile);
@@ -1196,7 +1196,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyPkmImage(GLUSpkmimage* pkmimage)
 
 	if (pkmimage->data)
 	{
-		free(pkmimage->data);
+		glusFree(pkmimage->data);
 
 		pkmimage->data = 0;
 	}

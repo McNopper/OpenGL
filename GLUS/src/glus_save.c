@@ -161,7 +161,7 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 		return GLUS_FALSE;
 	}
 
-	data = malloc(tgaimage->width * tgaimage->height * bitsPerPixel / 8);
+	data = glusMalloc(tgaimage->width * tgaimage->height * bitsPerPixel / 8);
 
 	if (!data)
 	{
@@ -179,7 +179,7 @@ GLUSboolean GLUSAPIENTRY glusSaveTgaImage(const GLUSchar* filename, const GLUStg
 
 	elementsWritten = fwrite(data, 1, tgaimage->width * tgaimage->height * bitsPerPixel / 8, file);
 
-	free(data);
+	glusFree(data);
 
 	if (!glusCheckFileWrite(file, elementsWritten, tgaimage->width * tgaimage->height * bitsPerPixel / 8))
 	{

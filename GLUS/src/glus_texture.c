@@ -216,7 +216,7 @@ GLUSboolean GLUSAPIENTRY glusCreateTgaImage(GLUStgaimage* tgaimage, GLUSint widt
 		return GLUS_FALSE;
 	}
 
-	tgaimage->data = (GLUSubyte*)malloc(width * height * depth * stride * sizeof(GLUSubyte));
+	tgaimage->data = (GLUSubyte*)glusMalloc(width * height * depth * stride * sizeof(GLUSubyte));
 	if (!tgaimage->data)
 	{
 		return GLUS_FALSE;
@@ -255,7 +255,7 @@ GLUSboolean GLUSAPIENTRY glusCreateHdrImage(GLUShdrimage* hdrimage, GLUSint widt
 		return GLUS_FALSE;
 	}
 
-	hdrimage->data = (GLUSfloat*)malloc(width * height * depth * stride * sizeof(GLUSfloat));
+	hdrimage->data = (GLUSfloat*)glusMalloc(width * height * depth * stride * sizeof(GLUSfloat));
 	if (!hdrimage->data)
 	{
 		return GLUS_FALSE;

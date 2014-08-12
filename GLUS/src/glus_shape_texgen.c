@@ -28,12 +28,12 @@ GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSi
 
 	if (shape->texCoords)
 	{
-		free(shape->texCoords);
+		glusFree(shape->texCoords);
 
 		shape->texCoords = 0;
 	}
 
-	shape->texCoords = (GLUSfloat*)malloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+	shape->texCoords = (GLUSfloat*)glusMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
 	if (!shape->texCoords)
 	{
@@ -60,12 +60,12 @@ GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat s
 
 	if (shape->texCoords)
 	{
-		free(shape->texCoords);
+		glusFree(shape->texCoords);
 
 		shape->texCoords = 0;
 	}
 
-	shape->texCoords = (GLUSfloat*)malloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+	shape->texCoords = (GLUSfloat*)glusMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
 	if (!shape->texCoords)
 	{

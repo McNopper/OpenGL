@@ -15,20 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLUS_PADDING_H_
-#define GLUS_PADDING_H_
+#ifndef GLUS_MEMORY_H_
+#define GLUS_MEMORY_H_
 
 /**
- * Converts the padding of an array of vectors.
+ * Allocate memory block.
  *
- * @param target			Target array.
- * @param source			Source array.
- * @param channels			Number of channels. Values equal greater 1 are allowed.
- * @param padding			Number of padding elements. Values equal greater 0 are allowed.
- * @param numberElements	Number of elements in the array.
+ * @param size Size of the memory block in bytes.
  *
- * @return GLUS_TRUE, if succeeded.
+ * @return Returns on success the pointer to allocated memory. Otherwise null is returned.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusPaddingConvertf(GLUSfloat* target, const GLUSfloat* source, const GLUSint channels, const GLUSint padding, const GLUSint numberElements);
+GLUSAPI void* GLUSAPIENTRY glusMalloc(size_t size);
 
-#endif /* GLUS_PADDING_H_ */
+/**
+ * Deallocate memory block.
+ *
+ * @param pointer Pointer to a memory block previously allocated with glusMalloc.
+ */
+GLUSAPI void GLUSAPIENTRY glusFree(void* pointer);
+
+#endif /* GLUS_MEMORY_H_ */

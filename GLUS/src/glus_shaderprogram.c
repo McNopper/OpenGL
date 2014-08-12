@@ -50,7 +50,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
     {
         glGetShaderiv(shaderProgram->vertex, GL_INFO_LOG_LENGTH, &logLength);
 
-        log = (char*) malloc((size_t)logLength);
+        log = (char*) glusMalloc((size_t)logLength);
 
         if (!log)
         {
@@ -62,7 +62,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
         glusLogPrint(GLUS_LOG_ERROR, "Vertex shader compile error:");
         glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-        free(log);
+        glusFree(log);
 
         shaderProgram->vertex = 0;
 
@@ -83,7 +83,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
         {
             glGetShaderiv(shaderProgram->control, GL_INFO_LOG_LENGTH, &logLength);
 
-            log = (char*) malloc((size_t)logLength);
+            log = (char*) glusMalloc((size_t)logLength);
 
             if (!log)
             {
@@ -97,7 +97,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
             glusLogPrint(GLUS_LOG_ERROR, "Control shader compile error:");
             glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-            free(log);
+            glusFree(log);
 
             shaderProgram->control = 0;
 
@@ -121,7 +121,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
         {
             glGetShaderiv(shaderProgram->evaluation, GL_INFO_LOG_LENGTH, &logLength);
 
-            log = (char*) malloc((size_t)logLength);
+            log = (char*) glusMalloc((size_t)logLength);
 
             if (!log)
             {
@@ -135,7 +135,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
             glusLogPrint(GLUS_LOG_ERROR, "Evaluation shader compile error:");
             glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-            free(log);
+            glusFree(log);
 
             shaderProgram->evaluation = 0;
 
@@ -159,7 +159,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
         {
             glGetShaderiv(shaderProgram->geometry, GL_INFO_LOG_LENGTH, &logLength);
 
-            log = (char*) malloc((size_t)logLength);
+            log = (char*) glusMalloc((size_t)logLength);
 
             if (!log)
             {
@@ -173,7 +173,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
             glusLogPrint(GLUS_LOG_ERROR, "Geometry shader compile error:");
             glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-            free(log);
+            glusFree(log);
 
             shaderProgram->geometry = 0;
 
@@ -195,7 +195,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
     {
         glGetShaderiv(shaderProgram->fragment, GL_INFO_LOG_LENGTH, &logLength);
 
-        log = (char*) malloc((size_t)logLength);
+        log = (char*) glusMalloc((size_t)logLength);
 
         if (!log)
         {
@@ -209,7 +209,7 @@ GLUSboolean GLUSAPIENTRY glusCreateProgramFromSource(GLUSshaderprogram* shaderPr
         glusLogPrint(GLUS_LOG_ERROR, "Fragment shader compile error:");
         glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-        free(log);
+        glusFree(log);
 
         shaderProgram->fragment = 0;
 
@@ -275,7 +275,7 @@ GLUSboolean GLUSAPIENTRY glusCreateComputeProgramFromSource(GLUSshaderprogram* s
     {
         glGetShaderiv(shaderProgram->compute, GL_INFO_LOG_LENGTH, &logLength);
 
-        log = (char*) malloc((size_t)logLength);
+        log = (char*) glusMalloc((size_t)logLength);
 
         if (!log)
         {
@@ -287,7 +287,7 @@ GLUSboolean GLUSAPIENTRY glusCreateComputeProgramFromSource(GLUSshaderprogram* s
         glusLogPrint(GLUS_LOG_ERROR, "Compute shader compile error:");
         glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-        free(log);
+        glusFree(log);
 
         shaderProgram->compute = 0;
 
@@ -322,7 +322,7 @@ GLUSboolean GLUSAPIENTRY glusLinkProgram(GLUSshaderprogram* shaderProgram)
     {
         glGetProgramiv(shaderProgram->program, GL_INFO_LOG_LENGTH, &logLength);
 
-        log = (char*) malloc((size_t)logLength);
+        log = (char*) glusMalloc((size_t)logLength);
 
         if (!log)
         {
@@ -336,7 +336,7 @@ GLUSboolean GLUSAPIENTRY glusLinkProgram(GLUSshaderprogram* shaderProgram)
         glusLogPrint(GLUS_LOG_ERROR, "Shader program link error:");
         glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-        free(log);
+        glusFree(log);
 
         shaderProgram->program = 0;
 
@@ -404,7 +404,7 @@ GLUSboolean GLUSAPIENTRY glusBuildShaderProgramFromSource(GLUSshaderprogram* sha
     {
         glGetProgramiv(shaderProgram->program, GL_INFO_LOG_LENGTH, &logLength);
 
-        log = (char*) malloc((size_t)logLength);
+        log = (char*) glusMalloc((size_t)logLength);
 
         if (!log)
         {
@@ -418,7 +418,7 @@ GLUSboolean GLUSAPIENTRY glusBuildShaderProgramFromSource(GLUSshaderprogram* sha
         glusLogPrint(GLUS_LOG_ERROR, "Shader program link error:");
         glusLogPrint(GLUS_LOG_ERROR, "%s", log);
 
-        free(log);
+        glusFree(log);
 
         shaderProgram->program = 0;
 
