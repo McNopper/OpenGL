@@ -27,20 +27,20 @@
 // Number of memory table entries.
 #define GLUS_MEMORY_TABLE_ENTRIES	1024
 
+// States of a memory block entry.
+#define GLUS_VALID_AND_FREE		1
+#define GLUS_VALID_AND_LOCKED   2
+#define GLUS_INVALID			3
+
 /**
  * Structure for the memory table entry.
  */
 typedef struct _GLUSmemoryTable {
 
 	/**
-	 * Flag, if entry is valid.
+	 * Flag, if entry is valid and/or free.
 	 */
-	GLUSboolean valid;
-
-	/**
-	 * Flag, if entry is free.
-	 */
-	GLUSboolean free;
+	GLUSubyte status;
 
 	/**
 	 * Start index into the memory.
@@ -52,11 +52,6 @@ typedef struct _GLUSmemoryTable {
 	 */
 	size_t lengthIndices;
 
-	/**
-	 * Pointer from the allocated memory.
-	 */
-	void* pointer;
-
 } GLUSmemoryTable;
 
 /**
@@ -67,7 +62,7 @@ static uint32_t g_memory[GLUS_MEMORY_SIZE];
 /**
  * Memory table used to manage the memory array.
  */
-static GLUSmemoryTable g_memoryTable[GLUS_MEMORY_TABLE_ENTRIES] = {{GLUS_TRUE, GLUS_TRUE, 0, GLUS_MEMORY_SIZE, (void*)g_memory}};
+static GLUSmemoryTable g_memoryTable[GLUS_MEMORY_TABLE_ENTRIES] = {{GLUS_VALID_AND_FREE, 0, GLUS_MEMORY_SIZE}};
 
 /**
  * Current amount of initialized memory table entries.
@@ -86,7 +81,7 @@ static GLUSboolean glusFindMemoryTableEntry(size_t* foundTableIndex)
 	while (tableIndex < g_memoryTableEntries)
 	{
 		// If not valid, the table entry can be reused.
-		if (!g_memoryTable[tableIndex].valid)
+		if (g_memoryTable[tableIndex].status == GLUS_INVALID)
 		{
 			*foundTableIndex = tableIndex;
 
@@ -106,12 +101,9 @@ static GLUSboolean glusInitMemoryTableEntry(size_t tableIndex, size_t startIndex
 		return GLUS_FALSE;
 	}
 
-	g_memoryTable[tableIndex].valid = GLUS_TRUE;
-	g_memoryTable[tableIndex].free = GLUS_TRUE;
+	g_memoryTable[tableIndex].status = GLUS_VALID_AND_FREE;
 	g_memoryTable[tableIndex].startIndex = startIndex;
 	g_memoryTable[tableIndex].lengthIndices = lengthIndices;
-
-	g_memoryTable[tableIndex].pointer = (void*)&g_memory[startIndex];
 
 	if (tableIndex == g_memoryTableEntries)
 	{
@@ -134,7 +126,7 @@ static GLUSvoid glusGarbageCollect()
 
 		while (tableIndex < g_memoryTableEntries)
 		{
-			if (g_memoryTable[tableIndex].valid && g_memoryTable[tableIndex].free)
+			if (g_memoryTable[tableIndex].status == GLUS_VALID_AND_FREE)
 			{
 				GLUSuint otherTableIndex = 0;
 
@@ -147,14 +139,14 @@ static GLUSvoid glusGarbageCollect()
 						continue;
 					}
 
-					if (g_memoryTable[otherTableIndex].valid && g_memoryTable[otherTableIndex].free)
+					if (g_memoryTable[otherTableIndex].status == GLUS_VALID_AND_FREE)
 					{
 						// Check, if two entries are adjacent.
 						if (g_memoryTable[tableIndex].startIndex + g_memoryTable[tableIndex].lengthIndices == g_memoryTable[otherTableIndex].startIndex)
 						{
 							g_memoryTable[tableIndex].lengthIndices += g_memoryTable[otherTableIndex].lengthIndices;
 
-							g_memoryTable[otherTableIndex].valid = GLUS_FALSE;
+							g_memoryTable[otherTableIndex].status = GLUS_INVALID;
 
 							continueGC = GLUS_TRUE;
 						}
@@ -184,7 +176,7 @@ static void* glusInternalMalloc(size_t size)
 	while (tableIndex < g_memoryTableEntries)
 	{
 		// Search for a memory table entry, where the size fits in.
-		if (g_memoryTable[tableIndex].valid && g_memoryTable[tableIndex].free && g_memoryTable[tableIndex].lengthIndices >= lengthIndices)
+		if (g_memoryTable[tableIndex].status == GLUS_VALID_AND_FREE && g_memoryTable[tableIndex].lengthIndices >= lengthIndices)
 		{
 			size_t otherTableIndex;
 
@@ -202,10 +194,10 @@ static void* glusInternalMalloc(size_t size)
 			}
 
 			// Entry now manages the requested memory.
-			g_memoryTable[tableIndex].free = GLUS_FALSE;
+			g_memoryTable[tableIndex].status = GLUS_VALID_AND_LOCKED;
 			g_memoryTable[tableIndex].lengthIndices = lengthIndices;
 
-			return g_memoryTable[tableIndex].pointer;
+			return (void*)&g_memory[g_memoryTable[tableIndex].startIndex];
 		}
 
 		tableIndex++;
@@ -253,9 +245,9 @@ void GLUSAPIENTRY glusFree(void* pointer)
 	while (tableIndex < g_memoryTableEntries)
 	{
 		// ... and free memory by setting flag in table entry.
-		if (g_memoryTable[tableIndex].pointer == pointer)
+		if (g_memoryTable[tableIndex].status == GLUS_VALID_AND_LOCKED && (void*)&g_memory[g_memoryTable[tableIndex].startIndex] == pointer)
 		{
-			g_memoryTable[tableIndex].free = GLUS_TRUE;
+			g_memoryTable[tableIndex].status = GLUS_VALID_AND_FREE;
 
 			return;
 		}

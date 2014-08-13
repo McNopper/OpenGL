@@ -23,7 +23,7 @@ extern EGLNativeDisplayType _glusGetNativeDisplayType(GLUSvoid);
 
 extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID);
 
-extern GLUSvoid _glusDestroyNativeWindow(GLUSvoid);
+extern GLUSvoid _glusDestroyNativeWindowDisplay(GLUSvoid);
 
 extern double _glusGetRawTime(GLUSvoid);
 
@@ -239,7 +239,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 {
 	glusEGLTerminate(&g_eglDisplay, &g_eglContext, &g_eglSurface);
 
-	_glusDestroyNativeWindow();
+	_glusDestroyNativeWindowDisplay();
 
 	g_windowCreated = GLUS_FALSE;
 

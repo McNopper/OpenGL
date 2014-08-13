@@ -601,7 +601,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	return _nativeWindow;
 }
 
-GLUSvoid _glusDestroyNativeWindow()
+GLUSvoid _glusDestroyNativeWindowDisplay()
 {
 	if (_nativeWindow)
 	{
