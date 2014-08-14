@@ -23,64 +23,30 @@ extern "C"
 {
 #endif
 
-#include <ctype.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//
+// GLUS libraries.
+//
+
+#include "../GLUS/glus_libs.h"
+
+//
+// OpenGL ES 2.0 and EGL.
+//
 
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 
-#ifdef _MSC_VER
-	#define GLUSINLINE static __forceinline
-#else
-	#define GLUSINLINE static inline
-#endif
+//
+// GLUS function call convention etc.
+//
 
-#ifndef GLUSAPIENTRY
-	#ifdef GLAPIENTRY
-		#define GLUSAPIENTRY GLAPIENTRY
-	#else
-		#define GLUSAPIENTRY
-	#endif
-#endif
-#ifndef GLUSAPIENTRYP
-#define GLUSAPIENTRYP GLUSAPIENTRY *
-#endif
-#ifndef GLUSAPI
-#define GLUSAPI extern
-#endif
+#include "../GLUS/glus_function.h"
 
-typedef unsigned int GLUSenum;
-typedef unsigned char GLUSboolean;
-typedef unsigned int GLUSbitfield;
-typedef signed char GLUSbyte;
-typedef short GLUSshort;
-typedef int GLUSint;
-typedef int GLUSsizei;
-typedef unsigned char GLUSubyte;
-typedef unsigned short GLUSushort;
-typedef unsigned int GLUSuint;
-typedef float GLUSfloat;
-typedef float GLUSclampf;
-typedef double GLUSdouble;
-typedef double GLUSclampd;
-typedef char GLUSchar;
+//
+// GLUS types.
+//
 
-typedef struct _GLUScomplex
-{
-	float real;
-	float imaginary;
-} GLUScomplex;
-
-#ifdef __cplusplus
-#define GLUSvoid void
-#else
-typedef void GLUSvoid;
-#endif
+#include "../GLUS/glus_types.h"
 
 #define GLUS_OK 	0
 #define GLUS_TRUE   1
