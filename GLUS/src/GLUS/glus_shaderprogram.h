@@ -19,6 +19,48 @@
 #define GLUS_SHADERPROGRAM_H_
 
 /**
+ * Structure for shader program handling.
+ */
+typedef struct _GLUSshaderprogram
+{
+	/**
+	 * The created program.
+	 */
+    GLUSuint program;
+
+    /**
+     * Compute shader.
+     */
+    GLUSuint compute;
+
+    /**
+     * Vertex shader.
+     */
+    GLUSuint vertex;
+
+    /**
+     * Tessellation control shader.
+     */
+    GLUSuint control;
+
+    /**
+     * Tessellation evaluation shader.
+     */
+    GLUSuint evaluation;
+
+    /**
+     * Geometry shader.
+     */
+    GLUSuint geometry;
+
+    /**
+     * Fragment shader.
+     */
+    GLUSuint fragment;
+
+} GLUSshaderprogram;
+
+/**
  * Creates a program by compiling the giving sources. Linking has to be done in a separate step.
  *
  * @param shaderProgram This structure holds the necessary information of the program and the different shaders.

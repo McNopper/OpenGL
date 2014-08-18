@@ -18,34 +18,20 @@
 #ifndef GLUS_OS_WRAPPER_ES_H_
 #define GLUS_OS_WRAPPER_ES_H_
 
-
-/**
- * Prepare the EGL context. Must be called before windows creation.
- * Default is 2 for OpenGL ES 2.0 and OpenVG 1.1. Value for OpenGL ES 3.x is 3.
- *
- * @param version EGL context version.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint version);
-
-/**
- * Prepare the window. Must be called before windows creation.
- *
- * @param noResize GLUS_TRUE, if it should not be possible to resize the window.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize);
-
 /**
  * Creates the window. In this function, mainly GLEW and GLFW functions are used. By default, a RGBA color buffer is created.
  *
- * @param title Title of the window.
- * @param width Width of the window.
- * @param height Height of the window.
- * @param attribList EGL attribute list.
- * @param fullscreen Flag for setting the window to fullscreen.
+ * @param title				Title of the window.
+ * @param width				Width of the window.
+ * @param height			Height of the window.
+ * @param fullscreen 		Flag for setting the window to fullscreen.
+ * @param noResize 			GLUS_TRUE, if it should not be possible to resize the window.
+ * @param configAttribList 	EGL configuration attribute list.
+ * @param contextAttribList EGL context attribute list.
  *
  * @return GLUS_TRUE, if creation of OpenGL context and window succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const EGLint* attribList, const GLUSboolean fullscreen);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList);
 
 /**
  * Cleans up the window and frees all resources. Only needs to be called, if creation of the window failed.

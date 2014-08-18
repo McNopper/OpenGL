@@ -53,7 +53,7 @@ Example21 - Compute shader (OpenGL 4.3)
 
 Example22 - Shadow volumes
 
-Example23 - Displacement mapping (OpenGL 4.1)
+Example23 - Displacement mapping (OpenGL 4.1, AMD hardware has artifacts but used to work)
 
 Example24 - Erode effect using perlin noise
 

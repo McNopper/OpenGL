@@ -459,6 +459,24 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
+	EGLint eglConfigAttributes[] = {
+	        EGL_RED_SIZE, 8,
+	        EGL_GREEN_SIZE, 8,
+	        EGL_BLUE_SIZE, 8,
+	        EGL_DEPTH_SIZE, 24,
+	        EGL_STENCIL_SIZE, 0,
+	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	        EGL_NONE
+	};
+
+    EGLint eglContextAttributes[] = {
+    		EGL_CONTEXT_MAJOR_VERSION, 4,
+    		EGL_CONTEXT_MINOR_VERSION, 4,
+    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+    		EGL_NONE
+    };
+
     glusInitFunc(init);
 
     glusReshapeFunc(reshape);
@@ -467,11 +485,7 @@ int main(int argc, char* argv[])
 
     glusTerminateFunc(terminate);
 
-    glusPrepareContext(4, 4, GLUS_FORWARD_COMPATIBLE_BIT);
-
-    glusPrepareNoResize(GLUS_TRUE);
-
-    if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0, GLUS_FALSE))
+    if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;

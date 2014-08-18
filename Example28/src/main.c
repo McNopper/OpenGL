@@ -960,32 +960,46 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	glusInitFunc(init);
+	EGLint eglConfigAttributes[] = {
+	        EGL_RED_SIZE, 8,
+	        EGL_GREEN_SIZE, 8,
+	        EGL_BLUE_SIZE, 8,
+	        EGL_DEPTH_SIZE, 24,
+	        EGL_STENCIL_SIZE, 0,
+	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	        EGL_NONE
+	};
 
-	glusReshapeFunc(reshape);
+    EGLint eglContextAttributes[] = {
+    		EGL_CONTEXT_MAJOR_VERSION, 4,
+    		EGL_CONTEXT_MINOR_VERSION, 1,
+    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+    		EGL_NONE
+    };
+
+    glusInitFunc(init);
+
+    glusReshapeFunc(reshape);
 
 	glusKeyFunc(key);
 
-	glusUpdateFunc(update);
+    glusUpdateFunc(update);
 
-	glusTerminateFunc(terminate);
-
-	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
+    glusTerminateFunc(terminate);
 
 	// No resizing for convenience. If resizing is allowed, dynamically resize the SSAO and Blur frame buffer as well.
-	glusPrepareNoResize(GLUS_TRUE);
-
-	if (!glusCreateWindow("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, 24, 0, GLUS_FALSE))
-	{
-		printf("Could not create window!\n");
-		return -1;
-	}
+    if (!glusCreateWindow("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    {
+        printf("Could not create window!\n");
+        return -1;
+    }
 
     // Print out the keys
     printf("Keys:\n");
     printf("s = Toggle SSAO on/off\n");
 
-	glusRun();
+    glusRun();
 
-	return 0;
+    return 0;
 }

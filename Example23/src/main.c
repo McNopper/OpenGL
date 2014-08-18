@@ -460,23 +460,39 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	glusInitFunc(init);
+	EGLint eglConfigAttributes[] = {
+	        EGL_RED_SIZE, 8,
+	        EGL_GREEN_SIZE, 8,
+	        EGL_BLUE_SIZE, 8,
+	        EGL_DEPTH_SIZE, 24,
+	        EGL_STENCIL_SIZE, 0,
+	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	        EGL_NONE
+	};
 
-	glusReshapeFunc(reshape);
+    EGLint eglContextAttributes[] = {
+    		EGL_CONTEXT_MAJOR_VERSION, 4,
+    		EGL_CONTEXT_MINOR_VERSION, 1,
+    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+    		EGL_NONE
+    };
+
+    glusInitFunc(init);
+
+    glusReshapeFunc(reshape);
 
 	glusKeyFunc(key);
 
-	glusUpdateFunc(update);
+    glusUpdateFunc(update);
 
-	glusTerminateFunc(terminate);
+    glusTerminateFunc(terminate);
 
-	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
-
-	if (!glusCreateWindow("GLUS Example Window", 640, 480, 0, 0, GLUS_FALSE))
-	{
-		printf("Could not create window!\n");
-		return -1;
-	}
+    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    {
+        printf("Could not create window!\n");
+        return -1;
+    }
 
     // Print out the keys
     printf("Keys:\n");
@@ -484,7 +500,7 @@ int main(int argc, char* argv[])
     printf("t = Toggle tessellation on/off\n");
     printf("w = Toggle wireframe on/off\n");
 
-	glusRun();
+    glusRun();
 
-	return 0;
+    return 0;
 }

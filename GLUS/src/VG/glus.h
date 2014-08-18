@@ -48,184 +48,25 @@ extern "C"
 
 #include "../GLUS/glus_types.h"
 
-#define GLUS_OK 	0
-#define GLUS_TRUE   1
-#define GLUS_FALSE  0
+//
+// GLUS defines.
+//
 
-#define GLUS_ALPHA  					0x00001906
-#define GLUS_RGB    					0x00001907
-#define GLUS_RGBA   					0x00001908
-#define GLUS_LUMINANCE  				0x00001909
+#include "../GLUS/glus_define.h"
 
-#define GLUS_COMPRESSED_R11_EAC                            0x9270
-#define GLUS_COMPRESSED_SIGNED_R11_EAC                     0x9271
-#define GLUS_COMPRESSED_RG11_EAC                           0x9272
-#define GLUS_COMPRESSED_SIGNED_RG11_EAC                    0x9273
-#define GLUS_COMPRESSED_RGB8_ETC2                          0x9274
-#define GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2      0x9276
-#define GLUS_COMPRESSED_RGBA8_ETC2_EAC                     0x9278
+#include "../GLUS/glus_define_color.h"
 
-#define GLUS_PI		3.1415926535897932384626433832795f
+#include "../GLUS/glus_define_ushort.h"
 
-#define GLUS_LOG_NOTHING	0
-#define GLUS_LOG_ERROR   	1
-#define GLUS_LOG_WARNING 	2
-#define GLUS_LOG_INFO    	3
-#define GLUS_LOG_DEBUG   	4
-#define GLUS_LOG_SEVERE		5
-
-#define GLUS_VERTICES_FACTOR 4
-#define GLUS_VERTICES_DIVISOR 4
-
-#define GLUS_MAX_VERTICES 65536
-#define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
-
-#define GLUS_MAX_STRING  256
-
-#define GLUS_DEFAULT_CLIENT_VERSION 1
+#include "../GLUS/glus_define_ushort.h"
 
 #define GLUS_EGL_API EGL_OPENVG_API
 
-/**
- * Structure used for text file loading.
- */
-typedef struct _GLUStextfile
-{
-	/**
-	 * Contains the data of the text file.
-	 */
-    GLUSchar* text;
+//
+// Load and save structures.
+//
 
-    /**
-     * The length of the text file without the null terminator.
-     */
-    GLUSint length;
-
-} GLUStextfile;
-
-/**
- * Structure used for binary file loading.
- */
-typedef struct _GLUSbinaryfile
-{
-    /**
-     * The binary data of the file.
-     */
-    GLUSubyte* binary;
-
-    /**
-     * The length of the binary data.
-     */
-    GLUSint length;
-
-} GLUSbinaryfile;
-
-/**
- * Structure used for Targa Image File loading.
- */
-typedef struct _GLUStgaimage
-{
-	/**
-	 * Width of the TGA image.
-	 */
-    GLUSushort width;
-
-	/**
-	 * Height of the TGA image.
-	 */
-    GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-    GLUSushort depth;
-
-    /**
-     * Pixel data.
-     */
-    GLUSubyte* data;
-
-    /**
-     * Format of the TGA image. Can be:
-     *
-	 * GLUS_RGB
-     * GLUS_RGBA
-     * GLUS_LUMINANCE
-     *
-     * Last entry can also be interpreted as GLUS_ALPHA.
-     */
-    GLUSenum format;
-
-} GLUStgaimage;
-
-/**
- * Structure used for HDR Image File loading.
- */
-typedef struct _GLUShdrimage
-{
-	/**
-	 * Width of the HDR image.
-	 */
-	GLUSushort width;
-
-	/**
-	 * Height of the HDR image.
-	 */
-	GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
-
-	/**
-	 * Pixel data.
-	 */
-	GLUSfloat* data;
-
-    /**
-     * Format of the HDR image.
-     */
-    GLUSenum format;
-
-} GLUShdrimage;
-
-/**
- * Structure used for PKM Image File loading.
- */
-typedef struct _GLUSpkmimage
-{
-	/**
-	 * Width of the PKM image.
-	 */
-	GLUSushort width;
-
-	/**
-	 * Height of the PKM image.
-	 */
-	GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
-
-	/**
-	 * Pixel data.
-	 */
-	GLUSubyte* data;
-
-    /**
-     * The image size in bytes.
-     */
-    GLUSint imageSize;
-
-    /**
-     * Internal format of the PKM image.
-     */
-    GLUSenum internalformat;
-
-} GLUSpkmimage;
+#include "../GLUS/glus_load_save.h"
 
 //
 // Memory manager.

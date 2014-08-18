@@ -613,28 +613,41 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 
 int main(int argc, char* argv[])
 {
-	glusInitFunc(init);
+	// No MSAA here, as we render to an off screen MSAA buffer.
+	EGLint eglConfigAttributes[] = {
+	        EGL_RED_SIZE, 8,
+	        EGL_GREEN_SIZE, 8,
+	        EGL_BLUE_SIZE, 8,
+	        EGL_DEPTH_SIZE, 24,
+	        EGL_STENCIL_SIZE, 0,
+	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	        EGL_NONE
+	};
 
-	glusReshapeFunc(reshape);
+    EGLint eglContextAttributes[] = {
+    		EGL_CONTEXT_MAJOR_VERSION, 4,
+    		EGL_CONTEXT_MINOR_VERSION, 1,
+    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+    		EGL_NONE
+    };
 
-	glusKeyFunc(key);
+    glusInitFunc(init);
 
-	glusUpdateFunc(update);
+    glusReshapeFunc(reshape);
 
-	glusTerminateFunc(terminate);
+    glusKeyFunc(key);
 
-	glusPrepareContext(4, 1, GLUS_FORWARD_COMPATIBLE_BIT);
+    glusUpdateFunc(update);
+
+    glusTerminateFunc(terminate);
 
 	// No resize, as it makes code simpler.
-	glusPrepareNoResize(GLUS_TRUE);
-
-	// No MSAA here, as we render to an off screen MSAA buffer.
-
-	if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0, GLUS_FALSE))
-	{
-		printf("Could not create window!\n");
-		return -1;
-	}
+    if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    {
+        printf("Could not create window!\n");
+        return -1;
+    }
 
     // Print out the keys
     printf("Keys:\n");
@@ -646,7 +659,7 @@ int main(int argc, char* argv[])
     printf("6       = Increase R0\n");
     printf("\n");
 
-	glusRun();
+    glusRun();
 
-	return 0;
+    return 0;
 }

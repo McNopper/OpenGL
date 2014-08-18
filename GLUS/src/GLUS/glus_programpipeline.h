@@ -19,6 +19,48 @@
 #define GLUS_PROGRAMPIPELINE_H_
 
 /**
+ * Structure for program pipeline handling.
+ */
+typedef struct _GLUSprogrampipeline
+{
+	/**
+	 * The created pipeline.
+	 */
+    GLUSuint pipeline;
+
+    /**
+     * Compute shader program.
+     */
+    GLUSuint computeProgram;
+
+    /**
+     * Vertex shader program.
+     */
+    GLUSuint vertexProgram;
+
+    /**
+     * Tessellation control shader program.
+     */
+    GLUSuint controlProgram;
+
+    /**
+     * Tessellation evaluation shader program.
+     */
+    GLUSuint evaluationProgram;
+
+    /**
+     * Geometry shader program.
+     */
+    GLUSuint geometryProgram;
+
+    /**
+     * Fragment shader program.
+     */
+    GLUSuint fragmentProgram;
+
+} GLUSprogrampipeline;
+
+/**
  * Builds a program pipeline.
  *
  * @param programPipeline 	This structure holds the necessary information of the program pipeline and the different shader programs.

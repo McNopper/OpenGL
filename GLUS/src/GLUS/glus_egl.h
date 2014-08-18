@@ -25,12 +25,12 @@
  * @param eglDisplay  				EGL display.
  * @param eglConfig  				EGL configuration.
  * @param eglContext 				EGL context.
- * @param attribList 				EGL attribute list.
- * @param eglContextClientVersion	EGL context client version.
+ * @param configAttribList 			EGL configuration attribute list.
+ * @param contextAttribList 		EGL context attribute list.
  *
  * @return EGL_TRUE, when creation of context succeeded.
  */
-GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint attribList[], const EGLint eglContextClientVersion);
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint configAttribList[], const EGLint contextAttribList[]);
 
 /**
  * Creates a window surface and sets it as current.

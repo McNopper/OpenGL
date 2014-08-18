@@ -17,14 +17,6 @@
 
 #include "GL/glus.h"
 
-static GLUSint g_major = 1;
-static GLUSint g_minor = 0;
-static GLUSint g_flags = 0;
-
-static GLUSint g_numberSamples = 0;
-static GLUSboolean g_noResize = GLUS_FALSE;
-static GLUSboolean g_debug = GLUS_FALSE;
-
 static GLFWwindow* g_window = 0;
 static GLUSboolean g_initdone = GLUS_FALSE;
 static GLUSint g_buttons = 0;
@@ -82,42 +74,6 @@ GLUSvoid GLUSAPIENTRY glusUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time
 GLUSvoid GLUSAPIENTRY glusTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
 {
 	glusTerminate = glusNewTerminate;
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint minor, const GLUSint flags)
-{
-	g_major = major;
-	g_minor = minor;
-	g_flags = flags;
-
-	if (g_major < 1)
-	{
-		g_major = 1;
-	}
-	if (g_minor < 0)
-	{
-		g_minor = 0;
-	}
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples)
-{
-	g_numberSamples = numberSamples;
-
-	if (g_numberSamples < 0)
-	{
-		g_numberSamples = 0;
-	}
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize)
-{
-	g_noResize = noResize;
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareDebug(const GLUSboolean debug)
-{
-	g_debug = debug;
 }
 
 static GLUSfloat glusGetElapsedTime(GLUSvoid)
@@ -271,9 +227,24 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 	g_initdone = GLUS_FALSE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width, const GLUSint height, const GLUSint depthBits, const GLUSint stencilBits, const GLUSboolean fullscreen)
+GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList)
 {
+	int major = 3;
+	int minor = 2;
+	int forward = 1;
+	int profile = GLFW_OPENGL_CORE_PROFILE;
+	int samples = 0;
+	int redBits = 8;
+	int greenBits = 8;
+	int blueBits = 8;
+	int depthBits = 0;
+	int stencilBits = 0;
+	int alphaBits = 0;
+	int debug = 0;
+
 	GLUSenum err;
+
+	const EGLint* walker;
 
 	if (g_window)
 	{
@@ -289,15 +260,129 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, g_major);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, g_minor);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, g_flags & GLUS_FORWARD_COMPATIBLE_BIT);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, (g_flags & GLUS_FORWARD_COMPATIBLE_BIT) ? GLFW_OPENGL_CORE_PROFILE : GLFW_OPENGL_COMPAT_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, g_numberSamples);
-	glfwWindowHint(GLFW_RESIZABLE, !g_noResize);
+	walker = configAttribList;
+	while(walker && *walker != EGL_NONE)
+	{
+		switch(*walker)
+		{
+			case EGL_RENDERABLE_TYPE:
+				if (*(walker + 1) != EGL_OPENGL_BIT)
+				{
+					glusLogPrint(GLUS_LOG_ERROR, "EGL_RENDERABLE_TYPE has to be EGL_OPENGL_BIT");
+
+					return GLUS_FALSE;
+				}
+				break;
+			case EGL_RED_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					redBits = *(walker + 1);
+				}
+				break;
+			case EGL_GREEN_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					greenBits = *(walker + 1);
+				}
+				break;
+			case EGL_BLUE_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					blueBits = *(walker + 1);
+				}
+				break;
+			case EGL_DEPTH_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					depthBits = *(walker + 1);
+				}
+				break;
+			case EGL_STENCIL_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					stencilBits = *(walker + 1);
+				}
+				break;
+			case EGL_ALPHA_SIZE:
+				if (*(walker + 1) != EGL_DONT_CARE)
+				{
+					alphaBits = *(walker + 1);
+				}
+				break;
+			case EGL_SAMPLES:
+				samples = *(walker + 1);
+				break;
+		}
+
+		walker += 2;
+	}
+
+	walker = contextAttribList;
+	while(walker && *walker != EGL_NONE)
+	{
+		switch(*walker)
+		{
+			case EGL_CONTEXT_MAJOR_VERSION:
+				major = *(walker + 1);
+				break;
+			case EGL_CONTEXT_MINOR_VERSION:
+				minor = *(walker + 1);
+				break;
+			case EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE:
+				if (*(walker + 1) == EGL_TRUE)
+				{
+					forward = 1;
+				}
+				else if (*(walker + 1) == EGL_FALSE)
+				{
+					forward = 0;
+				}
+				break;
+			case EGL_CONTEXT_OPENGL_PROFILE_MASK:
+				if (*(walker + 1) & EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT)
+				{
+					profile = GLFW_OPENGL_CORE_PROFILE;
+				}
+				else if (*(walker + 1) & EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT)
+				{
+					profile = GLFW_OPENGL_COMPAT_PROFILE;
+				}
+				break;
+			case EGL_CONTEXT_OPENGL_DEBUG:
+				if (*(walker + 1) == EGL_TRUE)
+				{
+					debug = 1;
+				}
+				else if (*(walker + 1) == EGL_FALSE)
+				{
+					debug = 0;
+				}
+				break;
+		}
+
+		walker += 2;
+	}
+
+	glfwWindowHint(GLFW_RED_BITS, redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, blueBits);
 	glfwWindowHint(GLFW_DEPTH_BITS, depthBits);
 	glfwWindowHint(GLFW_STENCIL_BITS, stencilBits);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, g_debug || (g_flags & GLUS_DEBUG_CONTEXT_BIT));
+	glfwWindowHint(GLFW_ALPHA_BITS, alphaBits);
+
+	glfwWindowHint(GLFW_SAMPLES, samples);
+
+	//
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, forward);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug);
+
+	//
+
+	glfwWindowHint(GLFW_RESIZABLE, !noResize);
 
 	g_window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : 0, 0);
 	if (!g_window)
@@ -327,11 +412,11 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 	// Catch all OpenGL errors so far.
 	glGetError();
 
-	if (!glusIsSupported(g_major, g_minor))
+	if (!glusIsSupported(major, minor))
 	{
 		glusDestroyWindow();
 
-		glusLogPrint(GLUS_LOG_ERROR, "OpenGL %u.%u not supported", g_major, g_minor);
+		glusLogPrint(GLUS_LOG_ERROR, "OpenGL %u.%u not supported", major, minor);
 
 		return GLUS_FALSE;
 	}
@@ -345,7 +430,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	glfwGetWindowSize(g_window, &g_width, &g_height);
 
-	if (g_debug && glusIsSupported(4, 3))
+	if (debug && glusIsSupported(4, 3))
 	{
 		glusLogSetLevel(GLUS_LOG_DEBUG);
 

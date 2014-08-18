@@ -1,7 +1,7 @@
 #version 410 core
 
 layout(triangles, invocations = 1) in;
-layout(max_vertices = 3) out;
+layout(triangle_strip, max_vertices = 3) out;
 
 uniform sampler2DRect u_heightMapTexture;
 uniform sampler2DRect u_normalMapTexture;

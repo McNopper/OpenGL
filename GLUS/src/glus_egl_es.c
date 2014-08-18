@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext,  const EGLint attribList[], const EGLint eglContextClientVersion)
+EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint configAttribList[], const EGLint contextAttribList[])
 {
     EGLint numConfigs;
     EGLint majorVersion;
@@ -25,9 +25,6 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLConfig config = 0;
     EGLDisplay context = EGL_NO_CONTEXT;
-
-    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, GLUS_DEFAULT_CLIENT_VERSION, EGL_NONE, EGL_NONE };
-    EGLint* usedContextAttribs = 0;
 
     if (!eglDisplay || !eglConfig || !eglContext)
     {
@@ -67,7 +64,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     }
 
     // Choose config
-    if (!eglChooseConfig(display, attribList, &config, 1, &numConfigs))
+    if (!eglChooseConfig(display, configAttribList, &config, 1, &numConfigs))
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not choose EGL configuration");
 
@@ -85,34 +82,15 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
         return EGL_FALSE;
     }
 
-    // EGL_CONTEXT_CLIENT_VERSION can only be set for OpenGL ES
-    // see http://www.khronos.org/registry/egl/sdk/docs/man/xhtml/eglCreateContext.html
-    if (GLUS_EGL_API == EGL_OPENGL_ES_API)
-    {
-    	contextAttribs[1] = eglContextClientVersion;
-
-    	usedContextAttribs = contextAttribs;
-    }
-
     // Create a GL ES or VG context
-    context = eglCreateContext(display, config, EGL_NO_CONTEXT, usedContextAttribs);
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribList);
     if (context == EGL_NO_CONTEXT)
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context");
 
-        if (GLUS_EGL_API == EGL_OPENGL_ES_API)
-        {
-        	glusLogPrint(GLUS_LOG_INFO, "EGL context client version: %d", eglContextClientVersion);
-        }
-
         glusEGLTerminate(eglDisplay, 0, 0);
 
         return EGL_FALSE;
-    }
-
-    if (GLUS_EGL_API == EGL_OPENGL_ES_API)
-    {
-    	glusLogPrint(GLUS_LOG_INFO, "EGL context client version: %d", eglContextClientVersion);
     }
 
     *eglDisplay = display;

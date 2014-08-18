@@ -19,50 +19,19 @@
 #define GLUS_GLFW_H_
 
 /**
- * Prepare the OpenGL context. Must be called before windows creation.
- *
- * @param major OpenGL major version.
- * @param minor OpenGL minor version.
- * @param flags Use either GLUS_BACKWARD_COMPATIBLE_BIT for backward compatibility or GLUS_FORWARD_COMPATIBLE_BIT for forward compatibility.
- * 				Also, GLUS_OPENGL_DEBUG_CONTEXT can be set for creating an OpenGL debug context.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint major, const GLUSint minor, const GLUSint flags);
-
-/**
- * Prepare the OpenGL context. Must be called before windows creation.
- *
- * @param numberSamples Number of MSAA.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareMSAA(const GLUSint numberSamples);
-
-/**
- * Prepare the window. Must be called before windows creation.
- *
- * @param noResize GLUS_TRUE, if it should not be possible to resize the window.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize);
-
-/**
- * The runtime environment is prepared with a debug context and a debug message callback. Also the log is changed to the debug level.
- * Only supported since OpenGL 4.3 and greater.
- *
- * @param debug GLUS_TRUE, if a debug context should be created and a default debug message callback should be used.
- */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusPrepareDebug(const GLUSboolean debug);
-
-/**
  * Creates the window. In this function, mainly GLEW and GLFW functions are used. By default, a RGBA color buffer is created.
  *
- * @param title Title of the window.
- * @param width Width of the window.
- * @param height Height of the window.
- * @param depthBits Number of bits for the depth buffer.
- * @param stencilBits Number of bits for the stencil buffer.
- * @param fullscreen Flag for setting the window to fullscreen.
+ * @param title				Title of the window.
+ * @param width				Width of the window.
+ * @param height			Height of the window.
+ * @param fullscreen 		Flag for setting the window to fullscreen.
+ * @param noResize 			GLUS_TRUE, if it should not be possible to resize the window.
+ * @param configAttribList 	EGL configuration attribute list.
+ * @param contextAttribList EGL context attribute list.
  *
  * @return GLUS_TRUE, if creation of OpenGL context and window succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSint depthBits, const GLUSint stencilBits, const GLUSboolean fullscreen);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList);
 
 /**
  * Cleans up the window and frees all resources. Only needs to be called, if creation of the window failed.

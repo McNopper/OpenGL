@@ -53,9 +53,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-24.04.2014 Norbert Nopper (norbert@nopper.tv)
+18.08.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+18.08.2014 - Changed interface of window creation in GLUS. Now all versions are the same.
 
 24.04.2014 - Upgraded to Visual C++ 2012
 

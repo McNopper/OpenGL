@@ -54,6 +54,39 @@ extern "C"
 
 #include <GLFW/glfw3.h>
 
+typedef int EGLint;
+
+#define EGL_TRUE                          1
+#define EGL_FALSE                         0
+#define EGL_NONE                          0x3038
+#define EGL_DONT_CARE                     ((EGLint)-1)
+
+//
+
+#define EGL_RENDERABLE_TYPE               0x3040
+#define EGL_OPENGL_BIT                    0x0008
+
+#define EGL_RED_SIZE                      0x3024
+#define EGL_GREEN_SIZE                    0x3023
+#define EGL_BLUE_SIZE                     0x3022
+#define EGL_DEPTH_SIZE                    0x3025
+#define EGL_STENCIL_SIZE                  0x3026
+#define EGL_ALPHA_SIZE                    0x3021
+#define EGL_SAMPLES                       0x3031
+#define EGL_SAMPLE_BUFFERS                0x3032
+
+//
+
+#define EGL_CONTEXT_MAJOR_VERSION         				0x3098
+#define EGL_CONTEXT_MINOR_VERSION         				0x30FB
+#define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 			0x31B1
+
+#define EGL_CONTEXT_OPENGL_PROFILE_MASK   0x30FD
+#define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT				0x00000001
+#define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT	0x00000002
+
+#define EGL_CONTEXT_OPENGL_DEBUG          				0x31B0
+
 //
 // GLUS function call convention etc.
 //
@@ -66,643 +99,41 @@ extern "C"
 
 #include "../GLUS/glus_types.h"
 
-#define GLUS_OK 	0
-#define GLUS_TRUE   1
-#define GLUS_FALSE  0
+//
+// GLUS defines.
+//
 
-#define GLUS_BACKWARD_COMPATIBLE_BIT    0x00000000
-#define GLUS_FORWARD_COMPATIBLE_BIT     0x00000001
-#define GLUS_DEBUG_CONTEXT_BIT   		0x00000002
+#include "../GLUS/glus_define.h"
 
-#define GLUS_VERTEX_SHADER              0x00008B31
-#define GLUS_FRAGMENT_SHADER            0x00008B30
-#define GLUS_TESS_EVALUATION_SHADER     0x00008E87
-#define GLUS_TESS_CONTROL_SHADER        0x00008E88
-#define GLUS_GEOMETRY_SHADER            0x00008DD9
-#define GLUS_COMPUTE_SHADER 			0x000091B9
+#include "../GLUS/glus_define_shader.h"
 
-#define GLUS_VERTEX_SHADER_BIT 			0x00000001
-#define GLUS_FRAGMENT_SHADER_BIT 		0x00000002
-#define GLUS_GEOMETRY_SHADER_BIT 		0x00000004
-#define GLUS_TESS_CONTROL_SHADER_BIT 	0x00000008
-#define GLUS_TESS_EVALUATION_SHADER_BIT 0x00000010
-#define GLUS_COMPUTE_SHADER_BIT 		0x00000020
-#define GL_ALL_SHADER_BITS 				0xFFFFFFFF
+#include "../GLUS/glus_define_color.h"
 
-#define GLUS_RED  						0x00001903
-#define GLUS_ALPHA  					0x00001906
-#define GLUS_RGB    					0x00001907
-#define GLUS_RGBA   					0x00001908
-#define GLUS_LUMINANCE  				0x00001909
+#include "../GLUS/glus_define_uint.h"
 
-#define GLUS_COMPRESSED_R11_EAC                            0x9270
-#define GLUS_COMPRESSED_SIGNED_R11_EAC                     0x9271
-#define GLUS_COMPRESSED_RG11_EAC                           0x9272
-#define GLUS_COMPRESSED_SIGNED_RG11_EAC                    0x9273
-#define GLUS_COMPRESSED_RGB8_ETC2                          0x9274
-#define GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2      0x9276
-#define GLUS_COMPRESSED_RGBA8_ETC2_EAC                     0x9278
+//
+// Load and save structures.
+//
 
-#define GLUS_PI		3.1415926535897932384626433832795f
+#include "../GLUS/glus_load_save.h"
 
-#define GLUS_LOG_NOTHING	0
-#define GLUS_LOG_ERROR   	1
-#define GLUS_LOG_WARNING 	2
-#define GLUS_LOG_INFO    	3
-#define GLUS_LOG_DEBUG   	4
-#define GLUS_LOG_SEVERE		5
+//
+// Shape with unsigned integer indices.
+//
 
-#define GLUS_VERTICES_FACTOR 4
-#define GLUS_VERTICES_DIVISOR 4
+#include "../GLUS/glus_shape_uint.h"
 
-#define GLUS_MAX_VERTICES 1048576
-#define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
+//
+// Line with unsigned integer indices.
+//
 
-#define GLUS_MAX_STRING  256
+#include "../GLUS/glus_line_uint.h"
 
-/**
- * Structure used for text file loading.
- */
-typedef struct _GLUStextfile
-{
-	/**
-	 * Contains the data of the text file.
-	 */
-    GLUSchar* text;
+//
+// Wavefront with unsigned integer indices.
+//
 
-    /**
-     * The length of the text file without the null terminator.
-     */
-    GLUSint length;
-
-} GLUStextfile;
-
-/**
- * Structure used for binary file loading.
- */
-typedef struct _GLUSbinaryfile
-{
-    /**
-     * The binary data of the file.
-     */
-    GLUSubyte* binary;
-
-    /**
-     * The length of the binary data.
-     */
-    GLUSint length;
-
-} GLUSbinaryfile;
-
-/**
- * Structure used for Targa Image File loading.
- */
-typedef struct _GLUStgaimage
-{
-	/**
-	 * Width of the TGA image.
-	 */
-    GLUSushort width;
-
-	/**
-	 * Height of the TGA image.
-	 */
-    GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-    GLUSushort depth;
-
-    /**
-     * Pixel data.
-     */
-    GLUSubyte* data;
-
-    /**
-     * Format of the TGA image. Can be:
-     *
-	 * GLUS_RGB
-     * GLUS_RGBA
-     * GLUS_LUMINANCE
-     *
-     * Last entry can also be interpreted as GLUS_ALPHA.
-     */
-    GLUSenum format;
-
-} GLUStgaimage;
-
-/**
- * Structure used for HDR Image File loading.
- */
-typedef struct _GLUShdrimage
-{
-	/**
-	 * Width of the HDR image.
-	 */
-	GLUSushort width;
-
-	/**
-	 * Height of the HDR image.
-	 */
-	GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
-
-	/**
-	 * Pixel data.
-	 */
-	GLUSfloat* data;
-
-    /**
-     * Format of the HDR image.
-     */
-    GLUSenum format;
-
-} GLUShdrimage;
-
-/**
- * Structure used for PKM Image File loading.
- */
-typedef struct _GLUSpkmimage
-{
-	/**
-	 * Width of the PKM image.
-	 */
-	GLUSushort width;
-
-	/**
-	 * Height of the PKM image.
-	 */
-	GLUSushort height;
-
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
-
-	/**
-	 * Pixel data.
-	 */
-	GLUSubyte* data;
-
-    /**
-     * The image size in bytes.
-     */
-    GLUSint imageSize;
-
-    /**
-     * Internal format of the PKM image.
-     */
-    GLUSenum internalformat;
-
-} GLUSpkmimage;
-
-/**
- * Structure for shader program handling.
- */
-typedef struct _GLUSshaderprogram
-{
-	/**
-	 * The created program.
-	 */
-    GLUSuint program;
-
-    /**
-     * Compute shader.
-     */
-    GLUSuint compute;
-
-    /**
-     * Vertex shader.
-     */
-    GLUSuint vertex;
-
-    /**
-     * Tessellation control shader.
-     */
-    GLUSuint control;
-
-    /**
-     * Tessellation evaluation shader.
-     */
-    GLUSuint evaluation;
-
-    /**
-     * Geometry shader.
-     */
-    GLUSuint geometry;
-
-    /**
-     * Fragment shader.
-     */
-    GLUSuint fragment;
-
-} GLUSshaderprogram;
-
-/**
- * Structure for program pipeline handling.
- */
-typedef struct _GLUSprogrampipeline
-{
-	/**
-	 * The created pipeline.
-	 */
-    GLUSuint pipeline;
-
-    /**
-     * Compute shader program.
-     */
-    GLUSuint computeProgram;
-
-    /**
-     * Vertex shader program.
-     */
-    GLUSuint vertexProgram;
-
-    /**
-     * Tessellation control shader program.
-     */
-    GLUSuint controlProgram;
-
-    /**
-     * Tessellation evaluation shader program.
-     */
-    GLUSuint evaluationProgram;
-
-    /**
-     * Geometry shader program.
-     */
-    GLUSuint geometryProgram;
-
-    /**
-     * Fragment shader program.
-     */
-    GLUSuint fragmentProgram;
-
-} GLUSprogrampipeline;
-
-/**
- * Structure for holding geometry data.
- */
-typedef struct _GLUSshape
-{
-	/**
-	 * Vertices in homogeneous coordinates.
-	 */
-    GLUSfloat* vertices;
-
-    /**
-     * Normals.
-     */
-    GLUSfloat* normals;
-
-    /**
-     * Tangents.
-     */
-    GLUSfloat* tangents;
-
-    /**
-     * Bitangents.
-     */
-    GLUSfloat* bitangents;
-
-    /**
-     * Texture coordinates.
-     */
-    GLUSfloat* texCoords;
-
-    /**
-     * All above values in one array. Not created by the model loader.
-     */
-    GLUSfloat* allAttributes;
-
-    /**
-     * Indices.
-     */
-    GLUSuint* indices;
-
-    /**
-     * Number of vertices.
-     */
-    GLUSuint numberVertices;
-
-    /**
-     * Number of indices.
-     */
-    GLUSuint numberIndices;
-
-    /**
-     * Triangle render mode - could be either:
-     *
-     * GL_TRIANGLES
-     * GL_TRIANGLE_STRIP
-     */
-    GLUSenum mode;
-
-} GLUSshape;
-
-/**
- * Structure for holding material data.
- */
-typedef struct _GLUSmaterial
-{
-	/**
-	 * Name of the material.
-	 */
-	GLUSchar name[GLUS_MAX_STRING];
-
-	/**
-	 * Emissive color.
-	 */
-	GLUSfloat emissive[4];
-
-	/**
-	 * Ambient color.
-	 */
-	GLUSfloat ambient[4];
-
-	/**
-	 * Diffuse color.
-	 */
-	GLUSfloat diffuse[4];
-
-	/**
-	 * Specular color.
-	 */
-	GLUSfloat specular[4];
-
-	/**
-	 * Shininess.
-	 */
-	GLUSfloat shininess;
-
-	/**
-	 * Transparency, which is the alpha value.
-	 */
-	GLUSfloat transparency;
-
-	/**
-	 * Reflection.
-	 */
-	GLUSboolean reflection;
-
-	/**
-	 * Refraction.
-	 */
-	GLUSboolean refraction;
-
-	/**
-	 * Index of refraction.
-	 */
-	GLUSfloat indexOfRefraction;
-
-	/**
-	 * Ambient color texture filename.
-	 */
-	GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Diffuse color texture filename.
-	 */
-	GLUSchar diffuseTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Specular color texture filename.
-	 */
-	GLUSchar specularTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Transparency texture filename.
-	 */
-	GLUSchar transparencyTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Bump texture filename.
-	 */
-	GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
-
-	/**
-	 * Can be used to store the ambient texture name.
-	 */
-    GLUSuint ambientTextureName;
-
-	/**
-	 * Can be used to store the diffuse texture name.
-	 */
-    GLUSuint diffuseTextureName;
-
-	/**
-	 * Can be used to store the specular texture name.
-	 */
-    GLUSuint specularTextureName;
-
-	/**
-	 * Can be used to store the transparency texture name.
-	 */
-    GLUSuint transparencyTextureName;
-
-	/**
-	 * Can be used to store the bump texture name.
-	 */
-    GLUSuint bumpTextureName;
-
-} GLUSmaterial;
-
-/**
- * Structure for holding material data list.
- */
-typedef struct _GLUSmaterialList
-{
-	/**
-	 * The material data.
-	 */
-	GLUSmaterial material;
-
-	/**
-	 * The pointer to the next element.
-	 */
-	struct _GLUSmaterialList* next;
-
-} GLUSmaterialList;
-
-/**
- * Group of geometry.
- */
-typedef struct _GLUSgroup
-{
-		/**
-		 * Name of the group.
-		 */
-		GLUSchar name[GLUS_MAX_STRING];
-
-		/**
-		 * Name of the material.
-		 */
-		GLUSchar materialName[GLUS_MAX_STRING];
-
-		/**
-		 * Pointer to the material.
-		 */
-		GLUSmaterial* material;
-
-	    /**
-	     * Indices.
-	     */
-	    GLUSuint* indices;
-
-	    /**
-	     * Indices VBO.
-	     */
-	    GLUSuint indicesVBO;
-
-	    /**
-	     * VAO of this group.
-	     */
-	    GLUSuint vao;
-
-	    /**
-	     * Number of indices.
-	     */
-	    GLUSuint numberIndices;
-
-	    /**
-	     * Triangle render mode - could be either:
-	     *
-	     * GL_TRIANGLES
-	     * GL_TRIANGLE_STRIP
-	     */
-	    GLUSenum mode;
-
-} GLUSgroup;
-
-/**
- * Structure for holding the group data list.
- */
-typedef struct _GLUSgroupList
-{
-		/**
-		 * The group data.
-		 */
-		GLUSgroup group;
-
-	    /**
-	     * The pointer to the next group element.
-	     */
-	    struct _GLUSgroupList* next;
-
-} GLUSgroupList;
-
-/**
- * Structure for a complete wavefront object file.
- */
-typedef struct _GLUSwavefront
-{
-		/**
-		 * Vertices in homogeneous coordinates.
-		 */
-	    GLUSfloat* vertices;
-
-	    /**
-	     * Vertices VBO.
-	     */
-	    GLUSuint verticesVBO;
-
-	    /**
-	     * Normals.
-	     */
-	    GLUSfloat* normals;
-
-	    /**
-	     * Normals VBO.
-	     */
-	    GLUSuint normalsVBO;
-
-	    /**
-	     * Tangents.
-	     */
-	    GLUSfloat* tangents;
-
-	    /**
-	     * Tangents VBO.
-	     */
-	    GLUSuint tangentsVBO;
-
-	    /**
-	     * Bitangents.
-	     */
-	    GLUSfloat* bitangents;
-
-	    /**
-	     * Bitangents VBO.
-	     */
-	    GLUSuint bitangentsVBO;
-
-	    /**
-	     * Texture coordinates.
-	     */
-	    GLUSfloat* texCoords;
-
-	    /**
-	     * Texture corrdinates VBO.
-	     */
-	    GLUSuint texCoordsVBO;
-
-	    /**
-	     * Number of vertices.
-	     */
-	    GLUSuint numberVertices;
-
-	    /**
-	     * Pointer to the first element of the groups.
-	     */
-	    GLUSgroupList* groups;
-
-	    /**
-	     * Pointer to the first element of the materials.
-	     */
-	    GLUSmaterialList* materials;
-
-} GLUSwavefront;
-
-/**
- * Structure for holding line data.
- */
-typedef struct _GLUSline
-{
-	/**
-	 * Vertices in homogeneous coordinates.
-	 */
-    GLUSfloat* vertices;
-
-    /**
-     * Indices.
-     */
-    GLUSuint* indices;
-
-    /**
-     * Number of vertices.
-     */
-    GLUSuint numberVertices;
-
-    /**
-     * Number of indices.
-     */
-    GLUSuint numberIndices;
-
-    /**
-     * Line render mode - could be either:
-     *
-     * GL_LINES
-     * GL_LINE_STRIP
-     * GL_LINE_LOOP
-     */
-    GLUSenum mode;
-
-} GLUSline;
+#include "../GLUS/glus_wavefront_uint.h"
 
 //
 // Memory manager.

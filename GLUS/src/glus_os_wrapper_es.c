@@ -29,13 +29,9 @@ extern double _glusGetRawTime(GLUSvoid);
 
 extern GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height);
 
-static EGLint g_eglContextClientVersion = GLUS_DEFAULT_CLIENT_VERSION;
-
 static EGLDisplay g_eglDisplay = EGL_NO_DISPLAY;
 static EGLDisplay g_eglSurface = EGL_NO_SURFACE;
 static EGLDisplay g_eglContext = EGL_NO_CONTEXT;
-
-static GLUSboolean g_noResize = GLUS_FALSE;
 
 static GLUSboolean g_windowCreated = GLUS_FALSE;
 static GLUSboolean g_initdone = GLUS_FALSE;
@@ -95,16 +91,6 @@ GLUSvoid GLUSAPIENTRY glusUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time
 GLUSvoid GLUSAPIENTRY glusTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
 {
 	glusTerminate = glusNewTerminate;
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareContext(const GLUSint version)
-{
-	g_eglContextClientVersion = version;
-}
-
-GLUSvoid GLUSAPIENTRY glusPrepareNoResize(const GLUSboolean noResize)
-{
-	g_noResize = noResize;
 }
 
 static GLUSfloat glusGetElapsedTime(GLUSvoid)
@@ -246,7 +232,7 @@ GLUSvoid GLUSAPIENTRY glusDestroyWindow(GLUSvoid)
 	g_initdone = GLUS_FALSE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width, const GLUSint height, const EGLint* attribList, const GLUSboolean fullscreen)
+GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList)
 {
 	EGLConfig eglConfig;
 
@@ -261,7 +247,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 		return GLUS_FALSE;
 	}
 
-	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, attribList, g_eglContextClientVersion))
+	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, configAttribList, contextAttribList))
 	{
 		glusDestroyWindow();
 
@@ -270,7 +256,7 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const char* title, const GLUSint width
 
 	eglGetConfigAttrib(g_eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, &nativeVisualID);
 
-	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, g_noResize, nativeVisualID);
+	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, noResize, nativeVisualID);
 
 	if (!eglNativeWindowType)
 	{
