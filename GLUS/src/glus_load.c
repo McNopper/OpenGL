@@ -405,7 +405,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 	}
 	else
 	{
-		tgaimage->format = GLUS_LUMINANCE;
+		tgaimage->format = GLUS_SINGLE_CHANNEL;
 		if (bitsPerPixel == 24)
 		{
 			tgaimage->format = GLUS_RGB;
@@ -619,7 +619,7 @@ GLUSboolean GLUSAPIENTRY glusLoadTgaImage(const GLUSchar* filename, GLUStgaimage
 			return GLUS_FALSE;
 		}
 
-		tgaimage->format = GLUS_LUMINANCE;
+		tgaimage->format = GLUS_SINGLE_CHANNEL;
 		if (colorMapEntrySize == 24)
 		{
 			tgaimage->format = GLUS_RGB;

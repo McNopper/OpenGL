@@ -115,7 +115,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUS
 	image->width = (GLUSushort)width;
 	image->height = 1;
 	image->depth = 1;
-	image->format = GLUS_RED;
+	image->format = GLUS_SINGLE_CHANNEL;
 	image->data = glusMalloc(width * sizeof(GLUSubyte));
 
 	if (!image->data)
@@ -245,7 +245,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUS
 	image->width = (GLUSushort)width;
 	image->height = (GLUSushort)height;
 	image->depth = 1;
-	image->format = GLUS_RED;
+	image->format = GLUS_SINGLE_CHANNEL;
 	image->data = glusMalloc(width * height * sizeof(GLUSubyte));
 
 	if (!image->data)
@@ -393,7 +393,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUS
 	image->width = (GLUSushort)width;
 	image->height = (GLUSushort)height;
 	image->depth = (GLUSushort)depth;
-	image->format = GLUS_RED;
+	image->format = GLUS_SINGLE_CHANNEL;
 	image->data = glusMalloc(width * height * depth * sizeof(GLUSubyte));
 
 	if (!image->data)

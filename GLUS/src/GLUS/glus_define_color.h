@@ -24,4 +24,6 @@
 #define GLUS_RGBA   					0x00001908
 #define GLUS_LUMINANCE  				0x00001909
 
+#define GLUS_SINGLE_CHANNEL GLUS_RED
+
 #endif /* GLUS_DEFINE_COLOR_H_ */

@@ -509,6 +509,11 @@ GLUSboolean GLUSAPIENTRY glusCreateWindow(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
+	if (major <= 3 && minor <= 1)
+	{
+		profile = GLFW_OPENGL_ANY_PROFILE;
+	}
+
 	glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
 
 	//
