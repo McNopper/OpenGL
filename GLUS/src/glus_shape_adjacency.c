@@ -159,7 +159,7 @@ static GLUSboolean glusFindIndexByVerticesf(GLUSuint* adjacentIndex, GLUSuint tr
 	return GLUS_FALSE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, const GLUSshape* sourceShape)
+GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencyShape, const GLUSshape* sourceShape)
 {
 	GLUSuint i;
 
@@ -184,23 +184,23 @@ GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, co
 		return GLUS_FALSE;
 	}
 
-	if (!glusCopyShapef(adjacencyShape, sourceShape))
+	if (!glusShapeCopyf(adjacencyShape, sourceShape))
 	{
-		glusDestroyShapef(adjacencyShape);
+		glusShapeDestroyf(adjacencyShape);
 
 		return GLUS_FALSE;
 	}
 
 	adjacencyShape->numberIndices = numberIndices;
 
-	glusFree(adjacencyShape->indices);
-	adjacencyShape->indices = (GLUSuint*)glusMalloc(numberIndices * sizeof(GLUSuint));
+	glusMemoryFree(adjacencyShape->indices);
+	adjacencyShape->indices = (GLUSuint*)glusMemoryMalloc(numberIndices * sizeof(GLUSuint));
 
 	adjacencyShape->mode = GL_TRIANGLES_ADJACENCY;
 
 	if (!glusCheckShapef(adjacencyShape))
 	{
-		glusDestroyShapef(adjacencyShape);
+		glusShapeDestroyf(adjacencyShape);
 
 		return GLUS_FALSE;
 	}

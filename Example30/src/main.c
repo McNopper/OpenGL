@@ -35,7 +35,7 @@
 /**
  * The used shader program.
  */
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * The location of the texture in the shader program.
@@ -62,7 +62,7 @@ static GLuint g_localSize = 16;
 /**
  * The used compute shader program.
  */
-static GLUSshaderprogram g_computeProgram;
+static GLUSprogram g_computeProgram;
 
 //
 // Shader Storage Buffer Objects
@@ -157,19 +157,19 @@ GLUSboolean init(GLUSvoid)
 	GLUStextfile fragmentSource;
 	GLUStextfile computeSource;
 
-	glusLoadTextFile("../Example30/shader/fullscreen.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example30/shader/texture.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example30/shader/fullscreen.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example30/shader/texture.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
-	glusLoadTextFile("../Example30/shader/raytrace.comp.glsl", &computeSource);
+	glusFileLoadText("../Example30/shader/raytrace.comp.glsl", &computeSource);
 
-	glusBuildComputeProgramFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
+	glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
 
-	glusDestroyTextFile(&computeSource);
+	glusFileDestroyText(&computeSource);
 
 	//
 
@@ -378,9 +378,9 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_program);
+	glusProgramDestroy(&g_program);
 
-	glusDestroyProgram(&g_computeProgram);
+	glusProgramDestroy(&g_computeProgram);
 }
 
 int main(int argc, char* argv[])
@@ -403,22 +403,22 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
     // Again, makes programming for this example easier.
-    if (!glusCreateWindow("GLUS Example Window", WIDTH, HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", WIDTH, HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

@@ -92,7 +92,7 @@ static GLUSfloat glusGetNoiseValue3D(GLUStgaimage* image, GLUSint x, GLUSint y, 
 	return (GLUSfloat)(data3D[x + y * (GLUSint)image->width + z * (GLUSint)image->height * (GLUSint)image->width] % amplitude);
 }
 
-GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
+GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise1D(GLUStgaimage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
 {
 	GLUSint i;
 
@@ -116,20 +116,20 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUS
 	image->height = 1;
 	image->depth = 1;
 	image->format = GLUS_SINGLE_CHANNEL;
-	image->data = glusMalloc(width * sizeof(GLUSubyte));
+	image->data = glusMemoryMalloc(width * sizeof(GLUSubyte));
 
 	if (!image->data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
 
-	data = glusMalloc(width * sizeof(GLUSfloat));
+	data = glusMemoryMalloc(width * sizeof(GLUSfloat));
 
 	if (!data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
@@ -141,13 +141,13 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUS
 
 	//
 
-	data1D = glusMalloc(width * sizeof(GLUSint));
+	data1D = glusMemoryMalloc(width * sizeof(GLUSint));
 
 	if (!data1D)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
-		glusFree(data);
+		glusMemoryFree(data);
 
 		return GLUS_FALSE;
 	}
@@ -210,19 +210,19 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUS
 		amplitudeFactor *= 1.0f / persistence;
 	}
 
-	glusFree(data1D);
+	glusMemoryFree(data1D);
 
 	for (i = 0; i < width; i++)
 	{
 		image->data[i] = (GLUSubyte)data[i];
 	}
 
-	glusFree(data);
+	glusMemoryFree(data);
 
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
+GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise2D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
 {
 	GLUSint i;
 
@@ -246,20 +246,20 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUS
 	image->height = (GLUSushort)height;
 	image->depth = 1;
 	image->format = GLUS_SINGLE_CHANNEL;
-	image->data = glusMalloc(width * height * sizeof(GLUSubyte));
+	image->data = glusMemoryMalloc(width * height * sizeof(GLUSubyte));
 
 	if (!image->data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
 
-	data = glusMalloc(width * height * sizeof(GLUSfloat));
+	data = glusMemoryMalloc(width * height * sizeof(GLUSfloat));
 
 	if (!data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
@@ -271,13 +271,13 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUS
 
 	//
 
-	data2D = glusMalloc(width * height * sizeof(GLUSint));
+	data2D = glusMemoryMalloc(width * height * sizeof(GLUSint));
 
 	if (!data2D)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
-		glusFree(data);
+		glusMemoryFree(data);
 
 		return GLUS_FALSE;
 	}
@@ -358,19 +358,19 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUS
 		amplitudeFactor *= 1.0f / persistence;
 	}
 
-	glusFree(data2D);
+	glusMemoryFree(data2D);
 
 	for (i = 0; i < width * height; i++)
 	{
 		image->data[i] = (GLUSubyte)data[i];
 	}
 
-	glusFree(data);
+	glusMemoryFree(data);
 
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
+GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise3D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves)
 {
 	GLUSint i;
 
@@ -394,20 +394,20 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUS
 	image->height = (GLUSushort)height;
 	image->depth = (GLUSushort)depth;
 	image->format = GLUS_SINGLE_CHANNEL;
-	image->data = glusMalloc(width * height * depth * sizeof(GLUSubyte));
+	image->data = glusMemoryMalloc(width * height * depth * sizeof(GLUSubyte));
 
 	if (!image->data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
 
-	data = glusMalloc(width * height * depth * sizeof(GLUSfloat));
+	data = glusMemoryMalloc(width * height * depth * sizeof(GLUSfloat));
 
 	if (!data)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
 		return GLUS_FALSE;
 	}
@@ -419,13 +419,13 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUS
 
 	//
 
-	data3D = glusMalloc(width * height * depth * sizeof(GLUSint));
+	data3D = glusMemoryMalloc(width * height * depth * sizeof(GLUSint));
 
 	if (!data3D)
 	{
-		glusDestroyTgaImage(image);
+		glusImageDestroyTga(image);
 
-		glusFree(data);
+		glusMemoryFree(data);
 
 		return GLUS_FALSE;
 	}
@@ -529,14 +529,14 @@ GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUS
 		amplitudeFactor *= 1.0f / persistence;
 	}
 
-	glusFree(data3D);
+	glusMemoryFree(data3D);
 
 	for (i = 0; i < width * height * depth; i++)
 	{
 		image->data[i] = (GLUSubyte)data[i];
 	}
 
-	glusFree(data);
+	glusMemoryFree(data);
 
 	return GLUS_TRUE;
 }

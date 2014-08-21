@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusIsSupported(const GLUSint major, const GLUSint minor)
+GLUSboolean GLUSAPIENTRY glusVersionIsSupported(const GLUSint major, const GLUSint minor)
 {
     GLUSint driverMajor;
     GLUSint driverMinor;

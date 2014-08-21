@@ -300,3 +300,57 @@ GLUSfloat GLUSAPIENTRY glusVector2Fresnelf(const GLUSfloat incident[2], const GL
 
 	return R0 + (1.0f - R0) * powf(1.0f - glusVector2Dotf(negIncident, normal), 5.0f);
 }
+
+//
+
+GLUSvoid GLUSAPIENTRY glusVectorNCopyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+{
+	GLUSint i;
+
+	for (i = 0; i < n; i++)
+	{
+		result[i] = vector[i];
+	}
+}
+
+GLUSvoid GLUSAPIENTRY glusVectorNComplexToFloatc(GLUSfloat* result, const GLUScomplex* vector, const GLUSint n)
+{
+	GLUSint i;
+
+	for (i = 0; i < n; i++)
+	{
+		result[2 * i + 0] = vector[i].real;
+		result[2 * i + 1] = vector[i].imaginary;
+	}
+}
+
+GLUSvoid GLUSAPIENTRY glusVectorNFloatToComplexc(GLUScomplex* result, const GLUSfloat* vector, const GLUSint n)
+{
+	GLUSint i;
+
+	for (i = 0; i < n; i++)
+	{
+		result[i].real = vector[2 * i + 0];
+		result[i].imaginary = vector[2 * i + 1];
+	}
+}
+
+GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUSfloat scalar)
+{
+	GLUSint i;
+
+	for (i = 0; i < n; i++)
+	{
+		glusComplexMultiplyScalarc(&result[i], &vector[i], scalar);
+	}
+}
+
+GLUSvoid GLUSAPIENTRY glusVectorNConjugatec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+{
+	GLUSint i;
+
+	for (i = 0; i < n; i++)
+	{
+		glusComplexConjugatec(&result[i], &vector[i]);
+	}
+}

@@ -17,12 +17,12 @@
 
 #include "GL/glus.h"
 
-void* GLUSAPIENTRY glusMalloc(size_t size)
+void* GLUSAPIENTRY glusMemoryMalloc(size_t size)
 {
 	return malloc(size);
 }
 
-void GLUSAPIENTRY glusFree(void* pointer)
+void GLUSAPIENTRY glusMemoryFree(void* pointer)
 {
 	free(pointer);
 }

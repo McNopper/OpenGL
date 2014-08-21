@@ -14,7 +14,7 @@
 
 #include "GL/glus.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_viewProjectionMatrixLocation;
 
@@ -30,7 +30,7 @@ static GLint g_normalLocation;
 
 static GLint g_cubemapLocation;
 
-static GLUSshaderprogram g_programBackground;
+static GLUSprogram g_programBackground;
 
 static GLint g_viewProjectionMatrixBackgroundLocation;
 
@@ -87,23 +87,23 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    glusLoadTextFile("../Example11/shader/glass.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example11/shader/glass.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example11/shader/glass.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example11/shader/glass.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusLoadTextFile("../Example11/shader/background.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example11/shader/background.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example11/shader/background.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example11/shader/background.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programBackground, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -129,29 +129,29 @@ GLUSboolean init(GLUSvoid)
     glGenTextures(1, &g_cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemap);
 
-    glusLoadTgaImage("cm_pos_x.tga", &image);
+    glusImageLoadTga("cm_pos_x.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_x.tga", &image);
+    glusImageLoadTga("cm_neg_x.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_pos_y.tga", &image);
+    glusImageLoadTga("cm_pos_y.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_y.tga", &image);
+    glusImageLoadTga("cm_neg_y.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_pos_z.tga", &image);
+    glusImageLoadTga("cm_pos_z.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_z.tga", &image);
+    glusImageLoadTga("cm_neg_z.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -162,7 +162,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusCreateTorusf(&torus, 0.25f, 1.0f, 32, 32);
+    glusShapeCreateTorusf(&torus, 0.25f, 1.0f, 32, 32);
     g_numberIndicesSphere = torus.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);
@@ -181,11 +181,11 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&torus);
+    glusShapeDestroyf(&torus);
 
     //
 
-    glusCreateSpheref(&backgroundSphere, g_circleRadius, 32);
+    glusShapeCreateSpheref(&backgroundSphere, g_circleRadius, 32);
     g_numberIndicesBackground = backgroundSphere.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -200,7 +200,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&backgroundSphere);
+    glusShapeDestroyf(&backgroundSphere);
 
     //
 
@@ -257,7 +257,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 {
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(g_projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(g_projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 }
 
 GLUSboolean update(GLUSfloat time)
@@ -273,13 +273,13 @@ GLUSboolean update(GLUSfloat time)
 
     GLfloat camera[4] = {0.0, 0.0, 0.0, 1.0};
 
-    angleRadians = glusDegToRadf(angle);
+    angleRadians = glusMathDegToRadf(angle);
 
     camera[0] = g_circleRadius * -sinf(angleRadians);
     camera[2] = g_circleRadius * cosf(angleRadians);
 
     // Circle with the camera around the origin by looking at it.
-    glusLookAtf(viewMatrix, camera[0], 0.0f, camera[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, camera[0], 0.0f, camera[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(viewProjectionMatrix, g_projectionMatrix, viewMatrix);
 
@@ -379,7 +379,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
     //
 
@@ -404,7 +404,7 @@ GLUSvoid terminate(GLUSvoid)
         g_vaoBackground = 0;
     }
 
-    glusDestroyProgram(&g_programBackground);
+    glusProgramDestroy(&g_programBackground);
 }
 
 int main(int argc, char* argv[])
@@ -427,21 +427,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

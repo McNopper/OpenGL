@@ -16,7 +16,7 @@ static GLUSfloat g_cameraPosition[3] = { -5.0f, 5.0f, 10.0f };
 
 static GLUSfloat g_lightDirection[3] = { 0.0f, 0.0f, 10.0f };
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_projectionMatrixLocation;
 
@@ -36,7 +36,7 @@ static GLint g_normalLocation;
 
 //
 
-static GLUSshaderprogram g_programShadow;
+static GLUSprogram g_programShadow;
 
 static GLint g_projectionMatrixShadowLocation;
 
@@ -97,23 +97,23 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example27/shader/shadow.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example27/shader/shadow.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example27/shader/shadow.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example27/shader/shadow.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programShadow, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programShadow, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusLoadTextFile("../Example27/shader/color.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example27/shader/color.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example27/shader/color.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example27/shader/color.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -137,7 +137,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
+    glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
     g_numberIndicesTorus = torus.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);
@@ -156,11 +156,11 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&torus);
+    glusShapeDestroyf(&torus);
 
     //
 
-    glusCreatePlanef(&background, 10.0f);
+    glusShapeCreatePlanef(&background, 10.0f);
     g_numberIndicesBackground = background.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -179,13 +179,13 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&background);
+    glusShapeDestroyf(&background);
 
     //
 
     glUseProgram(g_program.program);
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4MultiplyVector3f(lightDirection, viewMatrix, lightDirection);
 
@@ -257,7 +257,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glUseProgram(g_program.program);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 
@@ -283,7 +283,7 @@ GLUSboolean update(GLUSfloat time)
     // This shadow plane represents mathematically the background plane
     GLfloat shadowPlane[4] = {0.0f, 0.0f, 1.0f, 5.0f};
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -319,7 +319,7 @@ GLUSboolean update(GLUSfloat time)
 
     // Torus projected as a shadow
 
-    glusPlanarShadowDirectionalLightf(shadowProjectionMatrix, shadowPlane, g_lightDirection);
+    glusMatrix4x4PlanarShadowDirectionalLightf(shadowProjectionMatrix, shadowPlane, g_lightDirection);
     glUniformMatrix4fv(g_shadowProjectionMatrixShadowLocation, 1, GL_FALSE, shadowProjectionMatrix);
 
     glusMatrix4x4Identityf(modelMatrix);
@@ -424,7 +424,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
     //
 
@@ -435,7 +435,7 @@ GLUSvoid terminate(GLUSvoid)
         g_vaoShadow = 0;
     }
 
-    glusDestroyProgram(&g_programShadow);
+    glusProgramDestroy(&g_programShadow);
 }
 
 int main(int argc, char* argv[])
@@ -458,21 +458,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

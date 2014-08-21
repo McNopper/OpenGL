@@ -12,7 +12,7 @@
 
 #include "GL/glus.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_projectionMatrixLocation;
 
@@ -92,19 +92,19 @@ GLUSboolean init(GLUSvoid)
 
 	GLUStgaimage image;
 
-	glusLoadTextFile("../Example23/shader/tessellation.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example23/shader/tessellation.cont.glsl", &controlSource);
-	glusLoadTextFile("../Example23/shader/tessellation.eval.glsl", &evaluationSource);
-	glusLoadTextFile("../Example23/shader/tessellation.geom.glsl", &geometrySource);
-	glusLoadTextFile("../Example23/shader/tessellation.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example23/shader/tessellation.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example23/shader/tessellation.cont.glsl", &controlSource);
+	glusFileLoadText("../Example23/shader/tessellation.eval.glsl", &evaluationSource);
+	glusFileLoadText("../Example23/shader/tessellation.geom.glsl", &geometrySource);
+	glusFileLoadText("../Example23/shader/tessellation.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+	glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&controlSource);
-	glusDestroyTextFile(&evaluationSource);
-	glusDestroyTextFile(&geometrySource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&controlSource);
+	glusFileDestroyText(&evaluationSource);
+	glusFileDestroyText(&geometrySource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -134,7 +134,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Load the image.
-    glusLoadTgaImage("four_shapes_color.tga", &image);
+    glusImageLoadTga("four_shapes_color.tga", &image);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -151,12 +151,12 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     //
 
     // Load the image.
-    glusLoadTgaImage("four_shapes_normal.tga", &image);
+    glusImageLoadTga("four_shapes_normal.tga", &image);
 
     glActiveTexture(GL_TEXTURE1);
 
@@ -173,7 +173,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     //
 
@@ -182,7 +182,7 @@ GLUSboolean init(GLUSvoid)
 	//
 
     // Core grid
-    glusCreateRectangularGridPlanef(&plane, 3.0f, 3.0f, 16, 16, GLUS_FALSE);
+    glusShapeCreateRectangularGridPlanef(&plane, 3.0f, 3.0f, 16, 16, GLUS_FALSE);
 
     g_numberIndicesPlane = plane.numberIndices;
 
@@ -214,14 +214,14 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
     //
 
     glUseProgram(g_program.program);
 
     // Calculate the view matrix ...
-    glusLookAtf(viewMatrix, 0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, viewMatrix);
 
@@ -291,7 +291,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 	glUniform1f(g_widthLocation, (GLfloat) width);
 	glUniform1f(g_heightLocation, (GLfloat) height);
 
-	glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+	glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
 
 	glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -455,7 +455,7 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_program);
+	glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -478,17 +478,17 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-	glusKeyFunc(key);
+	glusCallbackSetKeyFunc(key);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
     printf("t = Toggle tessellation on/off\n");
     printf("w = Toggle wireframe on/off\n");
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

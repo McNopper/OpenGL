@@ -13,7 +13,7 @@
 #include "globals.h"
 #include "renderBackground.h"
 
-static GLUSshaderprogram g_programBackground;
+static GLUSprogram g_programBackground;
 
 static GLint g_projectionMatrixBackgroundLocation;
 
@@ -44,13 +44,13 @@ GLUSboolean initBackground()
 
     GLUSshape background;
 
-    glusLoadTextFile("../Example15/shader/Background.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example15/shader/Background.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example15/shader/Background.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example15/shader/Background.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programBackground, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -68,7 +68,7 @@ GLUSboolean initBackground()
 
     //
 
-    glusCreateSpheref(&background, (GLfloat) (GLfloat) WATER_PLANE_LENGTH / 2.0f + 0.5f, 32);
+    glusShapeCreateSpheref(&background, (GLfloat) (GLfloat) WATER_PLANE_LENGTH / 2.0f + 0.5f, 32);
     g_numberIndicesBackground = background.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -87,7 +87,7 @@ GLUSboolean initBackground()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&background);
+    glusShapeDestroyf(&background);
 
     //
 
@@ -176,5 +176,5 @@ GLUSvoid terminateBackground(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_programBackground);
+    glusProgramDestroy(&g_programBackground);
 }

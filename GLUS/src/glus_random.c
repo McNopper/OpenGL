@@ -24,20 +24,20 @@ GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed)
 	srand(seed);
 }
 
-GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start, const GLUSfloat end)
+GLUSfloat GLUSAPIENTRY glusRandomUniformf(const GLUSfloat start, const GLUSfloat end)
 {
 	return ((GLUSfloat)rand() / (GLUSfloat)RAND_MAX) * (end - start) + start;
 }
 
 // see http://mathworld.wolfram.com/Box-MullerTransformation.html
 
-GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLUSfloat standardDeviation)
+GLUSfloat GLUSAPIENTRY glusRandomNormalf(const GLUSfloat mean, const GLUSfloat standardDeviation)
 {
 	GLUSfloat x1, x2;
 
 	// Avoid logf(0.0f) and logf(1.0f)
-	x1 = glusRandomUniformGetFloatf(GLUS_UNIFORM_RANDOM_BIAS, 1.0f - GLUS_UNIFORM_RANDOM_BIAS);
-	x2 = glusRandomUniformGetFloatf(0.0f, 1.0f);
+	x1 = glusRandomUniformf(GLUS_UNIFORM_RANDOM_BIAS, 1.0f - GLUS_UNIFORM_RANDOM_BIAS);
+	x2 = glusRandomUniformf(0.0f, 1.0f);
 
 	return mean + standardDeviation * (sqrtf(-2.0f * logf(x1)) * cosf(2.0f * GLUS_PI * x2));
 }

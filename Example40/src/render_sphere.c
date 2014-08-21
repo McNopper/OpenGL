@@ -20,7 +20,7 @@
 
 #include "render_sphere.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_modelViewProjectionMatrixLocation;
 
@@ -57,13 +57,13 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     GLUSshape sphere;
 
-    glusLoadTextFile("../Example40/shader/sphere.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example40/shader/sphere.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example40/shader/sphere.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example40/shader/sphere.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -78,7 +78,7 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     //
 
-    glusCreateSpheref(&sphere, sphereRadius, 64);
+    glusShapeCreateSpheref(&sphere, sphereRadius, 64);
 
     g_numberIndicesSphere = sphere.numberIndices;
 
@@ -98,7 +98,7 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&sphere);
+    glusShapeDestroyf(&sphere);
 
     //
 
@@ -217,5 +217,5 @@ GLUSvoid terminateSphere(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }

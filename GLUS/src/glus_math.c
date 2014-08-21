@@ -17,32 +17,32 @@
 
 #include "GL/glus.h"
 
-GLUSfloat GLUSAPIENTRY glusMaxf(const GLUSfloat value0, const GLUSfloat value1)
+GLUSfloat GLUSAPIENTRY glusMathMaxf(const GLUSfloat value0, const GLUSfloat value1)
 {
     return value0 > value1 ? value0 : value1;
 }
 
-GLUSfloat GLUSAPIENTRY glusMinf(const GLUSfloat value0, const GLUSfloat value1)
+GLUSfloat GLUSAPIENTRY glusMathMinf(const GLUSfloat value0, const GLUSfloat value1)
 {
     return value0 < value1 ? value0 : value1;
 }
 
-GLUSfloat GLUSAPIENTRY glusRadToDegf(const GLUSfloat radians)
+GLUSfloat GLUSAPIENTRY glusMathRadToDegf(const GLUSfloat radians)
 {
     return radians * 360.0f / (2.0f * GLUS_PI);
 }
 
-GLUSfloat GLUSAPIENTRY glusDegToRadf(const GLUSfloat degrees)
+GLUSfloat GLUSAPIENTRY glusMathDegToRadf(const GLUSfloat degrees)
 {
     return degrees * 2.0f * GLUS_PI / 360.0f;
 }
 
-GLUSfloat GLUSAPIENTRY glusMixf(const GLUSfloat value0, const GLUSfloat value1, const GLUSfloat t)
+GLUSfloat GLUSAPIENTRY glusMathMixf(const GLUSfloat value0, const GLUSfloat value1, const GLUSfloat t)
 {
 	return value0 * (1.0f - t) + value1 * t;
 }
 
-GLUSfloat GLUSAPIENTRY glusClampf(const GLUSfloat value, const GLUSfloat min, const GLUSfloat max)
+GLUSfloat GLUSAPIENTRY glusMathClampf(const GLUSfloat value, const GLUSfloat min, const GLUSfloat max)
 {
 	if (value < min)
 	{
@@ -55,7 +55,7 @@ GLUSfloat GLUSAPIENTRY glusClampf(const GLUSfloat value, const GLUSfloat min, co
 	return value;
 }
 
-GLUSfloat GLUSAPIENTRY glusLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z)
+GLUSfloat GLUSAPIENTRY glusMathLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z)
 {
 	return sqrtf(x*x + y*y + z*z);
 }

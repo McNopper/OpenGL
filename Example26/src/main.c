@@ -36,9 +36,9 @@ struct LightLocations
 
 static GLfloat g_viewMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
-static GLUSshaderprogram g_programFur;
+static GLUSprogram g_programFur;
 
 //
 
@@ -126,24 +126,24 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example26/shader/ambient_diffuse_texture.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example26/shader/ambient_diffuse_texture.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example26/shader/ambient_diffuse_texture.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example26/shader/ambient_diffuse_texture.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
 
-    glusLoadTextFile("../Example26/shader/fur.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example26/shader/fur.geom.glsl", &geometrySource);
-    glusLoadTextFile("../Example26/shader/fur.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example26/shader/fur.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example26/shader/fur.geom.glsl", &geometrySource);
+    glusFileLoadText("../Example26/shader/fur.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programFur, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programFur, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&geometrySource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&geometrySource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -180,7 +180,7 @@ GLUSboolean init(GLUSvoid)
 
     // Color texture set up.
 
-    glusLoadTgaImage("tiger.tga", &image);
+    glusImageLoadTga("tiger.tga", &image);
 
     glGenTextures(1, &g_textureFurColor);
     glBindTexture(GL_TEXTURE_2D, g_textureFurColor);
@@ -198,11 +198,11 @@ GLUSboolean init(GLUSvoid)
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     // A simple noise texture influences the strength of each fur pixel.
 
-    glusCreatePerlinNoise2D(&image, 64, 64, 0, 100.0f, 255.0f, 0.5f, 1);
+    glusPerlinCreateNoise2D(&image, 64, 64, 0, 100.0f, 255.0f, 0.5f, 1);
 
     glGenTextures(1, &g_textureFurStrength);
     glBindTexture(GL_TEXTURE_2D, g_textureFurStrength);
@@ -220,15 +220,15 @@ GLUSboolean init(GLUSvoid)
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     //
 
     // Use a helper function to load an wavefront object file.
-    glusLoadObjFile("bunny.obj", &bunnyShape);
+    glusShapeLoadWavefront("bunny.obj", &bunnyShape);
 
     // This model does not have any texture coordinates, so generate them.
-    glusTexGenByAxesf(&bunnyShape, 2.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f);
+    glusShapeTexGenByAxesf(&bunnyShape, 2.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f);
 
     g_numberVertices = bunnyShape.numberVertices;
 
@@ -246,7 +246,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&bunnyShape);
+    glusShapeDestroyf(&bunnyShape);
 
     //
 
@@ -287,7 +287,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLookAtf(g_viewMatrix, 0.0f, 0.75f, 3.0f, 0.0f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.75f, 3.0f, 0.0f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     //
 
@@ -346,7 +346,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUseProgram(g_program.program);
 
@@ -466,9 +466,9 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
-    glusDestroyProgram(&g_programFur);
+    glusProgramDestroy(&g_programFur);
 }
 
 int main(int argc, char* argv[])
@@ -493,21 +493,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

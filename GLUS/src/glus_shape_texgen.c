@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset)
+GLUSboolean GLUSAPIENTRY glusShapeTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset)
 {
 	GLUSuint i;
 
@@ -28,12 +28,12 @@ GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSi
 
 	if (shape->texCoords)
 	{
-		glusFree(shape->texCoords);
+		glusMemoryFree(shape->texCoords);
 
 		shape->texCoords = 0;
 	}
 
-	shape->texCoords = (GLUSfloat*)glusMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+	shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
 	if (!shape->texCoords)
 	{
@@ -49,7 +49,7 @@ GLUSboolean GLUSAPIENTRY glusTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSi
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset)
+GLUSboolean GLUSAPIENTRY glusShapeTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset)
 {
 	GLUSuint i;
 
@@ -60,12 +60,12 @@ GLUSboolean GLUSAPIENTRY glusTexGenByPlanesf(GLUSshape* shape, const GLUSfloat s
 
 	if (shape->texCoords)
 	{
-		glusFree(shape->texCoords);
+		glusMemoryFree(shape->texCoords);
 
 		shape->texCoords = 0;
 	}
 
-	shape->texCoords = (GLUSfloat*)glusMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+	shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
 	if (!shape->texCoords)
 	{

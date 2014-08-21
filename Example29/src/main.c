@@ -69,7 +69,7 @@ typedef struct _PointLight
 /**
  * The used shader program.
  */
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * VAO is needed. Otherwise glDrawArrays will not draw.
@@ -280,7 +280,7 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 		// If no obstacle, illuminate hit point surface.
 		if (!obstacle)
 		{
-			GLfloat diffuseIntensity = glusMaxf(0.0f, glusVector3Dotf(hitDirection, lightDirection));
+			GLfloat diffuseIntensity = glusMathMaxf(0.0f, glusVector3Dotf(hitDirection, lightDirection));
 
 			if (diffuseIntensity > 0.0f)
 			{
@@ -295,7 +295,7 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 				glusVector3Reflectf(specularReflection, incidentLightDirection, hitDirection);
 				glusVector3Normalizef(specularReflection);
 
-				eDotR = glusMaxf(0.0f, glusVector3Dotf(eyeDirection, specularReflection));
+				eDotR = glusMathMaxf(0.0f, glusVector3Dotf(eyeDirection, specularReflection));
 
 				if (eDotR > 0.0f && !insideSphereNear)
 				{
@@ -349,9 +349,9 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
 
 			// Resolve to pixel buffer, which is used for the texture.
 
-			pixels[index * BYTES_PER_PIXEL + 0] = (GLubyte)(glusMinf(1.0f, pixelColor[0]) * 255.0f);
-			pixels[index * BYTES_PER_PIXEL + 1] = (GLubyte)(glusMinf(1.0f, pixelColor[1]) * 255.0f);
-			pixels[index * BYTES_PER_PIXEL + 2] = (GLubyte)(glusMinf(1.0f, pixelColor[2]) * 255.0f);
+			pixels[index * BYTES_PER_PIXEL + 0] = (GLubyte)(glusMathMinf(1.0f, pixelColor[0]) * 255.0f);
+			pixels[index * BYTES_PER_PIXEL + 1] = (GLubyte)(glusMathMinf(1.0f, pixelColor[1]) * 255.0f);
+			pixels[index * BYTES_PER_PIXEL + 2] = (GLubyte)(glusMathMinf(1.0f, pixelColor[2]) * 255.0f);
 		}
 	}
 
@@ -381,13 +381,13 @@ GLUSboolean init(GLUSvoid)
 
 	// Load full screen rendering shaders
 
-	glusLoadTextFile("../Example29/shader/fullscreen.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example29/shader/texture.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example29/shader/fullscreen.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example29/shader/texture.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
 
@@ -474,7 +474,7 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_program);
+	glusProgramDestroy(&g_program);
 }
 
 /**
@@ -500,22 +500,22 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
 	// To keep the program simple, no resize of the window.
-    if (!glusCreateWindow("GLUS Example Window", WIDTH, HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", WIDTH, HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

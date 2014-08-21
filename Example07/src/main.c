@@ -13,7 +13,7 @@
 
 #include "GL/glus.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 //
 
@@ -86,13 +86,13 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat normalMatrix[9];
 
-    glusLoadTextFile("../Example07/shader/normmap.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example07/shader/normmap.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example07/shader/normmap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example07/shader/normmap.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -115,13 +115,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTgaImage("rock_color.tga", &image);
+    glusImageLoadTga("rock_color.tga", &image);
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -131,13 +131,13 @@ GLUSboolean init(GLUSvoid)
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
-    glusLoadTgaImage("rock_normal.tga", &image);
+    glusImageLoadTga("rock_normal.tga", &image);
 
     glGenTextures(1, &g_normalMap);
     glBindTexture(GL_TEXTURE_2D, g_normalMap);
     glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -148,7 +148,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusCreatePlanef(&plane, 1.5f);
+    glusShapeCreatePlanef(&plane, 1.5f);
 
     g_numberIndicesPlane = plane.numberIndices;
 
@@ -180,7 +180,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
     //
 
@@ -213,7 +213,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glUniformMatrix4fv(g_modelViewMatrixLocation, 1, GL_FALSE, g_viewMatrix);
 
@@ -244,7 +244,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -357,7 +357,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -380,21 +380,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

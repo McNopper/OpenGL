@@ -649,7 +649,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix4x4InverseRigidBodyf(GLUSfloat matrix[16])
     GLUSfloat inverseRotation[16];
     GLUSfloat inverseTranslation[16];
 
-    glusMatrix4x4GetScale(scales, matrix);
+    glusMatrix4x4GetScalef(scales, matrix);
     glusMatrix4x4Identityf(inverseScale);
     // Square of it, as rotation still contains the scale
     inverseScale[0] = 1.0f / (scales[0] * scales[0]);
@@ -677,7 +677,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3InverseRigidBodyf(GLUSfloat matrix[9], const 
 		GLUSfloat inverseRotation[9];
 		GLUSfloat inverseTranslation[9];
 
-		glusMatrix3x3GetScale(scales, matrix);
+		glusMatrix3x3GetScalef(scales, matrix);
 		glusMatrix3x3Identityf(inverseScale);
 		// Square of it, as rotation still contains the scale
 		inverseScale[0] = 1.0f / (scales[0] * scales[0]);
@@ -700,7 +700,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3InverseRigidBodyf(GLUSfloat matrix[9], const 
 		GLUSfloat inverseScale[9];
 		GLUSfloat inverseRotation[9];
 
-		glusMatrix3x3GetScale(scales, matrix);
+		glusMatrix3x3GetScalef(scales, matrix);
 		glusMatrix3x3Identityf(inverseScale);
 		// Square of it, as rotation still contains the scale
 		inverseScale[0] = 1.0f / (scales[0] * scales[0]);
@@ -720,7 +720,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix2x2InverseRigidBodyf(GLUSfloat matrix[4])
     GLUSfloat inverseScale[4];
     GLUSfloat inverseRotation[4];
 
-    glusMatrix2x2GetScale(scales, matrix);
+    glusMatrix2x2GetScalef(scales, matrix);
     glusMatrix2x2Identityf(inverseScale);
     // Square of it, as rotation still contains the scale
     inverseScale[0] = 1.0f / (scales[0] * scales[0]);
@@ -1372,19 +1372,19 @@ GLUSvoid GLUSAPIENTRY glusMatrix4x4GetEulerRzRxRyf(GLUSfloat angles[3], const GL
 {
 	GLUSfloat scales[3];
 
-	glusMatrix4x4GetScale(scales, matrix);
+	glusMatrix4x4GetScalef(scales, matrix);
 
     if (matrix[5] != 0.0f)
     {
-        angles[0] = glusRadToDegf(asinf(matrix[6] / scales[1]));
-        angles[1] = glusRadToDegf(atan2f(-matrix[2] / scales[0], matrix[10] / scales[2]));
-        angles[2] = glusRadToDegf(atan2f(-matrix[4] / scales[1], matrix[5] / scales[1]));
+        angles[0] = glusMathRadToDegf(asinf(matrix[6] / scales[1]));
+        angles[1] = glusMathRadToDegf(atan2f(-matrix[2] / scales[0], matrix[10] / scales[2]));
+        angles[2] = glusMathRadToDegf(atan2f(-matrix[4] / scales[1], matrix[5] / scales[1]));
     }
     else
     {
-        angles[0] = glusRadToDegf(asinf(matrix[6] / scales[1]));
+        angles[0] = glusMathRadToDegf(asinf(matrix[6] / scales[1]));
         angles[1] = 0.0f;
-        angles[2] = glusRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
+        angles[2] = glusMathRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
     }
 }
 
@@ -1392,18 +1392,18 @@ GLUSvoid GLUSAPIENTRY glusMatrix4x4GetEulerRzRyRxf(GLUSfloat angles[3], const GL
 {
 	GLUSfloat scales[3];
 
-	glusMatrix4x4GetScale(scales, matrix);
+	glusMatrix4x4GetScalef(scales, matrix);
 
     if (matrix[0] != 0.0f)
     {
-        angles[0] = glusRadToDegf(atan2f(matrix[6] / scales[1], matrix[10] / scales[2]));
-    	angles[1] = glusRadToDegf(asinf(-matrix[2] / scales[0]));
-    	angles[2] = glusRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
+        angles[0] = glusMathRadToDegf(atan2f(matrix[6] / scales[1], matrix[10] / scales[2]));
+    	angles[1] = glusMathRadToDegf(asinf(-matrix[2] / scales[0]));
+    	angles[2] = glusMathRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
     }
     else
     {
-        angles[0] = glusRadToDegf(atan2f(matrix[4] / scales[1], matrix[5] / scales[1]));
-    	angles[1] = glusRadToDegf(asinf(-matrix[2]) / scales[0]);
+        angles[0] = glusMathRadToDegf(atan2f(matrix[4] / scales[1], matrix[5] / scales[1]));
+    	angles[1] = glusMathRadToDegf(asinf(-matrix[2]) / scales[0]);
     	angles[2] = 0.0f;
     }
 }
@@ -1412,19 +1412,19 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3GetEulerRzRxRyf(GLUSfloat angles[3], const GL
 {
 	GLUSfloat scales[3];
 
-	glusMatrix3x3GetScale(scales, matrix);
+	glusMatrix3x3GetScalef(scales, matrix);
 
     if (matrix[4] != 0.0f)
     {
-        angles[0] = glusRadToDegf(asinf(matrix[5] / scales[1]));
-        angles[1] = glusRadToDegf(atan2f(-matrix[2] / scales[0], matrix[8] / scales[2]));
-        angles[2] = glusRadToDegf(atan2f(-matrix[3] / scales[1], matrix[4] / scales[1]));
+        angles[0] = glusMathRadToDegf(asinf(matrix[5] / scales[1]));
+        angles[1] = glusMathRadToDegf(atan2f(-matrix[2] / scales[0], matrix[8] / scales[2]));
+        angles[2] = glusMathRadToDegf(atan2f(-matrix[3] / scales[1], matrix[4] / scales[1]));
     }
     else
     {
-        angles[0] = glusRadToDegf(asinf(matrix[5] / scales[1]));
+        angles[0] = glusMathRadToDegf(asinf(matrix[5] / scales[1]));
         angles[1] = 0.0f;
-        angles[2] = glusRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
+        angles[2] = glusMathRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
     }
 }
 
@@ -1432,18 +1432,18 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3GetEulerRzRyRxf(GLUSfloat angles[3], const GL
 {
 	GLUSfloat scales[3];
 
-	glusMatrix3x3GetScale(scales, matrix);
+	glusMatrix3x3GetScalef(scales, matrix);
 
     if (matrix[0] != 0.0f)
     {
-        angles[0] = glusRadToDegf(atan2f(matrix[5] / scales[1], matrix[8] / scales[2]));
-    	angles[1] = glusRadToDegf(asinf(-matrix[2] / scales[0]));
-    	angles[2] = glusRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
+        angles[0] = glusMathRadToDegf(atan2f(matrix[5] / scales[1], matrix[8] / scales[2]));
+    	angles[1] = glusMathRadToDegf(asinf(-matrix[2] / scales[0]));
+    	angles[2] = glusMathRadToDegf(atan2f(matrix[1] / scales[0], matrix[0] / scales[0]));
     }
     else
     {
-        angles[0] = glusRadToDegf(atan2f(matrix[3] / scales[1], matrix[4] / scales[1]));
-    	angles[1] = glusRadToDegf(asinf(-matrix[2] / scales[0]));
+        angles[0] = glusMathRadToDegf(atan2f(matrix[3] / scales[1], matrix[4] / scales[1]));
+    	angles[1] = glusMathRadToDegf(asinf(-matrix[2] / scales[0]));
     	angles[2] = 0.0f;
     }
 }
@@ -1452,21 +1452,21 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3GetAnglef(GLUSfloat* angle, const GLUSfloat m
 {
 	GLUSfloat scales[3];
 
-	glusMatrix3x3GetScale(scales, matrix);
+	glusMatrix3x3GetScalef(scales, matrix);
 
-	*angle = glusRadToDegf(acosf(matrix[0] / scales[0]));
+	*angle = glusMathRadToDegf(acosf(matrix[0] / scales[0]));
 }
 
 GLUSvoid GLUSAPIENTRY glusMatrix2x2GetAnglef(GLUSfloat* angle, const GLUSfloat matrix[4])
 {
 	GLUSfloat scales[2];
 
-	glusMatrix2x2GetScale(scales, matrix);
+	glusMatrix2x2GetScalef(scales, matrix);
 
-	*angle = glusRadToDegf(acosf(matrix[0] / scales[0]));
+	*angle = glusMathRadToDegf(acosf(matrix[0] / scales[0]));
 }
 
-GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScale(GLUSfloat scales[3], const GLUSfloat matrix[16])
+GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScalef(GLUSfloat scales[3], const GLUSfloat matrix[16])
 {
 	GLUSint i;
 
@@ -1476,7 +1476,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScale(GLUSfloat scales[3], const GLUSfloat
 	}
 }
 
-GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScale(GLUSfloat scales[3], const GLUSfloat matrix[9])
+GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScalef(GLUSfloat scales[3], const GLUSfloat matrix[9])
 {
 	GLUSint i;
 
@@ -1486,7 +1486,7 @@ GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScale(GLUSfloat scales[3], const GLUSfloat
 	}
 }
 
-GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScale(GLUSfloat scales[2], const GLUSfloat matrix[4])
+GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScalef(GLUSfloat scales[2], const GLUSfloat matrix[4])
 {
 	GLUSint i;
 
@@ -1496,15 +1496,55 @@ GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScale(GLUSfloat scales[2], const GLUSfloat
 	}
 }
 
-GLUSvoid GLUSAPIENTRY glusMatrix4x4GetTranslate(GLUSfloat translates[3], const GLUSfloat matrix[16])
+GLUSvoid GLUSAPIENTRY glusMatrix4x4GetTranslatef(GLUSfloat translates[3], const GLUSfloat matrix[16])
 {
 	translates[0] = matrix[12];
 	translates[1] = matrix[13];
 	translates[2] = matrix[14];
 }
 
-GLUSvoid GLUSAPIENTRY glusMatrix3x3GetTranslate(GLUSfloat translates[2], const GLUSfloat matrix[9])
+GLUSvoid GLUSAPIENTRY glusMatrix3x3GetTranslatef(GLUSfloat translates[2], const GLUSfloat matrix[9])
 {
 	translates[0] = matrix[6];
 	translates[1] = matrix[7];
+}
+
+//
+
+GLUSboolean GLUSAPIENTRY glusMatrixNxNMultiplyVectorNc(GLUScomplex* result, const GLUScomplex* matrix, const GLUScomplex* vector, const GLUSint n)
+{
+	GLUSint row, column;
+
+	GLUScomplex* temp = (GLUScomplex*)glusMemoryMalloc(n * sizeof(GLUScomplex));
+
+	GLUScomplex muliplication;
+
+	if (!temp)
+	{
+		return GLUS_FALSE;
+	}
+
+	for (row = 0; row < n; row++)
+	{
+		for (column = 0; column < n; column++)
+		{
+			if (column == 0)
+			{
+				temp[row].real = 0.0f;
+				temp[row].imaginary = 0.0f;
+			}
+
+			glusComplexMultiplyComplexc(&muliplication, &matrix[column * n + row], &vector[column]);
+			glusComplexAddComplexc(&temp[row], &temp[row], &muliplication);
+		}
+	}
+
+	for (row = 0; row < n; row++)
+	{
+		result[row] = temp[row];
+	}
+
+	glusMemoryFree(temp);
+
+	return GLUS_TRUE;
 }

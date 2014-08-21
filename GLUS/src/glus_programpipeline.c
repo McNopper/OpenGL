@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusBuildProgramPipeline(GLUSprogrampipeline* programPipeline, GLUSuint vertexProgram, GLUSuint controlProgram, GLUSuint evaluationProgram, GLUSuint geometryProgram, GLUSuint fragmentProgram)
+GLUSboolean GLUSAPIENTRY glusProgramPipelineBuild(GLUSprogrampipeline* programPipeline, GLUSuint vertexProgram, GLUSuint controlProgram, GLUSuint evaluationProgram, GLUSuint geometryProgram, GLUSuint fragmentProgram)
 {
     if (!programPipeline)
     {
@@ -56,7 +56,7 @@ GLUSboolean GLUSAPIENTRY glusBuildProgramPipeline(GLUSprogrampipeline* programPi
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusBuildComputeProgramPipeline(GLUSprogrampipeline* programPipeline, GLUSuint computeProgram)
+GLUSboolean GLUSAPIENTRY glusProgramPipelineBuildCompute(GLUSprogrampipeline* programPipeline, GLUSuint computeProgram)
 {
     if (!programPipeline)
     {
@@ -79,7 +79,7 @@ GLUSboolean GLUSAPIENTRY glusBuildComputeProgramPipeline(GLUSprogrampipeline* pr
 	return GLUS_TRUE;
 }
 
-GLUSvoid GLUSAPIENTRY glusDestroyProgramPipeline(GLUSprogrampipeline* programPipeline)
+GLUSvoid GLUSAPIENTRY glusProgramPipelineDestroy(GLUSprogrampipeline* programPipeline)
 {
     if (!programPipeline)
     {

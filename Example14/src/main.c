@@ -129,7 +129,7 @@ static GLuint g_verticesPassTwoVBO = 0;
 
 //
 
-static GLUSshaderprogram g_programPassOne;
+static GLUSprogram g_programPassOne;
 
 static GLint g_halfDetailStepPassOneLocation;
 
@@ -145,7 +145,7 @@ static GLint g_rightNormalTextureSpacePassOneLocation;
 
 static GLint g_backNormalTextureSpacePassOneLocation;
 
-static GLUSshaderprogram g_shaderProgramPassTwo;
+static GLUSprogram g_shaderProgramPassTwo;
 
 //
 
@@ -274,7 +274,7 @@ GLUSboolean init(GLUSvoid)
 
     g_activeView = &g_personView;
 
-    if (!glusLoadTgaImage(NORMAL_MAP, &image))
+    if (!glusImageLoadTga(NORMAL_MAP, &image))
     {
         printf("Could not load normal picture '%s'!\n", NORMAL_MAP);
 
@@ -294,9 +294,9 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    if (!glusLoadTgaImage(HEIGHT_MAP, &image))
+    if (!glusImageLoadTga(HEIGHT_MAP, &image))
     {
         printf("Could not load height picture '%s'!\n", HEIGHT_MAP);
 
@@ -318,7 +318,7 @@ GLUSboolean init(GLUSvoid)
 
     g_tMapExtend = (GLfloat) image.height;
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     // Calculate the detail level for the s and ...
     sMaxDetailLevel = (GLuint) floorf(logf(g_sMapExtend) / logf(2.0f));
@@ -326,7 +326,7 @@ GLUSboolean init(GLUSvoid)
     // ... t extend
     tMaxDetailLevel = (GLuint) floorf(logf(g_tMapExtend) / logf(2.0f));
 
-    overallMaxDetailLevel = glusMinf(sMaxDetailLevel, tMaxDetailLevel);
+    overallMaxDetailLevel = glusMathMinf(sMaxDetailLevel, tMaxDetailLevel);
 
     // Do checking of calculated parameters
     if (MINIMUM_DETAIL_LEVEL > overallMaxDetailLevel)
@@ -412,7 +412,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    if (!glusLoadTgaImage(COLOR_MAP, &image))
+    if (!glusImageLoadTga(COLOR_MAP, &image))
     {
         printf("Could not load color picture '%s'!\n", COLOR_MAP);
 
@@ -430,7 +430,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     //
 
@@ -442,18 +442,18 @@ GLUSboolean init(GLUSvoid)
 
     // Pass one.
 
-    glusLoadTextFile("../Example14/shader/PassOne.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example14/shader/PassOne.geom.glsl", &geometrySource);
-    glusLoadTextFile("../Example14/shader/PassOne.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example14/shader/PassOne.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example14/shader/PassOne.geom.glsl", &geometrySource);
+    glusFileLoadText("../Example14/shader/PassOne.frag.glsl", &fragmentSource);
 
     // Compile and ...
-    glusCreateProgramFromSource(&g_programPassOne, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramCreateFromSource(&g_programPassOne, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
 
     // ... add the transform variable ...
     glTransformFeedbackVaryings(g_programPassOne.program, 1, (const GLchar**) &TRANSFORM_VARYING, GL_SEPARATE_ATTRIBS);
 
     // ... and link the program
-    if (!glusLinkProgram(&g_programPassOne))
+    if (!glusProgramLink(&g_programPassOne))
     {
         printf("Could not build program one\n");
 
@@ -461,9 +461,9 @@ GLUSboolean init(GLUSvoid)
     }
 
     // Destroy the text resource
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&geometrySource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&geometrySource);
+    glusFileDestroyText(&fragmentSource);
 
     g_halfDetailStepPassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_halfDetailStep");
 
@@ -478,24 +478,24 @@ GLUSboolean init(GLUSvoid)
 
     // Pass two.
 
-    glusLoadTextFile("../Example14/shader/PassTwo.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example14/shader/PassTwo.cont.glsl", &controlSource);
-    glusLoadTextFile("../Example14/shader/PassTwo.eval.glsl", &evaluationSource);
-    glusLoadTextFile("../Example14/shader/PassTwo.geom.glsl", &geometrySource);
-    glusLoadTextFile("../Example14/shader/PassTwo.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example14/shader/PassTwo.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example14/shader/PassTwo.cont.glsl", &controlSource);
+    glusFileLoadText("../Example14/shader/PassTwo.eval.glsl", &evaluationSource);
+    glusFileLoadText("../Example14/shader/PassTwo.geom.glsl", &geometrySource);
+    glusFileLoadText("../Example14/shader/PassTwo.frag.glsl", &fragmentSource);
 
-    if (!glusBuildProgramFromSource(&g_shaderProgramPassTwo, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text))
+    if (!glusProgramBuildFromSource(&g_shaderProgramPassTwo, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text))
     {
         printf("Could not build program two\n");
 
         return GLUS_FALSE;
     }
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&controlSource);
-    glusDestroyTextFile(&evaluationSource);
-    glusDestroyTextFile(&geometrySource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&controlSource);
+    glusFileDestroyText(&evaluationSource);
+    glusFileDestroyText(&geometrySource);
+    glusFileDestroyText(&fragmentSource);
 
     g_maxTessellationLevelPassTwoLocation = glGetUniformLocation(g_shaderProgramPassTwo.program, "u_maxTessellationLevel");
 
@@ -606,7 +606,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(g_projectionMatrix, g_activeView->fov, (GLfloat) width / (GLfloat) height, 1.0f, 1000000.0f);
+    glusMatrix4x4Perspectivef(g_projectionMatrix, g_activeView->fov, (GLfloat) width / (GLfloat) height, 1.0f, 1000000.0f);
 }
 
 GLUSvoid key(GLUSboolean pressed, GLUSint key)
@@ -652,7 +652,7 @@ GLUSvoid key(GLUSboolean pressed, GLUSint key)
                 g_activeView = &g_topView;
             }
 
-            glusPerspectivef(g_projectionMatrix, g_activeView->fov, g_width / g_height, 1.0f, 1000000.0f);
+            glusMatrix4x4Perspectivef(g_projectionMatrix, g_activeView->fov, g_width / g_height, 1.0f, 1000000.0f);
         }
     }
 }
@@ -692,7 +692,7 @@ GLUSboolean update(GLUSfloat time)
         angle += time;
     }
 
-    glusLookAtf(g_viewMatrix, g_activeView->cameraPosition[0], g_activeView->cameraPosition[1], g_activeView->cameraPosition[2], g_activeView->cameraPosition[0] + g_activeView->cameraDirection[0], g_activeView->cameraPosition[1] + g_activeView->cameraDirection[1],
+    glusMatrix4x4LookAtf(g_viewMatrix, g_activeView->cameraPosition[0], g_activeView->cameraPosition[1], g_activeView->cameraPosition[2], g_activeView->cameraPosition[0] + g_activeView->cameraDirection[0], g_activeView->cameraPosition[1] + g_activeView->cameraDirection[1],
             g_activeView->cameraPosition[2] + g_activeView->cameraDirection[2], g_activeView->cameraUp[0], g_activeView->cameraUp[1], g_activeView->cameraUp[2]);
 
     glusMatrix4x4Identityf(tmvpMatrix);
@@ -827,7 +827,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_programPassOne);
+    glusProgramDestroy(&g_programPassOne);
 
     // Pass two.
 
@@ -845,7 +845,7 @@ GLUSvoid terminate(GLUSvoid)
         g_vaoPassTwo = 0;
     }
 
-    glusDestroyProgram(&g_shaderProgramPassTwo);
+    glusProgramDestroy(&g_shaderProgramPassTwo);
 
     //
 
@@ -909,17 +909,17 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusKeyFunc(key);
+    glusCallbackSetKeyFunc(key);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
@@ -931,7 +931,7 @@ int main(int argc, char* argv[])
     printf("a       = Toggle animation on/off\n");
     printf("w       = Toggle wireframe on/off\n");
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

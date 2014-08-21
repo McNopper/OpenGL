@@ -53,9 +53,11 @@ Configuration:				Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-18.08.2014 Norbert Nopper (norbert@nopper.tv)
+21.08.2014 Norbert Nopper (norbert@nopper.tv)
 
 Changelog:
+
+21.08.2014 - Heavy refactoring of code and reorganisation of files.
 
 18.08.2014 - Changed interface of window creation in GLUS. Now all versions are the same.
 

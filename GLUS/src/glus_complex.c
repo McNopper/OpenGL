@@ -80,3 +80,9 @@ GLUSvoid GLUSAPIENTRY glusComplexExpComplexc(GLUScomplex* result, const GLUScomp
 	result->real = temp.real;
 	result->imaginary = temp.imaginary;
 }
+
+GLUSvoid glusComplexRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k, const GLUSfloat dir)
+{
+	result->real = cosf(2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n);
+	result->imaginary = dir * sinf(2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n);
+}

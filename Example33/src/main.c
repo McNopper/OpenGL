@@ -42,7 +42,7 @@ static GLfloat g_viewProjectionMatrix[16];
 
 //
 
-static GLUSshaderprogram g_fullscreenProgram;
+static GLUSprogram g_fullscreenProgram;
 
 static GLint g_framebufferTextureFullscreenLocation;
 
@@ -70,7 +70,7 @@ static GLuint g_texture[3];
 //
 //
 
-static GLUSshaderprogram g_modelProgram;
+static GLUSprogram g_modelProgram;
 
 static GLint g_viewProjectionMatrixModelLocation;
 
@@ -108,7 +108,7 @@ static GLuint g_numberVerticesModel;
 //
 //
 
-static GLUSshaderprogram g_backgroundProgram;
+static GLUSprogram g_backgroundProgram;
 
 static GLint g_viewProjectionMatrixBackgroundLocation;
 
@@ -149,13 +149,13 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLoadTextFile("../Example33/shader/brdf.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example33/shader/brdf.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example33/shader/brdf.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/brdf.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
 	g_modelMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
@@ -174,13 +174,13 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLoadTextFile("../Example33/shader/fullscreen.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example33/shader/fullscreen.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example33/shader/fullscreen.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/fullscreen.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -193,13 +193,13 @@ GLUSboolean init(GLUSvoid)
 	//
 	//
 
-	glusLoadTextFile("../Example33/shader/background.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example33/shader/background.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example33/shader/background.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/background.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -307,7 +307,7 @@ GLUSboolean init(GLUSvoid)
 
 				printf("Loading '%s' ...", buffer);
 
-				if (!glusLoadHdrImage(buffer, &image[i*NUMBER_ROUGHNESS*6 + k*6 + m]))
+				if (!glusImageLoadHdr(buffer, &image[i*NUMBER_ROUGHNESS*6 + k*6 + m]))
 				{
 					printf(" error!\n");
 					continue;
@@ -366,7 +366,7 @@ GLUSboolean init(GLUSvoid)
     //
 
 	printf("Loading 'doge2/EnvironmentBRDF_1024.data' ...");
-    if (!glusLoadBinaryFile("doge2/EnvironmentBRDF_1024.data", &rawimage))
+    if (!glusFileLoadBinary("doge2/EnvironmentBRDF_1024.data", &rawimage))
     {
 		printf(" error!\n");
     }
@@ -390,7 +390,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glusDestroyBinaryFile(&rawimage);
+    glusFileDestroyBinary(&rawimage);
 
     //
 
@@ -405,14 +405,14 @@ GLUSboolean init(GLUSvoid)
 
 			for (m = 0; m < 6; m++)
 			{
-				glusDestroyHdrImage(&image[i*NUMBER_ROUGHNESS*6 + k*6 + m]);
+				glusImageDestroyHdr(&image[i*NUMBER_ROUGHNESS*6 + k*6 + m]);
 			}
 		}
 	}
 
 	//
 
-	glusCreateSpheref(&backgroundSphere, 500.0f, 32);
+	glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32);
 	g_numberIndicesBackground = backgroundSphere.numberIndices;
 
 	glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -427,13 +427,13 @@ GLUSboolean init(GLUSvoid)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&backgroundSphere);
+	glusShapeDestroyf(&backgroundSphere);
 
 	//
 	//
 
 	// Use a helper function to load an wavefront object file.
-	glusLoadObjFile("venusm.obj", &wavefront);
+	glusShapeLoadWavefront("venusm.obj", &wavefront);
 
 	g_numberVerticesModel = wavefront.numberVertices;
 
@@ -447,7 +447,7 @@ GLUSboolean init(GLUSvoid)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&wavefront);
+	glusShapeDestroyf(&wavefront);
 
 	//
 
@@ -513,9 +513,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 	glViewport(0, 0, width, height);
 
-	glusPerspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
+	glusMatrix4x4Perspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
-	glusLookAtf(viewMatrix, g_eye[0], g_eye[1], g_eye[2], 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glusMatrix4x4LookAtf(viewMatrix, g_eye[0], g_eye[1], g_eye[2], 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
 }
@@ -699,11 +699,11 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_modelProgram);
+	glusProgramDestroy(&g_modelProgram);
 
-	glusDestroyProgram(&g_backgroundProgram);
+	glusProgramDestroy(&g_backgroundProgram);
 
-	glusDestroyProgram(&g_fullscreenProgram);
+	glusProgramDestroy(&g_fullscreenProgram);
 
 	//
 
@@ -781,12 +781,12 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		}
 	}
 
-	g_roughness = glusClampf(g_roughness, 0.0f, 1.0f);
-	g_R0 = glusClampf(g_R0, 0.0f, 1.0f);
+	g_roughness = glusMathClampf(g_roughness, 0.0f, 1.0f);
+	g_R0 = glusMathClampf(g_R0, 0.0f, 1.0f);
 
-	g_colorMaterial[0] = glusClampf(g_colorMaterial[0], 0.0f, 1.0f);
-	g_colorMaterial[1] = glusClampf(g_colorMaterial[1], 0.0f, 1.0f);
-	g_colorMaterial[2] = glusClampf(g_colorMaterial[2], 0.0f, 1.0f);
+	g_colorMaterial[0] = glusMathClampf(g_colorMaterial[0], 0.0f, 1.0f);
+	g_colorMaterial[1] = glusMathClampf(g_colorMaterial[1], 0.0f, 1.0f);
+	g_colorMaterial[2] = glusMathClampf(g_colorMaterial[2], 0.0f, 1.0f);
 }
 
 int main(int argc, char* argv[])
@@ -810,18 +810,18 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusKeyFunc(key);
+    glusCallbackSetKeyFunc(key);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
 	// No resize, as it makes code simpler.
-    if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
@@ -841,7 +841,7 @@ int main(int argc, char* argv[])
     printf("0       = Increase Blue\n");
     printf("\n");
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

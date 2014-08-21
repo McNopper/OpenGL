@@ -66,7 +66,7 @@ struct MaterialLocations
 
 static GLfloat g_viewMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_biasMatrixLocation;
 
@@ -110,7 +110,7 @@ static GLuint g_blendFullscreenVAO;
 
 //
 
-static GLUSshaderprogram g_blendFullscreenProgram;
+static GLUSprogram g_blendFullscreenProgram;
 
 static GLint g_framebufferTextureBlendFullscreenLocation;
 
@@ -131,13 +131,13 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape wavefrontObj;
 
-    glusLoadTextFile("../Example35/shader/phong_depth_peel.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example35/shader/phong_depth_peel.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example35/shader/phong_depth_peel.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example35/shader/phong_depth_peel.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -166,13 +166,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-	glusLoadTextFile("../Example35/shader/fullscreen_blend.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example35/shader/fullscreen_blend.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example35/shader/fullscreen_blend.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example35/shader/fullscreen_blend.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_blendFullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_blendFullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -182,7 +182,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to load an wavefront object file.
-    glusLoadObjFile("dragon.obj", &wavefrontObj);
+    glusShapeLoadWavefront("dragon.obj", &wavefrontObj);
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -196,7 +196,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&wavefrontObj);
+    glusShapeDestroyf(&wavefrontObj);
 
     //
 
@@ -301,7 +301,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLookAtf(g_viewMatrix, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     //
 
@@ -344,7 +344,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     // Just pass the projection matrix. The final matrix is calculated in the shader.
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
@@ -471,9 +471,9 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
-    glusDestroyProgram(&g_blendFullscreenProgram);
+    glusProgramDestroy(&g_blendFullscreenProgram);
 
     //
 
@@ -534,21 +534,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

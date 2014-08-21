@@ -41,7 +41,7 @@ static GLUSfloat g_scatterFalloff = 5.0f;
  */
 static GLfloat g_depthPassMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_depthPassMatrixLocation;
 
@@ -75,7 +75,7 @@ static GLint g_normalLocation;
 
 //
 
-static GLUSshaderprogram g_programDepthPass;
+static GLUSprogram g_programDepthPass;
 
 static GLint g_projectionMatrixDepthPassLocation;
 
@@ -135,23 +135,23 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example34/shader/renderdepthmap.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example34/shader/renderdepthmap.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example34/shader/renderdepthmap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example34/shader/renderdepthmap.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programDepthPass, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programDepthPass, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusLoadTextFile("../Example34/shader/subsurfacescattering.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example34/shader/subsurfacescattering.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example34/shader/subsurfacescattering.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example34/shader/subsurfacescattering.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -221,7 +221,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to load an wavefront object file.
-    glusLoadObjFile("dragon.obj", &wavefrontObj);
+    glusShapeLoadWavefront("dragon.obj", &wavefrontObj);
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -235,13 +235,13 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&wavefrontObj);
+    glusShapeDestroyf(&wavefrontObj);
 
     //
 
     glUseProgram(g_program.program);
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4MultiplyVector3f(lightDirection, viewMatrix, lightDirection);
 
@@ -302,7 +302,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glUseProgram(g_programDepthPass.program);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) g_depthPassTextureSize / (GLfloat) g_depthPassTextureSize, g_near, g_far);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) g_depthPassTextureSize / (GLfloat) g_depthPassTextureSize, g_near, g_far);
 
     glUniformMatrix4fv(g_projectionMatrixDepthPassLocation, 1, GL_FALSE, projectionMatrix);
 
@@ -314,7 +314,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glUseProgram(g_program.program);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -338,7 +338,7 @@ GLUSboolean update(GLUSfloat time)
     glViewport(0, 0, g_depthPassTextureSize, g_depthPassTextureSize);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-    glusLookAtf(viewMatrix, g_lightPosition[0], g_lightPosition[1], g_lightPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_lightPosition[0], g_lightPosition[1], g_lightPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(depthPassMatrix, g_depthPassMatrix, viewMatrix);
 
@@ -375,7 +375,7 @@ GLUSboolean update(GLUSfloat time)
 
     glUseProgram(g_program.program);
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, viewMatrix);
     glUniformMatrix4fv(g_depthPassMatrixLocation, 1, GL_FALSE, depthPassMatrix);
@@ -457,7 +457,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
     //
 
@@ -468,7 +468,7 @@ GLUSvoid terminate(GLUSvoid)
         g_vaoDepthPass = 0;
     }
 
-    glusDestroyProgram(&g_programDepthPass);
+    glusProgramDestroy(&g_programDepthPass);
 }
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
@@ -501,9 +501,9 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		}
 	}
 
-	g_wrap = glusClampf(g_wrap, 0.0f, 1.0f);
-	g_scatterWidth = glusClampf(g_scatterWidth, 0.0f, 1.0f);
-	g_scatterFalloff = glusClampf(g_scatterFalloff, 0.0f, 50.0f);
+	g_wrap = glusMathClampf(g_wrap, 0.0f, 1.0f);
+	g_scatterWidth = glusMathClampf(g_scatterWidth, 0.0f, 1.0f);
+	g_scatterFalloff = glusMathClampf(g_scatterFalloff, 0.0f, 50.0f);
 }
 
 int main(int argc, char* argv[])
@@ -526,17 +526,17 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusKeyFunc(key);
+    glusCallbackSetKeyFunc(key);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
@@ -552,7 +552,7 @@ int main(int argc, char* argv[])
     printf("6       = Increase scatter falloff\n");
     printf("\n");
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

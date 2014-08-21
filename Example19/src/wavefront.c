@@ -16,7 +16,7 @@
 
 static GLfloat* g_viewMatrix;
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * The location of the projection matrix.
@@ -73,13 +73,13 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
     //
 
-    glusLoadTextFile("../Example19/shader/phong.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example19/shader/phong.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example19/shader/phong.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example19/shader/phong.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -103,7 +103,7 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
     //
 
     // Use a helper function to load an wavefront object file.
-    glusLoadObjFile("monkey.obj", &wavefrontObj);
+    glusShapeLoadWavefront("monkey.obj", &wavefrontObj);
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -117,7 +117,7 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&wavefrontObj);
+    glusShapeDestroyf(&wavefrontObj);
 
     //
 
@@ -169,7 +169,7 @@ GLUSvoid reshapeWavefront(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUseProgram(g_program.program);
 
@@ -244,5 +244,5 @@ GLUSvoid terminateWavefront(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }

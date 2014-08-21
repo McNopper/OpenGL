@@ -61,7 +61,7 @@ struct MaterialLocations
 
 GLfloat g_viewMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * The location of the projection matrix.
@@ -128,19 +128,19 @@ GLUSboolean init(GLUSvoid)
 
     GLUStgaimage image;
 
-    glusLoadTextFile("../Example24/shader/erode.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example24/shader/erode.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example24/shader/erode.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example24/shader/erode.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
     // Create perlin noise. The brightness of the texels represents the time to erode.
     // The brighter the texel, the earlier the pixel erodes.
-    glusCreatePerlinNoise3D(&image, 64, 64, 64, 0, 8.0f, 192.0f, 0.5f, 4);
+    glusPerlinCreateNoise3D(&image, 64, 64, 64, 0, 8.0f, 192.0f, 0.5f, 4);
 
     // Generate and bind a texture.
     glGenTextures(1, &g_texture);
@@ -155,7 +155,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     //
 
@@ -183,7 +183,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a sphere.
-    glusCreateSpheref(&sphere, 1.0f, 64);
+    glusShapeCreateSpheref(&sphere, 1.0f, 64);
 
     g_numberIndicesSphere = sphere.numberIndices;
 
@@ -203,7 +203,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&sphere);
+    glusShapeDestroyf(&sphere);
 
     //
 
@@ -226,7 +226,7 @@ GLUSboolean init(GLUSvoid)
 
     glusVector3Normalizef(light.direction);
 
-    glusLookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     // Transform light to camera space, as it is currently in world space.
     glusMatrix4x4MultiplyVector3f(light.direction, g_viewMatrix, light.direction);
@@ -266,7 +266,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     // Just pass the projection matrix. The final matrix is calculated in the shader.
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
@@ -365,7 +365,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -388,21 +388,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

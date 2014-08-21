@@ -15,7 +15,7 @@
 /**
  * The used shader program.
  */
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * Location of the model view projection matrix in the shader program.
@@ -82,7 +82,7 @@ static GLuint g_localSize = 16;
 /**
  * The used compute shader program.
  */
-static GLUSshaderprogram g_computeProgram;
+static GLUSprogram g_computeProgram;
 
 /**
  * The location of the texture in the compute shader program.
@@ -97,20 +97,20 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape plane;
 
-    glusLoadTextFile("../Example21/shader/texture.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example21/shader/texture.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example21/shader/texture.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example21/shader/texture.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLchar**) &vertexSource.text, 0, 0, 0, (const GLchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLchar**) &vertexSource.text, 0, 0, 0, (const GLchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
 
-    glusLoadTextFile("../Example21/shader/texture.comp.glsl", &computeSource);
+    glusFileLoadText("../Example21/shader/texture.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
 
-    glusDestroyTextFile(&computeSource);
+    glusFileDestroyText(&computeSource);
 
     //
 
@@ -144,7 +144,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a rectangular plane.
-    glusCreateRectangularPlanef(&plane, (GLfloat) g_imageWidth / 2.0f, (GLfloat) g_imageHeight / 2.0f);
+    glusShapeCreateRectangularPlanef(&plane, (GLfloat) g_imageWidth / 2.0f, (GLfloat) g_imageHeight / 2.0f);
 
     // Store the number indices, as we will render with glDrawElements.
     g_numberIndicesPlane = plane.numberIndices;
@@ -167,7 +167,7 @@ GLUSboolean init(GLUSvoid)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // Now we can destroy the shape, as all data is now on the GPU.
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
     //
 
@@ -220,10 +220,10 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     glViewport(0, 0, width, height);
 
     // Create the view matrix.
-    glusLookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     // Create a orthogonal projection matrix.
-    glusOrthof(modelViewProjectionMatrix, -(GLfloat) width / 2.0f, (GLfloat) width / 2.0f, -(GLfloat) height / 2.0f, (GLfloat) height / 2.0f, 1.0f, 100.0f);
+    glusMatrix4x4Orthof(modelViewProjectionMatrix, -(GLfloat) width / 2.0f, (GLfloat) width / 2.0f, -(GLfloat) height / 2.0f, (GLfloat) height / 2.0f, 1.0f, 100.0f);
 
     // MVP = P * V * M (Note: Here we do not have model matrix).
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, modelViewProjectionMatrix, viewMatrix);
@@ -301,9 +301,9 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
-    glusDestroyProgram(&g_computeProgram);
+    glusProgramDestroy(&g_computeProgram);
 }
 
 int main(int argc, char* argv[])
@@ -326,21 +326,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

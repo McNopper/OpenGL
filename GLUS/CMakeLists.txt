@@ -103,21 +103,14 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 ENDIF()
 
 # Files only valid for desktop OpenGL
-list(APPEND ONLY_GL_C_FILES		${GLUS_SOURCE_DIR}/src/glus_glfw.c
+list(APPEND ONLY_GL_C_FILES		${GLUS_SOURCE_DIR}/src/glus_window_glfw.c
 								${GLUS_SOURCE_DIR}/src/glus_programpipeline.c
-								${GLUS_SOURCE_DIR}/src/glus_shaderprogram.c
+								${GLUS_SOURCE_DIR}/src/glus_program.c
 								${GLUS_SOURCE_DIR}/src/glus_shape_adjacency.c
-								${GLUS_SOURCE_DIR}/src/glus_version.c
-)
-
-# Files not for OpenGL ES 2.0 context
-list(APPEND NOT_GLES2_C_FILES	${GLUS_SOURCE_DIR}/src/glus_line.c
-								${GLUS_SOURCE_DIR}/src/glus_shape.c
-								${GLUS_SOURCE_DIR}/src/glus_wavefront.c						
 )
 
 # Files currently not used
-list(APPEND NOT_USED_C_FILES	${GLUS_SOURCE_DIR}/src/glus_memory_no_dm.c
+list(APPEND NOT_USED_C_FILES	${GLUS_SOURCE_DIR}/src/glus_memory_nodm.c
 )
 
 # Source files
@@ -144,7 +137,7 @@ IF(${OpenGL} MATCHES "ES")
 	ELSEIF(${OpenGL} MATCHES "ES2")
 		# OpenGL ES 2.0
 		
-		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES31_C_FILES} ${NOT_GLES2_C_FILES})
+		list(REMOVE_ITEM C_FILES ${ONLY_GL_C_FILES} ${ES31_C_FILES})
 
 	ELSE()		
 		# OpenGL ES 3.0
@@ -156,27 +149,27 @@ IF(${OpenGL} MATCHES "ES")
 	IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 		# Raspberry Pi and i.MX6
 
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_windows_es.c)
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_windows_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_es.c)
 		
 		IF(${SoC} MATCHES "iMX6")			
 			# i.MX6
 			
-			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_raspberrypi_es.c)
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_raspberrypi_es.c)
 			
 		ELSE()
 			# Raspberry Pi
 		
-			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_imx6_es.c)
 			
 		ENDIF()
 		
 	ELSE()
 		# Windows simulation
 	
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_raspberrypi_es.c)		
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_linux_es.c)
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_imx6_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_raspberrypi_es.c)		
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_imx6_es.c)
 		
 	ENDIF()	
 	

@@ -72,7 +72,7 @@ typedef struct _GLUSprogrampipeline
  *
  * @return GLUS_TRUE, if building of program pipeline succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildProgramPipeline(GLUSprogrampipeline* programPipeline, GLUSuint vertexProgram, GLUSuint controlProgram, GLUSuint evaluationProgram, GLUSuint geometryProgram, GLUSuint fragmentProgram);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusProgramPipelineBuild(GLUSprogrampipeline* programPipeline, GLUSuint vertexProgram, GLUSuint controlProgram, GLUSuint evaluationProgram, GLUSuint geometryProgram, GLUSuint fragmentProgram);
 
 /**
  * Builds a compute shader program pipeline.
@@ -82,13 +82,13 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildProgramPipeline(GLUSprogrampipeline* p
  *
  * @return GLUS_TRUE, if building of program pipeline succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusBuildComputeProgramPipeline(GLUSprogrampipeline* programPipeline, GLUSuint computeProgram);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusProgramPipelineBuildCompute(GLUSprogrampipeline* programPipeline, GLUSuint computeProgram);
 
 /**
  * Destroys a program pipeline by freeing the pipeline. The programs are not freed.
  *
  * @param programPipeline This structure holds the necessary information of the program pipeline and the different shader programs.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyProgramPipeline(GLUSprogrampipeline* programPipeline);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusProgramPipelineDestroy(GLUSprogrampipeline* programPipeline);
 
 #endif /* GLUS_PROGRAMPIPELINE_H_ */

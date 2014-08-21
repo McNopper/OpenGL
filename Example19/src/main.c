@@ -16,7 +16,7 @@
 
 static GLfloat g_viewMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 // The matrix locations in the program.
 
@@ -103,7 +103,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLookAtf(g_viewMatrix, g_camera.eye[0], g_camera.eye[1], g_camera.eye[2], g_camera.center[0], g_camera.center[1], g_camera.center[2], g_camera.up[0], g_camera.up[1], g_camera.up[2]);
+    glusMatrix4x4LookAtf(g_viewMatrix, g_camera.eye[0], g_camera.eye[1], g_camera.eye[2], g_camera.center[0], g_camera.center[1], g_camera.center[2], g_camera.up[0], g_camera.up[1], g_camera.up[2]);
 
     //
 
@@ -114,13 +114,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example19/shader/basic_proj.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example19/shader/texture_multi_proj.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example19/shader/basic_proj.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example19/shader/texture_multi_proj.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -143,7 +143,7 @@ GLUSboolean init(GLUSvoid)
 
     // Texture set up.
 
-    glusLoadTgaImage("ice.tga", &image);
+    glusImageLoadTga("ice.tga", &image);
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -210,7 +210,7 @@ GLUSboolean init(GLUSvoid)
     //
     //
 
-    glusCreatePlanef(&plane, 3.0f);
+    glusShapeCreatePlanef(&plane, 3.0f);
 
     g_numberIndicesSphere = plane.numberIndices;
 
@@ -234,7 +234,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
     //
 
@@ -299,7 +299,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(g_viewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(g_viewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glusMatrix4x4Multiplyf(g_viewProjectionMatrix, g_viewProjectionMatrix, g_viewMatrix);
 
@@ -453,7 +453,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
     //
 
@@ -508,21 +508,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

@@ -26,7 +26,7 @@
  *
  * @return The maximum of the two values.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusMaxf(const GLUSfloat value0, const GLUSfloat value1);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathMaxf(const GLUSfloat value0, const GLUSfloat value1);
 
 /**
  * Calculates the minimum of two values.
@@ -36,7 +36,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusMaxf(const GLUSfloat value0, const GLUSfloat 
  *
  * @return The minimum of the two values.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusMinf(const GLUSfloat value0, const GLUSfloat value1);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathMinf(const GLUSfloat value0, const GLUSfloat value1);
 
 /**
  * Converts radians to degrees.
@@ -45,7 +45,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusMinf(const GLUSfloat value0, const GLUSfloat 
  *
  * @return The angle in degrees.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusRadToDegf(const GLUSfloat radians);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathRadToDegf(const GLUSfloat radians);
 
 /**
  * Converts degrees to radians.
@@ -54,7 +54,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusRadToDegf(const GLUSfloat radians);
  *
  * @return The angle in radians.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusDegToRadf(const GLUSfloat degrees);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathDegToRadf(const GLUSfloat degrees);
 
 /**
  * Linear interpolation of two values. If t = 0, value0 is returned. If t = 1, value1 is returned.
@@ -65,7 +65,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusDegToRadf(const GLUSfloat degrees);
  *
  * @return The interpolated value.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusMixf(const GLUSfloat value0, const GLUSfloat value1, const GLUSfloat t);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathMixf(const GLUSfloat value0, const GLUSfloat value1, const GLUSfloat t);
 
 /**
  * Clamps a given value between a minimum and maximum value. If the value is between min and max, the value is returned.
@@ -76,7 +76,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusMixf(const GLUSfloat value0, const GLUSfloat 
  *
  * @return The clamped value.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusClampf(const GLUSfloat value, const GLUSfloat min, const GLUSfloat max);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathClampf(const GLUSfloat value, const GLUSfloat min, const GLUSfloat max);
 
 /**
  * Calculates the length of a vector or the distance of a point to the origin by providing the x, y and z coordinates.
@@ -87,6 +87,6 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusClampf(const GLUSfloat value, const GLUSfloat
  *
  * @return The calculated length.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z);
 
 #endif /* GLUS_MATH_H_ */

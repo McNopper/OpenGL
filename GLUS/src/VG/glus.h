@@ -63,10 +63,11 @@ extern "C"
 #define GLUS_EGL_API EGL_OPENVG_API
 
 //
-// Load and save structures.
+// Image and file structures.
 //
 
-#include "../GLUS/glus_load_save.h"
+#include "../GLUS/glus_file.h"
+#include "../GLUS/glus_image.h"
 
 //
 // Memory manager.
@@ -90,25 +91,13 @@ extern "C"
 // Window preparation and creation functions.
 //
 
-#include "../GLUS/glus_os_wrapper_es.h"
+#include "../GLUS/glus_window.h"
 
 //
 // Extension functions.
 //
 
 #include "../GLUS/glus_extension.h"
-
-//
-// File, image loading functions.
-//
-
-#include "../GLUS/glus_load.h"
-
-//
-// File, image saving functions
-//
-
-#include "../GLUS/glus_save.h"
 
 //
 // Screenshot functions
@@ -150,13 +139,13 @@ extern "C"
 // Axis Aligned Box functions.
 //
 
-#include "../GLUS/glus_axis_aligned_box.h"
+#include "../GLUS/glus_axisalignedbox.h"
 
 //
 // Oriented Box functions.
 //
 
-#include "../GLUS/glus_oriented_box.h"
+#include "../GLUS/glus_orientedbox.h"
 
 //
 // Math functions
@@ -174,13 +163,13 @@ extern "C"
 // View, projection etc. functions.
 //
 
-#include "../GLUS/glus_viewprojection.h"
+#include "../GLUS/glus_matrix_viewprojection.h"
 
 //
 // Functions, related to planar surfaces.
 //
 
-#include "../GLUS/glus_planar.h"
+#include "../GLUS/glus_matrix_planar.h"
 
 //
 // Matrix functions.
@@ -199,10 +188,6 @@ extern "C"
 //
 
 #include "../GLUS/glus_complex.h"
-
-#include "../GLUS/glus_complex_matrix.h"
-
-#include "../GLUS/glus_complex_vector.h"
 
 //
 // Fourier functions.
@@ -235,10 +220,15 @@ extern "C"
 #include "../GLUS/glus_intersect.h"
 
 //
-// Texture sampling
+// Textures and files
 //
 
-#include "../GLUS/glus_texture.h"
+#include "../GLUS/glus_image_tga.h"
+#include "../GLUS/glus_image_hdr.h"
+#include "../GLUS/glus_image_pkm.h"
+
+#include "../GLUS/glus_file_text.h"
+#include "../GLUS/glus_file_binary.h"
 
 //
 // Padding

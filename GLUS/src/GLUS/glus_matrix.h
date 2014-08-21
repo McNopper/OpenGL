@@ -724,7 +724,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2GetAnglef(GLUSfloat* angle, const GLU
  * @param scales Resulting sx, sy, sz.
  * @param matrix The used matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScale(GLUSfloat scales[3], const GLUSfloat matrix[16]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScalef(GLUSfloat scales[3], const GLUSfloat matrix[16]);
 
 /**
  * Extracts the scales from a 3x3 matrix.
@@ -732,7 +732,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetScale(GLUSfloat scales[3], const G
  * @param scales Resulting sx, sy, sz.
  * @param matrix The used matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScale(GLUSfloat scales[3], const GLUSfloat matrix[9]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScalef(GLUSfloat scales[3], const GLUSfloat matrix[9]);
 
 /**
  * Extracts the scales from a 2x2 matrix.
@@ -740,7 +740,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetScale(GLUSfloat scales[3], const G
  * @param scales Resulting sx, sy.
  * @param matrix The used matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScale(GLUSfloat scales[2], const GLUSfloat matrix[4]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScalef(GLUSfloat scales[2], const GLUSfloat matrix[4]);
 
 /**
  * Extracts the translates from a 4x4 matrix.
@@ -748,7 +748,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2GetScale(GLUSfloat scales[2], const G
  * @param translates Resulting x, y and z.
  * @param matrix The used matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetTranslate(GLUSfloat translates[3], const GLUSfloat matrix[16]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetTranslatef(GLUSfloat translates[3], const GLUSfloat matrix[16]);
 
 /**
  * Extracts the translates from a 3x3 matrix, which is used for 2D.
@@ -756,6 +756,18 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetTranslate(GLUSfloat translates[3],
  * @param translates Resulting x and y.
  * @param matrix The used matrix.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetTranslate(GLUSfloat translates[2], const GLUSfloat matrix[9]);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetTranslatef(GLUSfloat translates[2], const GLUSfloat matrix[9]);
+
+/**
+ * Multiplies a NxN matrix with a Vector with N elements.
+ *
+ * @param result The transformed vector.
+ * @param matrix The matrix used for the transformation.
+ * @param vector The used vector for the transformation.
+ * @param n 	 The number of elements.
+ *
+ * @return GLUS_TRUE, if succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrixNxNMultiplyVectorNc(GLUScomplex* result, const GLUScomplex* matrix, const GLUScomplex* vector, const GLUSint n);
 
 #endif /* GLUS_MATRIX_H_ */

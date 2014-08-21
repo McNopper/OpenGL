@@ -52,7 +52,7 @@ static GLfloat g_directionMatrix[16];
 //
 //
 
-static GLUSshaderprogram g_programPointLight;
+static GLUSprogram g_programPointLight;
 
 static GLint g_projectionMatrixPointLightLocation;
 
@@ -85,7 +85,7 @@ static GLuint g_numberIndicesPointLight;
 //
 //
 
-static GLUSshaderprogram g_programDeferredShading;
+static GLUSprogram g_programDeferredShading;
 
 static GLint g_projectionMatrixLocation;
 
@@ -148,13 +148,13 @@ GLUSboolean init(GLUSvoid)
 	// Each point light is rendered as a sphere.
 	//
 
-	glusLoadTextFile("../Example31/shader/point_light.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example31/shader/point_light.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example31/shader/point_light.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example31/shader/point_light.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_programPointLight, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_programPointLight, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -173,7 +173,7 @@ GLUSboolean init(GLUSvoid)
 	g_vertexPointLightLocation = glGetAttribLocation(g_programPointLight.program, "a_vertex");
 
 	// Use a helper function to create a cube.
-	glusCreateSpheref(&sphere, POINT_LIGHT_RADIUS, 32);
+	glusShapeCreateSpheref(&sphere, POINT_LIGHT_RADIUS, 32);
 
 	g_numberIndicesPointLight = sphere.numberIndices;
 
@@ -190,7 +190,7 @@ GLUSboolean init(GLUSvoid)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&sphere);
+	glusShapeDestroyf(&sphere);
 
 	glGenVertexArrays(1, &g_vaoPointLight);
 	glBindVertexArray(g_vaoPointLight);
@@ -213,7 +213,7 @@ GLUSboolean init(GLUSvoid)
 	// Note: If more than 16 lights are used, make sure to store them in another matrix or buffer.
 	for (GLint i = 0; i < POINT_LIGHT_COUNT; i++)
 	{
-		g_positionMatrix[i] = glusRandomUniformGetFloatf(0.0f, (float)POINT_LIGHT_COUNT - 2.0f);
+		g_positionMatrix[i] = glusRandomUniformf(0.0f, (float)POINT_LIGHT_COUNT - 2.0f);
 
 		g_directionMatrix[i] = rand() % 2 == 0 ? 1.0f : -1.0f;
 	}
@@ -222,13 +222,13 @@ GLUSboolean init(GLUSvoid)
 	//
 	//
 
-	glusLoadTextFile("../Example31/shader/deferred_shading.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example31/shader/deferred_shading.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example31/shader/deferred_shading.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example31/shader/deferred_shading.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_programDeferredShading, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_programDeferredShading, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -252,7 +252,7 @@ GLUSboolean init(GLUSvoid)
 	// Use a helper function to load the wavefront object file.
 	//
 
-	glusLoadGroupedObjFile("ChessPawn.obj", &g_wavefront);
+	glusWavefrontLoad("ChessPawn.obj", &g_wavefront);
 
 	glGenBuffers(1, &g_wavefront.verticesVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
@@ -317,7 +317,7 @@ GLUSboolean init(GLUSvoid)
 		if (materialWalker->material.diffuseTextureFilename[0] != '\0')
 		{
 			// Load the image.
-			glusLoadTgaImage(materialWalker->material.diffuseTextureFilename, &image);
+			glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image);
 
 			// Generate and bind a texture.
 			glGenTextures(1, &materialWalker->material.diffuseTextureName);
@@ -469,7 +469,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 {
 	glViewport(0, 0, width, height);
 
-	glusPerspectivef(g_projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
+	glusMatrix4x4Perspectivef(g_projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 }
 
 GLUSboolean update(GLUSfloat time)
@@ -505,7 +505,7 @@ GLUSboolean update(GLUSfloat time)
 	glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, g_projectionMatrix);
 
 	// Orbit camera around models
-	glusLookAtf(viewMatrix, sinf(angle) * 10.0f, 4.0f, cosf(angle) * 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glusMatrix4x4LookAtf(viewMatrix, sinf(angle) * 10.0f, 4.0f, cosf(angle) * 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, viewMatrix);
 
@@ -736,11 +736,11 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_programDeferredShading);
+	glusProgramDestroy(&g_programDeferredShading);
 
-	glusDestroyProgram(&g_programPointLight);
+	glusProgramDestroy(&g_programPointLight);
 
-	glusDestroyGroupedObj(&g_wavefront);
+	glusWavefrontDestroy(&g_wavefront);
 
 	//
 
@@ -826,22 +826,22 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
     // Again, makes programming for this example easier.
-    if (!glusCreateWindow("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

@@ -33,7 +33,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusRandomSetSeed(const GLUSuint seed);
  *
  * @return The random value.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start, const GLUSfloat end);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomUniformf(const GLUSfloat start, const GLUSfloat end);
 
 /**
  * Returns a normal distributed random floating point value.
@@ -43,7 +43,7 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomUniformGetFloatf(const GLUSfloat start,
  *
  * @return The random value.
  */
-GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomNormalGetFloatf(const GLUSfloat mean, const GLUSfloat standardDeviation);
+GLUSAPI GLUSfloat GLUSAPIENTRY glusRandomNormalf(const GLUSfloat mean, const GLUSfloat standardDeviation);
 
 /**
  * Samples two floating point values from a Hammersley point set.

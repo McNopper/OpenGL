@@ -26,6 +26,6 @@
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateAdjacencyShapef(GLUSshape* adjacencyShape, const GLUSshape* sourceShape);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencyShape, const GLUSshape* sourceShape);
 
 #endif /* GLUS_SHAPE_ADJACENCY_H_ */

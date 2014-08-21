@@ -19,6 +19,42 @@
 #define GLUS_LINE_H_
 
 /**
+ * Structure for holding line data.
+ */
+typedef struct _GLUSline
+{
+	/**
+	 * Vertices in homogeneous coordinates.
+	 */
+    GLUSfloat* vertices;
+
+    /**
+     * Indices.
+     */
+    GLUSindex* indices;
+
+    /**
+     * Number of vertices.
+     */
+    GLUSuint numberVertices;
+
+    /**
+     * Number of indices.
+     */
+    GLUSuint numberIndices;
+
+    /**
+     * Line render mode - could be either:
+     *
+     * GL_LINES
+     * GL_LINE_STRIP
+     * GL_LINE_LOOP
+     */
+    GLUSenum mode;
+
+} GLUSline;
+
+/**
  * Creates a line out of two points.
  *
  * @param line The data is stored into this structure.
@@ -27,7 +63,7 @@
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[4], const GLUSfloat point1[4]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLineCreateLinef(GLUSline* line, const GLUSfloat point0[4], const GLUSfloat point1[4]);
 
 /**
  * Creates a square out of lines.
@@ -37,7 +73,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfExtend);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLineCreateSquaref(GLUSline* line, const GLUSfloat halfExtend);
 
 /**
  * Creates a rectangular grid out of lines. The grid is centered.
@@ -50,7 +86,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSflo
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLineCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns);
 
 /**
  * Creates a circle out of lines with the given radius and number sectors. More sectors makes the circle more round.
@@ -61,7 +97,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, cons
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLineCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors);
 
 /**
  * Copies the line.
@@ -71,13 +107,13 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSflo
  *
  * @return GLUS_TRUE, if copy succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusLineCopyf(GLUSline* line, const GLUSline* source);
 
 /**
  * Destroys the line by freeing the allocated memory.
  *
  * @param line The structure which contains the dynamic allocated line data, which will be freed by this function.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusLineDestroyf(GLUSline* line);
 
 #endif /* GLUS_LINE_H_ */

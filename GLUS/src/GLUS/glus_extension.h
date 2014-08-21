@@ -25,7 +25,7 @@
  *
  * @return GLUS_TRUE, if the given extension is supported.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusExtensionSupported(const GLUSchar* extension);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusExtensionIsSupported(const GLUSchar* extension);
 
 /**
  * Gathers the function pointer of an extension.
@@ -34,6 +34,6 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusExtensionSupported(const GLUSchar* extensio
  *
  * @return The function pointer.
  */
-GLUSAPI void* GLUSAPIENTRY glusGetProcAddress(const GLUSchar* procname);
+GLUSAPI void* GLUSAPIENTRY glusExtensionGetFuncAddress(const GLUSchar* procname);
 
 #endif /* GLUS_EXTENSION_H_ */

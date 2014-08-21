@@ -12,7 +12,7 @@
 
 #include "GL/glus.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_modelViewProjectionMatrixLocation;
 
@@ -61,13 +61,13 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape cube;
 
-    glusLoadTextFile("../Example04/shader/basic.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example04/shader/color.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example04/shader/basic.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example04/shader/color.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -83,7 +83,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a cube.
-    glusCreateCubef(&cube, 0.5f);
+    glusShapeCreateCubef(&cube, 0.5f);
 
     // Store the number indices, as we will render with glDrawElements.
     g_numberIndicesCube = cube.numberIndices;
@@ -105,7 +105,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&cube);
+    glusShapeDestroyf(&cube);
 
     //
 
@@ -168,9 +168,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     // This model matrix is a rigid body transform. So no need for the inverse, transposed matrix.
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusPerspectivef(modelViewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(modelViewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
-    glusLookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     // Here we create the view projection matrix ...
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, modelViewProjectionMatrix, viewMatrix);
@@ -231,7 +231,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -254,21 +254,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

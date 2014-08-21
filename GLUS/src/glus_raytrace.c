@@ -36,7 +36,7 @@ GLUSboolean GLUSAPIENTRY glusRaytracePerspectivef(GLUSfloat* directionBuffer, co
 
 	aspect = (GLUSfloat)width / (GLUSfloat)height;
 
-	yExtend = tanf(glusDegToRadf(fovy * 0.5f));
+	yExtend = tanf(glusMathDegToRadf(fovy * 0.5f));
 	xExtend = yExtend * aspect;
 
 	xStep = xExtend / ((GLUSfloat)(width) * 0.5f);

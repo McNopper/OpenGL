@@ -25,13 +25,13 @@
  *
  * @return Returns on success the pointer to allocated memory. Otherwise null is returned.
  */
-GLUSAPI void* GLUSAPIENTRY glusMalloc(size_t size);
+GLUSAPI void* GLUSAPIENTRY glusMemoryMalloc(size_t size);
 
 /**
  * Deallocate memory block.
  *
  * @param pointer Pointer to a memory block previously allocated with glusMalloc.
  */
-GLUSAPI void GLUSAPIENTRY glusFree(void* pointer);
+GLUSAPI void GLUSAPIENTRY glusMemoryFree(void* pointer);
 
 #endif /* GLUS_MEMORY_H_ */

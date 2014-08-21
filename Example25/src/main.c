@@ -60,7 +60,7 @@ struct MaterialLocations
 
 static GLfloat g_viewMatrix[16];
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 /**
  * The location of the projection matrix.
@@ -110,13 +110,13 @@ GLUSboolean init(GLUSvoid)
 	GLUSgroupList* groupWalker;
 	GLUSmaterialList* materialWalker;
 
-	glusLoadTextFile("../Example25/shader/phong_textured.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example25/shader/phong_textured.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example25/shader/phong_textured.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example25/shader/phong_textured.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -145,7 +145,7 @@ GLUSboolean init(GLUSvoid)
 	// Use a helper function to load the wavefront object file.
 	//
 
-	glusLoadGroupedObjFile("ChessKing.obj", &g_wavefront);
+	glusWavefrontLoad("ChessKing.obj", &g_wavefront);
 
 	glGenBuffers(1, &g_wavefront.verticesVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
@@ -210,7 +210,7 @@ GLUSboolean init(GLUSvoid)
 		if (materialWalker->material.diffuseTextureFilename[0] != '\0')
 		{
 			// Load the image.
-			glusLoadTgaImage(materialWalker->material.diffuseTextureFilename, &image);
+			glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image);
 
 			// Generate and bind a texture.
 			glGenTextures(1, &materialWalker->material.diffuseTextureName);
@@ -235,7 +235,7 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLookAtf(g_viewMatrix, 0.0f, 0.75f, 3.0f, 0.0f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.75f, 3.0f, 0.0f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	//
 
@@ -269,7 +269,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 	glViewport(0, 0, width, height);
 
-	glusPerspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
+	glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
 	// Just pass the projection matrix. The final matrix is calculated in the shader.
 	glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
@@ -400,9 +400,9 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_program);
+	glusProgramDestroy(&g_program);
 
-	glusDestroyGroupedObj(&g_wavefront);
+	glusWavefrontDestroy(&g_wavefront);
 }
 
 int main(int argc, char* argv[])
@@ -427,21 +427,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusExtensionSupported(const GLUSchar* extension)
+GLUSboolean GLUSAPIENTRY glusExtensionIsSupported(const GLUSchar* extension)
 {
 	const GLUSubyte* allExtensions;
 	const GLUSubyte* startExtension;

@@ -24,7 +24,7 @@ GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, G
 		return GLUS_FALSE;
 	}
 
-	screenshot->data = (GLUSubyte*)glusMalloc(width * height * 4);
+	screenshot->data = (GLUSubyte*)glusMemoryMalloc(width * height * 4);
 	if (!screenshot->data)
 	{
 		return GLUS_FALSE;

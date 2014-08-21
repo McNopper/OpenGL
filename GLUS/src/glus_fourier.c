@@ -34,13 +34,7 @@ static GLUSboolean glusIsPowerOfTwo(const GLUSint n)
 	return test == 1;
 }
 
-GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k, const GLUSfloat dir)
-{
-	result->real = cosf(2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n);
-	result->imaginary = dir * sinf(2.0f * GLUS_PI * (GLUSfloat)k / (GLUSfloat)n);
-}
-
-GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -55,7 +49,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 
 		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
-		GLUScomplex* dftMatrix = (GLUScomplex*)glusMalloc(n * n * sizeof(GLUScomplex));
+		GLUScomplex* dftMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
 
 		if (!dftMatrix)
 		{
@@ -66,7 +60,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 		{
 			for (row = 0; row < n; row++)
 			{
-				glusRootOfUnityc(&dftMatrix[column * n + row], n, row * column, -1.0f);
+				glusComplexRootOfUnityc(&dftMatrix[column * n + row], n, row * column, -1.0f);
 			}
 		}
 
@@ -74,7 +68,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 
 		glusVectorNMultiplyScalarc(result, result, n, scalar);
 
-		glusFree(dftMatrix);
+		glusMemoryFree(dftMatrix);
 
 		return status;
 	}
@@ -82,7 +76,7 @@ GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* 
 	return GLUS_FALSE;
 }
 
-GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierInverseDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -95,7 +89,7 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 
 		GLUSint row, column;
 
-		GLUScomplex* dftInverseMatrix = (GLUScomplex*)glusMalloc(n * n * sizeof(GLUScomplex));
+		GLUScomplex* dftInverseMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
 
 		if (!dftInverseMatrix)
 		{
@@ -106,13 +100,13 @@ GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUSco
 		{
 			for (row = 0; row < n; row++)
 			{
-				glusRootOfUnityc(&dftInverseMatrix[column * n + row], n, row * column, 1.0f);
+				glusComplexRootOfUnityc(&dftInverseMatrix[column * n + row], n, row * column, 1.0f);
 			}
 		}
 
 		status = glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
 
-		glusFree(dftInverseMatrix);
+		glusMemoryFree(dftInverseMatrix);
 
 		return status;
 	}
@@ -147,7 +141,7 @@ static GLUSvoid glusFastFourierTransformRecursiveFunctionc(GLUScomplex* vector, 
 		currentW.imaginary = 0.0f;
 
 		GLUScomplex w;
-		glusRootOfUnityc(&w, n, 1, 1.0f);
+		glusComplexRootOfUnityc(&w, n, 1, 1.0f);
 
 		for (i = 0; i < m; i++)
 		{
@@ -172,7 +166,7 @@ static GLUSvoid glusFastFourierTransformRecursiveFunctionc(GLUScomplex* vector, 
 	}
 }
 
-GLUSboolean glusFastFourierTransformRecursivec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierRecursiveFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -198,7 +192,7 @@ GLUSboolean glusFastFourierTransformRecursivec(GLUScomplex* result, const GLUSco
 	return GLUS_FALSE;
 }
 
-GLUSboolean glusFastFourierTransformInverseRecursivec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -245,7 +239,7 @@ static GLUSvoid glusFastFourierTransformButterflyShuffleFunctionc(GLUScomplex* v
 	}
 }
 
-GLUSboolean glusFastFourierTransformButterflyShufflec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -295,7 +289,7 @@ static GLUSvoid glusFastFourierTransformButterflyFunctionc(GLUScomplex* vector, 
 			currentW.imaginary = 0.0f;
 
 			GLUScomplex w;
-			glusRootOfUnityc(&w, numberButterfliesInSection * 2, 1, 1.0f);
+			glusComplexRootOfUnityc(&w, numberButterfliesInSection * 2, 1, 1.0f);
 
 			for (currentButterfly = 0; currentButterfly < numberButterfliesInSection; currentButterfly++)
 			{
@@ -323,7 +317,7 @@ static GLUSvoid glusFastFourierTransformButterflyFunctionc(GLUScomplex* vector, 
 	}
 }
 
-GLUSboolean glusFastFourierTransformButterflyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierButterflyFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -338,7 +332,7 @@ GLUSboolean glusFastFourierTransformButterflyc(GLUScomplex* result, const GLUSco
 
 		glusVectorNConjugatec(result, result, n);
 
-		glusFastFourierTransformButterflyShufflec(result, result, n);
+		glusFourierButterflyShuffleFFTc(result, result, n);
 
 		glusFastFourierTransformButterflyFunctionc(result, n, 0);
 
@@ -351,7 +345,7 @@ GLUSboolean glusFastFourierTransformButterflyc(GLUScomplex* result, const GLUSco
 	return GLUS_FALSE;
 }
 
-GLUSboolean glusFastFourierTransformInverseButterflyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
+GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{
@@ -362,7 +356,7 @@ GLUSboolean glusFastFourierTransformInverseButterflyc(GLUScomplex* result, const
 	{
 		glusVectorNCopyc(result, vector, n);
 
-		glusFastFourierTransformButterflyShufflec(result, result, n);
+		glusFourierButterflyShuffleFFTc(result, result, n);
 
 		glusFastFourierTransformButterflyFunctionc(result, n, 0);
 
@@ -400,7 +394,7 @@ static GLUSvoid glusFastFourierTransformButterflyShuffleFunctioni(GLUSint* vecto
 	}
 }
 
-GLUSboolean glusFastFourierTransformButterflyShufflei(GLUSint* result, const GLUSint* vector, const GLUSint n)
+GLUSboolean glusFourierButterflyShuffleFFTi(GLUSint* result, const GLUSint* vector, const GLUSint n)
 {
 	if (!result || !vector)
 	{

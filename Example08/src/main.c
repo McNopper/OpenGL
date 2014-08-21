@@ -12,7 +12,7 @@
 
 #include "GL/glus.h"
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 //
 
@@ -70,13 +70,13 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    glusLoadTextFile("../Example08/shader/cubemap.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example08/shader/cubemap.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example08/shader/cubemap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example08/shader/cubemap.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -97,29 +97,29 @@ GLUSboolean init(GLUSvoid)
     glGenTextures(1, &g_cubemapTexture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemapTexture);
 
-    glusLoadTgaImage("cm_pos_x.tga", &image);
+    glusImageLoadTga("cm_pos_x.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_x.tga", &image);
+    glusImageLoadTga("cm_neg_x.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_pos_y.tga", &image);
+    glusImageLoadTga("cm_pos_y.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_y.tga", &image);
+    glusImageLoadTga("cm_neg_y.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_pos_z.tga", &image);
+    glusImageLoadTga("cm_pos_z.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
-    glusLoadTgaImage("cm_neg_z.tga", &image);
+    glusImageLoadTga("cm_neg_z.tga", &image);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -130,7 +130,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusCreateCubef(&cube, 0.5f);
+    glusShapeCreateCubef(&cube, 0.5f);
 
     g_numberIndicesSphere = cube.numberIndices;
 
@@ -150,7 +150,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&cube);
+    glusShapeDestroyf(&cube);
 
     //
 
@@ -179,7 +179,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // As the camera does not move, we can create the view matrix here.
-    glusLookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     //
 
@@ -200,7 +200,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -296,7 +296,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -319,21 +319,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

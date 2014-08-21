@@ -56,7 +56,7 @@ struct MaterialLocations
     GLint specularExponentLocation;
 };
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLfloat g_viewMatrix[16];
 
@@ -132,13 +132,13 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape plane;
 
-    glusLoadTextFile("../Example18/shader/phong.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example18/shader/phong.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example18/shader/phong.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example18/shader/phong.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -165,7 +165,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a sphere.
-    glusCreateSpheref(&sphere, 0.5f, 64);
+    glusShapeCreateSpheref(&sphere, 0.5f, 64);
 
     g_numberIndicesSphere = sphere.numberIndices;
 
@@ -185,11 +185,11 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&sphere);
+    glusShapeDestroyf(&sphere);
 
     //
 
-    glusCreatePlanef(&plane, 0.5f);
+    glusShapeCreatePlanef(&plane, 0.5f);
 
     g_numberIndicesPlane = plane.numberIndices;
 
@@ -209,7 +209,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
 
     //
@@ -246,7 +246,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLookAtf(g_viewMatrix, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, g_viewMatrix);
 
@@ -291,7 +291,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     // Just pass the projection matrix. The final matrix is calculated in the shader.
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
@@ -450,7 +450,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -475,21 +475,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

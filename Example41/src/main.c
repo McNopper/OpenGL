@@ -53,19 +53,19 @@
 
 //
 
-static GLUSshaderprogram g_computeUpdateHtProgram;
+static GLUSprogram g_computeUpdateHtProgram;
 
 static GLint g_totalTimeUpdateHtLocation;
 
 
-static GLUSshaderprogram g_computeFftProgram;
+static GLUSprogram g_computeFftProgram;
 
 static GLint g_processColumnFftLocation;
 
 static GLint g_stepsFftLocation;
 
 
-static GLUSshaderprogram g_computeUpdateNormalProgram;
+static GLUSprogram g_computeUpdateNormalProgram;
 
 //
 
@@ -77,7 +77,7 @@ static GLuint g_textureNormal;
 
 //
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_modelViewProjectionMatrixLocation;
 
@@ -154,34 +154,34 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource);
+    glusFileLoadText("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeUpdateHtProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeUpdateHtProgram, (const GLchar**) &computeSource.text);
 
-    glusDestroyTextFile(&computeSource);
-
-
-    glusLoadTextFile("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
-
-    glusBuildComputeProgramFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
-
-    glusDestroyTextFile(&computeSource);
+    glusFileDestroyText(&computeSource);
 
 
-    glusLoadTextFile("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource);
+    glusFileLoadText("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeUpdateNormalProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
 
-    glusDestroyTextFile(&computeSource);
+    glusFileDestroyText(&computeSource);
 
 
-    glusLoadTextFile("../Example41/shader/ocean.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example41/shader/ocean.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildComputeFromSource(&g_computeUpdateNormalProgram, (const GLchar**) &computeSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&computeSource);
+
+
+    glusFileLoadText("../Example41/shader/ocean.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example41/shader/ocean.frag.glsl", &fragmentSource);
+
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -203,7 +203,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a grid plane.
-    glusCreateRectangularGridPlanef(&gridPlane, LENGTH, LENGTH, N - 1, N - 1, GLUS_FALSE);
+    glusShapeCreateRectangularGridPlanef(&gridPlane, LENGTH, LENGTH, N - 1, N - 1, GLUS_FALSE);
 
     g_numberIndices = gridPlane.numberIndices;
 
@@ -231,7 +231,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&gridPlane);
+    glusShapeDestroyf(&gridPlane);
 
     //
     // Generate H0.
@@ -257,8 +257,8 @@ GLUSboolean init(GLUSvoid)
 
         	phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, LPWA, waveDirection, windDirection);
 
-        	h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
-        	h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalGetFloatf(0.0f, 1.0f) * phillipsSpectrumValue;
+        	h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
+        	h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
         }
     }
 
@@ -348,7 +348,7 @@ GLUSboolean init(GLUSvoid)
     	butterflyIndices[i] = i;
     }
 
-    glusFastFourierTransformButterflyShufflei(butterflyIndices, butterflyIndices, N);
+    glusFourierButterflyShuffleFFTi(butterflyIndices, butterflyIndices, N);
 
     for (i = 0; i < N; i++)
     {
@@ -436,9 +436,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 2000.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 2000.0f);
 
-    glusLookAtf(viewMatrix, 0.0f, 5.0f, LENGTH / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 5.0f, LENGTH / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(viewProjectionMatrix, projectionMatrix, viewMatrix);
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, viewProjectionMatrix, modelMatrix);
@@ -644,13 +644,13 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_computeUpdateHtProgram);
+    glusProgramDestroy(&g_computeUpdateHtProgram);
 
-    glusDestroyProgram(&g_computeFftProgram);
+    glusProgramDestroy(&g_computeFftProgram);
 
-    glusDestroyProgram(&g_computeUpdateNormalProgram);
+    glusProgramDestroy(&g_computeUpdateNormalProgram);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -676,21 +676,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 1024, 768, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 1024, 768, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

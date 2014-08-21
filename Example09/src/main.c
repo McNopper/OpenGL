@@ -24,7 +24,7 @@ static GLint g_heightViewport;
 
 //
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 //
 
@@ -45,7 +45,7 @@ static GLint g_positionTextureLocation;
 /**
  * The shader program to update the particle points.
  */
-static GLUSshaderprogram g_programUpdatePoints;
+static GLUSprogram g_programUpdatePoints;
 
 static GLint g_vertexUpdatePointsLocation;
 
@@ -112,13 +112,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example09/shader/particle.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example09/shader/particle.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example09/shader/particle.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example09/shader/particle.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
     g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
@@ -128,13 +128,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example09/shader/update_points.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example09/shader/update_points.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example09/shader/update_points.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example09/shader/update_points.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programUpdatePoints, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programUpdatePoints, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     g_positionTextureUpdatePointsLocation = glGetUniformLocation(g_programUpdatePoints.program, "u_positionTexture");
     g_positionTextureWidthLocation = glGetUniformLocation(g_programUpdatePoints.program, "u_positionTextureWidth");
@@ -144,7 +144,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTgaImage("particle.tga", &image);
+    glusImageLoadTga("particle.tga", &image);
 
     glGenTextures(1, &g_texture);
 
@@ -152,7 +152,7 @@ GLUSboolean init(GLUSvoid)
 
     glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
 
-    glusDestroyTgaImage(&image);
+    glusImageDestroyTga(&image);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -270,9 +270,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusLookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    glusPerspectivef(g_modelViewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(g_modelViewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
     glusMatrix4x4Multiplyf(g_modelViewProjectionMatrix, g_modelViewProjectionMatrix, viewMatrix);
 
@@ -410,7 +410,7 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
@@ -433,21 +433,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

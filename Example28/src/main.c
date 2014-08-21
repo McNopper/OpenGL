@@ -35,7 +35,7 @@ static GLfloat g_projectionMatrix[16];
 
 //
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_viewProjectionMatrixLocation;
 
@@ -99,7 +99,7 @@ static GLuint g_blurFBO;
 //
 //
 
-static GLUSshaderprogram g_ssaoProgram;
+static GLUSprogram g_ssaoProgram;
 
 static GLint g_ssaoVertexLocation;
 
@@ -125,7 +125,7 @@ static GLint g_ssaoRadiusLocation;
 
 //
 
-static GLUSshaderprogram g_blurProgram;
+static GLUSprogram g_blurProgram;
 
 static GLint g_blurVertexLocation;
 
@@ -182,7 +182,7 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLookAtf(g_viewMatrix, g_camera.eye[0], g_camera.eye[1], g_camera.eye[2], g_camera.center[0], g_camera.center[1], g_camera.center[2], g_camera.up[0], g_camera.up[1], g_camera.up[2]);
+	glusMatrix4x4LookAtf(g_viewMatrix, g_camera.eye[0], g_camera.eye[1], g_camera.eye[2], g_camera.center[0], g_camera.center[1], g_camera.center[2], g_camera.up[0], g_camera.up[1], g_camera.up[2]);
 
 	//
 
@@ -193,13 +193,13 @@ GLUSboolean init(GLUSvoid)
 
 	//
 
-	glusLoadTextFile("../Example28/shader/texture.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example28/shader/texture.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example28/shader/texture.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example28/shader/texture.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -220,13 +220,13 @@ GLUSboolean init(GLUSvoid)
 	// SSAO shader etc.
 	//
 
-	glusLoadTextFile("../Example28/shader/ssao.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example28/shader/ssao.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example28/shader/ssao.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example28/shader/ssao.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_ssaoProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_ssaoProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -249,13 +249,13 @@ GLUSboolean init(GLUSvoid)
 	// Blur shader etc.
 	//
 
-	glusLoadTextFile("../Example28/shader/blur.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example28/shader/blur.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example28/shader/blur.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example28/shader/blur.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_blurProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+	glusProgramBuildFromSource(&g_blurProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -276,7 +276,7 @@ GLUSboolean init(GLUSvoid)
 	// Texture set up for the ground plane.
 	//
 
-	glusLoadTgaImage("wood_texture.tga", &image);
+	glusImageLoadTga("wood_texture.tga", &image);
 
 	glGenTextures(1, &g_texture);
 	glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -402,7 +402,7 @@ GLUSboolean init(GLUSvoid)
 	// Ground plane setup.
 	//
 
-	glusCreatePlanef(&plane, 20.0f);
+	glusShapeCreatePlanef(&plane, 20.0f);
 
 	g_numberIndicesPlane = plane.numberIndices;
 
@@ -426,7 +426,7 @@ GLUSboolean init(GLUSvoid)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&plane);
+	glusShapeDestroyf(&plane);
 
 	//
 
@@ -464,7 +464,7 @@ GLUSboolean init(GLUSvoid)
 	// Post process plane setup.
 	//
 
-	glusCreatePlanef(&plane, 1.0f);
+	glusShapeCreatePlanef(&plane, 1.0f);
 
 	g_numberIndicesPostprocessPlane = plane.numberIndices;
 
@@ -484,7 +484,7 @@ GLUSboolean init(GLUSvoid)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&plane);
+	glusShapeDestroyf(&plane);
 
 	//
 
@@ -520,15 +520,15 @@ GLUSboolean init(GLUSvoid)
 
 	for (i = 0; i < KERNEL_SIZE; i++)
 	{
-		g_kernel[i * 3 + 0] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
-		g_kernel[i * 3 + 1] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
-		g_kernel[i * 3 + 2] = glusRandomUniformGetFloatf(0.0f, 1.0f);	// Kernel hemisphere points to positive Z-Axis.
+		g_kernel[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
+		g_kernel[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
+		g_kernel[i * 3 + 2] = glusRandomUniformf(0.0f, 1.0f);	// Kernel hemisphere points to positive Z-Axis.
 
 		glusVector3Normalizef(&g_kernel[i * 3]);					// Normalize, so included in the hemisphere.
 
 		GLfloat scale = (GLfloat)i / (GLfloat)KERNEL_SIZE;		// Create a scale value between [0;1[ .
 
-		scale = glusClampf(scale * scale, 0.1f, 1.0f);			// Adjust scale, that there are more values closer to the center of the g_kernel.
+		scale = glusMathClampf(scale * scale, 0.1f, 1.0f);			// Adjust scale, that there are more values closer to the center of the g_kernel.
 
 		glusVector3MultiplyScalarf(&g_kernel[i * 3], &g_kernel[i * 3], scale);
 	}
@@ -542,8 +542,8 @@ GLUSboolean init(GLUSvoid)
 
 	for (i = 0; i < ROTATION_NOISE_SIZE; i++)
 	{
-		g_rotationNoise[i * 3 + 0] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
-		g_rotationNoise[i * 3 + 1] = glusRandomUniformGetFloatf(-1.0f, 1.0f);
+		g_rotationNoise[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
+		g_rotationNoise[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
 		g_rotationNoise[i * 3 + 2] = 0.0f;						// Rotate on x-y-plane, so z is zero.
 
 		glusVector3Normalizef(&g_rotationNoise[i * 3]);			// Normalized rotation vector.
@@ -634,7 +634,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 	glViewport(0, 0, width, height);
 
-	glusPerspectivef(g_projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
+	glusMatrix4x4Perspectivef(g_projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
 	// Calculate the inverse. Needed for the SSAO shader to get from projection to view space.
 
@@ -843,7 +843,7 @@ GLUSvoid terminate(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_program);
+	glusProgramDestroy(&g_program);
 
 	//
 
@@ -882,9 +882,9 @@ GLUSvoid terminate(GLUSvoid)
 		g_blurVAO = 0;
 	}
 
-	glusDestroyProgram(&g_ssaoProgram);
+	glusProgramDestroy(&g_ssaoProgram);
 
-	glusDestroyProgram(&g_blurProgram);
+	glusProgramDestroy(&g_blurProgram);
 
 	//
 
@@ -978,18 +978,18 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-	glusKeyFunc(key);
+	glusCallbackSetKeyFunc(key);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
 	// No resizing for convenience. If resizing is allowed, dynamically resize the SSAO and Blur frame buffer as well.
-    if (!glusCreateWindow("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
@@ -999,7 +999,7 @@ int main(int argc, char* argv[])
     printf("Keys:\n");
     printf("s = Toggle SSAO on/off\n");
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

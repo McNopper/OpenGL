@@ -19,16 +19,6 @@
 #define GLUS_FOURIER_H_
 
 /**
- * Calculates the root of unity.
- *
- * @param result The root of unity.
- * @param n		 The nth root of unity.
- * @param k		 k element. Maybe negative.
- * @param dir 	 The direction. Negative is clockwise.
- */
-GLUSAPI GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k, const GLUSfloat dir);
-
-/**
  * Performs a direct fourier transform on a given vector with N elements.
  *
  * @param result The transformed vector.
@@ -37,7 +27,7 @@ GLUSAPI GLUSvoid glusRootOfUnityc(GLUScomplex* result, const GLUSint n, const GL
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Performs an inverse direct fourier transform on a given vector with N elements.
@@ -48,7 +38,7 @@ GLUSAPI GLUSboolean glusDirectFourierTransformc(GLUScomplex* result, const GLUSc
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierInverseDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Performs a fast fourier transform on a given vector with N elements, using a recursive algorithm.
@@ -59,7 +49,7 @@ GLUSAPI GLUSboolean glusDirectFourierTransformInversec(GLUScomplex* result, cons
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformRecursivec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierRecursiveFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Performs an inverse fast fourier transform on a given vector with N elements, using a recursive algorithm.
@@ -70,7 +60,7 @@ GLUSAPI GLUSboolean glusFastFourierTransformRecursivec(GLUScomplex* result, cons
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformInverseRecursivec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Shuffles a vector with N elements, that it can be used for a FFT butterfly algorithm.
@@ -81,7 +71,7 @@ GLUSAPI GLUSboolean glusFastFourierTransformInverseRecursivec(GLUScomplex* resul
  *
  * @return GLUS_TRUE, if shuffle succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Shuffles a index vector with N elements, that the indices can be used for a FFT butterfly algorithm.
@@ -92,7 +82,7 @@ GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflec(GLUScomplex* resul
  *
  * @return GLUS_TRUE, if shuffle succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflei(GLUSint* result, const GLUSint* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierButterflyShuffleFFTi(GLUSint* result, const GLUSint* vector, const GLUSint n);
 
 /**
  * Performs a fast fourier transform on a given vector with N elements, using a butterfly algorithm.
@@ -104,7 +94,7 @@ GLUSAPI GLUSboolean glusFastFourierTransformButterflyShufflei(GLUSint* result, c
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformButterflyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierButterflyFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 /**
  * Performs an inverse fast fourier transform on a given vector with N elements, using a butterfly algorithm.
@@ -116,6 +106,6 @@ GLUSAPI GLUSboolean glusFastFourierTransformButterflyc(GLUScomplex* result, cons
  *
  * @return GLUS_TRUE, if transform succeeded.
  */
-GLUSAPI GLUSboolean glusFastFourierTransformInverseButterflyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+GLUSAPI GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
 
 #endif /* GLUS_FOURIER_H_ */

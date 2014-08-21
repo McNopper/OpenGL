@@ -31,7 +31,7 @@
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise1D(GLUStgaimage* image, const GLUSint width, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 /**
  * Creates a 2D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
@@ -47,7 +47,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise1D(GLUStgaimage* image, co
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise2D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 /**
  * Creates a 3D perlin noise texture. See OpenGL Programming Guide 4.3, p.460ff
@@ -64,6 +64,6 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise2D(GLUStgaimage* image, co
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePerlinNoise3D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusPerlinCreateNoise3D(GLUStgaimage* image, const GLUSint width, const GLUSint height, const GLUSint depth, const GLUSint seed, const GLUSfloat frequency, const GLUSfloat amplitude, const GLUSfloat persistence, const GLUSint octaves);
 
 #endif /* GLUS_PERLIN_H_ */

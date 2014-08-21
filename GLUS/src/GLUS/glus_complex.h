@@ -88,4 +88,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusComplexMultiplyScalarc(GLUScomplex* result, co
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusComplexExpComplexc(GLUScomplex* result, const GLUScomplex* complex);
 
+/**
+ * Calculates the root of unity.
+ *
+ * @param result The root of unity.
+ * @param n		 The nth root of unity.
+ * @param k		 k element. Maybe negative.
+ * @param dir 	 The direction. Negative is clockwise.
+ */
+GLUSAPI GLUSvoid glusComplexRootOfUnityc(GLUScomplex* result, const GLUSint n, const GLUSint k, const GLUSfloat dir);
+
 #endif /* GLUS_COMPLEX_H_ */

@@ -15,8 +15,8 @@
 /**
  * The used separable programs.
  */
-static GLUSshaderprogram g_vertexProgram;
-static GLUSshaderprogram g_fragmentProgram;
+static GLUSprogram g_vertexProgram;
+static GLUSprogram g_fragmentProgram;
 
 /**
  * The used shader program pipeline.
@@ -47,19 +47,19 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile fragmentSource;
 
     // Load the source of the vertex and fragment shader.
-    glusLoadTextFile("../Example38/shader/simple.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example38/shader/red.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example38/shader/simple.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example38/shader/red.frag.glsl", &fragmentSource);
 
     // Build the programs.
-    glusBuildShaderProgramFromSource(&g_vertexProgram, GL_VERTEX_SHADER, (const GLchar**) &vertexSource.text);
-    glusBuildShaderProgramFromSource(&g_fragmentProgram, GL_FRAGMENT_SHADER, (const GLchar**) &fragmentSource.text);
+    glusProgramBuildSeparableFromSource(&g_vertexProgram, GL_VERTEX_SHADER, (const GLchar**) &vertexSource.text);
+    glusProgramBuildSeparableFromSource(&g_fragmentProgram, GL_FRAGMENT_SHADER, (const GLchar**) &fragmentSource.text);
 
     // Destroy the text resources.
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     // Build the program pipeline.
-    glusBuildProgramPipeline(&g_programPipeline, g_vertexProgram.program, 0, 0, 0, g_fragmentProgram.program);
+    glusProgramPipelineBuild(&g_programPipeline, g_vertexProgram.program, 0, 0, 0, g_fragmentProgram.program);
 
     //
 
@@ -134,12 +134,12 @@ GLUSvoid terminate(GLUSvoid)
 
     glBindProgramPipeline(0);
 
-    glusDestroyProgramPipeline(&g_programPipeline);
+    glusProgramPipelineDestroy(&g_programPipeline);
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_vertexProgram);
-    glusDestroyProgram(&g_fragmentProgram);
+    glusProgramDestroy(&g_vertexProgram);
+    glusProgramDestroy(&g_fragmentProgram);
 }
 
 int main(int argc, char* argv[])
@@ -162,21 +162,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

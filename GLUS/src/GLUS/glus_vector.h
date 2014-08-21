@@ -259,4 +259,50 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusVector3Fresnelf(const GLUSfloat incident[3], 
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusVector2Fresnelf(const GLUSfloat incident[2], const GLUSfloat normal[2], const GLUSfloat R0);
 
+/**
+ * Copies a Vector with N elements.
+ *
+ * @param result The destination vector.
+ * @param vector The source vector.
+ * @param n 	 The number of elements.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNCopyc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+
+/**
+ * Converts a complex number Vector with N elements to a float Vector.
+ *
+ * @param result The destination vector.
+ * @param vector The source vector.
+ * @param n 	 The number of elements.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNComplexToFloatc(GLUSfloat* result, const GLUScomplex* vector, const GLUSint n);
+
+/**
+ * Converts a float Vector with N elements to a complex Vector.
+ *
+ * @param result The destination vector.
+ * @param vector The source vector.
+ * @param n 	 The number of elements.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNFloatToComplexc(GLUScomplex* result, const GLUSfloat* vector, const GLUSint n);
+
+/**
+ * Multiplies a Vector with N elements by a scalar.
+ *
+ * @param result The final vector.
+ * @param vector The used vector for multiplication.
+ * @param n 	 The number of elements.
+ * @param scalar The scalar.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNMultiplyScalarc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n, const GLUSfloat scalar);
+
+/**
+ * Calculates the complex conjugate of a Vector with N elements.
+ *
+ * @param result The vector, containing the complex conjugate.
+ * @param vector The source vector.
+ * @param n 	 The number of elements.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVectorNConjugatec(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n);
+
 #endif /* GLUS_VECTOR_H_ */

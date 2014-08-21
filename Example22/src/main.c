@@ -16,11 +16,11 @@ static GLUSfloat g_cameraPosition[3] = { -5.0f, 5.0f, 10.0f };
 
 static GLUSfloat g_lightDirection[3] = { 0.0f, 0.0f, 10.0f };
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
-static GLUSshaderprogram g_programShadowVolume;
+static GLUSprogram g_programShadowVolume;
 
-static GLUSshaderprogram g_programShadowPlane;
+static GLUSprogram g_programShadowPlane;
 
 //
 
@@ -114,13 +114,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example22/shader/color.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example22/shader/color.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example22/shader/color.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example22/shader/color.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -136,15 +136,15 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example22/shader/shadowvolume.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example22/shader/shadowvolume.geom.glsl", &geometrySource);
-    glusLoadTextFile("../Example22/shader/shadowvolume.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example22/shader/shadowvolume.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example22/shader/shadowvolume.geom.glsl", &geometrySource);
+    glusFileLoadText("../Example22/shader/shadowvolume.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programShadowVolume, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programShadowVolume, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&geometrySource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&geometrySource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -157,13 +157,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusLoadTextFile("../Example22/shader/shadow.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example22/shader/shadow.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example22/shader/shadow.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example22/shader/shadow.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_programShadowPlane, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programShadowPlane, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -171,9 +171,9 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
-    glusCreateAdjacencyShapef(&torusWithAdjacency, &torus);
-    glusDestroyShapef(&torus);
+    glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
+    glusShapeCreateAdjacencyIndicesf(&torusWithAdjacency, &torus);
+    glusShapeDestroyf(&torus);
 
     g_numberIndices = torusWithAdjacency.numberIndices;
 
@@ -193,11 +193,11 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&torusWithAdjacency);
+    glusShapeDestroyf(&torusWithAdjacency);
 
     //
 
-    glusCreatePlanef(&plane, 10.0f);
+    glusShapeCreatePlanef(&plane, 10.0f);
     g_numberIndicesPlane = plane.numberIndices;
 
     glGenBuffers(1, &g_verticesPlaneVBO);
@@ -216,12 +216,12 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&plane);
+    glusShapeDestroyf(&plane);
 
     //
 
     // The plane extends from -1.0 to 1.0 for both sides. So when rendering in NDC, the plane is always fullscreen.
-    glusCreatePlanef(&shadowPlane, 1.0f);
+    glusShapeCreatePlanef(&shadowPlane, 1.0f);
     g_numberIndicesShadowPlane = shadowPlane.numberIndices;
 
     glGenBuffers(1, &g_verticesShadowPlaneVBO);
@@ -236,12 +236,12 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glusDestroyShapef(&shadowPlane);
+    glusShapeDestroyf(&shadowPlane);
 
     //
 
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     // Bring light from world to camera / view space
     glusMatrix4x4MultiplyVector3f(lightDirection, viewMatrix, lightDirection);
@@ -331,7 +331,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     //
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
 
     glUseProgram(g_program.program);
@@ -358,7 +358,7 @@ GLUSboolean update(GLUSfloat time)
 
     glUseProgram(g_program.program);
 
-    glusLookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, viewMatrix);
 
@@ -547,11 +547,11 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
-    glusDestroyProgram(&g_programShadowVolume);
+    glusProgramDestroy(&g_programShadowVolume);
 
-    glusDestroyProgram(&g_programShadowPlane);
+    glusProgramDestroy(&g_programShadowPlane);
 }
 
 int main(int argc, char* argv[])
@@ -574,21 +574,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

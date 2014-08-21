@@ -19,6 +19,66 @@
 #define GLUS_SHAPE_H_
 
 /**
+ * Structure for holding geometry data.
+ */
+typedef struct _GLUSshape
+{
+	/**
+	 * Vertices in homogeneous coordinates.
+	 */
+    GLUSfloat* vertices;
+
+    /**
+     * Normals.
+     */
+    GLUSfloat* normals;
+
+    /**
+     * Tangents.
+     */
+    GLUSfloat* tangents;
+
+    /**
+     * Bitangents.
+     */
+    GLUSfloat* bitangents;
+
+    /**
+     * Texture coordinates.
+     */
+    GLUSfloat* texCoords;
+
+    /**
+     * All above values in one array. Not created by the model loader.
+     */
+    GLUSfloat* allAttributes;
+
+    /**
+     * Indices.
+     */
+    GLUSindex* indices;
+
+    /**
+     * Number of vertices.
+     */
+    GLUSuint numberVertices;
+
+    /**
+     * Number of indices.
+     */
+    GLUSuint numberIndices;
+
+    /**
+     * Triangle render mode - could be either:
+     *
+     * GL_TRIANGLES
+     * GL_TRIANGLE_STRIP
+     */
+    GLUSenum mode;
+
+} GLUSshape;
+
+/**
  * Creates a quadratic plane.
  *
  * @param shape The data is stored into this structure.
@@ -26,7 +86,7 @@
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat halfExtend);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreatePlanef(GLUSshape* shape, const GLUSfloat halfExtend);
 
 /**
  * Creates a rectangular plane.
@@ -37,7 +97,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfl
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateRectangularPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend);
 
 /**
  * Creates a rectangular plane organized as a grid with given number rows and columns.
@@ -51,7 +111,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, c
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip);
 
 /**
  * Creates a disc with the given radius and number sectors. More sectors makes the disc more round.
@@ -62,7 +122,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shap
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors);
 
 /**
  * Creates a cube.
@@ -72,7 +132,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSflo
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfExtend);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateCubef(GLUSshape* shape, const GLUSfloat halfExtend);
 
 /**
  * Creates a sphere. More slices makes the sphere more round.
@@ -83,7 +143,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSflo
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
 
 /**
  * Creates a dome. More slices makes the dome more round.
@@ -94,7 +154,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSf
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices);
 
 /**
  * Creates a torus / doughnut. More slices and stacks makes the torus more round.
@@ -107,7 +167,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSflo
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks);
 
 /**
  * Creates a cylinder. More slices makes the cylinder more round.
@@ -119,7 +179,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfl
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices);
 
 /**
  * Creates a cone. More slices and stacks makes the torus more round and smooth.
@@ -132,7 +192,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLU
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks);
 
 /**
  * Calculates and creates the tangent and bitangent vectors. Uses the previous created memory for the tangents and bitangents.
@@ -141,7 +201,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSflo
  *
  * @return GLUS_TRUE, if creation succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCalculateTangentBitangentf(GLUSshape* shape);
 
 /**
  * Copies the shape.
@@ -151,13 +211,13 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape);
  *
  * @return GLUS_TRUE, if copy succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* source);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusShapeCopyf(GLUSshape* shape, const GLUSshape* source);
 
 /**
  * Destroys the shape by freeing the allocated memory.
  *
  * @param shape The structure which contains the dynamic allocated shape data, which will be freed by this function.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusShapeDestroyf(GLUSshape* shape);
 
 #endif /* GLUS_SHAPE_H_ */

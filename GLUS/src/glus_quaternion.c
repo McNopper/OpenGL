@@ -130,7 +130,7 @@ GLUSvoid GLUSAPIENTRY glusQuaternionInverseUnitf(GLUSfloat quaternion[4])
 
 GLUSvoid GLUSAPIENTRY glusQuaternionRotatef(GLUSfloat quaternion[4], const GLUSfloat angle, const GLUSfloat x, const GLUSfloat y, const GLUSfloat z)
 {
-    GLUSfloat halfAngleRadian = glusDegToRadf(angle) * 0.5f;
+    GLUSfloat halfAngleRadian = glusMathDegToRadf(angle) * 0.5f;
 
     GLUSfloat s = sinf(halfAngleRadian);
 
@@ -146,7 +146,7 @@ GLUSvoid GLUSAPIENTRY glusQuaternionRotatef(GLUSfloat quaternion[4], const GLUSf
 
 GLUSvoid GLUSAPIENTRY glusQuaternionRotateRxf(GLUSfloat quaternion[4], const GLUSfloat angle)
 {
-    GLUSfloat halfAngleRadian = glusDegToRadf(angle) * 0.5f;
+    GLUSfloat halfAngleRadian = glusMathDegToRadf(angle) * 0.5f;
 
     quaternion[0] = sinf(halfAngleRadian);
     quaternion[1] = 0.0f;
@@ -156,7 +156,7 @@ GLUSvoid GLUSAPIENTRY glusQuaternionRotateRxf(GLUSfloat quaternion[4], const GLU
 
 GLUSvoid GLUSAPIENTRY glusQuaternionRotateRyf(GLUSfloat quaternion[4], const GLUSfloat angle)
 {
-    GLUSfloat halfAngleRadian = glusDegToRadf(angle) * 0.5f;
+    GLUSfloat halfAngleRadian = glusMathDegToRadf(angle) * 0.5f;
 
     quaternion[0] = 0.0f;
     quaternion[1] = sinf(halfAngleRadian);
@@ -166,7 +166,7 @@ GLUSvoid GLUSAPIENTRY glusQuaternionRotateRyf(GLUSfloat quaternion[4], const GLU
 
 GLUSvoid GLUSAPIENTRY glusQuaternionRotateRzf(GLUSfloat quaternion[4], const GLUSfloat angle)
 {
-    GLUSfloat halfAngleRadian = glusDegToRadf(angle) * 0.5f;
+    GLUSfloat halfAngleRadian = glusMathDegToRadf(angle) * 0.5f;
 
     quaternion[0] = 0.0f;
     quaternion[1] = 0.0f;
@@ -295,18 +295,18 @@ GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[3], const G
         GLUSfloat f22 = 1.0f - 2.0f * x * x - 2.0f * y * y;
         GLUSfloat f01 = 2.0f * x * y - 2.0f * w * z;
 
-        angles[0] = glusRadToDegf(asinf(f21));
-        angles[1] = glusRadToDegf(atan2f(-f20, f22));
-        angles[2] = glusRadToDegf(atan2f(-f01, f11));
+        angles[0] = glusMathRadToDegf(asinf(f21));
+        angles[1] = glusMathRadToDegf(atan2f(-f20, f22));
+        angles[2] = glusMathRadToDegf(atan2f(-f01, f11));
     }
     else
     {
         GLUSfloat f10 = 2.0f * x * y + 2.0f * w * z;
         GLUSfloat f00 = 1.0f - 2.0f * y * y - 2.0f * z * z;
 
-        angles[0] = glusRadToDegf(asinf(f21));
+        angles[0] = glusMathRadToDegf(asinf(f21));
         angles[1] = 0.0f;
-        angles[2] = glusRadToDegf(atan2f(f10, f00));
+        angles[2] = glusMathRadToDegf(atan2f(f10, f00));
     }
 }
 
@@ -326,17 +326,17 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3],
     	GLUSfloat f21 = 2.0f * y * z + 2.0f * w * x;
     	GLUSfloat f22 = 1.0f - 2.0f * x * x - 2.0f * y * y;
 
-        angles[0] = glusRadToDegf(atan2f(f21, f22));
-    	angles[1] = glusRadToDegf(asinf(-f20));
-    	angles[2] = glusRadToDegf(atan2f(f10, f00));
+        angles[0] = glusMathRadToDegf(atan2f(f21, f22));
+    	angles[1] = glusMathRadToDegf(asinf(-f20));
+    	angles[2] = glusMathRadToDegf(atan2f(f10, f00));
     }
     else
     {
     	GLUSfloat f01 = 2.0f * x * y - 2.0f * w * z;
     	GLUSfloat f11 = 1.0f - 2.0f * x * x - 2.0f * z * z;
 
-        angles[0] = glusRadToDegf(atan2f(f01, f11));
-    	angles[1] = glusRadToDegf(asinf(-f20));
+        angles[0] = glusMathRadToDegf(atan2f(f01, f11));
+    	angles[1] = glusMathRadToDegf(asinf(-f20));
     	angles[2] = 0.0f;
     }
 

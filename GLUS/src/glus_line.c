@@ -39,7 +39,7 @@ static GLUSboolean glusCheckLinef(GLUSline* line)
 	return line->vertices && line->numberIndices;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[4], const GLUSfloat point1[4])
+GLUSboolean GLUSAPIENTRY glusLineCreateLinef(GLUSline* line, const GLUSfloat point0[4], const GLUSfloat point1[4])
 {
 	if (!line)
 	{
@@ -50,14 +50,14 @@ GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[
 	line->numberVertices = 2;
 	line->numberIndices = 2;
 
-	line->vertices = (GLUSfloat*)glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
-	line->indices = (GLUSuint*)glusMalloc(line->numberIndices * sizeof(GLUSuint));
+	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
 	line->mode = GL_LINES;
 
 	if (!glusCheckLinef(line))
 	{
-		glusDestroyLinef(line);
+		glusLineDestroyf(line);
 
 		return GLUS_FALSE;
 	}
@@ -71,7 +71,7 @@ GLUSboolean GLUSAPIENTRY glusCreateLinef(GLUSline* line, const GLUSfloat point0[
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfExtend)
+GLUSboolean GLUSAPIENTRY glusLineCreateSquaref(GLUSline* line, const GLUSfloat halfExtend)
 {
 	if (!line)
 	{
@@ -82,14 +82,14 @@ GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfE
 	line->numberVertices = 4;
 	line->numberIndices = 4;
 
-	line->vertices = (GLUSfloat*)glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
-	line->indices = (GLUSuint*)glusMalloc(line->numberIndices * sizeof(GLUSuint));
+	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
 	line->mode = GL_LINE_LOOP;
 
 	if (!glusCheckLinef(line))
 	{
-		glusDestroyLinef(line);
+		glusLineDestroyf(line);
 
 		return GLUS_FALSE;
 	}
@@ -122,7 +122,7 @@ GLUSboolean GLUSAPIENTRY glusCreateSquaref(GLUSline* line, const GLUSfloat halfE
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns)
+GLUSboolean GLUSAPIENTRY glusLineCreateRectangularGridf(GLUSline* line, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns)
 {
 	GLUSuint i, offset;
 	GLUSuint numberVertices = (rows + 1) * 2 + (columns + 1) * 2;
@@ -138,14 +138,14 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfl
 	line->numberVertices = numberVertices;
 	line->numberIndices = numberIndices;
 
-	line->vertices = (GLUSfloat*)glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
-	line->indices = (GLUSuint*)glusMalloc(line->numberIndices * sizeof(GLUSuint));
+	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
 	line->mode = GL_LINES;
 
 	if (!glusCheckLinef(line))
 	{
-		glusDestroyLinef(line);
+		glusLineDestroyf(line);
 
 		return GLUS_FALSE;
 	}
@@ -195,7 +195,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridf(GLUSline* line, const GLUSfl
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors)
+GLUSboolean GLUSAPIENTRY glusLineCreateCirclef(GLUSline* line, const GLUSfloat radius, const GLUSuint numberSectors)
 {
 	GLUSuint i;
 	float singleStep;
@@ -213,14 +213,14 @@ GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radiu
 	line->numberVertices = numberSectors;
 	line->numberIndices = numberSectors;
 
-	line->vertices = (GLUSfloat*)glusMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
-	line->indices = (GLUSuint*)glusMalloc(line->numberIndices * sizeof(GLUSuint));
+	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
+	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
 	line->mode = GL_LINE_LOOP;
 
 	if (!glusCheckLinef(line))
 	{
-		glusDestroyLinef(line);
+		glusLineDestroyf(line);
 
 		return GLUS_FALSE;
 	}
@@ -242,7 +242,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCirclef(GLUSline* line, const GLUSfloat radiu
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
+GLUSboolean GLUSAPIENTRY glusLineCopyf(GLUSline* line, const GLUSline* source)
 {
 	if (!line || !source)
 	{
@@ -256,10 +256,10 @@ GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
 
 	if (source->numberVertices)
 	{
-		line->vertices = (GLUSfloat*)glusMalloc(4 * source->numberVertices * sizeof(GLUSfloat));
+		line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * source->numberVertices * sizeof(GLUSfloat));
 		if (!line->vertices)
 		{
-			glusDestroyLinef(line);
+			glusLineDestroyf(line);
 
 			return GLUS_FALSE;
 		}
@@ -268,14 +268,14 @@ GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
 
 	if (source->indices)
 	{
-		line->indices = (GLUSuint*)glusMalloc(source->numberIndices * sizeof(GLUSuint));
+		line->indices = (GLUSindex*)glusMemoryMalloc(source->numberIndices * sizeof(GLUSindex));
 		if (!line->indices)
 		{
-			glusDestroyLinef(line);
+			glusLineDestroyf(line);
 
 			return GLUS_FALSE;
 		}
-		memcpy(line->indices, source->indices, source->numberIndices * sizeof(GLUSuint));
+		memcpy(line->indices, source->indices, source->numberIndices * sizeof(GLUSindex));
 	}
 
 	line->mode = source->mode;
@@ -283,7 +283,7 @@ GLUSboolean GLUSAPIENTRY glusCopyLinef(GLUSline* line, const GLUSline* source)
 	return GLUS_TRUE;
 }
 
-GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line)
+GLUSAPI GLUSvoid GLUSAPIENTRY glusLineDestroyf(GLUSline* line)
 {
 	if (!line)
 	{
@@ -292,14 +292,14 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusDestroyLinef(GLUSline* line)
 
 	if (line->vertices)
 	{
-		glusFree(line->vertices);
+		glusMemoryFree(line->vertices);
 
 		line->vertices = 0;
 	}
 
 	if (line->indices)
 	{
-		glusFree(line->indices);
+		glusMemoryFree(line->indices);
 
 		line->indices = 0;
 	}

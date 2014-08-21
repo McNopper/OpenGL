@@ -52,7 +52,7 @@ static GLUSboolean glusFinalizeShapef(GLUSshape* shape)
     }
 
     // Add bitangents
-    shape->bitangents = (GLUSfloat*) glusMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
+    shape->bitangents = (GLUSfloat*) glusMemoryMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
 
     if (!shape->bitangents)
     {
@@ -66,7 +66,7 @@ static GLUSboolean glusFinalizeShapef(GLUSshape* shape)
 
     //
 
-    shape->allAttributes = (GLUSfloat*) glusMalloc(stride * shape->numberVertices * sizeof(GLUSfloat));
+    shape->allAttributes = (GLUSfloat*) glusMemoryMalloc(stride * shape->numberVertices * sizeof(GLUSfloat));
 
     if (!shape->allAttributes)
     {
@@ -99,7 +99,7 @@ static GLUSboolean glusFinalizeShapef(GLUSshape* shape)
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat halfExtend)
+GLUSboolean GLUSAPIENTRY glusShapeCreatePlanef(GLUSshape* shape, const GLUSfloat halfExtend)
 {
     GLUSuint i;
 
@@ -114,7 +114,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat half
 
     GLUSfloat xy_texCoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 
-    GLUSuint xy_indices[] = { 0, 1, 2, 1, 3, 2 };
+    GLUSindex xy_indices[] = { 0, 1, 2, 1, 3, 2 };
 
     if (!shape)
     {
@@ -125,15 +125,15 @@ GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat half
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -155,7 +155,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat half
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -163,7 +163,7 @@ GLUSboolean GLUSAPIENTRY glusCreatePlanef(GLUSshape* shape, const GLUSfloat half
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend)
+GLUSboolean GLUSAPIENTRY glusShapeCreateRectangularPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend)
 {
     GLUSuint i;
 
@@ -178,7 +178,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
 
     GLUSfloat xy_texCoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 
-    GLUSuint xy_indices[] = { 0, 1, 2, 1, 3, 2 };
+    GLUSindex xy_indices[] = { 0, 1, 2, 1, 3, 2 };
 
     if (!shape)
     {
@@ -189,15 +189,15 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -219,7 +219,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -227,7 +227,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularPlanef(GLUSshape* shape, const GLU
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip)
+GLUSboolean GLUSAPIENTRY glusShapeCreateRectangularGridPlanef(GLUSshape* shape, const GLUSfloat horizontalExtend, const GLUSfloat verticalExtend, const GLUSuint rows, const GLUSuint columns, const GLUSboolean triangleStrip)
 {
     GLUSuint i, currentRow, currentColumn;
 
@@ -268,15 +268,15 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -346,7 +346,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -354,7 +354,7 @@ GLUSboolean GLUSAPIENTRY glusCreateRectangularGridPlanef(GLUSshape* shape, const
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors)
+GLUSboolean GLUSAPIENTRY glusShapeCreateDiscf(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSectors)
 {
     GLUSuint i;
 
@@ -382,15 +382,15 @@ GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radiu
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -453,7 +453,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radiu
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -461,7 +461,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDiscf(GLUSshape* shape, const GLUSfloat radiu
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfExtend)
+GLUSboolean GLUSAPIENTRY glusShapeCreateCubef(GLUSshape* shape, const GLUSfloat halfExtend)
 {
     GLUSuint i;
 
@@ -517,7 +517,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfE
 
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 
-    GLUSuint cubeIndices[] = { 0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 15, 14, 12, 14, 13, 16, 17, 18, 16, 18, 19, 20, 23, 22, 20, 22, 21 };
+    GLUSindex cubeIndices[] = { 0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 15, 14, 12, 14, 13, 16, 17, 18, 16, 18, 19, 20, 23, 22, 20, 22, 21 };
 
     if (!shape)
     {
@@ -528,15 +528,15 @@ GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfE
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -559,7 +559,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfE
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -567,7 +567,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCubef(GLUSshape* shape, const GLUSfloat halfE
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
+GLUSboolean GLUSAPIENTRY glusShapeCreateSpheref(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -598,15 +598,15 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -657,7 +657,7 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -665,7 +665,7 @@ GLUSboolean GLUSAPIENTRY glusCreateSpheref(GLUSshape* shape, const GLUSfloat rad
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
+GLUSboolean GLUSAPIENTRY glusShapeCreateDomef(GLUSshape* shape, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -696,15 +696,15 @@ GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radiu
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -755,7 +755,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radiu
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -767,7 +767,7 @@ GLUSboolean GLUSAPIENTRY glusCreateDomef(GLUSshape* shape, const GLUSfloat radiu
  * @author Pablo Alonso-Villaverde Roza
  * @author Norbert Nopper
  */
-GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks)
+GLUSboolean GLUSAPIENTRY glusShapeCreateTorusf(GLUSshape* shape, const GLUSfloat innerRadius, const GLUSfloat outerRadius, const GLUSuint numberSlices, const GLUSuint numberStacks)
 {
     // s, t = parametric values of the equations, in the range [0,1]
     GLUSfloat s = 0;
@@ -817,15 +817,15 @@ GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat inne
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -903,7 +903,7 @@ GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat inne
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -911,7 +911,7 @@ GLUSboolean GLUSAPIENTRY glusCreateTorusf(GLUSshape* shape, const GLUSfloat inne
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices)
+GLUSboolean GLUSAPIENTRY glusShapeCreateCylinderf(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices)
 {
     GLUSuint i, j;
 
@@ -940,15 +940,15 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -1115,7 +1115,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -1123,7 +1123,7 @@ GLUSboolean GLUSAPIENTRY glusCreateCylinderf(GLUSshape* shape, const GLUSfloat h
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks)
+GLUSboolean GLUSAPIENTRY glusShapeCreateConef(GLUSshape* shape, const GLUSfloat halfExtend, const GLUSfloat radius, const GLUSuint numberSlices, const GLUSuint numberStacks)
 {
     GLUSuint i, j;
 
@@ -1156,15 +1156,15 @@ GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfE
     shape->numberVertices = numberVertices;
     shape->numberIndices = numberIndices;
 
-    shape->vertices = (GLUSfloat*) glusMalloc(4 * numberVertices * sizeof(GLUSfloat));
-    shape->normals = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->tangents = (GLUSfloat*) glusMalloc(3 * numberVertices * sizeof(GLUSfloat));
-    shape->texCoords = (GLUSfloat*) glusMalloc(2 * numberVertices * sizeof(GLUSfloat));
-    shape->indices = (GLUSuint*) glusMalloc(numberIndices * sizeof(GLUSuint));
+    shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * numberVertices * sizeof(GLUSfloat));
+    shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * numberVertices * sizeof(GLUSfloat));
+    shape->indices = (GLUSindex*) glusMemoryMalloc(numberIndices * sizeof(GLUSindex));
 
     if (!glusCheckShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -1276,7 +1276,7 @@ GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfE
 
     if (!glusFinalizeShapef(shape))
     {
-        glusDestroyShapef(shape);
+        glusShapeDestroyf(shape);
 
         return GLUS_FALSE;
     }
@@ -1284,7 +1284,7 @@ GLUSboolean GLUSAPIENTRY glusCreateConef(GLUSshape* shape, const GLUSfloat halfE
 	return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
+GLUSboolean GLUSAPIENTRY glusShapeCalculateTangentBitangentf(GLUSshape* shape)
 {
     GLUSuint i;
 
@@ -1296,7 +1296,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     // Allocate memory if needed
     if (!shape->tangents)
     {
-    	shape->tangents = (GLUSfloat*) glusMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
+    	shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
 
         if (!shape->tangents)
         {
@@ -1306,7 +1306,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
 
     if (!shape->bitangents)
     {
-    	shape->bitangents = (GLUSfloat*) glusMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
+    	shape->bitangents = (GLUSfloat*) glusMemoryMalloc(3 * shape->numberVertices * sizeof(GLUSfloat));
 
         if (!shape->bitangents)
         {
@@ -1459,7 +1459,7 @@ GLUSboolean GLUSAPIENTRY glusCalculateTangentSpacef(GLUSshape* shape)
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* source)
+GLUSboolean GLUSAPIENTRY glusShapeCopyf(GLUSshape* shape, const GLUSshape* source)
 {
 	GLUSuint stride = 4 + 3 + 3 + 3 + 2;
 
@@ -1476,10 +1476,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
 
     if (source->vertices)
     {
-    	shape->vertices = (GLUSfloat*) glusMalloc(4 * source->numberVertices * sizeof(GLUSfloat));
+    	shape->vertices = (GLUSfloat*) glusMemoryMalloc(4 * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->vertices)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1487,10 +1487,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->normals)
     {
-    	shape->normals = (GLUSfloat*) glusMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
+    	shape->normals = (GLUSfloat*) glusMemoryMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->normals)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1498,10 +1498,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->tangents)
     {
-    	shape->tangents = (GLUSfloat*) glusMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
+    	shape->tangents = (GLUSfloat*) glusMemoryMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->tangents)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1509,10 +1509,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->bitangents)
     {
-    	shape->bitangents = (GLUSfloat*) glusMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
+    	shape->bitangents = (GLUSfloat*) glusMemoryMalloc(3 * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->bitangents)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1520,10 +1520,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->texCoords)
     {
-    	shape->texCoords = (GLUSfloat*) glusMalloc(2 * source->numberVertices * sizeof(GLUSfloat));
+    	shape->texCoords = (GLUSfloat*) glusMemoryMalloc(2 * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->texCoords)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1531,10 +1531,10 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->allAttributes)
     {
-    	shape->allAttributes = (GLUSfloat*) glusMalloc(stride * source->numberVertices * sizeof(GLUSfloat));
+    	shape->allAttributes = (GLUSfloat*) glusMemoryMalloc(stride * source->numberVertices * sizeof(GLUSfloat));
         if (!shape->allAttributes)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
@@ -1542,20 +1542,20 @@ GLUSboolean GLUSAPIENTRY glusCopyShapef(GLUSshape* shape, const GLUSshape* sourc
     }
     if (source->indices)
     {
-    	shape->indices = (GLUSuint*) glusMalloc(source->numberIndices * sizeof(GLUSuint));
+    	shape->indices = (GLUSindex*) glusMemoryMalloc(source->numberIndices * sizeof(GLUSindex));
         if (!shape->indices)
         {
-        	glusDestroyShapef(shape);
+        	glusShapeDestroyf(shape);
 
             return GLUS_FALSE;
         }
-        memcpy(shape->indices, source->indices, source->numberIndices * sizeof(GLUSuint));
+        memcpy(shape->indices, source->indices, source->numberIndices * sizeof(GLUSindex));
     }
 
     return GLUS_TRUE;
 }
 
-GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape)
+GLUSvoid GLUSAPIENTRY glusShapeDestroyf(GLUSshape* shape)
 {
     if (!shape)
     {
@@ -1564,49 +1564,49 @@ GLUSvoid GLUSAPIENTRY glusDestroyShapef(GLUSshape* shape)
 
     if (shape->vertices)
     {
-        glusFree(shape->vertices);
+        glusMemoryFree(shape->vertices);
 
         shape->vertices = 0;
     }
 
     if (shape->normals)
     {
-        glusFree(shape->normals);
+        glusMemoryFree(shape->normals);
 
         shape->normals = 0;
     }
 
     if (shape->tangents)
     {
-        glusFree(shape->tangents);
+        glusMemoryFree(shape->tangents);
 
         shape->tangents = 0;
     }
 
     if (shape->bitangents)
     {
-        glusFree(shape->bitangents);
+        glusMemoryFree(shape->bitangents);
 
         shape->bitangents = 0;
     }
 
     if (shape->texCoords)
     {
-        glusFree(shape->texCoords);
+        glusMemoryFree(shape->texCoords);
 
         shape->texCoords = 0;
     }
 
     if (shape->allAttributes)
     {
-        glusFree(shape->allAttributes);
+        glusMemoryFree(shape->allAttributes);
 
         shape->allAttributes = 0;
     }
 
     if (shape->indices)
     {
-        glusFree(shape->indices);
+        glusMemoryFree(shape->indices);
 
         shape->indices = 0;
     }

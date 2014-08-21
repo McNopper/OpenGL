@@ -22,7 +22,7 @@
 // Row is between two vertices, so 31 rows generates 32 vertices per side.
 #define ROWS	31
 
-static GLUSshaderprogram g_computeProgram;
+static GLUSprogram g_computeProgram;
 
 static GLint g_verticesPerRowLocation;
 
@@ -36,7 +36,7 @@ static GLint g_sphereRadiusLocation;
 
 //
 
-static GLUSshaderprogram g_program;
+static GLUSprogram g_program;
 
 static GLint g_modelViewProjectionMatrixLocation;
 
@@ -87,20 +87,20 @@ GLUSboolean init(GLUSvoid)
     GLfloat sphereCenter[4] = {0.0f, 0.0f, -0.01f, 1.0f};
     GLfloat sphereRadius = 1.0f;
 
-    glusLoadTextFile("../Example40/shader/cloth.comp.glsl", &computeSource);
+    glusFileLoadText("../Example40/shader/cloth.comp.glsl", &computeSource);
 
-    glusBuildComputeProgramFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
 
-    glusDestroyTextFile(&computeSource);
+    glusFileDestroyText(&computeSource);
 
 
-    glusLoadTextFile("../Example40/shader/cloth.vert.glsl", &vertexSource);
-    glusLoadTextFile("../Example40/shader/cloth.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example40/shader/cloth.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example40/shader/cloth.frag.glsl", &fragmentSource);
 
-    glusBuildProgramFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-    glusDestroyTextFile(&vertexSource);
-    glusDestroyTextFile(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -123,7 +123,7 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a grid plane.
-    glusCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE);
+    glusShapeCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE);
 
     // Use x, as only horizontal and vertical springs are used. Adapt this, if diagonal or a non square grid is used.
     distanceRest = g_gridPlane.vertices[4] - g_gridPlane.vertices[0];
@@ -253,9 +253,9 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     // This model matrix is a rigid body transform. So no need for the inverse, transposed matrix.
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusPerspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
 
-    glusLookAtf(viewMatrix, 0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, 0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Multiplyf(viewProjectionMatrix, projectionMatrix, viewMatrix);
     glusMatrix4x4Multiplyf(modelViewProjectionMatrix, viewProjectionMatrix, modelMatrix);
@@ -417,13 +417,13 @@ GLUSvoid terminate(GLUSvoid)
 
     glUseProgram(0);
 
-    glusDestroyProgram(&g_computeProgram);
+    glusProgramDestroy(&g_computeProgram);
 
-    glusDestroyProgram(&g_program);
+    glusProgramDestroy(&g_program);
 
     //
 
-    glusDestroyShapef(&g_gridPlane);
+    glusShapeDestroyf(&g_gridPlane);
 }
 
 int main(int argc, char* argv[])
@@ -449,21 +449,21 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusInitFunc(init);
+    glusCallbackSetInitFunc(init);
 
-    glusReshapeFunc(reshape);
+    glusCallbackSetReshapeFunc(reshape);
 
-    glusUpdateFunc(update);
+    glusCallbackSetUpdateFunc(update);
 
-    glusTerminateFunc(terminate);
+    glusCallbackSetTerminateFunc(terminate);
 
-    if (!glusCreateWindow("GLUS Example Window", 1024, 768, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", 1024, 768, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes))
     {
         printf("Could not create window!\n");
         return -1;
     }
 
-    glusRun();
+    glusWindowRun();
 
     return 0;
 }

@@ -23,6 +23,6 @@
  *
  * @return GLUS_TRUE, if the given version is supported.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusIsSupported(const GLUSint major, const GLUSint minor);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusVersionIsSupported(const GLUSint major, const GLUSint minor);
 
 #endif /* GLUS_VERSION_H_ */

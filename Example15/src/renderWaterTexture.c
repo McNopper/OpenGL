@@ -16,7 +16,7 @@
 #include "globals.h"
 #include "renderWaterTexture.h"
 
-static GLUSshaderprogram g_programWaterTexture;
+static GLUSprogram g_programWaterTexture;
 
 static GLint g_projectionMatrixWaterTextureLocation;
 
@@ -78,13 +78,13 @@ GLUSuint initWaterTexture(GLUSfloat waterPlaneLength)
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
-	glusLoadTextFile("../Example15/shader/WaterTexture.vert.glsl", &vertexSource);
-	glusLoadTextFile("../Example15/shader/WaterTexture.frag.glsl", &fragmentSource);
+	glusFileLoadText("../Example15/shader/WaterTexture.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example15/shader/WaterTexture.frag.glsl", &fragmentSource);
 
-	glusBuildProgramFromSource(&g_programWaterTexture, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+	glusProgramBuildFromSource(&g_programWaterTexture, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
 
-	glusDestroyTextFile(&vertexSource);
-	glusDestroyTextFile(&fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
 	//
 
@@ -148,7 +148,7 @@ GLUSuint initWaterTexture(GLUSfloat waterPlaneLength)
 
     //
 
-	glusCreatePlanef(&plane, TEXTURE_SIZE / 2.0f);
+	glusShapeCreatePlanef(&plane, TEXTURE_SIZE / 2.0f);
 	g_numberIndicesWaterTexture = plane.numberIndices;
 
 	glGenBuffers(1, &g_verticesWaterTextureVBO);
@@ -167,16 +167,16 @@ GLUSuint initWaterTexture(GLUSfloat waterPlaneLength)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glusDestroyShapef(&plane);
+	glusShapeDestroyf(&plane);
 
 	//
 
     glUseProgram(g_programWaterTexture.program);
 
-	glusLookAtf(modelViewMatrixWaterTexture, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glusMatrix4x4LookAtf(modelViewMatrixWaterTexture, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	glUniformMatrix4fv(g_modelViewMatrixWaterTextureLocation, 1, GL_FALSE, modelViewMatrixWaterTexture);
 
-	glusOrthof(projectionMatrixWaterTexture, -(GLfloat) TEXTURE_SIZE / 2, (GLfloat) TEXTURE_SIZE / 2, -(GLfloat) TEXTURE_SIZE / 2, (GLfloat) TEXTURE_SIZE / 2, 1.0f, 100.0f);
+	glusMatrix4x4Orthof(projectionMatrixWaterTexture, -(GLfloat) TEXTURE_SIZE / 2, (GLfloat) TEXTURE_SIZE / 2, -(GLfloat) TEXTURE_SIZE / 2, (GLfloat) TEXTURE_SIZE / 2, 1.0f, 100.0f);
     glUniformMatrix4fv(g_projectionMatrixWaterTextureLocation, 1, GL_FALSE, projectionMatrixWaterTexture);
 
 	glUniform1f(g_waterPlaneLengthWaterTextureLocation, waterPlaneLength);
@@ -331,7 +331,7 @@ GLUSvoid terminateWaterTexture(GLUSvoid)
 
 	glUseProgram(0);
 
-	glusDestroyProgram(&g_programWaterTexture);
+	glusProgramDestroy(&g_programWaterTexture);
 
 	//
 

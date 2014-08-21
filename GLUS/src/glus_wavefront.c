@@ -22,83 +22,6 @@
 #define GLUS_MAX_TRIANGLE_ATTRIBUTES GLUS_MAX_VERTICES
 #define GLUS_BUFFERSIZE 1024
 
-static GLboolean glusCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
-{
-	GLUSuint indicesCounter = 0;
-
-	if (!shape || !triangleVertices || !triangleNormals || !triangleTexCoords)
-	{
-		return GLUS_FALSE;
-	}
-
-	shape->numberVertices = totalNumberVertices;
-
-	if (totalNumberVertices > 0)
-	{
-		shape->vertices = (GLUSfloat*)glusMalloc(totalNumberVertices * 4 * sizeof(GLUSfloat));
-
-		if (shape->vertices == 0)
-		{
-			glusDestroyShapef(shape);
-
-			return GLUS_FALSE;
-		}
-
-		memcpy(shape->vertices, triangleVertices, totalNumberVertices * 4 * sizeof(GLUSfloat));
-	}
-	if (totalNumberNormals > 0)
-	{
-		shape->normals = (GLUSfloat*)glusMalloc(totalNumberNormals * 3 * sizeof(GLUSfloat));
-
-		if (shape->normals == 0)
-		{
-			glusDestroyShapef(shape);
-
-			return GLUS_FALSE;
-		}
-
-		memcpy(shape->normals, triangleNormals, totalNumberNormals * 3 * sizeof(GLUSfloat));
-	}
-	if (totalNumberTexCoords > 0)
-	{
-		shape->texCoords = (GLUSfloat*)glusMalloc(totalNumberTexCoords * 2 * sizeof(GLUSfloat));
-
-		if (shape->texCoords == 0)
-		{
-			glusDestroyShapef(shape);
-
-			return GLUS_FALSE;
-		}
-
-		memcpy(shape->texCoords, triangleTexCoords, totalNumberTexCoords * 2 * sizeof(GLUSfloat));
-	}
-
-	// Just create the indices from the list of vertices.
-
-	shape->numberIndices = totalNumberVertices;
-
-	if (totalNumberVertices > 0)
-	{
-		shape->indices = (GLUSuint*)glusMalloc(totalNumberVertices * sizeof(GLUSuint));
-
-		if (shape->indices == 0)
-		{
-			glusDestroyShapef(shape);
-
-			return GLUS_FALSE;
-		}
-
-		for (indicesCounter = 0; indicesCounter < totalNumberVertices; indicesCounter++)
-		{
-			shape->indices[indicesCounter] = indicesCounter;
-		}
-	}
-
-	shape->mode = GL_TRIANGLES;
-
-	return GLUS_TRUE;
-}
-
 static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
 {
 	if (!vertices || !normals || !texCoords || !triangleVertices || !triangleNormals || !triangleTexCoords)
@@ -106,37 +29,37 @@ static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normal
 		return GLUS_FALSE;
 	}
 
-	*vertices = (GLUSfloat*)glusMalloc(4 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	*vertices = (GLUSfloat*)glusMemoryMalloc(4 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*vertices)
 	{
 		return GLUS_FALSE;
 	}
 
-	*normals = (GLUSfloat*)glusMalloc(3 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	*normals = (GLUSfloat*)glusMemoryMalloc(3 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*normals)
 	{
 		return GLUS_FALSE;
 	}
 
-	*texCoords = (GLUSfloat*)glusMalloc(2 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	*texCoords = (GLUSfloat*)glusMemoryMalloc(2 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*texCoords)
 	{
 		return GLUS_FALSE;
 	}
 
-	*triangleVertices = (GLUSfloat*)glusMalloc(4 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	*triangleVertices = (GLUSfloat*)glusMemoryMalloc(4 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*triangleVertices)
 	{
 		return GLUS_FALSE;
 	}
 
-	*triangleNormals = (GLUSfloat*)glusMalloc(3 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	*triangleNormals = (GLUSfloat*)glusMemoryMalloc(3 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*triangleNormals)
 	{
 		return GLUS_FALSE;
 	}
 
-	*triangleTexCoords = (GLUSfloat*)glusMalloc(2 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
+	*triangleTexCoords = (GLUSfloat*)glusMemoryMalloc(2 * GLUS_MAX_TRIANGLE_ATTRIBUTES * sizeof(GLUSfloat));
 	if (!*triangleTexCoords)
 	{
 		return GLUS_FALSE;
@@ -149,42 +72,42 @@ static GLUSvoid glusFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GL
 {
 	if (vertices && *vertices)
 	{
-		glusFree(*vertices);
+		glusMemoryFree(*vertices);
 
 		*vertices = 0;
 	}
 
 	if (normals && *normals)
 	{
-		glusFree(*normals);
+		glusMemoryFree(*normals);
 
 		*normals = 0;
 	}
 
 	if (texCoords && *texCoords)
 	{
-		glusFree(*texCoords);
+		glusMemoryFree(*texCoords);
 
 		*texCoords = 0;
 	}
 
 	if (triangleVertices && *triangleVertices)
 	{
-		glusFree(*triangleVertices);
+		glusMemoryFree(*triangleVertices);
 
 		*triangleVertices = 0;
 	}
 
 	if (triangleNormals && *triangleNormals)
 	{
-		glusFree(*triangleNormals);
+		glusMemoryFree(*triangleNormals);
 
 		*triangleNormals = 0;
 	}
 
 	if (triangleTexCoords && *triangleTexCoords)
 	{
-		glusFree(*triangleTexCoords);
+		glusMemoryFree(*triangleTexCoords);
 
 		*triangleTexCoords = 0;
 	}
@@ -267,7 +190,7 @@ static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
 
 		memset(&currentMaterialList->material, 0, sizeof(GLUSmaterial));
 
-		glusFree(currentMaterialList);
+		glusMemoryFree(currentMaterialList);
 
 		currentMaterialList = nextMaterialList;
 	}
@@ -362,7 +285,7 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			sscanf(checkBuffer, "%s %s", identifier, name);
 
-			newMaterialList = (GLUSmaterialList*)glusMalloc(sizeof(GLUSmaterialList));
+			newMaterialList = (GLUSmaterialList*)glusMemoryMalloc(sizeof(GLUSmaterialList));
 
 			if (!newMaterialList)
 			{
@@ -503,11 +426,11 @@ static GLUSvoid glusDestroyGroup(GLUSgroupList** groupList)
 
 		if (currentGroupList->group.indices)
 		{
-			glusFree(currentGroupList->group.indices);
+			glusMemoryFree(currentGroupList->group.indices);
 		}
 		memset(&currentGroupList->group, 0, sizeof(GLUSgroup));
 
-		glusFree(currentGroupList);
+		glusMemoryFree(currentGroupList);
 
 		currentGroupList = nextGroupList;
 	}
@@ -515,7 +438,84 @@ static GLUSvoid glusDestroyGroup(GLUSgroupList** groupList)
 	*groupList = 0;
 }
 
-static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
+static GLboolean glusCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
+{
+	GLUSuint indicesCounter = 0;
+
+	if (!shape || !triangleVertices || !triangleNormals || !triangleTexCoords)
+	{
+		return GLUS_FALSE;
+	}
+
+	shape->numberVertices = totalNumberVertices;
+
+	if (totalNumberVertices > 0)
+	{
+		shape->vertices = (GLUSfloat*)glusMemoryMalloc(totalNumberVertices * 4 * sizeof(GLUSfloat));
+
+		if (shape->vertices == 0)
+		{
+			glusShapeDestroyf(shape);
+
+			return GLUS_FALSE;
+		}
+
+		memcpy(shape->vertices, triangleVertices, totalNumberVertices * 4 * sizeof(GLUSfloat));
+	}
+	if (totalNumberNormals > 0)
+	{
+		shape->normals = (GLUSfloat*)glusMemoryMalloc(totalNumberNormals * 3 * sizeof(GLUSfloat));
+
+		if (shape->normals == 0)
+		{
+			glusShapeDestroyf(shape);
+
+			return GLUS_FALSE;
+		}
+
+		memcpy(shape->normals, triangleNormals, totalNumberNormals * 3 * sizeof(GLUSfloat));
+	}
+	if (totalNumberTexCoords > 0)
+	{
+		shape->texCoords = (GLUSfloat*)glusMemoryMalloc(totalNumberTexCoords * 2 * sizeof(GLUSfloat));
+
+		if (shape->texCoords == 0)
+		{
+			glusShapeDestroyf(shape);
+
+			return GLUS_FALSE;
+		}
+
+		memcpy(shape->texCoords, triangleTexCoords, totalNumberTexCoords * 2 * sizeof(GLUSfloat));
+	}
+
+	// Just create the indices from the list of vertices.
+
+	shape->numberIndices = totalNumberVertices;
+
+	if (totalNumberVertices > 0)
+	{
+		shape->indices = (GLUSindex*)glusMemoryMalloc(totalNumberVertices * sizeof(GLUSindex));
+
+		if (shape->indices == 0)
+		{
+			glusShapeDestroyf(shape);
+
+			return GLUS_FALSE;
+		}
+
+		for (indicesCounter = 0; indicesCounter < totalNumberVertices; indicesCounter++)
+		{
+			shape->indices[indicesCounter] = indicesCounter;
+		}
+	}
+
+	shape->mode = GL_TRIANGLES;
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
 {
 	GLUSboolean result;
 
@@ -624,7 +624,7 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 				{
 					GLUSgroupList* newGroupList;
 
-					newGroupList = (GLUSgroupList*)glusMalloc(sizeof(GLUSgroupList));
+					newGroupList = (GLUSgroupList*)glusMemoryMalloc(sizeof(GLUSgroupList));
 
 					if (!newGroupList)
 					{
@@ -647,7 +647,7 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 					{
 						if (!currentGroupList)
 						{
-							glusFree(newGroupList);
+							glusMemoryFree(newGroupList);
 
 							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
@@ -679,7 +679,7 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 
 				sscanf(buffer, "%s %s", identifier, name);
 
-				newGroupList = (GLUSgroupList*)glusMalloc(sizeof(GLUSgroupList));
+				newGroupList = (GLUSgroupList*)glusMemoryMalloc(sizeof(GLUSgroupList));
 
 				if (!newGroupList)
 				{
@@ -702,7 +702,7 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 				{
 					if (!currentGroupList)
 					{
-						glusFree(newGroupList);
+						glusMemoryFree(newGroupList);
 
 						glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
@@ -994,66 +994,15 @@ static GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, 
 
 	if (result)
 	{
-		glusCalculateTangentSpacef(shape);
+		glusShapeCalculateTangentBitangentf(shape);
 	}
 
 	return result;
 }
 
-GLUSboolean GLUSAPIENTRY glusLoadObjFile(const GLUSchar* filename, GLUSshape* shape)
-{
-	return glusParseObjFile(filename, shape, 0);
-}
+//
 
-GLUSvoid GLUSAPIENTRY glusDestroyGroupedObj(GLUSwavefront* wavefront)
-{
-	if (!wavefront)
-	{
-		return;
-	}
-
-	glusDestroyMaterial(&wavefront->materials);
-	glusDestroyGroup(&wavefront->groups);
-
-	if (wavefront->vertices)
-	{
-		glusFree(wavefront->vertices);
-
-		wavefront->vertices = 0;
-	}
-
-	if (wavefront->normals)
-	{
-		glusFree(wavefront->normals);
-
-		wavefront->normals = 0;
-	}
-
-	if (wavefront->texCoords)
-	{
-		glusFree(wavefront->texCoords);
-
-		wavefront->texCoords = 0;
-	}
-
-	if (wavefront->tangents)
-	{
-		glusFree(wavefront->tangents);
-
-		wavefront->tangents = 0;
-	}
-
-	if (wavefront->bitangents)
-	{
-		glusFree(wavefront->bitangents);
-
-		wavefront->bitangents = 0;
-	}
-
-	memset(wavefront, 0, sizeof(GLUSwavefront));
-}
-
-GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwavefront* wavefront)
+GLUSboolean GLUSAPIENTRY glusWavefrontLoad(const GLUSchar* filename, GLUSwavefront* wavefront)
 {
 	GLUSshape dummyShape;
 
@@ -1065,7 +1014,7 @@ GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwa
 
 	if (!glusParseObjFile(filename, &dummyShape, wavefront))
 	{
-		glusDestroyGroupedObj(wavefront);
+		glusWavefrontDestroy(wavefront);
 
 		return GLUS_FALSE;
 	}
@@ -1077,16 +1026,16 @@ GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwa
 	wavefront->bitangents = dummyShape.bitangents;
 	wavefront->numberVertices = dummyShape.numberVertices;
 
-	glusFree(dummyShape.indices);
+	glusMemoryFree(dummyShape.indices);
 
 	groupWalker = wavefront->groups;
 	while (groupWalker)
 	{
-		groupWalker->group.indices = (GLUSuint*)glusMalloc(groupWalker->group.numberIndices * sizeof(GLUSuint));
+		groupWalker->group.indices = (GLUSindex*)glusMemoryMalloc(groupWalker->group.numberIndices * sizeof(GLUSindex));
 
 		if (!groupWalker->group.indices)
 		{
-			glusDestroyGroupedObj(wavefront);
+			glusWavefrontDestroy(wavefront);
 
 			return GLUS_FALSE;
 		}
@@ -1114,4 +1063,52 @@ GLUSboolean GLUSAPIENTRY glusLoadGroupedObjFile(const GLUSchar* filename, GLUSwa
 	}
 
 	return GLUS_TRUE;
+}
+
+GLUSvoid GLUSAPIENTRY glusWavefrontDestroy(GLUSwavefront* wavefront)
+{
+	if (!wavefront)
+	{
+		return;
+	}
+
+	glusDestroyMaterial(&wavefront->materials);
+	glusDestroyGroup(&wavefront->groups);
+
+	if (wavefront->vertices)
+	{
+		glusMemoryFree(wavefront->vertices);
+
+		wavefront->vertices = 0;
+	}
+
+	if (wavefront->normals)
+	{
+		glusMemoryFree(wavefront->normals);
+
+		wavefront->normals = 0;
+	}
+
+	if (wavefront->texCoords)
+	{
+		glusMemoryFree(wavefront->texCoords);
+
+		wavefront->texCoords = 0;
+	}
+
+	if (wavefront->tangents)
+	{
+		glusMemoryFree(wavefront->tangents);
+
+		wavefront->tangents = 0;
+	}
+
+	if (wavefront->bitangents)
+	{
+		glusMemoryFree(wavefront->bitangents);
+
+		wavefront->bitangents = 0;
+	}
+
+	memset(wavefront, 0, sizeof(GLUSwavefront));
 }
