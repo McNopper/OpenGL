@@ -58,8 +58,6 @@ extern "C"
 
 #include "../GLUS/glus_define_ushort.h"
 
-#include "../GLUS/glus_define_ushort.h"
-
 #define GLUS_EGL_API EGL_OPENVG_API
 
 //
