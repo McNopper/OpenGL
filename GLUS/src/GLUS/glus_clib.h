@@ -15,12 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLUS_DEFINE_USHORT_H_
-#define GLUS_DEFINE_USHORT_H_
+#ifndef GLUS_CLIB_H_
+#define GLUS_CLIB_H_
 
-#define GLUS_MAX_VERTICES 65536
-#define GLUS_MAX_INDICES  (GLUS_MAX_VERTICES*GLUS_VERTICES_FACTOR)
+#include <ctype.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define GLUSindex GLUSushort
-
-#endif /* GLUS_DEFINE_USHORT_H_ */
+#endif /* GLUS_CLIB_H_ */

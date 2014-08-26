@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-static GLUSvoid glusInitLinef(GLUSline* line)
+static GLUSvoid glusLineInitf(GLUSline* line)
 {
 	if (!line)
 	{
@@ -29,7 +29,7 @@ static GLUSvoid glusInitLinef(GLUSline* line)
 	line->mode = GL_LINE_LOOP;
 }
 
-static GLUSboolean glusCheckLinef(GLUSline* line)
+static GLUSboolean glusLineCheckf(GLUSline* line)
 {
 	if (!line)
 	{
@@ -45,7 +45,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateLinef(GLUSline* line, const GLUSfloat poi
 	{
 		return GLUS_FALSE;
 	}
-	glusInitLinef(line);
+	glusLineInitf(line);
 
 	line->numberVertices = 2;
 	line->numberIndices = 2;
@@ -55,7 +55,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateLinef(GLUSline* line, const GLUSfloat poi
 
 	line->mode = GL_LINES;
 
-	if (!glusCheckLinef(line))
+	if (!glusLineCheckf(line))
 	{
 		glusLineDestroyf(line);
 
@@ -77,7 +77,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateSquaref(GLUSline* line, const GLUSfloat h
 	{
 		return GLUS_FALSE;
 	}
-	glusInitLinef(line);
+	glusLineInitf(line);
 
 	line->numberVertices = 4;
 	line->numberIndices = 4;
@@ -87,7 +87,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateSquaref(GLUSline* line, const GLUSfloat h
 
 	line->mode = GL_LINE_LOOP;
 
-	if (!glusCheckLinef(line))
+	if (!glusLineCheckf(line))
 	{
 		glusLineDestroyf(line);
 
@@ -133,7 +133,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateRectangularGridf(GLUSline* line, const GL
 	{
 		return GLUS_FALSE;
 	}
-	glusInitLinef(line);
+	glusLineInitf(line);
 
 	line->numberVertices = numberVertices;
 	line->numberIndices = numberIndices;
@@ -143,7 +143,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateRectangularGridf(GLUSline* line, const GL
 
 	line->mode = GL_LINES;
 
-	if (!glusCheckLinef(line))
+	if (!glusLineCheckf(line))
 	{
 		glusLineDestroyf(line);
 
@@ -208,7 +208,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateCirclef(GLUSline* line, const GLUSfloat r
 	{
 		return GLUS_FALSE;
 	}
-	glusInitLinef(line);
+	glusLineInitf(line);
 
 	line->numberVertices = numberSectors;
 	line->numberIndices = numberSectors;
@@ -218,7 +218,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateCirclef(GLUSline* line, const GLUSfloat r
 
 	line->mode = GL_LINE_LOOP;
 
-	if (!glusCheckLinef(line))
+	if (!glusLineCheckf(line))
 	{
 		glusLineDestroyf(line);
 
@@ -249,7 +249,7 @@ GLUSboolean GLUSAPIENTRY glusLineCopyf(GLUSline* line, const GLUSline* source)
 		return GLUS_FALSE;
 	}
 
-	glusInitLinef(line);
+	glusLineInitf(line);
 
 	line->numberVertices = source->numberVertices;
 	line->numberIndices = source->numberIndices;

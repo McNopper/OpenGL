@@ -1,5 +1,5 @@
 /*
- * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -74,5 +74,69 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowShutdown(GLUSvoid);
  * @param interval Specifies the minimum number of video frames that are displayed before a buffer swap will occur.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSwapInterval(GLUSint interval);
+
+//
+
+/**
+ * Sets the users initialization function. Called before the reshape and update functions.
+ *
+ * The function must return GLUS_TRUE, if the initialization succeeded. If not, the program terminates.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean(*glusNewInit)(GLUSvoid));
+
+/**
+ * Sets the users reshape function. Called after the initialization and before the update function.
+ * If the window is resized, this function is also called before the update function.
+ *
+ * The function receives the current width and height of the resized window.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid(*glusNewReshape)(const GLUSint width, const GLUSint height));
+
+/**
+ * Sets the users update function, which is called every frame.
+ *
+ * The time difference since last frame is passed in seconds and the resolution is at least in milliseconds.
+ *
+ * If the function does not return GLUS_TRUE, the application is terminated.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetUpdateFunc(GLUSboolean(*glusNewUpdate)(const GLUSfloat time));
+
+/**
+ * Sets the users terminate function, which is called in any case. It can be used to clean up resources.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetTerminateFunc(GLUSvoid(*glusNewTerminate)(GLUSvoid));
+
+/**
+ * Sets the users key handler.
+ *
+ * The function receives the values, if a key was pressed or released.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid(*glusNewKey)(const GLUSboolean pressed, const GLUSint key));
+
+/**
+ * Sets the users mouse handler.
+ *
+ * The function receives the state of a button and the x and y position in the window.
+ *
+ * Buttons are:
+ * 1 Left mouse button.
+ * 2 Middle mouse button.
+ * 4 Right mouse button.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseFunc(GLUSvoid(*glusNewMouse)(const GLUSboolean pressed, const GLUSint button, const GLUSint xPos, const GLUSint yPos));
+
+/**
+ * Sets the users mouse wheel function.
+ *
+ * The function receives the states of all buttons, the direction of the wheel in ticks and the current x and y position.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid(*glusNewMouseWheel)(const GLUSint buttons, const GLUSint ticks, const GLUSint xPos, const GLUSint yPos));
+
+/**
+ * Sets the users mouse move function.
+ *
+ * The function receives the states of all buttons and the current x and y position.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(const GLUSint buttons, const GLUSint xPos, const GLUSint yPos));
 
 #endif /* GLUS_WINDOW_H_ */

@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,12 +19,12 @@
 
 #define GLUS_MAX_DIMENSION 16384
 
-extern GLUSvoid glusGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
+extern GLUSvoid glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
 
-extern GLUSboolean glusCheckFileRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusCheckFileWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
-static GLUSvoid glusSwapColorChannel(GLUSint width, GLUSint height, GLUSenum format, GLUSubyte* data)
+static GLUSvoid glusImageSwapColorChannel(GLUSint width, GLUSint height, GLUSenum format, GLUSubyte* data)
 {
 	GLUSint i;
 	GLUSubyte temp;
@@ -137,7 +137,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// read the image type
 	elementsRead = fread(&imageType, 1, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 1))
+	if (!glusFileCheckRead(file, elementsRead, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -169,7 +169,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	{
 		elementsRead = fread(&firstEntryIndex, 2, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			glusImageDestroyTga(tgaimage);
 
@@ -178,7 +178,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 
 		elementsRead = fread(&colorMapLength, 2, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			glusImageDestroyTga(tgaimage);
 
@@ -187,7 +187,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 
 		elementsRead = fread(&colorMapEntrySize, 1, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			glusImageDestroyTga(tgaimage);
 
@@ -206,7 +206,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// read the width
 	elementsRead = fread(&tgaimage->width, 2, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 1))
+	if (!glusFileCheckRead(file, elementsRead, 1))
 	{
 		glusImageDestroyTga(tgaimage);
 
@@ -223,7 +223,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// read the height
 	elementsRead = fread(&tgaimage->height, 2, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 1))
+	if (!glusFileCheckRead(file, elementsRead, 1))
 	{
 		glusImageDestroyTga(tgaimage);
 
@@ -242,7 +242,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// read the bits per pixel
 	elementsRead = fread(&bitsPerPixel, 1, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 1))
+	if (!glusFileCheckRead(file, elementsRead, 1))
 	{
 		glusImageDestroyTga(tgaimage);
 
@@ -302,7 +302,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 
 		elementsRead = fread(colorMap, 1, (size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte), file);
 
-		if (!glusCheckFileRead(file, elementsRead, (size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte)))
+		if (!glusFileCheckRead(file, elementsRead, (size_t)colorMapLength * bytesPerPixel * sizeof(GLUSubyte)))
 		{
 			glusImageDestroyTga(tgaimage);
 
@@ -315,7 +315,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 		// swap the color if necessary
 		if (colorMapEntrySize == 24 || colorMapEntrySize == 32)
 		{
-			glusSwapColorChannel(colorMapLength, 1, colorMapEntrySize == 24 ? GLUS_RGB : GLUS_RGBA, colorMap);
+			glusImageSwapColorChannel(colorMapLength, 1, colorMapEntrySize == 24 ? GLUS_RGB : GLUS_RGBA, colorMap);
 		}
 	}
 
@@ -343,7 +343,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 		// read in the raw data
 		elementsRead = fread(tgaimage->data, 1, (size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8, file);
 
-		if (!glusCheckFileRead(file, elementsRead, (size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8))
+		if (!glusFileCheckRead(file, elementsRead, (size_t)tgaimage->width * tgaimage->height * bitsPerPixel / 8))
 		{
 			glusImageDestroyTga(tgaimage);
 
@@ -367,7 +367,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 
 			elementsRead = fread(&amount, 1, 1, file);
 
-			if (!glusCheckFileRead(file, elementsRead, 1))
+			if (!glusFileCheckRead(file, elementsRead, 1))
 			{
 				glusImageDestroyTga(tgaimage);
 
@@ -392,7 +392,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 				// read in the rle data
 				elementsRead = fread(&tgaimage->data[pixelsRead * bitsPerPixel / 8], 1, bitsPerPixel / 8, file);
 
-				if (!glusCheckFileRead(file, elementsRead, bitsPerPixel / 8))
+				if (!glusFileCheckRead(file, elementsRead, bitsPerPixel / 8))
 				{
 					glusImageDestroyTga(tgaimage);
 
@@ -422,7 +422,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 				// read in the raw data
 				elementsRead = fread(&tgaimage->data[pixelsRead * bitsPerPixel / 8], 1, (size_t)amount * bitsPerPixel / 8, file);
 
-				if (!glusCheckFileRead(file, elementsRead, (size_t)amount * bitsPerPixel / 8))
+				if (!glusFileCheckRead(file, elementsRead, (size_t)amount * bitsPerPixel / 8))
 				{
 					glusImageDestroyTga(tgaimage);
 
@@ -443,7 +443,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// swap the color if necessary
 	if (bitsPerPixel == 24 || bitsPerPixel == 32)
 	{
-		glusSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, tgaimage->data);
+		glusImageSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, tgaimage->data);
 	}
 
 	// close the file
@@ -571,28 +571,28 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 
 	elementsWritten = fwrite(buffer, 1, 12, file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 12))
+	if (!glusFileCheckWrite(file, elementsWritten, 12))
 	{
 		return GLUS_FALSE;
 	}
 
 	elementsWritten = fwrite(&tgaimage->width, 1, sizeof(tgaimage->width), file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 2))
+	if (!glusFileCheckWrite(file, elementsWritten, 2))
 	{
 		return GLUS_FALSE;
 	}
 
 	elementsWritten = fwrite(&tgaimage->height, 1, sizeof(tgaimage->height), file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 2))
+	if (!glusFileCheckWrite(file, elementsWritten, 2))
 	{
 		return GLUS_FALSE;
 	}
 
 	elementsWritten = fwrite(&bitsPerPixel, 1, sizeof(bitsPerPixel), file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 1))
+	if (!glusFileCheckWrite(file, elementsWritten, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -601,7 +601,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 
 	elementsWritten = fwrite(buffer, 1, 1, file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 1))
+	if (!glusFileCheckWrite(file, elementsWritten, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -619,14 +619,14 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 
 	if (bitsPerPixel >= 24)
 	{
-		glusSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, data);
+		glusImageSwapColorChannel(tgaimage->width, tgaimage->height, tgaimage->format, data);
 	}
 
 	elementsWritten = fwrite(data, 1, tgaimage->width * tgaimage->height * bitsPerPixel / 8, file);
 
 	glusMemoryFree(data);
 
-	if (!glusCheckFileWrite(file, elementsWritten, tgaimage->width * tgaimage->height * bitsPerPixel / 8))
+	if (!glusFileCheckWrite(file, elementsWritten, tgaimage->width * tgaimage->height * bitsPerPixel / 8))
 	{
 		return GLUS_FALSE;
 	}
@@ -683,7 +683,7 @@ GLUSboolean GLUSAPIENTRY glusImageSampleTga2D(GLUSubyte rgba[4], const GLUStgaim
 		stride = 4;
 	}
 
-	glusGatherSamplePoints(sampleIndex, sampleWeight, st, tgaimage->width, tgaimage->height, stride);
+	glusImageGatherSamplePoints(sampleIndex, sampleWeight, st, tgaimage->width, tgaimage->height, stride);
 
 	for (i = 0; i < stride; i++)
 	{

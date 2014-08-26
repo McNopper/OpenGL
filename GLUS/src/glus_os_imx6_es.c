@@ -1,4 +1,5 @@
-/* GLUS - OpenGL ES 2.0 and 3.0 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+/*
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,13 +28,13 @@
 
 #include <linux/input.h>
 
-extern GLUSint glusInternalClose(GLUSvoid);
+extern GLUSint glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
 
 // Map, if possible, to GLFW keys
 
-static int translateKey(int key)
+static int glusOsTranslateKey(int key)
 {
 	switch (key)
 	{
@@ -270,7 +271,7 @@ static GLUSint _height = -1;
 
 static int _keyFileDescriptor = -1;
 
-GLUSvoid _glusPollEvents()
+GLUSvoid _glusOsPollEvents()
 {
 	static GLUSboolean LEFT_CTRL = GLUS_FALSE;
 	static GLUSboolean RIGHT_CTRL = GLUS_FALSE;
@@ -293,7 +294,7 @@ GLUSvoid _glusPollEvents()
 				// CTRL-C
 				if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
 				{
-					glusInternalClose();
+					glusWindowInternalClose();
 
 					return;
 				}
@@ -307,7 +308,7 @@ GLUSvoid _glusPollEvents()
 					RIGHT_CTRL = GLUS_TRUE;
 				}
 
-				glusInternalKey(translateKey(keyEvent.code), GLFW_PRESS);
+				glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_PRESS);
 			}
 			break;
 
@@ -322,14 +323,14 @@ GLUSvoid _glusPollEvents()
 					RIGHT_CTRL = GLUS_FALSE;
 				}
 
-				glusInternalKey(translateKey(keyEvent.code), GLFW_RELEASE);
+				glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_RELEASE);
 			}
 			break;
 		}
 	}
 }
 
-EGLNativeDisplayType _glusGetNativeDisplayType()
+EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
 	if (_nativeDisplay != 0)
 	{
@@ -348,7 +349,7 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 	return _nativeDisplay;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
+EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
 {
 	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'fullscreen' and 'noResize' are not used");
 	glusLogPrint(GLUS_LOG_INFO, "Key events are mapped to US keyboard");
@@ -376,7 +377,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	return _nativeWindow;
 }
 
-GLUSvoid _glusDestroyNativeWindowDisplay()
+GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
 	if (_nativeWindow)
 	{
@@ -400,7 +401,7 @@ GLUSvoid _glusDestroyNativeWindowDisplay()
 	}
 }
 
-double _glusGetRawTime()
+double _glusOsGetRawTime()
 {
 	struct timespec currentTime;
 
@@ -409,7 +410,7 @@ double _glusGetRawTime()
 	return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
 }
 
-GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height)
+GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{

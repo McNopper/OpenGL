@@ -1,5 +1,5 @@
 /*
- * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,7 +23,5 @@
 #define GLUS_RGB    					0x00001907
 #define GLUS_RGBA   					0x00001908
 #define GLUS_LUMINANCE  				0x00001909
-
-#define GLUS_SINGLE_CHANNEL GLUS_RED
 
 #endif /* GLUS_DEFINE_COLOR_H_ */

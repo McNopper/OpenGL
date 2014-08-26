@@ -826,13 +826,13 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusCallbackSetInitFunc(init);
+    glusWindowSetInitFunc(init);
 
-    glusCallbackSetReshapeFunc(reshape);
+    glusWindowSetReshapeFunc(reshape);
 
-    glusCallbackSetUpdateFunc(update);
+    glusWindowSetUpdateFunc(update);
 
-    glusCallbackSetTerminateFunc(terminate);
+    glusWindowSetTerminateFunc(terminate);
 
     // Again, makes programming for this example easier.
     if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))

@@ -1,5 +1,5 @@
 /*
- * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,7 @@ extern "C"
 // GLUS libraries.
 //
 
-#include "../GLUS/glus_libs.h"
+#include "../GLUS/glus_clib.h"
 
 //
 // OpenVG and EGL.
@@ -46,7 +46,7 @@ extern "C"
 // GLUS types.
 //
 
-#include "../GLUS/glus_types.h"
+#include "../GLUS/glus_typedef.h"
 
 //
 // GLUS defines.
@@ -55,6 +55,8 @@ extern "C"
 #include "../GLUS/glus_define.h"
 
 #include "../GLUS/glus_define_color.h"
+
+#include "../GLUS/glus_define_color_channel.h"
 
 #include "../GLUS/glus_define_ushort.h"
 
@@ -78,12 +80,6 @@ extern "C"
 //
 
 #include "../GLUS/glus_egl.h"
-
-//
-// Callback functions.
-//
-
-#include "../GLUS/glus_callback.h"
 
 //
 // Window preparation and creation functions.

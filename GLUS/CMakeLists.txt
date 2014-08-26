@@ -1,9 +1,9 @@
 #
 # GLUS CMake file
 #
-# Note: Set OpenGL=ES. OpenGL=ES31 or OpenGL=ES2 for Windows OpenGL ES 3.0, 3.1 or 2.0 simulation.
+# Note: Set OpenGL=ES, OpenGL=ES31 or OpenGL=ES2 for Windows OpenGL ES 3.0, 3.1 or 2.0 simulation.
 #       Raspberry Pi and i.MX6 is default OpenGL ES 2.0.
-#		Set SoC=iMX6 for i.MX6
+#		Set SoC=iMX6 for i.MX6.
 #
 # (c) Norbert Nopper
 # 

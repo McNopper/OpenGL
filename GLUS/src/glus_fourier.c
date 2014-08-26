@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,7 @@
 
 #include "GL/glus.h"
 
-static GLUSboolean glusIsPowerOfTwo(const GLUSint n)
+static GLUSboolean glusFourierIsPowerOfTwo(const GLUSint n)
 {
 	GLUSint test = n;
 
@@ -173,7 +173,7 @@ GLUSboolean glusFourierRecursiveFFTc(GLUScomplex* result, const GLUScomplex* vec
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
@@ -199,7 +199,7 @@ GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScompl
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		glusVectorNCopyc(result, vector, n);
 
@@ -246,7 +246,7 @@ GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScompl
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		glusVectorNCopyc(result, vector, n);
 
@@ -324,7 +324,7 @@ GLUSboolean glusFourierButterflyFFTc(GLUScomplex* result, const GLUScomplex* vec
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
@@ -352,7 +352,7 @@ GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScompl
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		glusVectorNCopyc(result, vector, n);
 
@@ -401,7 +401,7 @@ GLUSboolean glusFourierButterflyShuffleFFTi(GLUSint* result, const GLUSint* vect
 		return GLUS_FALSE;
 	}
 
-	if (glusIsPowerOfTwo(n))
+	if (glusFourierIsPowerOfTwo(n))
 	{
 		GLUSint i;
 

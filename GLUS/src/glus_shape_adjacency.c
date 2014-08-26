@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@
 
 #define GLUS_POINT_TOLERANCE 0.001f
 
-static GLUSboolean glusCheckShapef(GLUSshape* shape)
+static GLUSboolean glusShapeCheckCompletef(GLUSshape* shape)
 {
 	if (!shape)
 	{
@@ -29,7 +29,7 @@ static GLUSboolean glusCheckShapef(GLUSshape* shape)
 	return shape->vertices && shape->normals && shape->tangents && shape->bitangents && shape->texCoords && shape->allAttributes && shape->indices;
 }
 
-static GLUSboolean glusFindIndexByIndicesf(GLUSuint* adjacentIndex, GLUSuint triangleFirstIndex, GLUSuint edge, const GLUSshape* shape)
+static GLUSboolean glusShapeFindIndexByIndicesf(GLUSuint* adjacentIndex, GLUSuint triangleFirstIndex, GLUSuint edge, const GLUSshape* shape)
 {
 	GLUSuint i, k, m;
 
@@ -91,7 +91,7 @@ static GLUSboolean glusFindIndexByIndicesf(GLUSuint* adjacentIndex, GLUSuint tri
 	return GLUS_FALSE;
 }
 
-static GLUSboolean glusFindIndexByVerticesf(GLUSuint* adjacentIndex, GLUSuint triangleIndex, GLUSuint edge, const GLUSshape* shape)
+static GLUSboolean glusShapeFindIndexByVerticesf(GLUSuint* adjacentIndex, GLUSuint triangleIndex, GLUSuint edge, const GLUSshape* shape)
 {
 	GLUSuint i, k, m;
 
@@ -198,7 +198,7 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencySh
 
 	adjacencyShape->mode = GL_TRIANGLES_ADJACENCY;
 
-	if (!glusCheckShapef(adjacencyShape))
+	if (!glusShapeCheckCompletef(adjacencyShape))
 	{
 		glusShapeDestroyf(adjacencyShape);
 
@@ -228,7 +228,7 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencySh
 			adjacentIndex = 0;
 
 			// ... by scanning the indices ...
-			if (glusFindIndexByIndicesf(&adjacentIndex, 3 * i, edge, sourceShape))
+			if (glusShapeFindIndexByIndicesf(&adjacentIndex, 3 * i, edge, sourceShape))
 			{
 				adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
 
@@ -236,7 +236,7 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencySh
 			}
 
 			// ... and if not found, compare the vertices.
-			if (glusFindIndexByVerticesf(&adjacentIndex, 3 * i, edge, sourceShape))
+			if (glusShapeFindIndexByVerticesf(&adjacentIndex, 3 * i, edge, sourceShape))
 			{
 				adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
 

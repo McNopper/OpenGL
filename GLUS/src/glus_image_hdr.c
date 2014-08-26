@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,12 +17,12 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
+extern GLUSvoid glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
 
-extern GLUSboolean glusCheckFileRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusCheckFileWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
-static GLUSvoid convertRGBE(GLUSfloat* rgb, const GLUSubyte* rgbe)
+static GLUSvoid glusImageConvertRGBE(GLUSfloat* rgb, const GLUSubyte* rgbe)
 {
 	GLUSfloat exponent = (GLUSfloat)(rgbe[3] - 128);
 
@@ -30,7 +30,7 @@ static GLUSvoid convertRGBE(GLUSfloat* rgb, const GLUSubyte* rgbe)
 	rgb[1] = (GLUSfloat)rgbe[1] / 256.0f * powf(2.0f, exponent);
 	rgb[2] = (GLUSfloat)rgbe[2] / 256.0f * powf(2.0f, exponent);
 }
-static GLUSvoid convertRGB(GLUSubyte* rgbe, const GLUSfloat* rgb)
+static GLUSvoid glusImageConvertRGB(GLUSubyte* rgbe, const GLUSfloat* rgb)
 {
 	GLUSfloat significant[3];
 	GLUSint exponent[3];
@@ -56,7 +56,7 @@ static GLUSvoid convertRGB(GLUSubyte* rgbe, const GLUSfloat* rgb)
 	rgbe[3] = (GLUSubyte)(maxExponent + 128);
 }
 
-static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
+static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 {
 	GLUSint channel, x, scanLength, maxScanLength;
 	GLUSubyte code, channelValue;
@@ -75,7 +75,7 @@ static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 		{
 			elementsRead = fread(&code, 1, 1, file);
 
-			if (!glusCheckFileRead(file, elementsRead, 1))
+			if (!glusFileCheckRead(file, elementsRead, 1))
 			{
 				return -1;
 			}
@@ -97,7 +97,7 @@ static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 
 				elementsRead = fread(&channelValue, 1, 1, file);
 
-				if (!glusCheckFileRead(file, elementsRead, 1))
+				if (!glusFileCheckRead(file, elementsRead, 1))
 				{
 					return -1;
 				}
@@ -124,7 +124,7 @@ static GLUSint glusDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint width)
 				{
 					elementsRead = fread(&channelValue, 1, 1, file);
 
-					if (!glusCheckFileRead(file, elementsRead, 1))
+					if (!glusFileCheckRead(file, elementsRead, 1))
 					{
 						return -1;
 					}
@@ -228,7 +228,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 	elementsRead = fread(buffer, 10, 1, file);
 
-	if (!glusCheckFileRead(file, elementsRead, 1))
+	if (!glusFileCheckRead(file, elementsRead, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -261,7 +261,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 		elementsRead = fread(&currentChar, 1, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			return GLUS_FALSE;
 		}
@@ -279,7 +279,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	{
 		elementsRead = fread(&currentChar, 1, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			return GLUS_FALSE;
 		}
@@ -343,7 +343,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	{
 		elementsRead = fread(buffer, 4, 1, file);
 
-		if (!glusCheckFileRead(file, elementsRead, 1))
+		if (!glusFileCheckRead(file, elementsRead, 1))
 		{
 			glusMemoryFree(scanline);
 
@@ -359,7 +359,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 		{
 			// New RLE decoding
 
-			GLUSint scanlinePixels = glusDecodeNewRLE(file, scanline, width);
+			GLUSint scanlinePixels = glusImageDecodeNewRLE(file, scanline, width);
 
 			if (scanlinePixels < 0)
 			{
@@ -385,7 +385,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 					return GLUS_FALSE;
 				}
 
-				convertRGBE(rgb, &scanline[i * 4]);
+				glusImageConvertRGBE(rgb, &scanline[i * 4]);
 
 				hdrimage->data[(width * y + x) * 3 + 0] = rgb[0];
 				hdrimage->data[(width * y + x) * 3 + 1] = rgb[1];
@@ -435,7 +435,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 			factor = 1;
 		}
 
-		convertRGBE(rgb, rgbe);
+		glusImageConvertRGBE(rgb, rgbe);
 
 		while (repeat)
 		{
@@ -506,7 +506,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 	// Header
 	elementsWritten = fputs("#?RADIANCE\n#Saved with GLUS\nFORMAT=32-bit_rle_rgbe\n\n", file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, 52))
+	if (!glusFileCheckWrite(file, elementsWritten, 52))
 	{
 		return GLUS_FALSE;
 	}
@@ -524,11 +524,11 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 	{
 		for (x = 0; x < hdrimage->width; x++)
 		{
-			convertRGB(rgbe, &hdrimage->data[(y * hdrimage->width + x) * 3]);
+			glusImageConvertRGB(rgbe, &hdrimage->data[(y * hdrimage->width + x) * 3]);
 
 			elementsWritten = fwrite(rgbe, 1, 4 * sizeof(GLUSubyte), file);
 
-			if (!glusCheckFileWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
+			if (!glusFileCheckWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
 			{
 				return GLUS_FALSE;
 			}
@@ -585,7 +585,7 @@ GLUSboolean GLUSAPIENTRY glusImageSampleHdr2D(GLUSfloat rgb[3], const GLUShdrima
 		stride = 4;
 	}
 
-	glusGatherSamplePoints(sampleIndex, sampelWeight, st, hdrimage->width, hdrimage->height, stride);
+	glusImageGatherSamplePoints(sampleIndex, sampelWeight, st, hdrimage->width, hdrimage->height, stride);
 
 	for (i = 0; i < stride; i++)
 	{

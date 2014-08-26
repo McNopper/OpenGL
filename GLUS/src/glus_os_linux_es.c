@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL ES 2.0 and 3.0 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,17 +25,17 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusInternalReshape(GLUSint width, GLUSint height);
+extern GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height);
 
-extern GLUSint glusInternalClose(GLUSvoid);
+extern GLUSint glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
 
-extern GLUSvoid glusInternalMouse(GLUSint button, GLUSint action);
+extern GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action);
 
-extern GLUSvoid glusInternalMouseWheel(GLUSint pos);
+extern GLUSvoid glusWindowInternalMouseWheel(GLUSint pos);
 
-extern GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y);
+extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
 static Display* _nativeDisplay = 0;
 static Window _nativeWindow = 0;
@@ -84,7 +84,7 @@ GLUSvoid _glusInputMouseClick(GLUSint button, GLUSint action)
 {
 	if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
 	{
-		glusInternalMouse(button, action);
+		glusWindowInternalMouse(button, action);
 	}
 }
 
@@ -103,7 +103,7 @@ GLUSvoid _glusInputKey(GLUSint key, GLUSint action)
 
 	_keys[key] = (char)action;
 
-	glusInternalKey(key, action);
+	glusWindowInternalKey(key, action);
 }
 
 GLUSint _glusTranslateKey(int keycode)
@@ -357,17 +357,17 @@ GLUSvoid _glusProcessWindow(const XEvent* msg)
 				case 4:
 					_wheelPos += 1;
 
-					glusInternalMouseWheel(_wheelPos);
+					glusWindowInternalMouseWheel(_wheelPos);
 				break;
 				case 5:
 					_wheelPos -= 1;
 
-					glusInternalMouseWheel(_wheelPos);
+					glusWindowInternalMouseWheel(_wheelPos);
 				break;
 			}
 		break;
 		case MotionNotify:
-			glusInternalMouseMove(msg->xmotion.x, msg->xmotion.y);
+			glusWindowInternalMouseMove(msg->xmotion.x, msg->xmotion.y);
 		break;
 		case ConfigureNotify:
 
@@ -376,13 +376,13 @@ GLUSvoid _glusProcessWindow(const XEvent* msg)
 				_width = msg->xconfigure.width;
 				_height = msg->xconfigure.height;
 
-				glusInternalReshape(_width, _height);
+				glusWindowInternalReshape(_width, _height);
 			}
 		break;
 	}
 }
 
-GLUSvoid _glusPollEvents()
+GLUSvoid _glusOsPollEvents()
 {
 	XEvent msg;
 
@@ -392,7 +392,7 @@ GLUSvoid _glusPollEvents()
 
 		if (msg.type == ClientMessage && msg.xclient.data.l[0] == _deleteMessage)
 		{
-			glusInternalClose();
+			glusWindowInternalClose();
 		}
 		else
 		{
@@ -401,7 +401,7 @@ GLUSvoid _glusPollEvents()
 	}
 }
 
-EGLNativeDisplayType _glusGetNativeDisplayType()
+EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
 	if (!_nativeDisplay)
 	{
@@ -411,7 +411,7 @@ EGLNativeDisplayType _glusGetNativeDisplayType()
 	return (EGLNativeDisplayType)_nativeDisplay;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
+EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
 {
 	long defaultScreen;
 	XVisualInfo visualInfoTemplate;
@@ -530,7 +530,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	return _nativeWindow;
 }
 
-GLUSvoid _glusDestroyNativeWindowDisplay()
+GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
 	if (_nativeDisplay && _fullscreen)
 	{
@@ -565,7 +565,7 @@ GLUSvoid _glusDestroyNativeWindowDisplay()
 	}
 }
 
-double _glusGetRawTime()
+double _glusOsGetRawTime()
 {
 	struct timespec currentTime;
 
@@ -574,7 +574,7 @@ double _glusGetRawTime()
 	return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
 }
 
-GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height)
+GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{

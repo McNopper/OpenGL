@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL ES 2.0 and 3.0 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,15 +27,15 @@
 
 #include <SDL/SDL.h>
 
-extern GLUSint glusInternalClose(GLUSvoid);
+extern GLUSint glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
 
-extern GLUSvoid glusInternalMouse(GLUSint button, GLUSint action);
+extern GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action);
 
-extern GLUSvoid glusInternalMouseWheel(GLUSint pos);
+extern GLUSvoid glusWindowInternalMouseWheel(GLUSint pos);
 
-extern GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y);
+extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
 // Display resolution changing
 
@@ -43,7 +43,7 @@ static pthread_mutex_t _mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t _cond = PTHREAD_COND_INITIALIZER;
 static GLUSboolean _resizeDone = GLUS_FALSE;
 
-static void resizeDone(void *callback_data, uint32_t reason, uint32_t param1, uint32_t param2)
+static void glusOsResizeDone(void *callback_data, uint32_t reason, uint32_t param1, uint32_t param2)
 {
 	pthread_mutex_lock(&_mutex);
 	_resizeDone = GLUS_TRUE;
@@ -51,7 +51,7 @@ static void resizeDone(void *callback_data, uint32_t reason, uint32_t param1, ui
 	pthread_mutex_unlock(&_mutex);
 }
 
-static void waitResizeDone()
+static void glusOsWaitResizeDone()
 {
 	GLUSboolean doBreak = GLUS_FALSE;
 
@@ -77,7 +77,7 @@ static void waitResizeDone()
 
 // Map, if possible, to GLFW keys
 
-static int translateKey(SDLKey key)
+static int glusOsTranslateKey(SDLKey key)
 {
 
 	switch (key)
@@ -225,7 +225,7 @@ static GLUSint _wheelPos = 0;
 
 static GLUSboolean _fullscreen = GLUS_FALSE;
 
-GLUSvoid _glusPollEvents()
+GLUSvoid _glusOsPollEvents()
 {
 	SDL_Event event;
 
@@ -238,18 +238,18 @@ GLUSvoid _glusPollEvents()
 				// CTRL-C
 				if (event.key.keysym.sym == 99 && (event.key.keysym.mod == KMOD_LCTRL || event.key.keysym.mod == KMOD_RCTRL))
 				{
-					glusInternalClose();
+					glusWindowInternalClose();
 
 					return;
 				}
 
-				glusInternalKey(translateKey(event.key.keysym.sym), GLFW_PRESS);
+				glusWindowInternalKey(glusOsTranslateKey(event.key.keysym.sym), GLFW_PRESS);
 			}
 			break;
 
 			case SDL_KEYUP:
 			{
-				glusInternalKey(translateKey(event.key.keysym.sym), GLFW_RELEASE);
+				glusWindowInternalKey(glusOsTranslateKey(event.key.keysym.sym), GLFW_RELEASE);
 			}
 			break;
 
@@ -257,7 +257,7 @@ GLUSvoid _glusPollEvents()
 			{
 				if (event.motion.x <= _width && event.motion.y <= _height)
 				{
-					glusInternalMouseMove(event.motion.x, event.motion.y);
+					glusWindowInternalMouseMove(event.motion.x, event.motion.y);
 				}
 			}
 			break;
@@ -269,21 +269,21 @@ GLUSvoid _glusPollEvents()
 					switch (event.button.button)
 					{
 						case 1:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
 						break;
 						case 2:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
 						break;
 						case 3:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
 						break;
 						case 4:
 							_wheelPos += 1;
-							glusInternalMouseWheel(_wheelPos);
+							glusWindowInternalMouseWheel(_wheelPos);
 						break;
 						case 5:
 							_wheelPos -= 1;
-							glusInternalMouseWheel(_wheelPos);
+							glusWindowInternalMouseWheel(_wheelPos);
 						break;
 					}
 				}
@@ -297,21 +297,21 @@ GLUSvoid _glusPollEvents()
 					switch (event.button.button)
 					{
 						case 1:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
 						break;
 						case 2:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
 						break;
 						case 3:
-							glusInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
+							glusWindowInternalMouse(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
 						break;
 						case 4:
 							_wheelPos += 1;
-							glusInternalMouseWheel(_wheelPos);
+							glusWindowInternalMouseWheel(_wheelPos);
 						break;
 						case 5:
 							_wheelPos -= 1;
-							glusInternalMouseWheel(_wheelPos);
+							glusWindowInternalMouseWheel(_wheelPos);
 						break;
 					}
 				}
@@ -321,12 +321,12 @@ GLUSvoid _glusPollEvents()
 	}
 }
 
-EGLNativeDisplayType _glusGetNativeDisplayType()
+EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
 	return EGL_DEFAULT_DISPLAY ;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
+EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
 {
 	const SDL_VideoInfo* videoInfo;
 
@@ -373,20 +373,20 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 			return 0;
 		}
 
-		vc_tv_register_callback(resizeDone, 0);
+		vc_tv_register_callback(glusOsResizeDone, 0);
 
 		if (vc_tv_hdmi_power_on_explicit_new(group, supportedModes[i].group, supportedModes[i].code) != 0)
 		{
-			vc_tv_unregister_callback(resizeDone);
+			vc_tv_unregister_callback(glusOsResizeDone);
 
 			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
 
 			return 0;
 		}
 
-		waitResizeDone();
+		glusOsWaitResizeDone();
 
-		vc_tv_unregister_callback(resizeDone);
+		vc_tv_unregister_callback(glusOsResizeDone);
 
 		windowWidth = width;
 		windowHeight = height;
@@ -478,7 +478,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	return (EGLNativeWindowType)&_nativeWindow;
 }
 
-GLUSvoid _glusDestroyNativeWindowDisplay()
+GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
 	if (_nativeWindowCreated)
 	{
@@ -501,14 +501,14 @@ GLUSvoid _glusDestroyNativeWindowDisplay()
 
 	if (_fullscreen)
 	{
-		vc_tv_register_callback(resizeDone, 0);
+		vc_tv_register_callback(glusOsResizeDone, 0);
 
 		if (vc_tv_hdmi_power_on_preferred() == 0)
 		{
-			waitResizeDone();
+			glusOsWaitResizeDone();
 		}
 
-		vc_tv_unregister_callback(resizeDone);
+		vc_tv_unregister_callback(glusOsResizeDone);
 
 		_fullscreen = GLUS_FALSE;
 	}
@@ -520,7 +520,7 @@ GLUSvoid _glusDestroyNativeWindowDisplay()
 	bcm_host_deinit();
 }
 
-double _glusGetRawTime()
+double _glusOsGetRawTime()
 {
 	struct timespec currentTime;
 
@@ -529,7 +529,7 @@ double _glusGetRawTime()
 	return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
 }
 
-GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height)
+GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{

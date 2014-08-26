@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -69,7 +69,7 @@ static GLUSmemoryTable g_memoryTable[GLUS_MEMORY_TABLE_ENTRIES] = {{GLUS_VALID_A
  */
 static size_t g_memoryTableEntries = 1;
 
-static GLUSboolean glusFindMemoryTableEntry(size_t* foundTableIndex)
+static GLUSboolean glusMemoryFindTableEntry(size_t* foundTableIndex)
 {
 	GLUSuint tableIndex = 0;
 
@@ -94,7 +94,7 @@ static GLUSboolean glusFindMemoryTableEntry(size_t* foundTableIndex)
 	return GLUS_FALSE;
 }
 
-static GLUSboolean glusInitMemoryTableEntry(size_t tableIndex, size_t startIndex, size_t lengthIndices)
+static GLUSboolean glusMemoryInitTableEntry(size_t tableIndex, size_t startIndex, size_t lengthIndices)
 {
 	if (tableIndex > g_memoryTableEntries || tableIndex >= GLUS_MEMORY_TABLE_ENTRIES)
 	{
@@ -113,7 +113,7 @@ static GLUSboolean glusInitMemoryTableEntry(size_t tableIndex, size_t startIndex
 	return GLUS_TRUE;
 }
 
-static GLUSvoid glusGarbageCollect()
+static GLUSvoid glusMemoryGarbageCollect()
 {
 	GLUSboolean continueGC = GLUS_TRUE;
 
@@ -161,7 +161,7 @@ static GLUSvoid glusGarbageCollect()
 	}
 }
 
-static void* glusInternalMalloc(size_t size)
+static void* glusMemoryInternalMalloc(size_t size)
 {
 	GLUSuint tableIndex = 0;
 
@@ -181,13 +181,13 @@ static void* glusInternalMalloc(size_t size)
 			size_t otherTableIndex;
 
 			// Try to reuse an entry.
-			if (!glusFindMemoryTableEntry(&otherTableIndex))
+			if (!glusMemoryFindTableEntry(&otherTableIndex))
 			{
 				otherTableIndex = tableIndex + 1;
 			}
 
 			// Assign the rest of the available memory to another table entry.
-			if (!glusInitMemoryTableEntry(otherTableIndex, g_memoryTable[tableIndex].startIndex + lengthIndices, g_memoryTable[tableIndex].lengthIndices - lengthIndices))
+			if (!glusMemoryInitTableEntry(otherTableIndex, g_memoryTable[tableIndex].startIndex + lengthIndices, g_memoryTable[tableIndex].lengthIndices - lengthIndices))
 			{
 				// No empty entry could be found, so do not split and use all memory.
 				lengthIndices = g_memoryTable[tableIndex].lengthIndices;
@@ -217,16 +217,16 @@ void* GLUSAPIENTRY glusMemoryMalloc(size_t size)
 		return pointer;
 	}
 
-	pointer = glusInternalMalloc(size);
+	pointer = glusMemoryInternalMalloc(size);
 
 	// If no memory was allocated ...
 	if (!pointer)
 	{
 		// ... do garbage collection ...
-		glusGarbageCollect();
+		glusMemoryGarbageCollect();
 
 		// ... and try to allocate again.
-		pointer = glusInternalMalloc(size);
+		pointer = glusMemoryInternalMalloc(size);
 	}
 
 	return pointer;

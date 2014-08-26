@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL ES 2.0 and 3.0 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,17 +17,17 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid _glusPollEvents(GLUSvoid);
+extern GLUSvoid _glusOsPollEvents(GLUSvoid);
 
-extern EGLNativeDisplayType _glusGetNativeDisplayType(GLUSvoid);
+extern EGLNativeDisplayType _glusOsGetNativeDisplayType(GLUSvoid);
 
-extern EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID);
+extern EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID);
 
-extern GLUSvoid _glusDestroyNativeWindowDisplay(GLUSvoid);
+extern GLUSvoid _glusOsDestroyNativeWindowDisplay(GLUSvoid);
 
-extern double _glusGetRawTime(GLUSvoid);
+extern double _glusOsGetRawTime(GLUSvoid);
 
-extern GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height);
+extern GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height);
 
 static EGLDisplay g_eglDisplay = EGL_NO_DISPLAY;
 static EGLDisplay g_eglSurface = EGL_NO_SURFACE;
@@ -53,47 +53,47 @@ static GLUSvoid (*glusMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, 
 static GLUSvoid (*glusMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos) = 0;
 static GLUSvoid (*glusMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos) = 0;
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetKeyFunc(GLUSvoid (*glusNewKey)(GLUSboolean pressed, GLUSint key))
+GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid (*glusNewKey)(GLUSboolean pressed, GLUSint key))
 {
 	glusKey = glusNewKey;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseFunc(GLUSvoid (*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseFunc(GLUSvoid (*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
 {
 	glusMouse = glusNewMouse;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
 {
 	glusMouseWheel = glusNewMouseWheel;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
 {
 	glusMouseMove = glusNewMouseMove;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid))
 {
 	glusInit = glusNewInit;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetReshapeFunc(GLUSvoid (*glusNewReshape)(GLUSint width, GLUSint height))
+GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid (*glusNewReshape)(GLUSint width, GLUSint height))
 {
 	glusReshape = glusNewReshape;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time))
+GLUSvoid GLUSAPIENTRY glusWindowSetUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time))
 {
 	glusUpdate = glusNewUpdate;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusWindowSetTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
 {
 	glusTerminate = glusNewTerminate;
 }
 
-static GLUSfloat glusGetElapsedTime(GLUSvoid)
+static GLUSfloat glusWindowGetElapsedTime(GLUSvoid)
 {
 	static GLUSboolean init = GLUS_FALSE;
 	static GLUSfloat lastTime;
@@ -101,7 +101,7 @@ static GLUSfloat glusGetElapsedTime(GLUSvoid)
 
 	GLUSfloat measuredTime;
 
-	measuredTime = (GLUSfloat)_glusGetRawTime();
+	measuredTime = (GLUSfloat)_glusOsGetRawTime();
 
 	if (!init)
 	{
@@ -121,7 +121,7 @@ static GLUSfloat glusGetElapsedTime(GLUSvoid)
 	return currentTime - lastTime;
 }
 
-GLUSvoid glusInternalReshape(GLUSint width, GLUSint height)
+GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height)
 {
 	if (width < 1)
 	{
@@ -138,14 +138,14 @@ GLUSvoid glusInternalReshape(GLUSint width, GLUSint height)
 	}
 }
 
-GLUSint glusInternalClose(void)
+GLUSint glusWindowInternalClose(void)
 {
 	g_done = GLUS_TRUE;
 
 	return 0;
 }
 
-GLUSvoid glusInternalKey(GLUSint key, GLUSint state)
+GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state)
 {
 	if (state == GLFW_RELEASE)
 	{
@@ -170,7 +170,7 @@ GLUSvoid glusInternalKey(GLUSint key, GLUSint state)
 	}
 }
 
-GLUSvoid glusInternalMouse(GLUSint button, GLUSint action)
+GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action)
 {
 	GLUSint usedButton = 0;
 
@@ -202,7 +202,7 @@ GLUSvoid glusInternalMouse(GLUSint button, GLUSint action)
 	}
 }
 
-GLUSvoid glusInternalMouseWheel(GLUSint pos)
+GLUSvoid glusWindowInternalMouseWheel(GLUSint pos)
 {
 	if (glusMouseWheel)
 	{
@@ -210,7 +210,7 @@ GLUSvoid glusInternalMouseWheel(GLUSint pos)
 	}
 }
 
-GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y)
+GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y)
 {
 	g_mouseX = x;
 	g_mouseY = y;
@@ -225,7 +225,7 @@ GLUSvoid GLUSAPIENTRY glusWindowDestroy(GLUSvoid)
 {
 	glusEGLTerminate(&g_eglDisplay, &g_eglContext, &g_eglSurface);
 
-	_glusDestroyNativeWindowDisplay();
+	_glusOsDestroyNativeWindowDisplay();
 
 	g_windowCreated = GLUS_FALSE;
 
@@ -247,7 +247,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
-	if (!glusEGLCreateContext(_glusGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, configAttribList, contextAttribList))
+	if (!glusEGLCreateContext(_glusOsGetNativeDisplayType(), &g_eglDisplay, &eglConfig, &g_eglContext, configAttribList, contextAttribList))
 	{
 		glusWindowDestroy();
 
@@ -256,7 +256,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
 	eglGetConfigAttrib(g_eglDisplay, eglConfig, EGL_NATIVE_VISUAL_ID, &nativeVisualID);
 
-	eglNativeWindowType = _glusCreateNativeWindowType(title, width, height, fullscreen, noResize, nativeVisualID);
+	eglNativeWindowType = _glusOsCreateNativeWindowType(title, width, height, fullscreen, noResize, nativeVisualID);
 
 	if (!eglNativeWindowType)
 	{
@@ -274,7 +274,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
-	_glusGetWindowSize(&g_width, &g_height);
+	_glusOsGetWindowSize(&g_width, &g_height);
 
 	g_windowCreated = GLUS_TRUE;
 
@@ -328,12 +328,12 @@ GLUSboolean GLUSAPIENTRY glusWindowLoop(GLUSvoid)
 	{
 		if (glusUpdate)
 		{
-			g_done = !glusUpdate(glusGetElapsedTime());
+			g_done = !glusUpdate(glusWindowGetElapsedTime());
 		}
 
 		eglSwapBuffers(g_eglDisplay, g_eglSurface); // Swap Buffers (Double Buffering)
 
-		_glusPollEvents();
+		_glusOsPollEvents();
 	}
 
 	return !g_done;
@@ -351,14 +351,16 @@ GLUSvoid GLUSAPIENTRY glusWindowShutdown(GLUSvoid)
 	glusWindowDestroy(); // Destroy The Window
 }
 
-void* GLUSAPIENTRY glusExtensionGetFuncAddress(const GLUSchar* procname)
-{
-	return eglGetProcAddress(procname);
-}
-
 GLUSvoid GLUSAPIENTRY glusWindowSwapInterval(GLUSint interval)
 {
 	eglSwapInterval(g_eglDisplay, interval);
+}
+
+//
+
+void* GLUSAPIENTRY glusExtensionGetFuncAddress(const GLUSchar* procname)
+{
+	return eglGetProcAddress(procname);
 }
 
 //

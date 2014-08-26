@@ -1,23 +1,23 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
- * 
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "GL/glus.h"
 
-static GLUSboolean glusIsRowZero(const double matrix[16], GLUSint row)
+static GLUSboolean glusMatrix4x4IsRowZero(const double matrix[16], GLUSint row)
 {
     GLUSint column;
 
@@ -32,7 +32,7 @@ static GLUSboolean glusIsRowZero(const double matrix[16], GLUSint row)
     return GLUS_TRUE;
 }
 
-static GLUSboolean glusIsColumnZero(const double matrix[16], GLUSint column)
+static GLUSboolean glusMatrix4x4IsColumnZero(const double matrix[16], GLUSint column)
 {
     GLUSint row;
 
@@ -47,7 +47,7 @@ static GLUSboolean glusIsColumnZero(const double matrix[16], GLUSint column)
     return GLUS_TRUE;
 }
 
-static GLUSvoid glusDevideRowBy(double result[16], double matrix[16], GLUSint row, double  value)
+static GLUSvoid glusMatrix4x4DivideRowByScalar(double result[16], double matrix[16], GLUSint row, double  value)
 {
     GLUSint column;
     // No inverse for robustness
@@ -59,7 +59,7 @@ static GLUSvoid glusDevideRowBy(double result[16], double matrix[16], GLUSint ro
     }
 }
 
-static GLUSvoid glusSwapRow(double result[16], double matrix[16], GLUSint rowOne, GLUSint rowTwo)
+static GLUSvoid glusMatrix4x4SwapRow(double result[16], double matrix[16], GLUSint rowOne, GLUSint rowTwo)
 {
     GLUSint column;
 
@@ -77,7 +77,7 @@ static GLUSvoid glusSwapRow(double result[16], double matrix[16], GLUSint rowOne
     }
 }
 
-static GLUSvoid glusAddRow(double result[16], double matrix[16], GLUSint rowOne, GLUSint rowTwo, double factor)
+static GLUSvoid glusMatrix4x4AddRow(double result[16], double matrix[16], GLUSint rowOne, GLUSint rowTwo, double factor)
 {
     GLUSint column;
 
@@ -495,7 +495,7 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
         	//
             // Is row all zero, then return false
             //
-            if (glusIsRowZero(copy, row))
+            if (glusMatrix4x4IsRowZero(copy, row))
             {
                 return GLUS_FALSE;
             }
@@ -505,14 +505,14 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
             //
             if (copy[column * 4 + row] != 0.0)
             {
-                glusDevideRowBy(matrix_as_double, copy, row, copy[column * 4 + row]);
+                glusMatrix4x4DivideRowByScalar(matrix_as_double, copy, row, copy[column * 4 + row]);
             }
         }
 
         //
         // Is column all zero, then return false
         //
-        if (glusIsColumnZero(copy, column))
+        if (glusMatrix4x4IsColumnZero(copy, column))
         {
             return GLUS_FALSE;
         }
@@ -527,7 +527,7 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
                 //
                 // Swap with pivot row = column
                 //
-                glusSwapRow(matrix_as_double, copy, column, row);
+                glusMatrix4x4SwapRow(matrix_as_double, copy, column, row);
 
                 break;
             }
@@ -540,7 +540,7 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
             //
             if (copy[column * 4 + row] != 0.0)
             {
-                glusAddRow(matrix_as_double, copy, row, column, -1.0);
+                glusMatrix4x4AddRow(matrix_as_double, copy, row, column, -1.0);
             }
         }
     }
@@ -557,7 +557,7 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
             //
             if (copy[column * 4 + row] != 0.0)
             {
-                glusAddRow(matrix_as_double, copy, row, column, -copy[column * 4 + row]);
+                glusMatrix4x4AddRow(matrix_as_double, copy, row, column, -copy[column * 4 + row]);
             }
         }
     }

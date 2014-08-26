@@ -1,14 +1,13 @@
-OpenGL Utilities (GLUS):
-------------------------
+GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities:
+-----------------------------------------------------
 
 How to build GLUS:
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
    For building with Visual C++ 2012, CMake and the Windows SDK 8.1 are needed. 
-2. Extract this ZIP file and set GLUS-master folder as your Eclipse workspace.
-3. Import GLUS as an existing project.
-4. Set the build configuration in Eclipse to your operating system.
-5. Build GLUS.
+2. Import GLUS as an existing project.
+3. Set the build configuration in Eclipse to your operating system.
+4. Build GLUS.
 
 If you get build errors:
 
@@ -16,12 +15,15 @@ If you get build errors:
 - Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 - Libraries for the i.MX6 platform are not included.
+- Libraries for OpenGL ES and OpenVG are not included.
+
 
 OpenGL ES SDKs and Libraries:
 
-- OpenGL ES 3.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
+- OpenGL ES 3.1: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
+- OpenGL ES 3.0: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
 				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
-- OpenGL ES 2.0: PowerVR SDK 3.1 http://www.imgtec.com/powervr/insider/sdkdownloads/
+- OpenGL ES 2.0: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
 				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
 				 ANGLE http://code.google.com/p/angleproject/
 				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
@@ -40,86 +42,24 @@ SDKs/Libraries/Images used for i.MX6:
 
 - i.MX 6 Series Software and Development Tool Resources http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=IMX6_SW
 
+
 Build configuration naming:
 
 [CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
 
-CPU:						ARMv6, ARMv7, x64, x86
-GPU/Emulator (Optional):	AMD, ANGLE, Mali, PowerVR, VC4, Vivante, Khronos 
-OS: 						Darwin, Linux, Windows
-OpenGL/OpenVG (Optional):	GLES2, GLES3, VG11
-Compiler:					GCC, MinGW
-Configuration:				Debug, Release
+CPU:								ARMv6, ARMv7, x64, x86
+GPU/Emulator (Optional):			AMD, ANGLE, Khronos, Mali, PowerVR, VC4, Vivante  
+OS: 								Darwin, Linux, Windows
+OpenGL/OpenGL ES/OpenVG (Optional):	GLES2, GLES3, GLES31, VG11
+Compiler:							GCC, MinGW
+Configuration:						Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
-21.08.2014 Norbert Nopper (norbert@nopper.tv)
+
+Yours Norbert Nopper
+
 
 Changelog:
 
-21.08.2014 - Heavy refactoring of code and reorganisation of files.
-
-18.08.2014 - Changed interface of window creation in GLUS. Now all versions are the same.
-
-24.04.2014 - Upgraded to Visual C++ 2012
-
-04.04.2014 - Added OpenVG profile.
-
-16.02.2014 - Updated README
-
-09.02.2014 - Removed MSVC build profile. Use CMakeLists.txt to create Visual C++ project
-
-30.01.2014 - Added latest PowerVR SDK (3.2)
-
-05.12.2013 - Added GLUS for i.MX6
-		   - Fixed some bugs in GLUS 
-
-26.11.2013 - Added GPU Emulator Option
-
-10.11.2013 - Updated README
-
-04.11.2013 - Fixed doxygen issues
-
-28.10.2013 - Added GLES3 X11 profile
-
-19.10.2013 - Added latest GLFW (3.0.3)
-
-14.08.2013 - Added latest PowerVR SDK (3.1)
-
-06.06.2013 - Added latest GLFW (2.7.9)
-
-07.05.2013 - Added improved wavefront object file loader. Now supports groups and materials.
-
-29.04.2012 - Added adjacent geometry creation
-
-11.04.2012 - Added latest GLFW (2.7.8)
-
-10.04.2013 - Added screenshot functionality
-
-09.04.2013 - Added possibility to save a TGA image
-
-10.03.2013 - Added new line primitive (grid)
-
-04.03.2013 - Changed build configuration naming
-
-27.02.2013 - Finalized GLUS for Raspberry Pi
-
-22.02.2013 - Added GLUS for Raspberry Pi
-
-13.02.2013 - Added GLUS for OpenGL ES 2.0
-
-28.01.2013 - Added GLUS for OpenGL ES 3.0
-
-21.12.2012 - Added latest GLFW (2.7.7)
-		   - Added function to copy shapes
-		   - Fixed out of bounds in euler angles gathering
-		   - Added GLFW terminate function when creation of windows fails
-
-03.10.2012 - Minor bug fixes and improvements in GLUS
-           - GLUS is now 1.0 Final!
-
-31.08.2012 - Added latest version of GLEW (2.9.0)
-           - Added more build configurations
-           - Added OpenGL 4.3 features for GLUS
-		   - Refactoring and bug fixing in GLUS. GLUS is now in 1.0 Beta!
-		   - Added documenation(!) for GLUS
+28.08.2014 - Draft version of GLUS 2.0.

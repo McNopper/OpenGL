@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,8 +19,8 @@
 
 #define GLUS_MAX_TEXTFILE_LENGTH 2147483646
 
-extern GLUSboolean glusCheckFileRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusCheckFileWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
 GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile* textfile)
 {
@@ -78,7 +78,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	elementsRead = fread(textfile->text, 1, (size_t)textfile->length, f);
 
-	if (!glusCheckFileRead(f, elementsRead, (size_t)textfile->length))
+	if (!glusFileCheckRead(f, elementsRead, (size_t)textfile->length))
 	{
 		glusFileDestroyText(textfile);
 
@@ -109,7 +109,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveText(const GLUSchar* filename, const GLUSte
 
 	elementsWritten = fwrite(textfile->text, 1, textfile->length * sizeof(GLUSchar), file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
+	if (!glusFileCheckWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
 	{
 		return GLUS_FALSE;
 	}

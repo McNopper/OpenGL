@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL ES 2.0 and 3.0 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,17 +22,17 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusInternalReshape(GLUSint width, GLUSint height);
+extern GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height);
 
-extern GLUSint glusInternalClose(GLUSvoid);
+extern GLUSint glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
 
-extern GLUSvoid glusInternalMouse(GLUSint button, GLUSint action);
+extern GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action);
 
-extern GLUSvoid glusInternalMouseWheel(GLUSint pos);
+extern GLUSvoid glusWindowInternalMouseWheel(GLUSint pos);
 
-extern GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y);
+extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
 //
 // Please note: The following lines are taken from GLFW. Some lines are modified for adapting to GLUS.
@@ -70,15 +70,15 @@ extern GLUSvoid glusInternalMouseMove(GLUSint x, GLUSint y);
 
 static char _keys[GLFW_KEY_LAST + 1];
 
-GLUSvoid _glusInputMouseClick(GLUSint button, GLUSint action)
+GLUSvoid _glusOsInputMouseClick(GLUSint button, GLUSint action)
 {
 	if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
 	{
-		glusInternalMouse(button, action);
+		glusWindowInternalMouse(button, action);
 	}
 }
 
-GLUSvoid _glusInputKey(GLUSint key, GLUSint action)
+GLUSvoid _glusOsInputKey(GLUSint key, GLUSint action)
 {
 	if (key < 0 || key > GLFW_KEY_LAST)
 	{
@@ -93,7 +93,7 @@ GLUSvoid _glusInputKey(GLUSint key, GLUSint action)
 
 	_keys[key] = (char)action;
 
-	glusInternalKey(key, action);
+	glusWindowInternalKey(key, action);
 }
 
 GLUSint _glusTranslateKey(WPARAM wParam, LPARAM lParam)
@@ -378,7 +378,7 @@ static GLUSint _wheelPos = 0;
 
 static GLUSboolean _fullscreen = GLUS_FALSE;
 
-LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uiMsg)
 	{
@@ -393,7 +393,7 @@ LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM
 			_width = LOWORD(lParam);
 			_height = HIWORD(lParam);
 
-			glusInternalReshape(_width, _height);
+			glusWindowInternalReshape(_width, _height);
 
 			return 0;
 		}
@@ -404,7 +404,7 @@ LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM
 			mouseX = (GLUSint)((short)LOWORD(lParam));
 			mouseY = (GLUSint)((short)HIWORD(lParam));
 
-			glusInternalMouseMove(mouseX, mouseY);
+			glusWindowInternalMouseMove(mouseX, mouseY);
 
 			return 0;
 		}
@@ -414,35 +414,35 @@ LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM
 
 			_wheelPos += wheelDelta;
 
-			glusInternalMouseWheel(_wheelPos);
+			glusWindowInternalMouseWheel(_wheelPos);
 
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			SetCapture(hWnd);
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
 
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
 			ReleaseCapture();
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
 
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			SetCapture(hWnd);
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
 
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
 			ReleaseCapture();
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
 
 			return 0;
 		}
@@ -450,28 +450,28 @@ LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM
 		case WM_RBUTTONDOWN:
 		{
 			SetCapture(hWnd);
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
 
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
 			ReleaseCapture();
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
+			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
 
 			return 0;
 		}
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
 		{
-			_glusInputKey(_glusTranslateKey(wParam, lParam), GLFW_PRESS);
+			_glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_PRESS);
 
 			break;
 		}
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
 		{
-			_glusInputKey(_glusTranslateKey(wParam, lParam), GLFW_RELEASE);
+			_glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_RELEASE);
 
 			break;
 		}
@@ -480,7 +480,7 @@ LRESULT CALLBACK _glusProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM
 	return DefWindowProc(hWnd, uiMsg, wParam, lParam);
 }
 
-GLUSvoid _glusPollEvents()
+GLUSvoid _glusOsPollEvents()
 {
 	MSG msg;
 
@@ -488,7 +488,7 @@ GLUSvoid _glusPollEvents()
 	{
 		if (msg.message == WM_QUIT)
 		{
-			glusInternalClose();
+			glusWindowInternalClose();
 		}
 		else
 		{
@@ -497,12 +497,12 @@ GLUSvoid _glusPollEvents()
 	}
 }
 
-EGLNativeDisplayType _glusGetNativeDisplayType()
+EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
 	return _nativeDisplay;
 }
 
-EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
+EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
 {
 	WNDCLASS wc;
 	RECT wRect;
@@ -553,7 +553,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	hInstance = GetModuleHandle(NULL);
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = (WNDPROC)_glusProcessWindow;
+	wc.lpfnWndProc = (WNDPROC)_glusOsProcessWindow;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;
@@ -601,7 +601,7 @@ EGLNativeWindowType _glusCreateNativeWindowType(const char* title, const GLUSint
 	return _nativeWindow;
 }
 
-GLUSvoid _glusDestroyNativeWindowDisplay()
+GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
 	if (_nativeWindow)
 	{
@@ -618,7 +618,7 @@ GLUSvoid _glusDestroyNativeWindowDisplay()
 	}
 }
 
-double _glusGetRawTime()
+double _glusOsGetRawTime()
 {
 	static LONGLONG perfromanceFrequency = 0;
 
@@ -634,7 +634,7 @@ double _glusGetRawTime()
 	return (double)currentPerformanceCounter / (double)perfromanceFrequency;
 }
 
-GLUSvoid _glusGetWindowSize(GLUSint* width, GLUSint* height)
+GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{

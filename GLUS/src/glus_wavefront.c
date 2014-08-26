@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,7 @@
 #define GLUS_MAX_TRIANGLE_ATTRIBUTES GLUS_MAX_VERTICES
 #define GLUS_BUFFERSIZE 1024
 
-static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
+static GLUSboolean glusWavefrontMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
 {
 	if (!vertices || !normals || !texCoords || !triangleVertices || !triangleNormals || !triangleTexCoords)
 	{
@@ -68,7 +68,7 @@ static GLUSboolean glusMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normal
 	return GLUS_TRUE;
 }
 
-static GLUSvoid glusFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
+static GLUSvoid glusWavefrontFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
 {
 	if (vertices && *vertices)
 	{
@@ -113,7 +113,7 @@ static GLUSvoid glusFreeTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GL
 	}
 }
 
-static GLUSvoid glusInitMaterial(GLUSmaterial* material)
+static GLUSvoid glusWavefrontInitMaterial(GLUSmaterial* material)
 {
 	if (!material)
 	{
@@ -173,7 +173,7 @@ static GLUSvoid glusInitMaterial(GLUSmaterial* material)
 	material->bumpTextureName = 0;
 }
 
-static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
+static GLUSvoid glusWavefrontDestroyMaterial(GLUSmaterialList** materialList)
 {
 	GLUSmaterialList* currentMaterialList = 0;
 	GLUSmaterialList* nextMaterialList = 0;
@@ -198,7 +198,7 @@ static GLUSvoid glusDestroyMaterial(GLUSmaterialList** materialList)
 	*materialList = 0;
 }
 
-static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList** materialList)
+static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmaterialList** materialList)
 {
 	FILE* f;
 
@@ -289,7 +289,7 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			if (!newMaterialList)
 			{
-				glusDestroyMaterial(materialList);
+				glusWavefrontDestroyMaterial(materialList);
 
 				fclose(f);
 
@@ -298,7 +298,7 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 
 			memset(newMaterialList, 0, sizeof(GLUSmaterialList));
 
-			glusInitMaterial(&newMaterialList->material);
+			glusWavefrontInitMaterial(&newMaterialList->material);
 
 			strcpy(newMaterialList->material.name, name);
 
@@ -409,7 +409,7 @@ static GLUSboolean glusLoadMaterial(const GLUSchar* filename, GLUSmaterialList**
 	return GLUS_TRUE;
 }
 
-static GLUSvoid glusDestroyGroup(GLUSgroupList** groupList)
+static GLUSvoid glusWavefrontDestroyGroup(GLUSgroupList** groupList)
 {
 	GLUSgroupList* currentGroupList = 0;
 	GLUSgroupList* nextGroupList = 0;
@@ -438,7 +438,7 @@ static GLUSvoid glusDestroyGroup(GLUSgroupList** groupList)
 	*groupList = 0;
 }
 
-static GLboolean glusCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
+static GLboolean glusWavefrontCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
 {
 	GLUSuint indicesCounter = 0;
 
@@ -515,7 +515,7 @@ static GLboolean glusCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices,
 	return GLUS_TRUE;
 }
 
-GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
+GLUSboolean glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
 {
 	GLUSboolean result;
 
@@ -573,9 +573,9 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		return GLUS_FALSE;
 	}
 
-	if (!glusMallocTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords))
+	if (!glusWavefrontMallocTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords))
 	{
-		glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+		glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 		fclose(f);
 
@@ -588,7 +588,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		{
 			if (ferror(f))
 			{
-				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 				fclose(f);
 
@@ -607,9 +607,9 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					wavefront->materials = 0;
 				}
 
-				if (!glusLoadMaterial(name, &wavefront->materials))
+				if (!glusWavefrontLoadMaterial(name, &wavefront->materials))
 				{
-					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 					fclose(f);
 
@@ -628,7 +628,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 
 					if (!newGroupList)
 					{
-						glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 						fclose(f);
 
@@ -649,7 +649,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 						{
 							glusMemoryFree(newGroupList);
 
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -683,7 +683,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 
 				if (!newGroupList)
 				{
-					glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 					fclose(f);
 
@@ -704,7 +704,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						glusMemoryFree(newGroupList);
 
-						glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 						fclose(f);
 
@@ -727,7 +727,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		{
 			if (numberObjects == GLUS_MAX_OBJECTS)
 			{
-				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 				fclose(f);
 
@@ -740,7 +740,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		{
 			if (numberTexCoords == GLUS_MAX_ATTRIBUTES)
 			{
-				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 				fclose(f);
 
@@ -758,7 +758,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		{
 			if (numberNormals == GLUS_MAX_ATTRIBUTES)
 			{
-				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 				fclose(f);
 
@@ -777,7 +777,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		{
 			if (numberVertices == GLUS_MAX_ATTRIBUTES)
 			{
-				glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 				fclose(f);
 
@@ -871,7 +871,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -887,7 +887,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberVertices >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -908,7 +908,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -923,7 +923,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberNormals >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -943,7 +943,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -958,7 +958,7 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 					{
 						if (totalNumberTexCoords >= GLUS_MAX_TRIANGLE_ATTRIBUTES - 2)
 						{
-							glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 							fclose(f);
 
@@ -988,9 +988,9 @@ GLUSboolean glusParseObjFile(const GLUSchar* filename, GLUSshape* shape, GLUSwav
 		numberIndicesGroup = 0;
 	}
 
-	result = glusCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
+	result = glusWavefrontCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
 
-	glusFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
+	glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
 	if (result)
 	{
@@ -1012,7 +1012,7 @@ GLUSboolean GLUSAPIENTRY glusWavefrontLoad(const GLUSchar* filename, GLUSwavefro
 	GLUSuint i;
 	GLUSuint counter = 0;
 
-	if (!glusParseObjFile(filename, &dummyShape, wavefront))
+	if (!glusWavefrontParse(filename, &dummyShape, wavefront))
 	{
 		glusWavefrontDestroy(wavefront);
 
@@ -1072,8 +1072,8 @@ GLUSvoid GLUSAPIENTRY glusWavefrontDestroy(GLUSwavefront* wavefront)
 		return;
 	}
 
-	glusDestroyMaterial(&wavefront->materials);
-	glusDestroyGroup(&wavefront->groups);
+	glusWavefrontDestroyMaterial(&wavefront->materials);
+	glusWavefrontDestroyGroup(&wavefront->groups);
 
 	if (wavefront->vertices)
 	{

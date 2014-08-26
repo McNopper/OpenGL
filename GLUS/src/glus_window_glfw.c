@@ -1,5 +1,5 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,47 +36,47 @@ static GLUSvoid (*glusMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, 
 static GLUSvoid (*glusMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos) = NULL;
 static GLUSvoid (*glusMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos) = NULL;
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetKeyFunc(GLUSvoid (*glusNewKey)(GLUSboolean pressed, GLUSint key))
+GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid (*glusNewKey)(GLUSboolean pressed, GLUSint key))
 {
 	glusKey = glusNewKey;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseFunc(GLUSvoid (*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseFunc(GLUSvoid (*glusNewMouse)(GLUSboolean pressed, GLUSint button, GLUSint xPos, GLUSint yPos))
 {
 	glusMouse = glusNewMouse;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(GLUSint buttons, GLUSint ticks, GLUSint xPos, GLUSint yPos))
 {
 	glusMouseWheel = glusNewMouseWheel;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
+GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(GLUSint buttons, GLUSint xPos, GLUSint yPos))
 {
 	glusMouseMove = glusNewMouseMove;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid))
 {
 	glusInit = glusNewInit;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetReshapeFunc(GLUSvoid (*glusNewReshape)(GLUSint width, GLUSint height))
+GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid (*glusNewReshape)(GLUSint width, GLUSint height))
 {
 	glusReshape = glusNewReshape;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time))
+GLUSvoid GLUSAPIENTRY glusWindowSetUpdateFunc(GLUSboolean (*glusNewUpdate)(GLUSfloat time))
 {
 	glusUpdate = glusNewUpdate;
 }
 
-GLUSvoid GLUSAPIENTRY glusCallbackSetTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
+GLUSvoid GLUSAPIENTRY glusWindowSetTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid))
 {
 	glusTerminate = glusNewTerminate;
 }
 
-static GLUSfloat glusGetElapsedTime(GLUSvoid)
+static GLUSfloat glusWindowGetElapsedTime(GLUSvoid)
 {
 	static GLUSboolean init = GLUS_FALSE;
 	static GLUSfloat lastTime;
@@ -104,7 +104,7 @@ static GLUSfloat glusGetElapsedTime(GLUSvoid)
 	return currentTime - lastTime;
 }
 
-static GLUSvoid glusInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
+static GLUSvoid glusWindowInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
 {
 	if (width < 1)
 	{
@@ -121,12 +121,12 @@ static GLUSvoid glusInternalReshape(GLFWwindow* window, GLUSint width, GLUSint h
 	}
 }
 
-static GLUSvoid glusInternalClose(GLFWwindow* window)
+static GLUSvoid glusWindowInternalClose(GLFWwindow* window)
 {
 	glfwSetWindowShouldClose(window, GLUS_TRUE);
 }
 
-static GLUSvoid glusInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
+static GLUSvoid glusWindowInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
 {
 	if (action == GLFW_RELEASE)
 	{
@@ -151,7 +151,7 @@ static GLUSvoid glusInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancod
 	}
 }
 
-static GLUSvoid glusInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
+static GLUSvoid glusWindowInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
 {
 	GLUSint usedButton = 0;
 
@@ -183,7 +183,7 @@ static GLUSvoid glusInternalMouse(GLFWwindow* window, GLUSint button, GLUSint ac
 	}
 }
 
-static GLUSvoid glusInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
+static GLUSvoid glusWindowInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
 {
 	static GLUSint wheelPos = 0;
 
@@ -195,7 +195,7 @@ static GLUSvoid glusInternalMouseWheel(GLFWwindow* window, double xpos, double y
 	}
 }
 
-static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
+static GLUSvoid glusWindowInternalMouseMove(GLFWwindow* window, double x, double y)
 {
 	g_mouseX = (GLUSint)x;
 	g_mouseY = (GLUSint)y;
@@ -206,7 +206,7 @@ static GLUSvoid glusInternalMouseMove(GLFWwindow* window, double x, double y)
 	}
 }
 
-static GLUSvoid GLUSAPIENTRY glusInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, const GLUSvoid* userParam)
+static GLUSvoid GLUSAPIENTRY glusWindowInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, const GLUSvoid* userParam)
 {
 	glusLogPrint(GLUS_LOG_DEBUG, "source: 0x%04X type: 0x%04X id: %u severity: 0x%04X '%s'", source, type, id, severity, message);
 }
@@ -555,12 +555,12 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
-	glfwSetWindowSizeCallback(g_window, glusInternalReshape);
-	glfwSetWindowCloseCallback(g_window, glusInternalClose);
-	glfwSetKeyCallback(g_window, glusInternalKey);
-	glfwSetMouseButtonCallback(g_window, glusInternalMouse);
-	glfwSetScrollCallback(g_window, glusInternalMouseWheel);
-	glfwSetCursorPosCallback(g_window, glusInternalMouseMove);
+	glfwSetWindowSizeCallback(g_window, glusWindowInternalReshape);
+	glfwSetWindowCloseCallback(g_window, glusWindowInternalClose);
+	glfwSetKeyCallback(g_window, glusWindowInternalKey);
+	glfwSetMouseButtonCallback(g_window, glusWindowInternalMouse);
+	glfwSetScrollCallback(g_window, glusWindowInternalMouseWheel);
+	glfwSetCursorPosCallback(g_window, glusWindowInternalMouseMove);
 
 	glfwGetWindowSize(g_window, &g_width, &g_height);
 
@@ -568,7 +568,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 	{
 		glusLogSetLevel(GLUS_LOG_DEBUG);
 
-		glDebugMessageCallback(&glusInternalDebugMessage, 0);
+		glDebugMessageCallback(&glusWindowInternalDebugMessage, 0);
 	}
 
 	return GLUS_TRUE; // Success
@@ -621,7 +621,7 @@ GLUSboolean GLUSAPIENTRY glusWindowLoop(GLUSvoid)
 	{
 		if (glusUpdate)
 		{
-			if (!glusUpdate(glusGetElapsedTime()))
+			if (!glusUpdate(glusWindowGetElapsedTime()))
 			{
 				glfwSetWindowShouldClose(g_window, GLUS_TRUE);
 			}
@@ -649,12 +649,14 @@ GLUSvoid GLUSAPIENTRY glusWindowShutdown(GLUSvoid)
 	glusWindowDestroy(); // Destroy The Window
 }
 
-void* GLUSAPIENTRY glusExtensionGetFuncAddress(const GLUSchar* procname)
-{
-	return glfwGetProcAddress(procname);
-}
-
 GLUSvoid GLUSAPIENTRY glusWindowSwapInterval(GLUSint interval)
 {
 	glfwSwapInterval(interval);
+}
+
+//
+
+void* GLUSAPIENTRY glusExtensionGetFuncAddress(const GLUSchar* procname)
+{
+	return glfwGetProcAddress(procname);
 }

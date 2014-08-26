@@ -978,15 +978,15 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusCallbackSetInitFunc(init);
+    glusWindowSetInitFunc(init);
 
-    glusCallbackSetReshapeFunc(reshape);
+    glusWindowSetReshapeFunc(reshape);
 
-	glusCallbackSetKeyFunc(key);
+	glusWindowSetKeyFunc(key);
 
-    glusCallbackSetUpdateFunc(update);
+    glusWindowSetUpdateFunc(update);
 
-    glusCallbackSetTerminateFunc(terminate);
+    glusWindowSetTerminateFunc(terminate);
 
 	// No resizing for convenience. If resizing is allowed, dynamically resize the SSAO and Blur frame buffer as well.
     if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))

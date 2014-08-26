@@ -1,5 +1,5 @@
 /*
- * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) 2010 - 2014 Norbert Nopper
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLUS_TYPES_H_
-#define GLUS_TYPES_H_
+#ifndef GLUS_TYPEDEF_H_
+#define GLUS_TYPEDEF_H_
 
 typedef unsigned char GLUSboolean;
 typedef signed char GLUSbyte;
@@ -51,4 +51,4 @@ typedef struct _GLUScomplex
 typedef void GLUSvoid;
 #endif
 
-#endif /* GLUS_TYPES_H_ */
+#endif /* GLUS_TYPEDEF_H_ */

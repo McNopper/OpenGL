@@ -1,16 +1,16 @@
 /*
- * GLUS - OpenGL 3 and 4 Utilities. Copyright (C) 2010 - 2013 Norbert Nopper
- * 
+ * GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities. Copyright (C) since 2010 Norbert Nopper
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,8 +19,8 @@
 
 #define GLUS_MAX_BINARYILE_LENGTH 2147483647
 
-extern GLUSboolean glusCheckFileRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusCheckFileWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
 GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinaryfile* binaryfile)
 {
@@ -78,7 +78,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	elementsRead = fread(binaryfile->binary, 1, (size_t)binaryfile->length, f);
 
-	if (!glusCheckFileRead(f, elementsRead, (size_t)binaryfile->length))
+	if (!glusFileCheckRead(f, elementsRead, (size_t)binaryfile->length))
 	{
 		glusFileDestroyBinary(binaryfile);
 
@@ -109,7 +109,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveBinary(const GLUSchar* filename, const GLUS
 
 	elementsWritten = fwrite(binaryfile->binary, 1, binaryfile->length * sizeof(GLUSubyte), file);
 
-	if (!glusCheckFileWrite(file, elementsWritten, binaryfile->length * sizeof(GLUSubyte)))
+	if (!glusFileCheckWrite(file, elementsWritten, binaryfile->length * sizeof(GLUSubyte)))
 	{
 		return GLUS_FALSE;
 	}

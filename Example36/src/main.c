@@ -477,13 +477,13 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
-    glusCallbackSetInitFunc(init);
+    glusWindowSetInitFunc(init);
 
-    glusCallbackSetReshapeFunc(reshape);
+    glusWindowSetReshapeFunc(reshape);
 
-    glusCallbackSetUpdateFunc(update);
+    glusWindowSetUpdateFunc(update);
 
-    glusCallbackSetTerminateFunc(terminate);
+    glusWindowSetTerminateFunc(terminate);
 
     if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
     {
