@@ -438,7 +438,7 @@ static GLUSvoid glusWavefrontDestroyGroup(GLUSgroupList** groupList)
 	*groupList = 0;
 }
 
-static GLboolean glusWavefrontCopyObjData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
+static GLUSboolean glusWavefrontCopyData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
 {
 	GLUSuint indicesCounter = 0;
 
@@ -515,7 +515,7 @@ static GLboolean glusWavefrontCopyObjData(GLUSshape* shape, GLUSuint totalNumber
 	return GLUS_TRUE;
 }
 
-GLUSboolean glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
+GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront)
 {
 	GLUSboolean result;
 
@@ -988,7 +988,7 @@ GLUSboolean glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUSw
 		numberIndicesGroup = 0;
 	}
 
-	result = glusWavefrontCopyObjData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
+	result = glusWavefrontCopyData(shape, totalNumberVertices, triangleVertices, totalNumberNormals, triangleNormals, totalNumberTexCoords, triangleTexCoords);
 
 	glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
@@ -1012,7 +1012,7 @@ GLUSboolean GLUSAPIENTRY glusWavefrontLoad(const GLUSchar* filename, GLUSwavefro
 	GLUSuint i;
 	GLUSuint counter = 0;
 
-	if (!glusWavefrontParse(filename, &dummyShape, wavefront))
+	if (!_glusWavefrontParse(filename, &dummyShape, wavefront))
 	{
 		glusWavefrontDestroy(wavefront);
 

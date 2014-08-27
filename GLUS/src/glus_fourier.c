@@ -114,7 +114,7 @@ GLUSboolean glusFourierInverseDFTc(GLUScomplex* result, const GLUScomplex* vecto
 	return GLUS_FALSE;
 }
 
-static GLUSvoid glusFastFourierTransformRecursiveFunctionc(GLUScomplex* vector, const GLUSint n, GLUSint offset)
+static GLUSvoid glusFourierRecursiveFunctionFFTc(GLUScomplex* vector, const GLUSint n, GLUSint offset)
 {
 	if (n > 1)
 	{
@@ -133,8 +133,8 @@ static GLUSvoid glusFastFourierTransformRecursiveFunctionc(GLUScomplex* vector, 
 			}
 		}
 
-		glusFastFourierTransformRecursiveFunctionc(vector, m, offset);
-		glusFastFourierTransformRecursiveFunctionc(vector, m, offset + m);
+		glusFourierRecursiveFunctionFFTc(vector, m, offset);
+		glusFourierRecursiveFunctionFFTc(vector, m, offset + m);
 
 		GLUScomplex currentW;
 		currentW.real = 1.0f;
@@ -181,7 +181,7 @@ GLUSboolean glusFourierRecursiveFFTc(GLUScomplex* result, const GLUScomplex* vec
 
 		glusVectorNConjugatec(result, result, n);
 
-		glusFastFourierTransformRecursiveFunctionc(result, n, 0);
+		glusFourierRecursiveFunctionFFTc(result, n, 0);
 
 		glusVectorNConjugatec(result, result, n);
 		glusVectorNMultiplyScalarc(result, result, n, scalar);
@@ -203,7 +203,7 @@ GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScompl
 	{
 		glusVectorNCopyc(result, vector, n);
 
-		glusFastFourierTransformRecursiveFunctionc(result, n, 0);
+		glusFourierRecursiveFunctionFFTc(result, n, 0);
 
 		return GLUS_TRUE;
 	}
@@ -211,7 +211,7 @@ GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScompl
 	return GLUS_FALSE;
 }
 
-static GLUSvoid glusFastFourierTransformButterflyShuffleFunctionc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
+static GLUSvoid glusFourierButterflyShuffleFunctionFFTc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
 {
 	if (n > 1)
 	{
@@ -230,8 +230,8 @@ static GLUSvoid glusFastFourierTransformButterflyShuffleFunctionc(GLUScomplex* v
 			}
 		}
 
-		glusFastFourierTransformButterflyShuffleFunctionc(vector, m, offset);
-		glusFastFourierTransformButterflyShuffleFunctionc(vector, m, offset + m);
+		glusFourierButterflyShuffleFunctionFFTc(vector, m, offset);
+		glusFourierButterflyShuffleFunctionFFTc(vector, m, offset + m);
 	}
 	else
 	{
@@ -250,7 +250,7 @@ GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScompl
 	{
 		glusVectorNCopyc(result, vector, n);
 
-		glusFastFourierTransformButterflyShuffleFunctionc(result, n, 0);
+		glusFourierButterflyShuffleFunctionFFTc(result, n, 0);
 
 		return GLUS_TRUE;
 	}
@@ -258,7 +258,7 @@ GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScompl
 	return GLUS_FALSE;
 }
 
-static GLUSvoid glusFastFourierTransformButterflyFunctionc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
+static GLUSvoid glusFourierButterflyFunctionFFTc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
 {
 	GLUSint currentStep;
 	GLUSint currentSection;
@@ -334,7 +334,7 @@ GLUSboolean glusFourierButterflyFFTc(GLUScomplex* result, const GLUScomplex* vec
 
 		glusFourierButterflyShuffleFFTc(result, result, n);
 
-		glusFastFourierTransformButterflyFunctionc(result, n, 0);
+		glusFourierButterflyFunctionFFTc(result, n, 0);
 
 		glusVectorNConjugatec(result, result, n);
 		glusVectorNMultiplyScalarc(result, result, n, scalar);
@@ -358,7 +358,7 @@ GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScompl
 
 		glusFourierButterflyShuffleFFTc(result, result, n);
 
-		glusFastFourierTransformButterflyFunctionc(result, n, 0);
+		glusFourierButterflyFunctionFFTc(result, n, 0);
 
 		return GLUS_TRUE;
 	}
@@ -366,7 +366,7 @@ GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScompl
 	return GLUS_FALSE;
 }
 
-static GLUSvoid glusFastFourierTransformButterflyShuffleFunctioni(GLUSint* vector, const GLUSint n, const GLUSint offset)
+static GLUSvoid glusFourierButterflyShuffleFunctionFFTi(GLUSint* vector, const GLUSint n, const GLUSint offset)
 {
 	if (n > 1)
 	{
@@ -385,8 +385,8 @@ static GLUSvoid glusFastFourierTransformButterflyShuffleFunctioni(GLUSint* vecto
 			}
 		}
 
-		glusFastFourierTransformButterflyShuffleFunctioni(vector, m, offset);
-		glusFastFourierTransformButterflyShuffleFunctioni(vector, m, offset + m);
+		glusFourierButterflyShuffleFunctionFFTi(vector, m, offset);
+		glusFourierButterflyShuffleFunctionFFTi(vector, m, offset + m);
 	}
 	else
 	{
@@ -410,7 +410,7 @@ GLUSboolean glusFourierButterflyShuffleFFTi(GLUSint* result, const GLUSint* vect
 			result[i] = vector[i];
 		}
 
-		glusFastFourierTransformButterflyShuffleFunctioni(result, n, 0);
+		glusFourierButterflyShuffleFunctionFFTi(result, n, 0);
 
 		return GLUS_TRUE;
 	}

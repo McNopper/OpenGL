@@ -62,4 +62,6 @@ Yours Norbert Nopper
 
 Changelog:
 
-28.08.2014 - Draft version of GLUS 2.0.
+27.08.2014 - Cleaning up and refactoring code inside GLUS 2.0 draft version. No interface changes.
+
+26.08.2014 - Draft version of GLUS 2.0.

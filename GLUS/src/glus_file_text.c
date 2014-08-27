@@ -19,8 +19,8 @@
 
 #define GLUS_MAX_TEXTFILE_LENGTH 2147483646
 
-extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
 GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile* textfile)
 {
@@ -78,7 +78,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	elementsRead = fread(textfile->text, 1, (size_t)textfile->length, f);
 
-	if (!glusFileCheckRead(f, elementsRead, (size_t)textfile->length))
+	if (!_glusFileCheckRead(f, elementsRead, (size_t)textfile->length))
 	{
 		glusFileDestroyText(textfile);
 
@@ -109,7 +109,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveText(const GLUSchar* filename, const GLUSte
 
 	elementsWritten = fwrite(textfile->text, 1, textfile->length * sizeof(GLUSchar), file);
 
-	if (!glusFileCheckWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
+	if (!_glusFileCheckWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
 	{
 		return GLUS_FALSE;
 	}

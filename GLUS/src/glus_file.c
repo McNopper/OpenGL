@@ -17,9 +17,39 @@
 
 #include "GL/glus.h"
 
-extern GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUSwavefront* wavefront);
-
-GLUSboolean GLUSAPIENTRY glusShapeLoadWavefront(const GLUSchar* filename, GLUSshape* shape)
+GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
 {
-	return _glusWavefrontParse(filename, shape, 0);
+	if (!f)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (actualRead < expectedRead)
+	{
+		fclose(f);
+
+		return GLUS_FALSE;
+	}
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite)
+{
+	if (!f)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (actualWrite < expectedWrite)
+	{
+		if (ferror(f))
+		{
+			fclose(f);
+
+			return GLUS_FALSE;
+		}
+	}
+
+	return GLUS_TRUE;
 }

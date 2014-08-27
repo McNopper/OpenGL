@@ -19,8 +19,8 @@
 
 #define GLUS_MAX_BINARYILE_LENGTH 2147483647
 
-extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
 GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinaryfile* binaryfile)
 {
@@ -78,7 +78,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	elementsRead = fread(binaryfile->binary, 1, (size_t)binaryfile->length, f);
 
-	if (!glusFileCheckRead(f, elementsRead, (size_t)binaryfile->length))
+	if (!_glusFileCheckRead(f, elementsRead, (size_t)binaryfile->length))
 	{
 		glusFileDestroyBinary(binaryfile);
 
@@ -109,7 +109,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveBinary(const GLUSchar* filename, const GLUS
 
 	elementsWritten = fwrite(binaryfile->binary, 1, binaryfile->length * sizeof(GLUSubyte), file);
 
-	if (!glusFileCheckWrite(file, elementsWritten, binaryfile->length * sizeof(GLUSubyte)))
+	if (!_glusFileCheckWrite(file, elementsWritten, binaryfile->length * sizeof(GLUSubyte)))
 	{
 		return GLUS_FALSE;
 	}

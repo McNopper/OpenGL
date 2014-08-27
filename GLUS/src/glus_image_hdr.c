@@ -17,10 +17,10 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
+extern GLUSvoid _glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride);
 
-extern GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
-extern GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
+extern GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead);
+extern GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite);
 
 static GLUSvoid glusImageConvertRGBE(GLUSfloat* rgb, const GLUSubyte* rgbe)
 {
@@ -75,7 +75,7 @@ static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint wi
 		{
 			elementsRead = fread(&code, 1, 1, file);
 
-			if (!glusFileCheckRead(file, elementsRead, 1))
+			if (!_glusFileCheckRead(file, elementsRead, 1))
 			{
 				return -1;
 			}
@@ -97,7 +97,7 @@ static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint wi
 
 				elementsRead = fread(&channelValue, 1, 1, file);
 
-				if (!glusFileCheckRead(file, elementsRead, 1))
+				if (!_glusFileCheckRead(file, elementsRead, 1))
 				{
 					return -1;
 				}
@@ -124,7 +124,7 @@ static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint wi
 				{
 					elementsRead = fread(&channelValue, 1, 1, file);
 
-					if (!glusFileCheckRead(file, elementsRead, 1))
+					if (!_glusFileCheckRead(file, elementsRead, 1))
 					{
 						return -1;
 					}
@@ -228,7 +228,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 	elementsRead = fread(buffer, 10, 1, file);
 
-	if (!glusFileCheckRead(file, elementsRead, 1))
+	if (!_glusFileCheckRead(file, elementsRead, 1))
 	{
 		return GLUS_FALSE;
 	}
@@ -261,7 +261,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 		elementsRead = fread(&currentChar, 1, 1, file);
 
-		if (!glusFileCheckRead(file, elementsRead, 1))
+		if (!_glusFileCheckRead(file, elementsRead, 1))
 		{
 			return GLUS_FALSE;
 		}
@@ -279,7 +279,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	{
 		elementsRead = fread(&currentChar, 1, 1, file);
 
-		if (!glusFileCheckRead(file, elementsRead, 1))
+		if (!_glusFileCheckRead(file, elementsRead, 1))
 		{
 			return GLUS_FALSE;
 		}
@@ -343,7 +343,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	{
 		elementsRead = fread(buffer, 4, 1, file);
 
-		if (!glusFileCheckRead(file, elementsRead, 1))
+		if (!_glusFileCheckRead(file, elementsRead, 1))
 		{
 			glusMemoryFree(scanline);
 
@@ -506,7 +506,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 	// Header
 	elementsWritten = fputs("#?RADIANCE\n#Saved with GLUS\nFORMAT=32-bit_rle_rgbe\n\n", file);
 
-	if (!glusFileCheckWrite(file, elementsWritten, 52))
+	if (!_glusFileCheckWrite(file, elementsWritten, 52))
 	{
 		return GLUS_FALSE;
 	}
@@ -528,7 +528,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 
 			elementsWritten = fwrite(rgbe, 1, 4 * sizeof(GLUSubyte), file);
 
-			if (!glusFileCheckWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
+			if (!_glusFileCheckWrite(file, elementsWritten, 4 * sizeof(GLUSubyte)))
 			{
 				return GLUS_FALSE;
 			}
@@ -585,7 +585,7 @@ GLUSboolean GLUSAPIENTRY glusImageSampleHdr2D(GLUSfloat rgb[3], const GLUShdrima
 		stride = 4;
 	}
 
-	glusImageGatherSamplePoints(sampleIndex, sampelWeight, st, hdrimage->width, hdrimage->height, stride);
+	_glusImageGatherSamplePoints(sampleIndex, sampelWeight, st, hdrimage->width, hdrimage->height, stride);
 
 	for (i = 0; i < stride; i++)
 	{

@@ -22,17 +22,17 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height);
+extern GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height);
 
-extern GLUSint glusWindowInternalClose(GLUSvoid);
+extern GLUSint _glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
-extern GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action);
+extern GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action);
 
-extern GLUSvoid glusWindowInternalMouseWheel(GLUSint pos);
+extern GLUSvoid _glusWindowInternalMouseWheel(GLUSint pos);
 
-extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
+extern GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
 //
 // Please note: The following lines are taken from GLFW. Some lines are modified for adapting to GLUS.
@@ -68,13 +68,13 @@ extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 //
 //========================================================================
 
-static char _keys[GLFW_KEY_LAST + 1];
+static char g_keys[GLFW_KEY_LAST + 1];
 
 GLUSvoid _glusOsInputMouseClick(GLUSint button, GLUSint action)
 {
 	if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
 	{
-		glusWindowInternalMouse(button, action);
+		_glusWindowInternalMouse(button, action);
 	}
 }
 
@@ -86,14 +86,14 @@ GLUSvoid _glusOsInputKey(GLUSint key, GLUSint action)
 	}
 
 	// Are we trying to release an already released key?
-	if (action == GLFW_RELEASE && _keys[key] != GLFW_PRESS)
+	if (action == GLFW_RELEASE && g_keys[key] != GLFW_PRESS)
 	{
 		return;
 	}
 
-	_keys[key] = (char)action;
+	g_keys[key] = (char)action;
 
-	glusWindowInternalKey(key, action);
+	_glusWindowInternalKey(key, action);
 }
 
 GLUSint _glusTranslateKey(WPARAM wParam, LPARAM lParam)
@@ -366,17 +366,17 @@ GLUSint _glusTranslateKey(WPARAM wParam, LPARAM lParam)
 // Now, own code
 //
 
-static HDC _nativeDisplay = EGL_DEFAULT_DISPLAY;
+static HDC g_nativeDisplay = EGL_DEFAULT_DISPLAY;
 
-static HWND _nativeWindow = 0;
+static HWND g_nativeWindow = 0;
 
-static GLUSint _width = -1;
+static GLUSint g_width = -1;
 
-static GLUSint _height = -1;
+static GLUSint g_height = -1;
 
-static GLUSint _wheelPos = 0;
+static GLUSint g_wheelPos = 0;
 
-static GLUSboolean _fullscreen = GLUS_FALSE;
+static GLUSboolean g_fullscreen = GLUS_FALSE;
 
 LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -390,10 +390,10 @@ LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPAR
 		}
 		case WM_SIZE:
 		{
-			_width = LOWORD(lParam);
-			_height = HIWORD(lParam);
+			g_width = LOWORD(lParam);
+			g_height = HIWORD(lParam);
 
-			glusWindowInternalReshape(_width, _height);
+			_glusWindowInternalReshape(g_width, g_height);
 
 			return 0;
 		}
@@ -404,7 +404,7 @@ LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPAR
 			mouseX = (GLUSint)((short)LOWORD(lParam));
 			mouseY = (GLUSint)((short)HIWORD(lParam));
 
-			glusWindowInternalMouseMove(mouseX, mouseY);
+			_glusWindowInternalMouseMove(mouseX, mouseY);
 
 			return 0;
 		}
@@ -412,9 +412,9 @@ LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPAR
 		{
 			GLUSint wheelDelta = (((int)wParam) >> 16) / WHEEL_DELTA;
 
-			_wheelPos += wheelDelta;
+			g_wheelPos += wheelDelta;
 
-			glusWindowInternalMouseWheel(_wheelPos);
+			_glusWindowInternalMouseWheel(g_wheelPos);
 
 			return 0;
 		}
@@ -488,7 +488,7 @@ GLUSvoid _glusOsPollEvents()
 	{
 		if (msg.message == WM_QUIT)
 		{
-			glusWindowInternalClose();
+			_glusWindowInternalClose();
 		}
 		else
 		{
@@ -499,7 +499,7 @@ GLUSvoid _glusOsPollEvents()
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
-	return _nativeDisplay;
+	return g_nativeDisplay;
 }
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
@@ -587,34 +587,34 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 	}
 	//
 
-	_nativeWindow = CreateWindowEx(dwExStyle, "GLES3", title, dwStyle, wRect.left, wRect.top, fullWidth, fullHeight, NULL, NULL, hInstance, NULL);
+	g_nativeWindow = CreateWindowEx(dwExStyle, "GLES3", title, dwStyle, wRect.left, wRect.top, fullWidth, fullHeight, NULL, NULL, hInstance, NULL);
 
-	ShowWindow(_nativeWindow, SW_SHOW);
-	SetForegroundWindow(_nativeWindow);
-	SetFocus(_nativeWindow);
+	ShowWindow(g_nativeWindow, SW_SHOW);
+	SetForegroundWindow(g_nativeWindow);
+	SetFocus(g_nativeWindow);
 
-	_fullscreen = fullscreen;
+	g_fullscreen = fullscreen;
 
-	_width = width;
-	_height = height;
+	g_width = width;
+	g_height = height;
 
-	return _nativeWindow;
+	return g_nativeWindow;
 }
 
 GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
-	if (_nativeWindow)
+	if (g_nativeWindow)
 	{
-		DestroyWindow(_nativeWindow);
+		DestroyWindow(g_nativeWindow);
 
-		_nativeWindow = 0;
+		g_nativeWindow = 0;
 	}
 
-	if (_fullscreen)
+	if (g_fullscreen)
 	{
 		ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
 
-		_fullscreen = GLUS_FALSE;
+		g_fullscreen = GLUS_FALSE;
 	}
 }
 
@@ -638,11 +638,11 @@ GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{
-		*width = _width;
+		*width = g_width;
 	}
 
 	if (height)
 	{
-		*height = _height;
+		*height = g_height;
 	}
 }

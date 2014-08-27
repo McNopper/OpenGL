@@ -121,7 +121,7 @@ static GLUSfloat glusWindowGetElapsedTime(GLUSvoid)
 	return currentTime - lastTime;
 }
 
-GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height)
+GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height)
 {
 	if (width < 1)
 	{
@@ -138,14 +138,14 @@ GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height)
 	}
 }
 
-GLUSint glusWindowInternalClose(void)
+GLUSint _glusWindowInternalClose(void)
 {
 	g_done = GLUS_TRUE;
 
 	return 0;
 }
 
-GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state)
+GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state)
 {
 	if (state == GLFW_RELEASE)
 	{
@@ -170,7 +170,7 @@ GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state)
 	}
 }
 
-GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action)
+GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action)
 {
 	GLUSint usedButton = 0;
 
@@ -202,7 +202,7 @@ GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action)
 	}
 }
 
-GLUSvoid glusWindowInternalMouseWheel(GLUSint pos)
+GLUSvoid _glusWindowInternalMouseWheel(GLUSint pos)
 {
 	if (glusMouseWheel)
 	{
@@ -210,7 +210,7 @@ GLUSvoid glusWindowInternalMouseWheel(GLUSint pos)
 	}
 }
 
-GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y)
+GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y)
 {
 	g_mouseX = x;
 	g_mouseY = y;

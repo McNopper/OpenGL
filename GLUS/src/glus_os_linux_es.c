@@ -25,24 +25,24 @@
 
 #include "GL/glus.h"
 
-extern GLUSvoid glusWindowInternalReshape(GLUSint width, GLUSint height);
+extern GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height);
 
-extern GLUSint glusWindowInternalClose(GLUSvoid);
+extern GLUSint _glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
-extern GLUSvoid glusWindowInternalMouse(GLUSint button, GLUSint action);
+extern GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action);
 
-extern GLUSvoid glusWindowInternalMouseWheel(GLUSint pos);
+extern GLUSvoid _glusWindowInternalMouseWheel(GLUSint pos);
 
-extern GLUSvoid glusWindowInternalMouseMove(GLUSint x, GLUSint y);
+extern GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
-static Display* _nativeDisplay = 0;
-static Window _nativeWindow = 0;
-static Atom _deleteMessage;
+static Display* g_nativeDisplay = 0;
+static Window g_nativeWindow = 0;
+static Atom g_deleteMessage;
 
-static Rotation _oldRotation;
-static SizeID _oldSizeID;
+static Rotation g_oldRotation;
+static SizeID g_oldSizeID;
 
 //
 // Please note: The following lines are taken from GLFW. Some lines are modified for adapting to GLUS.
@@ -78,13 +78,13 @@ static SizeID _oldSizeID;
 //
 //========================================================================
 
-static char _keys[GLFW_KEY_LAST + 1];
+static char g_keys[GLFW_KEY_LAST + 1];
 
 GLUSvoid _glusInputMouseClick(GLUSint button, GLUSint action)
 {
 	if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
 	{
-		glusWindowInternalMouse(button, action);
+		_glusWindowInternalMouse(button, action);
 	}
 }
 
@@ -96,14 +96,14 @@ GLUSvoid _glusInputKey(GLUSint key, GLUSint action)
 	}
 
 	// Are we trying to release an already released key?
-	if (action == GLFW_RELEASE && _keys[key] != GLFW_PRESS)
+	if (action == GLFW_RELEASE && g_keys[key] != GLFW_PRESS)
 	{
 		return;
 	}
 
-	_keys[key] = (char)action;
+	g_keys[key] = (char)action;
 
-	glusWindowInternalKey(key, action);
+	_glusWindowInternalKey(key, action);
 }
 
 GLUSint _glusTranslateKey(int keycode)
@@ -113,7 +113,7 @@ GLUSint _glusTranslateKey(int keycode)
 	// Try secondary keysym, for numeric keypad keys
 	// Note: This way we always force "NumLock = ON", which at least
 	// enables GLFW users to detect numeric keypad keys
-	key = XKeycodeToKeysym(_nativeDisplay, keycode, 1);
+	key = XKeycodeToKeysym(g_nativeDisplay, keycode, 1);
 	switch (key)
 	{
 		// Numeric keypad
@@ -149,7 +149,7 @@ GLUSint _glusTranslateKey(int keycode)
 	}
 
 	// Now try pimary keysym
-	key = XKeycodeToKeysym(_nativeDisplay, keycode, 0);
+	key = XKeycodeToKeysym(g_nativeDisplay, keycode, 0);
 	switch (key)
 	{
 		// Special keys (non character keys)
@@ -305,15 +305,15 @@ GLUSint _glusTranslateKey(int keycode)
 // Now, own code
 //
 
-static GLUSint _width = -1;
+static GLUSint g_width = -1;
 
-static GLUSint _height = -1;
+static GLUSint g_height = -1;
 
-static GLUSint _wheelPos = 0;
+static GLUSint g_wheelPos = 0;
 
-static GLUSboolean _fullscreen = GLUS_FALSE;
+static GLUSboolean g_fullscreen = GLUS_FALSE;
 
-GLUSvoid _glusProcessWindow(const XEvent* msg)
+GLUSvoid _glusOsProcessWindow(const XEvent* msg)
 {
 	if (!msg)
 	{
@@ -355,28 +355,28 @@ GLUSvoid _glusProcessWindow(const XEvent* msg)
 					_glusInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
 				break;
 				case 4:
-					_wheelPos += 1;
+					g_wheelPos += 1;
 
-					glusWindowInternalMouseWheel(_wheelPos);
+					_glusWindowInternalMouseWheel(g_wheelPos);
 				break;
 				case 5:
-					_wheelPos -= 1;
+					g_wheelPos -= 1;
 
-					glusWindowInternalMouseWheel(_wheelPos);
+					_glusWindowInternalMouseWheel(g_wheelPos);
 				break;
 			}
 		break;
 		case MotionNotify:
-			glusWindowInternalMouseMove(msg->xmotion.x, msg->xmotion.y);
+			_glusWindowInternalMouseMove(msg->xmotion.x, msg->xmotion.y);
 		break;
 		case ConfigureNotify:
 
-			if (msg->xconfigure.width != _width || msg->xconfigure.height != _height)
+			if (msg->xconfigure.width != g_width || msg->xconfigure.height != g_height)
 			{
-				_width = msg->xconfigure.width;
-				_height = msg->xconfigure.height;
+				g_width = msg->xconfigure.width;
+				g_height = msg->xconfigure.height;
 
-				glusWindowInternalReshape(_width, _height);
+				_glusWindowInternalReshape(g_width, g_height);
 			}
 		break;
 	}
@@ -386,29 +386,29 @@ GLUSvoid _glusOsPollEvents()
 {
 	XEvent msg;
 
-	while (XPending(_nativeDisplay) > 0)
+	while (XPending(g_nativeDisplay) > 0)
 	{
-		XNextEvent(_nativeDisplay, &msg);
+		XNextEvent(g_nativeDisplay, &msg);
 
-		if (msg.type == ClientMessage && msg.xclient.data.l[0] == _deleteMessage)
+		if (msg.type == ClientMessage && msg.xclient.data.l[0] == g_deleteMessage)
 		{
-			glusWindowInternalClose();
+			_glusWindowInternalClose();
 		}
 		else
 		{
-			_glusProcessWindow(&msg);
+			_glusOsProcessWindow(&msg);
 		}
 	}
 }
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
-	if (!_nativeDisplay)
+	if (!g_nativeDisplay)
 	{
-		_nativeDisplay = XOpenDisplay(0);
+		g_nativeDisplay = XOpenDisplay(0);
 	}
 
-	return (EGLNativeDisplayType)_nativeDisplay;
+	return (EGLNativeDisplayType)g_nativeDisplay;
 }
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
@@ -420,7 +420,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 	Colormap colormap;
 	XSetWindowAttributes windowAttributes;
 
-	defaultScreen = DefaultScreen(_nativeDisplay);
+	defaultScreen = DefaultScreen(g_nativeDisplay);
 
 	if (fullscreen)
 	{
@@ -429,7 +429,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		XRRScreenSize *sizeList;
 		int i;
 
-		screenConfiguration = XRRGetScreenInfo(_nativeDisplay, RootWindow(_nativeDisplay, defaultScreen));
+		screenConfiguration = XRRGetScreenInfo(g_nativeDisplay, RootWindow(g_nativeDisplay, defaultScreen));
 
 		if (!screenConfiguration)
 		{
@@ -459,15 +459,15 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		}
 
 		// Store current configuration.
-		_oldSizeID = XRRConfigCurrentConfiguration(screenConfiguration, &_oldRotation);
+		g_oldSizeID = XRRConfigCurrentConfiguration(screenConfiguration, &g_oldRotation);
 
-		XRRSetScreenConfig(_nativeDisplay, screenConfiguration, RootWindow(_nativeDisplay, defaultScreen), i, RR_Rotate_0, CurrentTime);
+		XRRSetScreenConfig(g_nativeDisplay, screenConfiguration, RootWindow(g_nativeDisplay, defaultScreen), i, RR_Rotate_0, CurrentTime);
 
 		XRRFreeScreenConfigInfo(screenConfiguration);
 	}
 
 	visualInfoTemplate.visualid = nativeVisualID;
-	visualInfo = XGetVisualInfo(_nativeDisplay, VisualIDMask, &visualInfoTemplate, &numberOfVisuals);
+	visualInfo = XGetVisualInfo(g_nativeDisplay, VisualIDMask, &visualInfoTemplate, &numberOfVisuals);
 
 	if (!visualInfo)
 	{
@@ -476,22 +476,22 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		return 0;
 	}
 
-	colormap = XCreateColormap(_nativeDisplay, RootWindow(_nativeDisplay, defaultScreen), visualInfo->visual, AllocNone);
+	colormap = XCreateColormap(g_nativeDisplay, RootWindow(g_nativeDisplay, defaultScreen), visualInfo->visual, AllocNone);
 
 	windowAttributes.colormap = colormap;
 	windowAttributes.background_pixel = 0xFFFFFFFF;
 	windowAttributes.border_pixel = 0;
 	windowAttributes.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | ExposureMask;
 
-	_nativeWindow = XCreateWindow(_nativeDisplay, RootWindow(_nativeDisplay, defaultScreen), 0, 0, width, height, 0, visualInfo->depth, InputOutput, visualInfo->visual, CWBackPixel | CWBorderPixel | CWEventMask | CWColormap, &windowAttributes);
+	g_nativeWindow = XCreateWindow(g_nativeDisplay, RootWindow(g_nativeDisplay, defaultScreen), 0, 0, width, height, 0, visualInfo->depth, InputOutput, visualInfo->visual, CWBackPixel | CWBorderPixel | CWEventMask | CWColormap, &windowAttributes);
 
-	XSetStandardProperties(_nativeDisplay, _nativeWindow, title, "", 0, 0, 0, 0);
-	XMapWindow(_nativeDisplay, _nativeWindow);
-	XSetWMColormapWindows(_nativeDisplay, _nativeWindow, &_nativeWindow, 1);
-	XFlush(_nativeDisplay);
+	XSetStandardProperties(g_nativeDisplay, g_nativeWindow, title, "", 0, 0, 0, 0);
+	XMapWindow(g_nativeDisplay, g_nativeWindow);
+	XSetWMColormapWindows(g_nativeDisplay, g_nativeWindow, &g_nativeWindow, 1);
+	XFlush(g_nativeDisplay);
 
-	_deleteMessage = XInternAtom(_nativeDisplay, "WM_DELETE_WINDOW", False);
-	XSetWMProtocols(_nativeDisplay, _nativeWindow, &_deleteMessage, 1);
+	g_deleteMessage = XInternAtom(g_nativeDisplay, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(g_nativeDisplay, g_nativeWindow, &g_deleteMessage, 1);
 
 	if (noResize)
 	{
@@ -499,7 +499,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		sizeHints->flags |= (PMinSize | PMaxSize);
 		sizeHints->min_width = sizeHints->max_width = width;
 		sizeHints->min_height = sizeHints->max_height = height;
-		XSetWMNormalHints(_nativeDisplay, _nativeWindow, sizeHints);
+		XSetWMNormalHints(g_nativeDisplay, g_nativeWindow, sizeHints);
 		XFree(sizeHints);
 	}
 
@@ -507,61 +507,61 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 	{
 		XEvent xev;
 
-		Atom stateFullscreenMessage = XInternAtom(_nativeDisplay, "_NET_WM_STATE_FULLSCREEN", False);
-		Atom stateMessage = XInternAtom(_nativeDisplay, "_NET_WM_STATE", False);
+		Atom stateFullscreenMessage = XInternAtom(g_nativeDisplay, "_NET_WM_STATEg_fullscreen", False);
+		Atom stateMessage = XInternAtom(g_nativeDisplay, "_NET_WM_STATE", False);
 
 		memset(&xev, 0, sizeof(xev));
 		xev.type = ClientMessage;
-		xev.xclient.window = _nativeWindow;
+		xev.xclient.window = g_nativeWindow;
 		xev.xclient.message_type = stateMessage;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = 1;
 		xev.xclient.data.l[1] = stateFullscreenMessage;
 		xev.xclient.data.l[2] = 0;
 
-		XSendEvent(_nativeDisplay, DefaultRootWindow(_nativeDisplay), False, SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+		XSendEvent(g_nativeDisplay, DefaultRootWindow(g_nativeDisplay), False, SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 	}
 
-	_fullscreen = fullscreen;
+	g_fullscreen = fullscreen;
 
-	_width = width;
-	_height = height;
+	g_width = width;
+	g_height = height;
 
-	return _nativeWindow;
+	return g_nativeWindow;
 }
 
 GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
-	if (_nativeDisplay && _fullscreen)
+	if (g_nativeDisplay && g_fullscreen)
 	{
 		long defaultScreen;
 		XRRScreenConfiguration* screenConfiguration;
 
-		defaultScreen = DefaultScreen(_nativeDisplay);
-		screenConfiguration = XRRGetScreenInfo(_nativeDisplay, RootWindow(_nativeDisplay, defaultScreen));
+		defaultScreen = DefaultScreen(g_nativeDisplay);
+		screenConfiguration = XRRGetScreenInfo(g_nativeDisplay, RootWindow(g_nativeDisplay, defaultScreen));
 
 		if (screenConfiguration)
 		{
-			XRRSetScreenConfig(_nativeDisplay, screenConfiguration, RootWindow(_nativeDisplay, defaultScreen), _oldSizeID, _oldRotation, CurrentTime);
+			XRRSetScreenConfig(g_nativeDisplay, screenConfiguration, RootWindow(g_nativeDisplay, defaultScreen), g_oldSizeID, g_oldRotation, CurrentTime);
 
 			XRRFreeScreenConfigInfo(screenConfiguration);
 		}
 
-		_fullscreen = GLUS_FALSE;
+		g_fullscreen = GLUS_FALSE;
 	}
 
-	if (_nativeDisplay && _nativeWindow)
+	if (g_nativeDisplay && g_nativeWindow)
 	{
-		XDestroyWindow(_nativeDisplay, _nativeWindow);
+		XDestroyWindow(g_nativeDisplay, g_nativeWindow);
 
-		_nativeWindow = 0;
+		g_nativeWindow = 0;
 	}
 
-	if (_nativeDisplay)
+	if (g_nativeDisplay)
 	{
-		XCloseDisplay(_nativeDisplay);
+		XCloseDisplay(g_nativeDisplay);
 
-		_nativeDisplay = 0;
+		g_nativeDisplay = 0;
 	}
 }
 
@@ -578,11 +578,11 @@ GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{
-		*width = _width;
+		*width = g_width;
 	}
 
 	if (height)
 	{
-		*height = _height;
+		*height = g_height;
 	}
 }

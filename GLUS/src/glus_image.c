@@ -17,44 +17,7 @@
 
 #include "GL/glus.h"
 
-GLUSboolean glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
-{
-	if (!f)
-	{
-		return GLUS_FALSE;
-	}
-
-	if (actualRead < expectedRead)
-	{
-		fclose(f);
-
-		return GLUS_FALSE;
-	}
-
-	return GLUS_TRUE;
-}
-
-GLUSboolean glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite)
-{
-	if (!f)
-	{
-		return GLUS_FALSE;
-	}
-
-	if (actualWrite < expectedWrite)
-	{
-		if (ferror(f))
-		{
-			fclose(f);
-
-			return GLUS_FALSE;
-		}
-	}
-
-	return GLUS_TRUE;
-}
-
-GLUSvoid glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride)
+GLUSvoid _glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride)
 {
 	GLUSfloat pixelTexCoord[2];
 	GLUSfloat pixelTexCoordCenter[2];

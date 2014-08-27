@@ -28,9 +28,9 @@
 
 #include <linux/input.h>
 
-extern GLUSint glusWindowInternalClose(GLUSvoid);
+extern GLUSint _glusWindowInternalClose(GLUSvoid);
 
-extern GLUSvoid glusWindowInternalKey(GLUSint key, GLUSint state);
+extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
 // Map, if possible, to GLFW keys
 
@@ -261,15 +261,15 @@ static int glusOsTranslateKey(int key)
 
 //
 
-static EGLNativeDisplayType _nativeDisplay = 0;
+static EGLNativeDisplayType g_nativeDisplay = 0;
 
-static EGLNativeWindowType _nativeWindow = 0;
+static EGLNativeWindowType g_nativeWindow = 0;
 
-static GLUSint _width = -1;
+static GLUSint g_width = -1;
 
-static GLUSint _height = -1;
+static GLUSint g_height = -1;
 
-static int _keyFileDescriptor = -1;
+static int g_keyFileDescriptor = -1;
 
 GLUSvoid _glusOsPollEvents()
 {
@@ -278,9 +278,9 @@ GLUSvoid _glusOsPollEvents()
 
 	struct input_event keyEvent;
 
-	if (_keyFileDescriptor >= 0)
+	if (g_keyFileDescriptor >= 0)
 	{
-		ssize_t numBytes = read(_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
+		ssize_t numBytes = read(g_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
 
 		if (numBytes <= 0 || keyEvent.type != EV_KEY)
 		{
@@ -294,7 +294,7 @@ GLUSvoid _glusOsPollEvents()
 				// CTRL-C
 				if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
 				{
-					glusWindowInternalClose();
+					_glusWindowInternalClose();
 
 					return;
 				}
@@ -308,7 +308,7 @@ GLUSvoid _glusOsPollEvents()
 					RIGHT_CTRL = GLUS_TRUE;
 				}
 
-				glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_PRESS);
+				_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_PRESS);
 			}
 			break;
 
@@ -323,7 +323,7 @@ GLUSvoid _glusOsPollEvents()
 					RIGHT_CTRL = GLUS_FALSE;
 				}
 
-				glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_RELEASE);
+				_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_RELEASE);
 			}
 			break;
 		}
@@ -332,21 +332,21 @@ GLUSvoid _glusOsPollEvents()
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
-	if (_nativeDisplay != 0)
+	if (g_nativeDisplay != 0)
 	{
-		return _nativeDisplay;
+		return g_nativeDisplay;
 	}
 
-	_nativeDisplay = fbGetDisplayByIndex(0);
+	g_nativeDisplay = fbGetDisplayByIndex(0);
 
-	if (_nativeDisplay == 0)
+	if (g_nativeDisplay == 0)
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not get native display");
 
 		return 0;
 	}
 
-	return _nativeDisplay;
+	return g_nativeDisplay;
 }
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
@@ -355,49 +355,49 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 	glusLogPrint(GLUS_LOG_INFO, "Key events are mapped to US keyboard");
 	glusLogPrint(GLUS_LOG_INFO, "Mouse events are not supported");
 
-	_keyFileDescriptor = open("/dev/input/event1", O_RDONLY | O_NONBLOCK);
+	g_keyFileDescriptor = open("/dev/input/event1", O_RDONLY | O_NONBLOCK);
 
-	if (_keyFileDescriptor < 0)
+	if (g_keyFileDescriptor < 0)
 	{
 		glusLogPrint(GLUS_LOG_WARNING, "Could not open key input device");
 	}
 
-	_nativeWindow = fbCreateWindow(_nativeDisplay, 0, 0, width, height);
+	g_nativeWindow = fbCreateWindow(g_nativeDisplay, 0, 0, width, height);
 
-	if (_nativeWindow == 0)
+	if (g_nativeWindow == 0)
 	{
 		glusLogPrint(GLUS_LOG_ERROR, "Could not create native window");
 
 		return 0;
 	}
 
-	_width = width;
-	_height = height;
+	g_width = width;
+	g_height = height;
 
-	return _nativeWindow;
+	return g_nativeWindow;
 }
 
 GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
-	if (_nativeWindow)
+	if (g_nativeWindow)
 	{
-		fbDestroyWindow(_nativeWindow);
+		fbDestroyWindow(g_nativeWindow);
 
-		_nativeWindow = 0;
+		g_nativeWindow = 0;
 	}
 
-	if (_nativeDisplay)
+	if (g_nativeDisplay)
 	{
-		fbDestroyDisplay(_nativeDisplay);
+		fbDestroyDisplay(g_nativeDisplay);
 
-		_nativeDisplay = 0;
+		g_nativeDisplay = 0;
 	}
 
-	if (_keyFileDescriptor >= 0)
+	if (g_keyFileDescriptor >= 0)
 	{
-		close(_keyFileDescriptor);
+		close(g_keyFileDescriptor);
 
-		_keyFileDescriptor = -1;
+		g_keyFileDescriptor = -1;
 	}
 }
 
@@ -414,11 +414,11 @@ GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
 	if (width)
 	{
-		*width = _width;
+		*width = g_width;
 	}
 
 	if (height)
 	{
-		*height = _height;
+		*height = g_height;
 	}
 }

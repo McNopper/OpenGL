@@ -104,7 +104,7 @@ static GLUSfloat glusWindowGetElapsedTime(GLUSvoid)
 	return currentTime - lastTime;
 }
 
-static GLUSvoid glusWindowInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
+GLUSvoid _glusWindowInternalReshape(GLFWwindow* window, GLUSint width, GLUSint height)
 {
 	if (width < 1)
 	{
@@ -121,12 +121,12 @@ static GLUSvoid glusWindowInternalReshape(GLFWwindow* window, GLUSint width, GLU
 	}
 }
 
-static GLUSvoid glusWindowInternalClose(GLFWwindow* window)
+GLUSvoid _glusWindowInternalClose(GLFWwindow* window)
 {
 	glfwSetWindowShouldClose(window, GLUS_TRUE);
 }
 
-static GLUSvoid glusWindowInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
+GLUSvoid _glusWindowInternalKey(GLFWwindow* window, GLUSint key, GLUSint scancode, GLUSint action, GLUSint mods)
 {
 	if (action == GLFW_RELEASE)
 	{
@@ -151,7 +151,7 @@ static GLUSvoid glusWindowInternalKey(GLFWwindow* window, GLUSint key, GLUSint s
 	}
 }
 
-static GLUSvoid glusWindowInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
+GLUSvoid _glusWindowInternalMouse(GLFWwindow* window, GLUSint button, GLUSint action, GLUSint mods)
 {
 	GLUSint usedButton = 0;
 
@@ -183,7 +183,7 @@ static GLUSvoid glusWindowInternalMouse(GLFWwindow* window, GLUSint button, GLUS
 	}
 }
 
-static GLUSvoid glusWindowInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
+GLUSvoid _glusWindowInternalMouseWheel(GLFWwindow* window, double xpos, double ypos)
 {
 	static GLUSint wheelPos = 0;
 
@@ -195,7 +195,7 @@ static GLUSvoid glusWindowInternalMouseWheel(GLFWwindow* window, double xpos, do
 	}
 }
 
-static GLUSvoid glusWindowInternalMouseMove(GLFWwindow* window, double x, double y)
+GLUSvoid _glusWindowInternalMouseMove(GLFWwindow* window, double x, double y)
 {
 	g_mouseX = (GLUSint)x;
 	g_mouseY = (GLUSint)y;
@@ -206,7 +206,7 @@ static GLUSvoid glusWindowInternalMouseMove(GLFWwindow* window, double x, double
 	}
 }
 
-static GLUSvoid GLUSAPIENTRY glusWindowInternalDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, const GLUSvoid* userParam)
+static GLUSvoid GLUSAPIENTRY glusWindowDebugMessage(GLUSenum source, GLUSenum type, GLUSuint id, GLUSenum severity, GLUSsizei length, const GLUSchar* message, const GLUSvoid* userParam)
 {
 	glusLogPrint(GLUS_LOG_DEBUG, "source: 0x%04X type: 0x%04X id: %u severity: 0x%04X '%s'", source, type, id, severity, message);
 }
@@ -555,12 +555,12 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
-	glfwSetWindowSizeCallback(g_window, glusWindowInternalReshape);
-	glfwSetWindowCloseCallback(g_window, glusWindowInternalClose);
-	glfwSetKeyCallback(g_window, glusWindowInternalKey);
-	glfwSetMouseButtonCallback(g_window, glusWindowInternalMouse);
-	glfwSetScrollCallback(g_window, glusWindowInternalMouseWheel);
-	glfwSetCursorPosCallback(g_window, glusWindowInternalMouseMove);
+	glfwSetWindowSizeCallback(g_window, _glusWindowInternalReshape);
+	glfwSetWindowCloseCallback(g_window, _glusWindowInternalClose);
+	glfwSetKeyCallback(g_window, _glusWindowInternalKey);
+	glfwSetMouseButtonCallback(g_window, _glusWindowInternalMouse);
+	glfwSetScrollCallback(g_window, _glusWindowInternalMouseWheel);
+	glfwSetCursorPosCallback(g_window, _glusWindowInternalMouseMove);
 
 	glfwGetWindowSize(g_window, &g_width, &g_height);
 
@@ -568,7 +568,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 	{
 		glusLogSetLevel(GLUS_LOG_DEBUG);
 
-		glDebugMessageCallback(&glusWindowInternalDebugMessage, 0);
+		glDebugMessageCallback(&glusWindowDebugMessage, 0);
 	}
 
 	return GLUS_TRUE; // Success
