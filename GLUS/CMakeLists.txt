@@ -155,21 +155,21 @@ IF(${OpenGL} MATCHES "ES")
 		IF(${SoC} MATCHES "iMX6")			
 			# i.MX6
 			
-			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_raspberrypi_es.c)
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_raspberrypi_es.c)
 			
 		ELSE()
 			# Raspberry Pi
 		
-			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_imx6_es.c)
+			list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_imx6_es.c)
 			
 		ENDIF()
 		
 	ELSE()
 		# Windows simulation
 	
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_raspberrypi_es.c)		
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_raspberrypi_es.c)		
 		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_es.c)
-		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_imx6_es.c)
+		list(REMOVE_ITEM C_FILES ${GLUS_SOURCE_DIR}/src/glus_os_linux_imx6_es.c)
 		
 	ENDIF()	
 	

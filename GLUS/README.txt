@@ -63,5 +63,6 @@ Yours Norbert Nopper
 Changelog:
 
 27.08.2014 - Cleaning up and refactoring code inside GLUS 2.0 draft version. No interface changes.
+		   - Renamed files for Raspberry Pi and i.MX6.
 
 26.08.2014 - Draft version of GLUS 2.0.
