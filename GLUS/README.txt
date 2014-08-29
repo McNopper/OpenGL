@@ -1,13 +1,17 @@
 GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities:
 -----------------------------------------------------
 
-How to build GLUS:
+How to build GLUS and the examples:
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
-   For building with Visual C++ 2012, CMake and the Windows SDK 8.1 are needed. 
+   For building with Visual C++ 2013, CMake and the Windows SDK 8.1 are needed. 
 2. Import GLUS as an existing project.
 3. Set the build configuration in Eclipse to your operating system.
 4. Build GLUS.
+5. Import an example as an existing project.
+6. Set the build configuration of the example in Eclipse to your operating system.
+7. Build the example.
+8. The executable is located in the Binaries or VG_Binaries folder.
 
 If you get build errors:
 
@@ -17,6 +21,10 @@ If you get build errors:
 - Libraries for the i.MX6 platform are not included.
 - Libraries for OpenGL ES and OpenVG are not included.
 
+SDKs and Libraries:
+
+- GLEW 1.11.0 http://glew.sourceforge.net/
+- GLFW 3.0.4 http://www.glfw.org/
 
 OpenGL ES SDKs and Libraries:
 
@@ -61,6 +69,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+29.08.2014 - Reorganisation and improvement of READMEs.
 
 27.08.2014 - Cleaning up and refactoring code inside GLUS 2.0 draft version. No interface changes.
 		   - Renamed files for Raspberry Pi and i.MX6.
