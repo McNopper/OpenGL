@@ -5,8 +5,11 @@ layout (binding = 0) uniform sampler2D u_colorTexture;
 uniform vec2 u_texelStep;
 uniform int u_showEdges;
 uniform int u_fxaaOn;
-uniform float u_lumaScale;
-uniform float u_samplingScale;
+
+uniform float u_lumaThreshold;
+uniform float u_mulReduce;
+uniform float u_minReduce;
+uniform float u_maxSpan;
 
 in vec2 v_texCoord;
 
@@ -49,8 +52,8 @@ void main(void)
 	float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
 	float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
 	
-	// If contrast is lower than a threshold ...
-	if (lumaMax - lumaMin < lumaMax * u_lumaScale)
+	// If contrast is lower than a maximum threshold ...
+	if (lumaMax - lumaMin < lumaMax * u_lumaThreshold)
 	{
 		// ... do no AA and return.
 		fragColor = vec4(rgbM, 1.0);
@@ -58,23 +61,30 @@ void main(void)
 		return;
 	}  
 	
-	// Sampling is done orthogonal to the gradient of the sampled pixel - so sampling happens along the edge/tab.
+	// Sampling is done along the gradient.
 	vec2 samplingDirection;	
 	samplingDirection.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
     samplingDirection.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
     
-    // Calculate sampling direction depending on the texture size and the current sampling scale.
-    samplingDirection = normalize(samplingDirection) * u_texelStep * u_samplingScale;
+    // Sampling step distance depends on the luma: The brighter the sampled texels, the smaller the final sampling step direction.
+    // This results, that brighter areas are less blurred/more sharper than dark areas.  
+    float samplingDirectionReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * 0.25 * u_mulReduce, u_minReduce);
+
+	// Factor for norming the sampling direction plus adding the brightness influence. 
+	float minSamplingDirectionFactor = 1.0 / (min(abs(samplingDirection.x), abs(samplingDirection.y)) + samplingDirectionReduce);
+    
+    // Calculate final sampling direction vector by reducing, clamping to a range and finally adapting to the texture size. 
+    samplingDirection = clamp(samplingDirection * minSamplingDirectionFactor, vec2(-u_maxSpan, -u_maxSpan), vec2(u_maxSpan, u_maxSpan)) * u_texelStep;
 	
 	// Inner samples on the tab.
-	vec3 rgbSamplePos = texture(u_colorTexture, v_texCoord + samplingDirection).rgb;
-	vec3 rgbSampleNeg = texture(u_colorTexture, v_texCoord - samplingDirection).rgb;
+	vec3 rgbSampleNeg = texture(u_colorTexture, v_texCoord + samplingDirection * (1.0/3.0 - 0.5)).rgb;
+	vec3 rgbSamplePos = texture(u_colorTexture, v_texCoord + samplingDirection * (2.0/3.0 - 0.5)).rgb;
 
 	vec3 rgbTwoTab = (rgbSamplePos + rgbSampleNeg) * 0.5;  
 
 	// Outer samples on the tab.
-	vec3 rgbSamplePosOuter = texture(u_colorTexture, v_texCoord + samplingDirection * 2.0).rgb;
-	vec3 rgbSampleNegOuter = texture(u_colorTexture, v_texCoord - samplingDirection * 2.0).rgb;
+	vec3 rgbSampleNegOuter = texture(u_colorTexture, v_texCoord + samplingDirection * (0.0/3.0 - 0.5)).rgb;
+	vec3 rgbSamplePosOuter = texture(u_colorTexture, v_texCoord + samplingDirection * (3.0/3.0 - 0.5)).rgb;
 	
 	vec3 rgbFourTab = (rgbSamplePosOuter + rgbSampleNegOuter) * 0.25 + rgbTwoTab * 0.5;   
 	

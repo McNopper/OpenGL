@@ -14,8 +14,9 @@
 
 #include "wavefront.h"
 
-// The maximum amount of texels sampled on the edge/tab.
-#define MAX_TEXELS 8.0f
+#define MAX_MUL_REDUCE_RECIPROCAL 256.0f
+#define MAX_MIN_REDUCE_RECIPROCAL 512.0f
+#define MAX_MAX_SPAN 16.0f
 
 static GLfloat g_viewMatrix[16];
 
@@ -26,8 +27,11 @@ static GLUSprogram g_program;
 static GLint g_texelStepLocation;
 static GLint g_showEdgesLocation;
 static GLint g_fxaaOnLocation;
-static GLint g_lumaScaleLocation;
-static GLint g_samplingScaleLocation;
+
+static GLint g_lumaThresholdLocation;
+static GLint g_mulReduceLocation;
+static GLint g_minReduceLocation;
+static GLint g_maxSpanLocation;
 
 //
 
@@ -53,8 +57,11 @@ static GLboolean g_animationOn = GL_FALSE;
 
 static GLint g_showEdges = 0;
 static GLint g_fxaaOn = 1;
-static GLfloat g_lumaScale = 0.5f;
-static GLfloat g_samplingScale = 0.5f;
+
+static GLfloat g_lumaThreshold = 0.5f;
+static GLfloat g_mulReduceReciprocal = 8.0f;
+static GLfloat g_minReduceReciprocal = 128.0f;
+static GLfloat g_maxSpan = 8.0f;
 
 GLUSboolean init(GLUSvoid)
 {
@@ -85,8 +92,11 @@ GLUSboolean init(GLUSvoid)
     g_texelStepLocation = glGetUniformLocation(g_program.program, "u_texelStep");
     g_showEdgesLocation = glGetUniformLocation(g_program.program, "u_showEdges");
     g_fxaaOnLocation = glGetUniformLocation(g_program.program, "u_fxaaOn");
-    g_lumaScaleLocation = glGetUniformLocation(g_program.program, "u_lumaScale");
-    g_samplingScaleLocation = glGetUniformLocation(g_program.program, "u_samplingScale");
+
+    g_lumaThresholdLocation = glGetUniformLocation(g_program.program, "u_lumaThreshold");
+    g_mulReduceLocation = glGetUniformLocation(g_program.program, "u_mulReduce");
+    g_minReduceLocation = glGetUniformLocation(g_program.program, "u_minReduce");
+    g_maxSpanLocation = glGetUniformLocation(g_program.program, "u_maxSpan");
 
     //
     // Setting up the offscreen frame buffer.
@@ -211,8 +221,11 @@ GLUSboolean update(GLUSfloat time)
 
     glUniform1i(g_showEdgesLocation, g_showEdges);
     glUniform1i(g_fxaaOnLocation, g_fxaaOn);
-    glUniform1f(g_lumaScaleLocation, g_lumaScale);
-    glUniform1f(g_samplingScaleLocation, g_samplingScale);
+
+    glUniform1f(g_lumaThresholdLocation, g_lumaThreshold);
+    glUniform1f(g_mulReduceLocation, 1.0f / g_mulReduceReciprocal);
+    glUniform1f(g_minReduceLocation, 1.0f / g_minReduceReciprocal);
+    glUniform1f(g_maxSpanLocation, g_maxSpan);
 
     glBindVertexArray(g_vao);
 
@@ -282,19 +295,35 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 	{
 		if (key == '1')
 		{
-			g_lumaScale -= 0.05f;
+			g_lumaThreshold -= 0.05f;
 		}
 		else if (key == '2')
 		{
-			g_lumaScale += 0.05f;
+			g_lumaThreshold += 0.05f;
 		}
 		else if (key == '3')
 		{
-			g_samplingScale -= 0.05f;
+			g_mulReduceReciprocal /= 2.0f;
 		}
 		else if (key == '4')
 		{
-			g_samplingScale += 0.05f;
+			g_mulReduceReciprocal *= 2.0f;
+		}
+		else if (key == '5')
+		{
+			g_minReduceReciprocal /= 2.0f;
+		}
+		else if (key == '6')
+		{
+			g_minReduceReciprocal *= 2.0f;
+		}
+		else if (key == '7')
+		{
+			g_maxSpan -= 1.0f;
+		}
+		else if (key == '8')
+		{
+			g_maxSpan += 1.0f;
 		}
 		else if (key == 'a')
 		{
@@ -309,9 +338,13 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 			g_fxaaOn = !g_fxaaOn;
 		}
 
-		g_lumaScale = glusMathClampf(g_lumaScale, 0.0f, 1.0f);
-		// Divided by two, as the outer samples of the tab are multiplied by two.
-		g_samplingScale = glusMathClampf(g_samplingScale, 0.0f, MAX_TEXELS / 2.0f);
+		g_lumaThreshold = glusMathClampf(g_lumaThreshold, 0.0f, 1.0f);
+
+		g_mulReduceReciprocal = glusMathClampf(g_mulReduceReciprocal, 1.0f, MAX_MUL_REDUCE_RECIPROCAL);
+
+		g_minReduceReciprocal = glusMathClampf(g_minReduceReciprocal, 1.0f, MAX_MIN_REDUCE_RECIPROCAL);
+
+		g_maxSpan = glusMathClampf(g_maxSpan, 1.0f, MAX_MAX_SPAN);
 	}
 }
 
@@ -357,10 +390,14 @@ int main(int argc, char* argv[])
 
     // Print out the keys
     printf("Keys:\n");
-    printf("1       = Decrease luma scale\n");
-    printf("2       = Increase luma scale\n");
-    printf("3       = Decrease sampling scale\n");
-    printf("4       = Increase sampling scale\n");
+    printf("1       = Decrease luma threshold\n");
+    printf("2       = Increase luma threshold\n");
+    printf("3       = Decrease multiplication reduce\n");
+    printf("4       = Increase multiplication reduce\n");
+    printf("5       = Decrease minimum reduce\n");
+    printf("6       = Increase minimum reduce\n");
+    printf("7       = Decrease maximum span\n");
+    printf("8       = Increase maximum span\n");
     printf("a       = Animation on/off\n");
     printf("e       = Show edges on/off\n");
     printf("[Space]	= FXAA on/off\n");
