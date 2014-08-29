@@ -303,19 +303,19 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 		}
 		else if (key == '3')
 		{
-			g_mulReduceReciprocal /= 2.0f;
+			g_mulReduceReciprocal *= 2.0f;
 		}
 		else if (key == '4')
 		{
-			g_mulReduceReciprocal *= 2.0f;
+			g_mulReduceReciprocal /= 2.0f;
 		}
 		else if (key == '5')
 		{
-			g_minReduceReciprocal /= 2.0f;
+			g_minReduceReciprocal *= 2.0f;
 		}
 		else if (key == '6')
 		{
-			g_minReduceReciprocal *= 2.0f;
+			g_minReduceReciprocal /= 2.0f;
 		}
 		else if (key == '7')
 		{
