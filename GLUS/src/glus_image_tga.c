@@ -713,3 +713,195 @@ GLUSboolean GLUSAPIENTRY glusImageSampleTga2D(GLUSubyte rgba[4], const GLUStgaim
 
 	return GLUS_TRUE;
 }
+
+GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GLUStgaimage* sourceImage, const GLUSenum targetFormat)
+{
+	GLUSint targetNumberChannels = 1;
+	GLUSint sourceNumberChannels = 1;
+	GLUSint x, y, z, c;
+
+	GLUSubyte channels[4];
+
+	GLUSfloat toLuminace[3] = {0.299f, 0.587f, 0.114f};
+
+	if (!targetImage || !sourceImage)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (sourceImage->format != GLUS_RED && sourceImage->format != GLUS_ALPHA && sourceImage->format != GLUS_LUMINANCE && sourceImage->format != GLUS_RGB && sourceImage->format != GLUS_RGBA)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (targetFormat != GLUS_RED && targetFormat != GLUS_ALPHA && targetFormat != GLUS_LUMINANCE && targetFormat != GLUS_RGB && targetFormat != GLUS_RGBA)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (sourceImage->format == GLUS_RGB)
+	{
+		sourceNumberChannels = 3;
+	}
+	else if (sourceImage->format == GLUS_RGBA)
+	{
+		sourceNumberChannels = 4;
+	}
+
+	if (targetFormat == GLUS_RGB)
+	{
+		targetNumberChannels = 3;
+	}
+	else if (targetFormat == GLUS_RGBA)
+	{
+		targetNumberChannels = 4;
+	}
+
+	targetImage->data = (GLUSubyte*)glusMemoryMalloc(targetNumberChannels * sourceImage->width * sourceImage->height * sourceImage->depth * sizeof(GLUSubyte));
+
+	if (!targetImage->data)
+	{
+		return GLUS_FALSE;
+	}
+	targetImage->width = sourceImage->width;
+	targetImage->height = sourceImage->height;
+	targetImage->depth = sourceImage->depth;
+	targetImage->format = targetFormat;
+
+	for (z = 0; z < targetImage->depth; z++)
+	{
+		for (y = 0; y < targetImage->height; y++)
+		{
+			for (x = 0; x < targetImage->width; x++)
+			{
+				if (sourceImage->format == GLUS_RED)
+				{
+					if (targetImage->format == GLUS_RED || targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+
+						if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+						{
+							channels[1] = 0;
+							channels[2] = 0;
+
+							if (targetImage->format == GLUS_RGBA)
+							{
+								channels[3] = 255;
+							}
+						}
+					}
+					else if (targetImage->format == GLUS_ALPHA)
+					{
+						channels[0] = 255;
+					}
+					else if (targetImage->format == GLUS_LUMINANCE)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] * toLuminace[0];
+					}
+				}
+				else if (sourceImage->format == GLUS_ALPHA)
+				{
+					if (targetImage->format == GLUS_LUMINANCE || targetImage->format == GLUS_RED || targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+					{
+						channels[0] = 0;
+
+						if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+						{
+							channels[1] = 0;
+							channels[2] = 0;
+
+							if (targetImage->format == GLUS_RGBA)
+							{
+								channels[3] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+							}
+						}
+					}
+					else if (targetImage->format == GLUS_ALPHA)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+					}
+				}
+				else if (sourceImage->format == GLUS_LUMINANCE)
+				{
+					if (targetImage->format == GLUS_RED)
+					{
+						channels[0] = glusMathClampf(sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] / toLuminace[0], 0.0f, 1.0f);
+					}
+					else if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+						channels[1] = channels[0];
+						channels[2] = channels[0];
+
+						if (targetImage->format == GLUS_RGBA)
+						{
+							channels[3] = 255;
+						}
+					}
+					else if (targetImage->format == GLUS_ALPHA)
+					{
+						channels[0] = 255;
+					}
+					else if (targetImage->format == GLUS_LUMINANCE)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+					}
+				}
+				if (sourceImage->format == GLUS_RGB || sourceImage->format == GLUS_RGBA)
+				{
+					if (targetImage->format == GLUS_RED)
+					{
+						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0];
+					}
+					else if (targetImage->format == GLUS_ALPHA)
+					{
+						if (sourceImage->format == GLUS_RGB)
+						{
+							channels[0] = 255;
+						}
+						else if (sourceImage->format == GLUS_RGBA)
+						{
+							channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 3];
+						}
+					}
+					else if (targetImage->format == GLUS_LUMINANCE)
+					{
+						channels[0] = 0.0f;
+
+						for (c = 0; c < 3; c++)
+						{
+							channels[0] += sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + c] * toLuminace[c];
+						}
+					}
+					else if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
+					{
+						for (c = 0; c < 3; c++)
+						{
+							channels[c] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + c];
+						}
+
+						if (targetImage->format == GLUS_RGBA)
+						{
+							if (sourceImage->format == GLUS_RGBA)
+							{
+								channels[3] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 3];
+							}
+							else
+							{
+								channels[3] = 255;
+							}
+						}
+					}
+				}
+
+				for (c = 0; c < targetNumberChannels; c++)
+				{
+					targetImage->data[targetNumberChannels * z * targetImage->height * targetImage->width + targetNumberChannels * y * targetImage->width + targetNumberChannels * x + c] = channels[c];
+				}
+			}
+		}
+	}
+
+	return GLUS_TRUE;
+}

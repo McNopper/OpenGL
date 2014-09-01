@@ -70,4 +70,16 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusImageDestroyTga(GLUStgaimage* tgaimage);
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusImageSampleTga2D(GLUSubyte rgba[4], const GLUStgaimage* tgaimage, const GLUSfloat st[2]);
 
+/**
+ * Converts a TGA image into another color format.
+ * Source and target can not be the same.
+ *
+ * @param targetImage  The TGA image structure, containing the converted image.
+ * @param sourceImage  The TGA image structure, which will be converted.
+ * @param targetFormat The target format of the image.
+ *
+ * @return GLUS_TRUE, if conversion succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GLUStgaimage* sourceImage, const GLUSenum targetFormat);
+
 #endif /* GLUS_IMAGE_TGA_H_ */
