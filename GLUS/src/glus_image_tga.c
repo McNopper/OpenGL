@@ -720,7 +720,7 @@ GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GL
 	GLUSint sourceNumberChannels = 1;
 	GLUSint x, y, z, c;
 
-	GLUSubyte channels[4];
+	GLUSubyte channels[4] = {0, 0, 0, 255};
 
 	GLUSfloat toLuminace[3] = {0.299f, 0.587f, 0.114f};
 
