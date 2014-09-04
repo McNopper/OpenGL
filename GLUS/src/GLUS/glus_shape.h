@@ -71,8 +71,8 @@ typedef struct _GLUSshape
     /**
      * Triangle render mode - could be either:
      *
-     * GL_TRIANGLES
-     * GL_TRIANGLE_STRIP
+     * GLUS_TRIANGLES
+     * GLUS_TRIANGLE_STRIP
      */
     GLUSenum mode;
 

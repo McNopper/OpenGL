@@ -17,7 +17,26 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot)
+GLUSboolean GLUSAPIENTRY glusScreenshotUseTga(GLUSint x, GLUSint y, const GLUStgaimage* screenshot)
+{
+	if (!screenshot)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (x < 0 || y < 0 || screenshot->width < 1 || screenshot->height < 1 || screenshot->depth != 1 || screenshot->format != GLUS_RGBA)
+	{
+		return GLUS_FALSE;
+	}
+
+	vgFlush();
+
+	vgReadPixels(screenshot->data, screenshot->width * 4 * sizeof(GLUSubyte),  VG_sABGR_8888, x, y, screenshot->width, screenshot->height);
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusScreenshotCreateTga(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot)
 {
 	if (!screenshot)
 	{
@@ -34,9 +53,5 @@ GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, G
 	screenshot->height = height;
 	screenshot->depth = 1;
 
-	vgFlush();
-
-	vgReadPixels(screenshot->data, width * 4 * sizeof(GLUSubyte),  VG_sABGR_8888, x, y, width, height);
-
-	return GLUS_TRUE;
+	return glusScreenshotUseTga(x, y, screenshot);
 }

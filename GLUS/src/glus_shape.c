@@ -26,7 +26,7 @@ static GLUSvoid glusShapeInitf(GLUSshape* shape)
 
     memset(shape, 0, sizeof(GLUSshape));
 
-    shape->mode = GL_TRIANGLES;
+    shape->mode = GLUS_TRIANGLES;
 }
 
 static GLUSboolean glusShapeCheckf(GLUSshape* shape)
@@ -258,11 +258,11 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateRectangularGridPlanef(GLUSshape* shape, 
 
     if (triangleStrip)
     {
-        shape->mode = GL_TRIANGLE_STRIP;
+        shape->mode = GLUS_TRIANGLE_STRIP;
     }
     else
     {
-        shape->mode = GL_TRIANGLES;
+        shape->mode = GLUS_TRIANGLES;
     }
 
     shape->numberVertices = numberVertices;
@@ -1288,7 +1288,7 @@ GLUSboolean GLUSAPIENTRY glusShapeCalculateTangentBitangentf(GLUSshape* shape)
 {
     GLUSuint i;
 
-    if (!shape || !shape->vertices || !shape->texCoords || shape->mode != GL_TRIANGLES)
+    if (!shape || !shape->vertices || !shape->texCoords || shape->mode != GLUS_TRIANGLES)
     {
         return GLUS_FALSE;
     }

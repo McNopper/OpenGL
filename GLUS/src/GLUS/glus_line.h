@@ -46,9 +46,9 @@ typedef struct _GLUSline
     /**
      * Line render mode - could be either:
      *
-     * GL_LINES
-     * GL_LINE_STRIP
-     * GL_LINE_LOOP
+     * GLUS_LINES
+     * GLUS_LINE_STRIP
+     * GLUS_LINE_LOOP
      */
     GLUSenum mode;
 

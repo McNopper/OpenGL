@@ -35,7 +35,7 @@ GLUSboolean GLUSAPIENTRY glusExtensionIsSupported(const GLUSchar* extension)
 		return GLUS_FALSE;
 	}
 
-	allExtensions = glGetString(GL_EXTENSIONS);
+	allExtensions = glGetString(GLUS_EXTENSIONS);
 
 	startExtension = allExtensions;
 	while (startExtension)

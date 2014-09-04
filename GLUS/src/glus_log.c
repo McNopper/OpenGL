@@ -81,7 +81,7 @@ GLUSvoid GLUSAPIENTRY glusLogPrintError(GLUSuint verbosity, const char* format, 
 		return;
 	}
 
-	if (verbosity < GLUS_LOG_DEBUG && error == GL_NO_ERROR)
+	if (verbosity < GLUS_LOG_DEBUG && error == GLUS_NO_ERROR)
 	{
 		return;
 	}

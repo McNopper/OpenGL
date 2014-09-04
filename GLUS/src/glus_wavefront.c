@@ -367,7 +367,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 
 			strcpy(currentMaterialList->material.specularTextureFilename, name);
 		}
-		else if (strncmp(checkBuffer, "map_d", 5) == 0)
+		else if (strncmp(checkBuffer, "map_d", 5) == 0 || strncmp(checkBuffer, "map_Tr", 6) == 0)
 		{
 			sscanf(checkBuffer, "%s %s", identifier, name);
 
@@ -510,7 +510,7 @@ static GLUSboolean glusWavefrontCopyData(GLUSshape* shape, GLUSuint totalNumberV
 		}
 	}
 
-	shape->mode = GL_TRIANGLES;
+	shape->mode = GLUS_TRIANGLES;
 
 	return GLUS_TRUE;
 }
@@ -875,7 +875,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleVertices[4 * totalNumberVertices], &vertices[4 * vIndex], 4 * sizeof(GLUSfloat));
@@ -891,7 +891,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleVertices[4 * (totalNumberVertices)], &triangleVertices[4 * (totalNumberVertices - edgeCount)], 4 * sizeof(GLUSfloat));
@@ -912,7 +912,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleNormals[3 * totalNumberNormals], &normals[3 * vnIndex], 3 * sizeof(GLUSfloat));
@@ -927,7 +927,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleNormals[3 * (totalNumberNormals)], &triangleNormals[3 * (totalNumberNormals - edgeCount)], 3 * sizeof(GLUSfloat));
@@ -947,7 +947,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleTexCoords[2 * totalNumberTexCoords], &texCoords[2 * vtIndex], 2 * sizeof(GLUSfloat));
@@ -962,7 +962,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							fclose(f);
 
-							return GL_FALSE;
+							return GLUS_FALSE;
 						}
 
 						memcpy(&triangleTexCoords[2 * (totalNumberTexCoords)], &triangleTexCoords[2 * (totalNumberTexCoords - edgeCount)], 2 * sizeof(GLUSfloat));

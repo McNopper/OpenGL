@@ -17,6 +17,16 @@
 
 #include "GL/glus.h"
 
+extern GLUSint _glusWindowGetCurrentRecordingFrame(GLUSvoid);
+
+extern GLUSint _glusWindowGetCurrentAndIncreaseRecordingFrame(GLUSvoid);
+
+extern GLUSint _glusWindowGetRecordingFrames(GLUSvoid);
+
+extern GLUSfloat _glusWindowGetRecordingTime(GLUSvoid);
+
+extern const GLUStgaimage* _glusWindowGetRecordingImageTga(GLUSvoid);
+
 static GLFWwindow* g_window = 0;
 static GLUSboolean g_initdone = GLUS_FALSE;
 static GLUSint g_buttons = 0;
@@ -576,14 +586,23 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
 GLUSboolean GLUSAPIENTRY glusWindowRun(GLUSvoid)
 {
+	GLUSboolean run = GLUS_TRUE;
+
 	if (!glusWindowStartup())
 	{
 		return GLUS_FALSE;
 	}
 
-	while (glusWindowLoop())
+	while (run)
 	{
-		// Do nothing here
+		if (glusWindowIsRecording())
+		{
+			run = glusWindowLoopDoRecording();
+		}
+		else
+		{
+			run = glusWindowLoop();
+		}
 	}
 
 	glusWindowShutdown();
@@ -637,12 +656,58 @@ GLUSboolean GLUSAPIENTRY glusWindowLoop(GLUSvoid)
 	return GLUS_FALSE;
 }
 
+GLUSboolean GLUSAPIENTRY glusWindowLoopDoRecording(GLUSvoid)
+{
+	if (!glfwWindowShouldClose(g_window))
+	{
+		if (glusUpdate)
+		{
+			if (!glusUpdate(_glusWindowGetRecordingTime()))
+			{
+				glfwSetWindowShouldClose(g_window, GLUS_TRUE);
+			}
+			else
+			{
+				if (_glusWindowGetCurrentRecordingFrame() < _glusWindowGetRecordingFrames())
+				{
+					if (glusScreenshotUseTga(0, 0, _glusWindowGetRecordingImageTga()))
+					{
+						static const GLUSchar* filenameTemplate = "screenshot-%04d.tga";
+						static GLUSchar filename[20];
+
+						sprintf(filename, filenameTemplate, _glusWindowGetCurrentAndIncreaseRecordingFrame());
+
+						glusImageSaveTga(filename, _glusWindowGetRecordingImageTga());
+					}
+				}
+				else
+				{
+					glfwSetWindowShouldClose(g_window, GLUS_TRUE);
+				}
+			}
+		}
+
+		glfwSwapBuffers(g_window); // Swap Buffers
+
+		glfwPollEvents();
+
+		return GLUS_TRUE;
+	}
+
+	return GLUS_FALSE;
+}
+
 GLUSvoid GLUSAPIENTRY glusWindowShutdown(GLUSvoid)
 {
 	// Terminate Game
 	if (glusTerminate)
 	{
 		glusTerminate();
+	}
+
+	if (glusWindowIsRecording())
+	{
+		glusWindowStopRecording();
 	}
 
 	// Shutdown
@@ -652,6 +717,16 @@ GLUSvoid GLUSAPIENTRY glusWindowShutdown(GLUSvoid)
 GLUSvoid GLUSAPIENTRY glusWindowSwapInterval(GLUSint interval)
 {
 	glfwSwapInterval(interval);
+}
+
+GLUSint GLUSAPIENTRY glusWindowGetWidth(GLUSvoid)
+{
+	return g_width;
+}
+
+GLUSint GLUSAPIENTRY glusWindowGetHeight(GLUSvoid)
+{
+	return g_height;
 }
 
 //

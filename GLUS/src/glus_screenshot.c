@@ -17,7 +17,31 @@
 
 #include "GL/glus.h"
 
-GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot)
+GLUSboolean GLUSAPIENTRY glusScreenshotUseTga(GLUSint x, GLUSint y, const GLUStgaimage* screenshot)
+{
+	if (!screenshot)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (x < 0 || y < 0 || screenshot->width < 1 || screenshot->height < 1 || screenshot->depth != 1 || screenshot->format != GLUS_RGBA || screenshot->data == 0)
+	{
+		return GLUS_FALSE;
+	}
+
+	glBindFramebuffer(GLUS_FRAMEBUFFER, 0);
+
+	glFlush();
+
+	glPixelStorei(GLUS_PACK_ALIGNMENT, 1);
+	glPixelStorei(GLUS_UNPACK_ALIGNMENT, 1);
+
+	glReadPixels(x, y, screenshot->width, screenshot->height, GLUS_RGBA, GLUS_UNSIGNED_BYTE, screenshot->data);
+
+	return GLUS_TRUE;
+}
+
+GLUSboolean GLUSAPIENTRY glusScreenshotCreateTga(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot)
 {
 	if (!screenshot)
 	{
@@ -34,14 +58,5 @@ GLUSboolean GLUSAPIENTRY glusScreenshot(GLUSint x, GLUSint y, GLUSsizei width, G
 	screenshot->height = height;
 	screenshot->depth = 1;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glFlush();
-
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, screenshot->data);
-
-	return GLUS_TRUE;
+	return glusScreenshotUseTga(x, y, screenshot);
 }

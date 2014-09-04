@@ -26,7 +26,7 @@ static GLUSvoid glusLineInitf(GLUSline* line)
 
 	memset(line, 0, sizeof(GLUSline));
 
-	line->mode = GL_LINE_LOOP;
+	line->mode = GLUS_LINE_LOOP;
 }
 
 static GLUSboolean glusLineCheckf(GLUSline* line)
@@ -53,7 +53,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateLinef(GLUSline* line, const GLUSfloat poi
 	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
 	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
-	line->mode = GL_LINES;
+	line->mode = GLUS_LINES;
 
 	if (!glusLineCheckf(line))
 	{
@@ -85,7 +85,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateSquaref(GLUSline* line, const GLUSfloat h
 	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
 	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
-	line->mode = GL_LINE_LOOP;
+	line->mode = GLUS_LINE_LOOP;
 
 	if (!glusLineCheckf(line))
 	{
@@ -141,7 +141,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateRectangularGridf(GLUSline* line, const GL
 	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
 	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
-	line->mode = GL_LINES;
+	line->mode = GLUS_LINES;
 
 	if (!glusLineCheckf(line))
 	{
@@ -216,7 +216,7 @@ GLUSboolean GLUSAPIENTRY glusLineCreateCirclef(GLUSline* line, const GLUSfloat r
 	line->vertices = (GLUSfloat*)glusMemoryMalloc(4 * line->numberVertices * sizeof(GLUSfloat));
 	line->indices = (GLUSindex*)glusMemoryMalloc(line->numberIndices * sizeof(GLUSindex));
 
-	line->mode = GL_LINE_LOOP;
+	line->mode = GLUS_LINE_LOOP;
 
 	if (!glusLineCheckf(line))
 	{

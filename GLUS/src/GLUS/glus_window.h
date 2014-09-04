@@ -62,6 +62,14 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowStartup(GLUSvoid);
 GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowLoop(GLUSvoid);
 
 /**
+ * Calls the main loop once. Update function is called and one screenshot is taken and stored.
+ * Use this function, if glusRun can not be used.
+ *
+ * @return GLUS_ TRUE, if looping should continue.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowLoopDoRecording(GLUSvoid);
+
+/**
  * Called after the main loop. The terminate function is called.
  * Use this function, if glusRun can not be used.
  */
@@ -138,5 +146,41 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid(*glusNewMouse
  * The function receives the states of all buttons and the current x and y position.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(const GLUSint buttons, const GLUSint xPos, const GLUSint yPos));
+
+/**
+ * Starts recording image clips, by making screenshots of the window.
+ *
+ * @param numberFrames		The number of frames to record.
+ * @param framesPerSecond	Frames per second to use.
+ *
+ * @return GLUS_ TRUE, is start succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowStartRecording(GLUSint numberFrames, GLUSint framesPerSecond);
+
+/**
+ * Checks, if a recording is running.
+ *
+ * @return GLUS_ TRUE, is recording is running.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowIsRecording(GLUSvoid);
+
+/**
+ * Stops recording the image clips.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowStopRecording(GLUSvoid);
+
+/**
+ * Get window width.
+ *
+ * @return The width of the window.
+ */
+GLUSAPI GLUSint GLUSAPIENTRY glusWindowGetWidth(GLUSvoid);
+
+/**
+ * Get window height.
+ *
+ * @return The height of the window.
+ */
+GLUSAPI GLUSint GLUSAPIENTRY glusWindowGetHeight(GLUSvoid);
 
 #endif /* GLUS_WINDOW_H_ */

@@ -22,7 +22,7 @@ GLUSboolean GLUSAPIENTRY glusVersionIsSupported(const GLUSint major, const GLUSi
     GLUSint driverMajor;
     GLUSint driverMinor;
 
-    const GLUSchar* version = (const GLUSchar*) glGetString(GL_VERSION);
+    const GLUSchar* version = (const GLUSchar*) glGetString(GLUS_VERSION);
 
     if (!version)
     {
