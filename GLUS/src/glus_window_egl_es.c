@@ -148,11 +148,9 @@ GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height)
 	}
 }
 
-GLUSint _glusWindowInternalClose(void)
+GLUSvoid _glusWindowInternalClose(GLUSvoid)
 {
 	g_done = GLUS_TRUE;
-
-	return 0;
 }
 
 GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state)

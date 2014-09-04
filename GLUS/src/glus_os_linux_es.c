@@ -27,7 +27,7 @@
 
 extern GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height);
 
-extern GLUSint _glusWindowInternalClose(GLUSvoid);
+extern GLUSvoid _glusWindowInternalClose(GLUSvoid);
 
 extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 

@@ -28,7 +28,7 @@
 
 #include <linux/input.h>
 
-extern GLUSint _glusWindowInternalClose(GLUSvoid);
+extern GLUSvoid _glusWindowInternalClose(GLUSvoid);
 
 extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
