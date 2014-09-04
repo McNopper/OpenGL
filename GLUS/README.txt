@@ -70,6 +70,10 @@ Yours Norbert Nopper
 
 Changelog:
 
+04.09.2014 - Added automatic frame recording for e.g. movie clip generation in Blender.
+
+01.09.2014 - Added TGA image color format converter.
+
 29.08.2014 - Reorganisation and improvement of READMEs.
 
 27.08.2014 - Cleaning up and refactoring code inside GLUS 2.0 draft version. No interface changes.

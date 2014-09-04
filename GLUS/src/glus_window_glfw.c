@@ -662,6 +662,9 @@ GLUSboolean GLUSAPIENTRY glusWindowLoopDoRecording(GLUSvoid)
 	{
 		if (glusUpdate)
 		{
+			// Still consume and update time, as a fixed recording time is used.
+			glusWindowGetElapsedTime();
+
 			if (!glusUpdate(_glusWindowGetRecordingTime()))
 			{
 				glfwSetWindowShouldClose(g_window, GLUS_TRUE);
