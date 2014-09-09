@@ -289,6 +289,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_RENDERABLE_TYPE has to be EGL_OPENGL_BIT");
 
 					return GLUS_FALSE;
@@ -301,6 +303,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_RED_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -313,6 +317,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_GREEN_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -325,6 +331,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_BLUE_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -337,6 +345,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_DEPTH_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -349,6 +359,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_STENCIL_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -361,6 +373,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else if (*(walker + 1) != EGL_DONT_CARE)
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_ALPHA_SIZE has to be >= 0");
 
 					return GLUS_FALSE;
@@ -382,6 +396,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_SAMPLE_BUFFERS has to be >= 0 and <= 1");
 
 					return GLUS_FALSE;
@@ -399,6 +415,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_SAMPLES has to be >= 0");
 
 					return GLUS_FALSE;
@@ -411,6 +429,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
 	if (!eglRenderableTypeProcessed)
 	{
+		glfwTerminate();
+
 		glusLogPrint(GLUS_LOG_ERROR, "EGL_RENDERABLE_TYPE not specified");
 
 		return GLUS_FALSE;
@@ -418,6 +438,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
 	if ((eglSampleBuffersProcessed && !eglSamplesProcessed) || (!eglSampleBuffersProcessed && eglSamplesProcessed))
 	{
+		glfwTerminate();
+
 		glusLogPrint(GLUS_LOG_ERROR, "EGL_SAMPLE_BUFFERS and EGL_SAMPLES has to be specified");
 
 		return GLUS_FALSE;
@@ -444,6 +466,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_MAJOR_VERSION has to be >= 1");
 
 					return GLUS_FALSE;
@@ -460,6 +484,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_MINOR_VERSION has to be >= 0");
 
 					return GLUS_FALSE;
@@ -472,6 +498,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE is invalid");
 
 					return GLUS_FALSE;
@@ -488,6 +516,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_OPENGL_PROFILE_MASK is invalid");
 
 					return GLUS_FALSE;
@@ -502,6 +532,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 				}
 				else
 				{
+					glfwTerminate();
+
 					glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_OPENGL_DEBUG is invalid");
 
 					return GLUS_FALSE;
@@ -514,6 +546,8 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
 	if (!eglContextMajorVersionProcessed || !eglContextMinorVersionProcessed)
 	{
+		glfwTerminate();
+
 		glusLogPrint(GLUS_LOG_ERROR, "EGL_CONTEXT_CLIENT_VERSION, EGL_CONTEXT_MAJOR_VERSION or EGL_CONTEXT_MINOR_VERSION not specified");
 
 		return GLUS_FALSE;

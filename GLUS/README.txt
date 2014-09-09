@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+09.09.2014 - Added proper cleanup in GLUS, if invalid values are passed during window creation under desktop OpenGL.
+
 04.09.2014 - Added automatic frame recording for e.g. movie clip generation in Blender.
 
 01.09.2014 - Added TGA image color format converter.
