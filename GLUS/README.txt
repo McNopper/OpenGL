@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+10.09.2014 - Removed doxygen warnings. Submitting GLUS for the OpenGL SDK today.
+
 09.09.2014 - Added proper cleanup in GLUS, if invalid values are passed during window creation under desktop OpenGL.
 
 04.09.2014 - Added automatic frame recording for e.g. movie clip generation in Blender.

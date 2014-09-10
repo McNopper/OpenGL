@@ -23,8 +23,6 @@
  *
  * @param x The lower left x coordinate from the screenshot rectangle.
  * @param y The lower left y coordinate from the screenshot rectangle.
- * @param width The width of the screenshot rectangle.
- * @param height The height of the screenshot rectangle.
  * @param screenshot The image structure to store the pixel data.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusScreenshotUseTga(GLUSint x, GLUSint y, const GLUStgaimage* screenshot);
