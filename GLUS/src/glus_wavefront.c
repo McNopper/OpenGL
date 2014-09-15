@@ -152,6 +152,8 @@ static GLUSvoid glusWavefrontInitMaterial(GLUSmaterial* material)
 
 	material->indexOfRefraction = 1.0f;
 
+	material->emissiveTextureFilename[0] = 0;
+
 	material->ambientTextureFilename[0] = 0;
 
 	material->diffuseTextureFilename[0] = 0;
@@ -161,6 +163,8 @@ static GLUSvoid glusWavefrontInitMaterial(GLUSmaterial* material)
 	material->transparencyTextureFilename[0] = 0;
 
 	material->bumpTextureFilename[0] = 0;
+
+	material->emissiveTextureName = 0;
 
 	material->ambientTextureName = 0;
 
@@ -348,6 +352,12 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 		else if (strncmp(checkBuffer, "ni", 2) == 0)
 		{
 			sscanf(checkBuffer, "%s %f", identifier, &currentMaterialList->material.indexOfRefraction);
+		}
+		else if (strncmp(checkBuffer, "map_ke", 6) == 0)
+		{
+			sscanf(checkBuffer, "%s %s", identifier, name);
+
+			strcpy(currentMaterialList->material.emissiveTextureFilename, name);
 		}
 		else if (strncmp(checkBuffer, "map_ka", 6) == 0)
 		{

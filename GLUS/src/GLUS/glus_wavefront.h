@@ -74,6 +74,11 @@ typedef struct _GLUSmaterial
 	GLUSfloat indexOfRefraction;
 
 	/**
+	 * Emissive color texture filename.
+	 */
+	GLUSchar emissiveTextureFilename[GLUS_MAX_STRING];
+
+	/**
 	 * Ambient color texture filename.
 	 */
 	GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
@@ -97,6 +102,11 @@ typedef struct _GLUSmaterial
 	 * Bump texture filename.
 	 */
 	GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
+
+	/**
+	 * Can be used to store the emissive texture name.
+	 */
+    GLUSuint emissiveTextureName;
 
 	/**
 	 * Can be used to store the ambient texture name.

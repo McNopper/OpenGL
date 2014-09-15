@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+15.09.2014 - Added emissive texture to wavefront object file loader. 
+
 10.09.2014 - Removed doxygen warnings. Submitting GLUS for the OpenGL SDK today.
 
 09.09.2014 - Added proper cleanup in GLUS, if invalid values are passed during window creation under desktop OpenGL.
