@@ -532,7 +532,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 
 		if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 		{
-			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
+			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: %dx%d", width, height);
 
 			return 0;
 		}

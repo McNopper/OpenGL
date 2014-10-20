@@ -70,7 +70,11 @@ Yours Norbert Nopper
 
 Changelog:
 
-10.10.2014 - Released GLUS 2.0. GLUS is now official part of the OpenGL SDK libraries: https://www.opengl.org/sdk/libs/GLUS/
+20.10.2014 - Fixed issue in wavefront scene loading. Added OpenGL Example43 plus assets.
+
+17.10.2014 - Added wavefront scene loading and improved loader at all. Minor bug fixing. 
+
+10.10.2014 * Released GLUS 2.0. GLUS is now official part of the OpenGL SDK libraries: https://www.opengl.org/sdk/libs/GLUS/
 
 15.09.2014 - Added emissive texture to wavefront object file loader. 
 

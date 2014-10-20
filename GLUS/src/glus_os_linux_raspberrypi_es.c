@@ -368,7 +368,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 
 		if (i == numberSupportedModes)
 		{
-			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: ", width, height);
+			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: %dx%d", width, height);
 
 			return 0;
 		}
@@ -379,7 +379,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		{
 			vc_tv_unregister_callback(glusOsResizeDone);
 
-			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: ", width, height);
+			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: %dx%d", width, height);
 
 			return 0;
 		}

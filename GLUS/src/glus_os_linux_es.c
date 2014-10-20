@@ -453,7 +453,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 		{
 			XRRFreeScreenConfigInfo(screenConfiguration);
 
-			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: ", width, height);
+			glusLogPrint(GLUS_LOG_ERROR, "No matching display resolution found: %dx%d", width, height);
 
 			return 0;
 		}

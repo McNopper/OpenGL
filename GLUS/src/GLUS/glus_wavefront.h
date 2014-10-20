@@ -225,6 +225,11 @@ typedef struct _GLUSgroupList
 typedef struct _GLUSwavefront
 {
 		/**
+		 * Name of the object.
+		 */
+		GLUSchar name[GLUS_MAX_STRING];
+
+		/**
 		 * Vertices in homogeneous coordinates.
 		 */
 	    GLUSfloat* vertices;
@@ -292,6 +297,35 @@ typedef struct _GLUSwavefront
 } GLUSwavefront;
 
 /**
+ * Structure for holding the object data list.
+ */
+typedef struct _GLUSobjectList
+{
+		/**
+		 * The object data.
+		 */
+		GLUSwavefront object;
+
+	    /**
+	     * The pointer to the next group element.
+	     */
+	    struct _GLUSobjectList* next;
+
+} GLUSobjectList;
+
+/**
+ * Structure for holding the scene.
+ */
+typedef struct _GLUSscene
+{
+		/**
+		 * The root object list data.
+		 */
+		GLUSobjectList* objectList;
+
+} GLUSscene;
+
+/**
  * Loads a wavefront object file with groups and materials.
  *
  * @param filename The name of the wavefront file including extension.
@@ -307,5 +341,22 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusWavefrontLoad(const GLUSchar* filename, GLU
  * @param wavefront The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
  */
 GLUSAPI GLUSvoid GLUSAPIENTRY glusWavefrontDestroy(GLUSwavefront* wavefront);
+
+/**
+ * Loads a wavefront scene file with objects, groups and materials.
+ *
+ * @param filename The name of the wavefront file including extension.
+ * @param scene The data is stored into this structure.
+ *
+ * @return GLUS_TRUE, if loading succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusWavefrontLoadScene(const GLUSchar* filename, GLUSscene* scene);
+
+/**
+ * Destroys the wavefront structure by freeing the allocated memory. VBOs, VAOs and textures are not freed.
+ *
+ * @param scene The structure which contains the dynamic allocated wavefront data, which will be freed by this function.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWavefrontDestroyScene(GLUSscene* scene);
 
 #endif /* GLUS_WAVEFRONT_H_ */
