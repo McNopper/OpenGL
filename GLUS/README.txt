@@ -28,10 +28,10 @@ SDKs and Libraries:
 
 OpenGL ES SDKs and Libraries:
 
-- OpenGL ES 3.1: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
-- OpenGL ES 3.0: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
+- OpenGL ES 3.1: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 3.0: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
 				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
-- OpenGL ES 2.0: PowerVR SDK 3.3 http://community.imgtec.com/developers/powervr-insider/graphics-sdk/
+- OpenGL ES 2.0: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
 				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
 				 ANGLE http://code.google.com/p/angleproject/
 				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
@@ -71,6 +71,8 @@ Yours Norbert Nopper
 Changelog:
 
 20.10.2014 - Fixed issue in wavefront scene loading. Added OpenGL Example43 plus assets.
+
+		   - Updated paths and links in the projects. 
 
 17.10.2014 - Added wavefront scene loading and improved loader at all. Minor bug fixing. 
 
