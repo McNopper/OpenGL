@@ -32,6 +32,10 @@ extern GLUSvoid _glusWindowInternalClose(GLUSvoid);
 
 extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
+extern GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action);
+
+extern GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y);
+
 // Map, if possible, to GLFW keys
 
 static int glusOsTranslateKey(int key)
@@ -271,62 +275,147 @@ static GLUSint g_height = -1;
 
 static int g_keyFileDescriptor = -1;
 
+static int g_touchFileDescriptor = -1;
+
+static int g_displayWidth = -1;
+
+static int g_displayHeight = -1;
+
+static int g_currentX = -1;
+
+static int g_currentY = -1;
+
+static int g_pressed = 0;
+
 GLUSvoid _glusOsPollEvents()
 {
-	static GLUSboolean LEFT_CTRL = GLUS_FALSE;
-	static GLUSboolean RIGHT_CTRL = GLUS_FALSE;
-
-	struct input_event keyEvent;
-
 	if (g_keyFileDescriptor >= 0)
 	{
-		ssize_t numBytes = read(g_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
+		static GLUSboolean LEFT_CTRL = GLUS_FALSE;
+		static GLUSboolean RIGHT_CTRL = GLUS_FALSE;
 
-		if (numBytes <= 0 || keyEvent.type != EV_KEY)
+		struct input_event keyEvent;
+
+		ssize_t numBytes;
+
+		do
 		{
-			return;
-		}
+			numBytes = read(g_keyFileDescriptor, &keyEvent, sizeof(struct input_event));
 
-		switch (keyEvent.value)
+			if (numBytes > 0 && keyEvent.type == EV_KEY)
+			{
+				switch (keyEvent.value)
+				{
+					case 1:	// Pressed
+					{
+						// CTRL-C
+						if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
+						{
+							_glusWindowInternalClose();
+
+							return;
+						}
+						else
+						{
+							if (keyEvent.code == 29)
+							{
+								LEFT_CTRL = GLUS_TRUE;
+							}
+							else if (keyEvent.code == 97)
+							{
+								RIGHT_CTRL = GLUS_TRUE;
+							}
+
+							_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_PRESS);
+						}
+					}
+					break;
+
+					case 0: // Released
+					{
+						if (keyEvent.code == 29)
+						{
+							LEFT_CTRL = GLUS_FALSE;
+						}
+						else if (keyEvent.code == 97)
+						{
+							RIGHT_CTRL = GLUS_FALSE;
+						}
+
+						_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_RELEASE);
+					}
+					break;
+				}
+			}
+		} while (numBytes > 0);
+	}
+
+	if (g_touchFileDescriptor >= 0)
+	{
+		struct input_event touchEvent;
+
+		ssize_t numBytes;
+
+		int pressed = -1;
+		int moved = 0;
+
+		do
 		{
-			case 1:	// Pressed
+			numBytes = read(g_touchFileDescriptor, &touchEvent, sizeof(struct input_event));
+
+			if (numBytes > 0)
 			{
-				// CTRL-C
-				if (keyEvent.code == 46 && (LEFT_CTRL || RIGHT_CTRL))
+				if (touchEvent.type == EV_ABS)
 				{
-					_glusWindowInternalClose();
+					if (touchEvent.code == 48)
+					{
+						if (touchEvent.value == 1 && !g_pressed)
+						{
+							pressed = 1;
 
-					return;
+							g_pressed = pressed;
+						}
+						else if (touchEvent.value == 0 && g_pressed)
+						{
+							pressed = 0;
+
+							g_pressed = pressed;
+						}
+					}
+					else if (touchEvent.code == 53)
+					{
+						g_currentX = g_displayWidth * touchEvent.value / ((1 << 15) - 1);
+
+						moved = 1;
+					}
+					else if (touchEvent.code == 54)
+					{
+						g_currentY = g_displayHeight * touchEvent.value / ((1 << 15) - 1);
+
+						moved = 1;
+					}
 				}
-
-				if (keyEvent.code == 29)
+				else if (touchEvent.type == EV_SYN)
 				{
-					LEFT_CTRL = GLUS_TRUE;
-				}
-				else if (keyEvent.code == 97)
-				{
-					RIGHT_CTRL = GLUS_TRUE;
-				}
+					if (moved)
+					{
+						_glusWindowInternalMouseMove(g_currentX, g_currentY);
+					}
 
-				_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_PRESS);
+					if (pressed == 1)
+					{
+						_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+					}
+					else if (pressed == 0)
+					{
+						_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+					}
+
+					pressed = -1;
+					moved = 0;
+				}
 			}
-			break;
-
-			case 0: // Released
-			{
-				if (keyEvent.code == 29)
-				{
-					LEFT_CTRL = GLUS_FALSE;
-				}
-				else if (keyEvent.code == 97)
-				{
-					RIGHT_CTRL = GLUS_FALSE;
-				}
-
-				_glusWindowInternalKey(glusOsTranslateKey(keyEvent.code), GLFW_RELEASE);
-			}
-			break;
-		}
+		} while (numBytes > 0);
 	}
 }
 
@@ -346,6 +435,8 @@ EGLNativeDisplayType _glusOsGetNativeDisplayType()
 		return 0;
 	}
 
+	fbGetDisplayGeometry(g_nativeDisplay, &g_displayWidth, &g_displayHeight);
+
 	return g_nativeDisplay;
 }
 
@@ -353,13 +444,25 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 {
 	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'fullscreen' and 'noResize' are not used");
 	glusLogPrint(GLUS_LOG_INFO, "Key events are mapped to US keyboard");
-	glusLogPrint(GLUS_LOG_INFO, "Mouse events are not supported");
+	glusLogPrint(GLUS_LOG_INFO, "Touch display is used for mouse events and are limited");
 
-	g_keyFileDescriptor = open("/dev/input/event1", O_RDONLY | O_NONBLOCK);
+	g_keyFileDescriptor = open("/dev/input/event5", O_RDONLY | O_NONBLOCK);
 
 	if (g_keyFileDescriptor < 0)
 	{
 		glusLogPrint(GLUS_LOG_WARNING, "Could not open key input device");
+	}
+	else
+	{
+		// Disable echo.
+		system("stty -echo");
+	}
+
+	g_touchFileDescriptor = open("/dev/input/event0", O_RDONLY | O_NONBLOCK);
+
+	if (g_touchFileDescriptor < 0)
+	{
+		glusLogPrint(GLUS_LOG_WARNING, "Could not open touch input device");
 	}
 
 	g_nativeWindow = fbCreateWindow(g_nativeDisplay, 0, 0, width, height);
@@ -398,6 +501,26 @@ GLUSvoid _glusOsDestroyNativeWindowDisplay()
 		close(g_keyFileDescriptor);
 
 		g_keyFileDescriptor = -1;
+
+		// Enable echo.
+        system("stty echo");
+	}
+
+	if (g_touchFileDescriptor >= 0)
+	{
+		close(g_touchFileDescriptor);
+
+		g_touchFileDescriptor = -1;
+
+		g_displayWidth = -1;
+
+		g_displayHeight = -1;
+
+		g_currentX = -1;
+
+		g_currentY = -1;
+
+		g_pressed = 0;
 	}
 }
 
