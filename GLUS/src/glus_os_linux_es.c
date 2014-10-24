@@ -507,7 +507,7 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 	{
 		XEvent xev;
 
-		Atom stateFullscreenMessage = XInternAtom(g_nativeDisplay, "_NET_WM_STATEg_fullscreen", False);
+		Atom stateFullscreenMessage = XInternAtom(g_nativeDisplay, "_NET_WM_STATE_FULLSCREEN", False);
 		Atom stateMessage = XInternAtom(g_nativeDisplay, "_NET_WM_STATE", False);
 
 		memset(&xev, 0, sizeof(xev));

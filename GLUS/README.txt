@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+24.10.2014 - Fixed fullscreen mode under desktop Linux using OpenGL ES or OpenVG.
+
 21.10.2014 - Fixed keyboard events on i.MX6. Added touch display input to simulate mouse events on i.MX6. 
 
 20.10.2014 - Fixed issue in wavefront scene loading. Added OpenGL Example43 plus assets.
