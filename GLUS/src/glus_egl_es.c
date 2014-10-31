@@ -24,7 +24,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     EGLint minorVersion;
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLConfig config = 0;
-    EGLDisplay context = EGL_NO_CONTEXT;
+    EGLContext context = EGL_NO_CONTEXT;
 
     if (!eglDisplay || !eglConfig || !eglContext)
     {

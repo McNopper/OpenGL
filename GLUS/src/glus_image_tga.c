@@ -576,21 +576,21 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 		return GLUS_FALSE;
 	}
 
-	elementsWritten = fwrite(&tgaimage->width, 1, sizeof(tgaimage->width), file);
+	elementsWritten = fwrite(&tgaimage->width, sizeof(tgaimage->width), 1, file);
 
-	if (!_glusFileCheckWrite(file, elementsWritten, 2))
+	if (!_glusFileCheckWrite(file, elementsWritten, 1))
 	{
 		return GLUS_FALSE;
 	}
 
-	elementsWritten = fwrite(&tgaimage->height, 1, sizeof(tgaimage->height), file);
+	elementsWritten = fwrite(&tgaimage->height, sizeof(tgaimage->height), 1, file);
 
-	if (!_glusFileCheckWrite(file, elementsWritten, 2))
+	if (!_glusFileCheckWrite(file, elementsWritten, 1))
 	{
 		return GLUS_FALSE;
 	}
 
-	elementsWritten = fwrite(&bitsPerPixel, 1, sizeof(bitsPerPixel), file);
+	elementsWritten = fwrite(&bitsPerPixel, sizeof(bitsPerPixel), 1, file);
 
 	if (!_glusFileCheckWrite(file, elementsWritten, 1))
 	{

@@ -70,6 +70,9 @@ Yours Norbert Nopper
 
 Changelog:
 
+31.10.2014 - Fixed bug in EGL initialization: EGLContext had EGLDisplay type.
+		   - Fixed bug in TGA save: Count and size were swapped. 
+
 24.10.2014 - Fixed fullscreen mode under desktop Linux using OpenGL ES or OpenVG.
 
 21.10.2014 - Fixed keyboard events on i.MX6. Added touch display input to simulate mouse events on i.MX6. 
