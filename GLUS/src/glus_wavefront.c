@@ -629,17 +629,25 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 	GLUSuint numberObjects = 0;
 
+	if (scene)
+	{
+		memset(scene, 0, sizeof(GLUSscene));
+	}
+
 	if (wavefront)
 	{
-		wavefront->name[0] = 0;
+		memset(wavefront, 0, sizeof(GLUSwavefront));
+	}
+
+	if (shape)
+	{
+		memset(shape, 0, sizeof(GLUSshape));
 	}
 
 	if (!filename || !shape)
 	{
 		return GLUS_FALSE;
 	}
-
-	memset(shape, 0, sizeof(GLUSshape));
 
 	f = fopen(filename, "r");
 

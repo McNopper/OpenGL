@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+06.11.2014 - Fixed bug in wavefront loading: When object file was not found, clean up did crash.
+
 31.10.2014 - Fixed bug in EGL initialization: EGLContext had EGLDisplay type.
 		   - Fixed bug in TGA save: Count and size were swapped. 
 
