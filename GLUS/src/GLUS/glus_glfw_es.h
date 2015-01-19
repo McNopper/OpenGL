@@ -23,15 +23,24 @@
 //
 /*! @name Key and button actions
  *  @{ */
-/*! @brief The key or button was released.
+/*! @brief The key or mouse button was released.
+ *
+ *  The key or mouse button was released.
+ *
  *  @ingroup input
  */
 #define GLFW_RELEASE                0
-/*! @brief The key or button was pressed.
+/*! @brief The key or mouse button was pressed.
+ *
+ *  The key or mouse button was pressed.
+ *
  *  @ingroup input
  */
 #define GLFW_PRESS                  1
 /*! @brief The key was held down until it repeated.
+ *
+ *  The key was held down until it repeated.
+ *
  *  @ingroup input
  */
 #define GLFW_REPEAT                 2
@@ -39,20 +48,22 @@
 
 /*! @defgroup keys Keyboard keys
  *
- * These key codes are inspired by the *USB HID Usage Tables v1.12* (p. 53-60),
- * but re-arranged to map to 7-bit ASCII for printable keys (function keys are
- * put in the 256+ range).
+ *  See [key input](@ref input_key) for how these are used.
  *
- * The naming of the key codes follow these rules:
- *  - The US keyboard layout is used
- *  - Names of printable alpha-numeric characters are used (e.g. "A", "R",
- *    "3", etc.)
- *  - For non-alphanumeric characters, Unicode:ish names are used (e.g.
- *    "COMMA", "LEFT_SQUARE_BRACKET", etc.). Note that some names do not
- *    correspond to the Unicode standard (usually for brevity)
- *  - Keys that lack a clear US mapping are named "WORLD_x"
- *  - For non-printable keys, custom names are used (e.g. "F4",
- *    "BACKSPACE", etc.)
+ *  These key codes are inspired by the _USB HID Usage Tables v1.12_ (p. 53-60),
+ *  but re-arranged to map to 7-bit ASCII for printable keys (function keys are
+ *  put in the 256+ range).
+ *
+ *  The naming of the key codes follow these rules:
+ *   - The US keyboard layout is used
+ *   - Names of printable alpha-numeric characters are used (e.g. "A", "R",
+ *     "3", etc.)
+ *   - For non-alphanumeric characters, Unicode:ish names are used (e.g.
+ *     "COMMA", "LEFT_SQUARE_BRACKET", etc.). Note that some names do not
+ *     correspond to the Unicode standard (usually for brevity)
+ *   - Keys that lack a clear US mapping are named "WORLD_x"
+ *   - For non-printable keys, custom names are used (e.g. "F4",
+ *     "BACKSPACE", etc.)
  *
  *  @ingroup input
  *  @{
@@ -189,6 +200,9 @@
 /*! @} */
 
 /*! @defgroup mods Modifier key flags
+ *
+ *  See [key input](@ref input_key) for how these are used.
+ *
  *  @ingroup input
  *  @{ */
 
@@ -208,6 +222,9 @@
 /*! @} */
 
 /*! @defgroup buttons Mouse buttons
+ *
+ *  See [mouse button input](@ref input_mouse_button) for how these are used.
+ *
  *  @ingroup input
  *  @{ */
 #define GLFW_MOUSE_BUTTON_1         0

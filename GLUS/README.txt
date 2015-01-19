@@ -24,7 +24,7 @@ If you get build errors:
 SDKs and Libraries:
 
 - GLEW 1.11.0 http://glew.sourceforge.net/
-- GLFW 3.0.4 http://www.glfw.org/
+- GLFW 3.1    http://www.glfw.org/
 
 OpenGL ES SDKs and Libraries:
 
@@ -69,6 +69,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+19.01.2015 - Updated to GLFW 3.1.
 
 06.11.2014 - Fixed bug in wavefront loading: When object file was not found, clean up did crash.
 

@@ -105,6 +105,8 @@
 									<listOptionValue builtIn="false" value="Xxf86vm"/>
 									<listOptionValue builtIn="false" value="Xrandr"/>
 									<listOptionValue builtIn="false" value="Xi"/>
+									<listOptionValue builtIn="false" value="Xinerama"/>
+									<listOptionValue builtIn="false" value="Xcursor"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 									<listOptionValue builtIn="false" value="pthread"/>
@@ -173,6 +175,8 @@
 									<listOptionValue builtIn="false" value="Xxf86vm"/>
 									<listOptionValue builtIn="false" value="Xrandr"/>
 									<listOptionValue builtIn="false" value="Xi"/>
+									<listOptionValue builtIn="false" value="Xinerama"/>
+									<listOptionValue builtIn="false" value="Xcursor"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="rt"/>
 									<listOptionValue builtIn="false" value="pthread"/>
