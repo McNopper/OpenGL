@@ -356,8 +356,7 @@ GLUSvoid _glusOsPollEvents()
 
 		ssize_t numBytes;
 
-		int pressed = -1;
-		int moved = 0;
+		int submitPosition = 0;
 
 		do
 		{
@@ -365,54 +364,47 @@ GLUSvoid _glusOsPollEvents()
 
 			if (numBytes > 0)
 			{
-				if (touchEvent.type == EV_ABS)
+				if (touchEvent.type == 1)
 				{
-					if (touchEvent.code == 48)
+					if (touchEvent.code == 330)
 					{
-						if (touchEvent.value == 1 && !g_pressed)
+						if (touchEvent.value == 1)
 						{
-							pressed = 1;
+							if (submitPosition)
+							{
+								_glusWindowInternalMouseMove(g_currentX, g_currentY);
 
-							g_pressed = pressed;
+								submitPosition = 0;
+							}
+
+							_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
 						}
-						else if (touchEvent.value == 0 && g_pressed)
+						else if (touchEvent.value == 0)
 						{
-							pressed = 0;
-
-							g_pressed = pressed;
+							_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
 						}
 					}
-					else if (touchEvent.code == 53)
+				}
+				else if (touchEvent.type == 3)
+				{
+					if (touchEvent.code == 53)
 					{
 						g_currentX = g_displayWidth * touchEvent.value / ((1 << 15) - 1);
 
-						moved = 1;
+						submitPosition = 1;
 					}
 					else if (touchEvent.code == 54)
 					{
 						g_currentY = g_displayHeight * touchEvent.value / ((1 << 15) - 1);
 
-						moved = 1;
+						submitPosition = 1;
 					}
-				}
-				else if (touchEvent.type == EV_SYN)
-				{
-					if (moved)
+					else if ((touchEvent.code == 0 || touchEvent.code == 1) && submitPosition)
 					{
 						_glusWindowInternalMouseMove(g_currentX, g_currentY);
-					}
 
-					if (pressed == 1)
-					{
-						_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+						submitPosition = 0;
 					}
-					else if (pressed == 0)
-					{
-						_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
-					}
-
-					pressed = -1;
-					moved = 0;
 				}
 			}
 		} while (numBytes > 0);

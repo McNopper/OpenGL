@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+28.01-2015 - Updated touch input code for i.MX6 running on Yocto Linux 3.10.53-1.1.0.
+
 19.01.2015 - Updated to GLFW 3.1.
 
 06.11.2014 - Fixed bug in wavefront loading: When object file was not found, clean up did crash.
