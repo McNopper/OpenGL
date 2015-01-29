@@ -23,7 +23,7 @@ If you get build errors:
 
 SDKs and Libraries:
 
-- GLEW 1.11.0 http://glew.sourceforge.net/
+- GLEW 1.12.0 http://glew.sourceforge.net/
 - GLFW 3.1    http://www.glfw.org/
 
 OpenGL ES SDKs and Libraries:
@@ -69,6 +69,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+29.01.2015 - Updated to GLEW 1.12.0.
 
 28.01-2015 - Updated touch input code for i.MX6 running on Yocto Linux 3.10.53-1.1.0.
 
