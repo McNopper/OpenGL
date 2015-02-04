@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+04.02.2015 - Added TGA image converting to a premultiplied TGA image.
+
 29.01.2015 - Updated to GLEW 1.12.0.
 
 28.01-2015 - Updated touch input code for i.MX6 running on Yocto Linux 3.10.53-1.1.0.

@@ -82,4 +82,15 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusImageSampleTga2D(GLUSubyte rgba[4], const G
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GLUStgaimage* sourceImage, const GLUSenum targetFormat);
 
+/**
+ * Converts a TGA image into a premultiplied TGA image.
+ * Source has to have GLUS_RGBA as format.
+ *
+ * @param targetImage  The TGA image structure, containing the premultiplied image.
+ * @param sourceImage  The TGA image structure, which will be premultiplied.
+ *
+ * @return GLUS_TRUE, if premultiplying succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusImageToPremultiplyTga(GLUStgaimage* targetImage, const GLUStgaimage* sourceImage);
+
 #endif /* GLUS_IMAGE_TGA_H_ */

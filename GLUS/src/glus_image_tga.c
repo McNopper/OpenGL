@@ -905,3 +905,52 @@ GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GL
 
 	return GLUS_TRUE;
 }
+
+GLUSboolean GLUSAPIENTRY glusImageToPremultiplyTga(GLUStgaimage* targetImage, const GLUStgaimage* sourceImage)
+{
+	GLUSint x, y, z, c;
+
+	GLUSfloat alpha;
+	GLUSfloat channel;
+
+	if (!targetImage || !sourceImage)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (sourceImage->format != GLUS_RGBA)
+	{
+		return GLUS_FALSE;
+	}
+
+	targetImage->data = (GLUSubyte*)glusMemoryMalloc(4 * sourceImage->width * sourceImage->height * sourceImage->depth * sizeof(GLUSubyte));
+
+	if (!targetImage->data)
+	{
+		return GLUS_FALSE;
+	}
+	targetImage->width = sourceImage->width;
+	targetImage->height = sourceImage->height;
+	targetImage->depth = sourceImage->depth;
+	targetImage->format = sourceImage->format;
+
+	for (z = 0; z < targetImage->depth; z++)
+	{
+		for (y = 0; y < targetImage->height; y++)
+		{
+			for (x = 0; x < targetImage->width; x++)
+			{
+				alpha = (GLUSfloat)sourceImage->data[4 * z * targetImage->height * targetImage->width + 4 * y * targetImage->width + 4 * x + 3] / 255.0f;
+
+				for (c = 0; c < 3; c++)
+				{
+					channel = (GLUSfloat)sourceImage->data[4 * z * targetImage->height * targetImage->width + 4 * y * targetImage->width + 4 * x + c] / 255.0f;
+
+					targetImage->data[4 * z * targetImage->height * targetImage->width + 4 * y * targetImage->width + 4 * x + c] = (GLUSubyte)glusMathClampf(channel * alpha * 255.0f, 0.0f, 255.0f);
+				}
+			}
+		}
+	}
+
+	return GLUS_TRUE;
+}
