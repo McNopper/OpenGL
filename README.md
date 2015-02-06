@@ -73,7 +73,7 @@ Example31 - Many lights using deferred shading (OpenGL 4.1)
 
 Example32 - BRDF and IBL rendering (OpenGL 4.1)
 
-Example33 - Real-Time BRDF and IBL rendering (OpenGL 4.1, not Mac)
+Example33 - Real-Time BRDF and IBL rendering (OpenGL 4.1)
 
 Example34 - Subsurface scattering
 
