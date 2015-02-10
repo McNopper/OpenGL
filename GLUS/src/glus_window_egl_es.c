@@ -240,7 +240,7 @@ GLUSvoid GLUSAPIENTRY glusWindowDestroy(GLUSvoid)
 	g_initdone = GLUS_FALSE;
 }
 
-GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList)
+GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList, const EGLint* surfaceAttribList)
 {
 	EGLConfig eglConfig;
 
@@ -275,7 +275,7 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 		return GLUS_FALSE;
 	}
 
-	if (!glusEGLCreateWindowSurfaceMakeCurrent(eglNativeWindowType, &g_eglDisplay, &eglConfig, &g_eglContext, &g_eglSurface))
+	if (!glusEGLCreateWindowSurfaceMakeCurrent(eglNativeWindowType, &g_eglDisplay, &eglConfig, &g_eglContext, &g_eglSurface, surfaceAttribList))
 	{
 		glusWindowDestroy();
 

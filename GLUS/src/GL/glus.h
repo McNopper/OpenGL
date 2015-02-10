@@ -77,6 +77,10 @@ typedef int EGLint;
 
 //
 
+#define EGL_BACK_BUFFER									0x3084
+#define EGL_SINGLE_BUFFER								0x3085
+#define EGL_RENDER_BUFFER								0x3086
+
 #define EGL_CONTEXT_CLIENT_VERSION						0x3098
 #define EGL_CONTEXT_MAJOR_VERSION         				0x3098
 #define EGL_CONTEXT_MINOR_VERSION         				0x30FB

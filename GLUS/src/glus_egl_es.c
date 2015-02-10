@@ -100,7 +100,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     return EGL_TRUE;
 }
 
-EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface)
+EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowType eglNativeWindowType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, EGLSurface* eglSurface, const EGLint* surfaceAttribList)
 {
     EGLDisplay surface = EGL_NO_SURFACE;
 
@@ -112,7 +112,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowTyp
     }
 
     // Create a surface
-    surface = eglCreateWindowSurface(*eglDisplay, *eglConfig, (EGLNativeWindowType) eglNativeWindowType, 0);
+    surface = eglCreateWindowSurface(*eglDisplay, *eglConfig, (EGLNativeWindowType) eglNativeWindowType, surfaceAttribList);
     if (surface == EGL_NO_SURFACE)
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL window surface");

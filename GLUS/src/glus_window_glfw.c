@@ -237,7 +237,7 @@ GLUSvoid GLUSAPIENTRY glusWindowDestroy(GLUSvoid)
 	g_initdone = GLUS_FALSE;
 }
 
-GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList)
+GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList, const EGLint* surfaceAttribList)
 {
 	int samples = 0;
 
@@ -559,6 +559,36 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 	}
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+
+	//
+
+	walker = surfaceAttribList;
+	while(walker && *walker != EGL_NONE)
+	{
+		switch(*walker)
+		{
+			case EGL_RENDER_BUFFER:
+				if (*(walker + 1) == EGL_BACK_BUFFER)
+				{
+					glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
+				}
+				else if (*(walker + 1) == EGL_SINGLE_BUFFER)
+				{
+					glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
+				}
+				else
+				{
+					glfwTerminate();
+
+					glusLogPrint(GLUS_LOG_ERROR, "EGL_RENDER_BUFFER is invalid");
+
+					return GLUS_FALSE;
+				}
+				break;
+		}
+
+		walker += 2;
+	}
 
 	//
 

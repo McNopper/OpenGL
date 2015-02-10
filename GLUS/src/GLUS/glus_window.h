@@ -28,10 +28,11 @@
  * @param noResize 			GLUS_TRUE, if it should not be possible to resize the window.
  * @param configAttribList 	EGL configuration attribute list.
  * @param contextAttribList EGL context attribute list.
+ * @param surfaceAttribList EGL surface attribute list.
  *
  * @return GLUS_TRUE, if creation of OpenGL context and window succeeded.
  */
-GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const EGLint* configAttribList, const EGLint* contextAttribList, const EGLint* surfaceAttribList);
 
 /**
  * Cleans up the window and frees all resources. Only needs to be called, if creation of the window failed.

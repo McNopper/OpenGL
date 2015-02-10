@@ -989,7 +989,7 @@ int main(int argc, char* argv[])
     glusWindowSetTerminateFunc(terminate);
 
 	// No resizing for convenience. If resizing is allowed, dynamically resize the SSAO and Blur frame buffer as well.
-    if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", TEXTURE_WIDTH, TEXTURE_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes, 0))
     {
         printf("Could not create window!\n");
         return -1;

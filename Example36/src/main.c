@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
 
     glusWindowSetTerminateFunc(terminate);
 
-    if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes))
+    if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes, 0))
     {
         printf("Could not create window!\n");
         return -1;
