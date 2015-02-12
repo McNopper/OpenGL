@@ -103,7 +103,7 @@ GLUSvoid GLUSAPIENTRY glusLogPrintError(GLUSuint verbosity, const char* format, 
 
 		vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
 
-		printf("LOG [%s]: glGetError() = 0x%x %s\n", logString, error, buffer);
+		printf("LOG [%s]: vgGetError() = 0x%x %s\n", logString, error, buffer);
 
 		va_end(argList);
 	}

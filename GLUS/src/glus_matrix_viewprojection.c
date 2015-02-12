@@ -75,6 +75,11 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Perspectivef(GLUSfloat result[16], const G
 {
     GLUSfloat xmin, xmax, ymin, ymax;
 
+    if (fovy <= 0.0f || fovy >= 180.0f)
+    {
+    	return GLUS_FALSE;
+    }
+
     ymax = zNear * tanf(fovy * GLUS_PI / 360.0f);
     ymin = -ymax;
     xmin = ymin * aspect;

@@ -182,7 +182,7 @@ static GLUSvoid glusWavefrontDestroyMaterial(GLUSmaterialList** materialList)
 	GLUSmaterialList* currentMaterialList = 0;
 	GLUSmaterialList* nextMaterialList = 0;
 
-	if (!materialList)
+	if (!materialList || !*materialList)
 	{
 		return;
 	}
@@ -424,7 +424,7 @@ static GLUSvoid glusWavefrontDestroyGroup(GLUSgroupList** groupList)
 	GLUSgroupList* currentGroupList = 0;
 	GLUSgroupList* nextGroupList = 0;
 
-	if (!groupList)
+	if (!groupList || !*groupList)
 	{
 		return;
 	}
@@ -456,6 +456,8 @@ static GLUSboolean glusWavefrontCopyData(GLUSshape* shape, GLUSuint totalNumberV
 	{
 		return GLUS_FALSE;
 	}
+
+	memset(shape, 0, sizeof(GLUSshape));
 
 	shape->numberVertices = totalNumberVertices;
 
@@ -533,6 +535,13 @@ GLUSboolean _glusWavefrontMove(GLUSwavefront* wavefront, GLUSshape* shape)
 	GLUSuint i;
 	GLUSuint counter = 0;
 
+	if (!wavefront || !shape)
+	{
+		return GLUS_FALSE;
+	}
+
+	// No clear of wavefront by purpose.
+
 	wavefront->vertices = shape->vertices;
 	wavefront->normals = shape->normals;
 	wavefront->texCoords = shape->texCoords;
@@ -576,6 +585,8 @@ GLUSboolean _glusWavefrontMove(GLUSwavefront* wavefront, GLUSshape* shape)
 
 	glusMemoryFree(shape->indices);
 	shape->indices = 0;
+
+	memset(shape, 0, sizeof(GLUSshape));
 
 	return GLUS_TRUE;
 }
@@ -1315,7 +1326,10 @@ GLUSboolean GLUSAPIENTRY glusWavefrontLoadScene(const GLUSchar* filename, GLUSsc
 		return GLUS_FALSE;
 	}
 
-	scene->objectList = 0;
+	memset(&dummyShape, 0, sizeof(GLUSshape));
+	memset(&dummyWavefront, 0, sizeof(GLUSwavefront));
+
+	memset(scene, 0, sizeof(GLUSscene));
 
 	if (!_glusWavefrontParse(filename, &dummyShape, &dummyWavefront, scene))
 	{

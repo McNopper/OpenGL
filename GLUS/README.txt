@@ -70,6 +70,11 @@ Yours Norbert Nopper
 
 Changelog:
 
+12.02.2015 - Fixed loading and cleanup code for wavefront object scenes.
+
+11.02.2015 - Renamed log error output in OpenVG: From glGetError() to vgGetError().
+		   - Added a field of view check, when creating a perspective matrix. Now, no crash can happen.
+
 10.02.2015 - Added possibility to pass surface attribute list. This allows e.g. to create a single buffered windows surface.
 
 04.02.2015 - Added TGA image converting to a premultiplied TGA image.
