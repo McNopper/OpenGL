@@ -58,7 +58,7 @@ extern "C"
 
 #include "../GLUS/glus_define_color.h"
 
-#include "../GLUS/glus_define_color_channel_es2.h"
+#include "../GLUS/glus_define_color_channel_es.h"
 
 #include "../GLUS/glus_define_ushort.h"
 

@@ -15,38 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GL/glus.h"
+#ifndef GLUS_DEFINE_COLOR_CHANNEL_ES_H_
+#define GLUS_DEFINE_COLOR_CHANNEL_ES_H_
 
-static GLUSfloat passedTime = 0.0f;
-static GLUSint passedFrames = 0;
+#define GLUS_SINGLE_CHANNEL GLUS_ALPHA
 
-GLUSvoid GLUSAPIENTRY glusProfileResetFPSf()
-{
-	passedTime = 0.0f;
-	passedFrames = 0;
-}
-
-GLUSboolean GLUSAPIENTRY glusProfileUpdateFPSf(GLUSfloat time, GLUSuint* frames)
-{
-	passedTime += time;
-	passedFrames++;
-
-	if (passedTime >= 1.0f)
-	{
-		if (frames)
-		{
-			*frames = passedFrames;
-		}
-		else
-		{
-			glusLogPrint(GLUS_LOG_INFO, "FPS: %d", passedFrames);
-		}
-
-		glusProfileResetFPSf();
-
-		return GLUS_TRUE;
-	}
-
-	return GLUS_FALSE;
-}
-
+#endif /* GLUS_DEFINE_COLOR_CHANNEL_ES_H_ */

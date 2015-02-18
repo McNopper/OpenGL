@@ -70,6 +70,9 @@ Yours Norbert Nopper
 
 Changelog:
 
+18.02.2015 - Improved color channel mapping for OpenGL ES and OpenVG.
+		   - Improved basic FPS profiler.
+
 12.02.2015 - Fixed loading and cleanup code for wavefront object scenes.
 
 11.02.2015 - Renamed log error output in OpenVG: From glGetError() to vgGetError().

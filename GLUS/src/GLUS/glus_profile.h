@@ -27,7 +27,10 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusProfileResetFPSf();
  * Update FPS profiling and log FPS.
  *
  * @param time Passed time per frame.
+ * @param frames Stores passed frames. If this is a null pointer, the output is logged.
+ *
+ * @return GLUS_TRUE, if one second passed.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusProfileUpdateFPSf(GLUSfloat time);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusProfileUpdateFPSf(GLUSfloat time, GLUSuint* frames);
 
 #endif /* GLUS_PROFILE_H_ */

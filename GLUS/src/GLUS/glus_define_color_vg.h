@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLUS_DEFINE_COLOR_CHANNEL_ES2_H_
-#define GLUS_DEFINE_COLOR_CHANNEL_ES2_H_
+#ifndef GLUS_DEFINE_COLOR_H_
+#define GLUS_DEFINE_COLOR_H_
 
-#define GLUS_SINGLE_CHANNEL GLUS_LUMINANCE
+#define GLUS_RED  						0x00001903
+#define GLUS_ALPHA  					VG_A_8
+#define GLUS_RGB    					0x00001907
+#define GLUS_RGBA   					VG_sABGR_8888
+#define GLUS_LUMINANCE  				VG_sL_8
 
-#endif /* GLUS_DEFINE_COLOR_CHANNEL_ES2_H_ */
+#endif /* GLUS_DEFINE_COLOR_H_ */
