@@ -220,6 +220,7 @@ extern "C"
 //
 
 #include "../GLUS/glus_line.h"
+#include "../GLUS/glus_line_wavefront.h"
 
 //
 // Model loading functions.

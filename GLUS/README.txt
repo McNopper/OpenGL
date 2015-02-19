@@ -70,6 +70,9 @@ Yours Norbert Nopper
 
 Changelog:
 
+19.02.2015 - Added wavefront object line loading.
+		   - Fixed bug in wavefront loading, that last triangle/line was added twice.
+
 18.02.2015 - Improved color channel mapping for OpenGL ES and OpenVG.
 		   - Improved basic FPS profiler.
 

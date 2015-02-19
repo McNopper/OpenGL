@@ -20,7 +20,47 @@
 #define GLUS_MAX_OBJECTS 1
 #define GLUS_MAX_ATTRIBUTES (GLUS_MAX_VERTICES/GLUS_VERTICES_DIVISOR)
 #define GLUS_MAX_TRIANGLE_ATTRIBUTES GLUS_MAX_VERTICES
+#define GLUS_MAX_LINE_ATTRIBUTES GLUS_MAX_VERTICES
 #define GLUS_BUFFERSIZE 1024
+
+static GLUSboolean glusWavefrontMallocTempMemoryLine(GLUSfloat** vertices, GLUSindex** indices)
+{
+	if (!vertices || !indices)
+	{
+		return GLUS_FALSE;
+	}
+
+	*vertices = (GLUSfloat*)glusMemoryMalloc(4 * GLUS_MAX_ATTRIBUTES * sizeof(GLUSfloat));
+	if (!*vertices)
+	{
+		return GLUS_FALSE;
+	}
+
+	*indices = (GLUSindex*)glusMemoryMalloc(GLUS_MAX_LINE_ATTRIBUTES * sizeof(GLUSindex));
+	if (!*indices)
+	{
+		return GLUS_FALSE;
+	}
+
+	return GLUS_TRUE;
+}
+
+static GLUSvoid glusWavefrontFreeTempMemoryLine(GLUSfloat** vertices, GLUSindex** indices)
+{
+	if (vertices && *vertices)
+	{
+		glusMemoryFree(*vertices);
+
+		*vertices = 0;
+	}
+
+	if (indices && *indices)
+	{
+		glusMemoryFree(*indices);
+
+		*indices = 0;
+	}
+}
 
 static GLUSboolean glusWavefrontMallocTempMemory(GLUSfloat** vertices, GLUSfloat** normals, GLUSfloat** texCoords, GLUSfloat** triangleVertices, GLUSfloat** triangleNormals, GLUSfloat** triangleTexCoords)
 {
@@ -229,6 +269,8 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 
 	while (!feof(f))
 	{
+		buffer[0] = 0;
+
 		if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
 		{
 			if (ferror(f))
@@ -446,6 +488,50 @@ static GLUSvoid glusWavefrontDestroyGroup(GLUSgroupList** groupList)
 	}
 
 	*groupList = 0;
+}
+
+static GLUSboolean glusWavefrontCopyDataLine(GLUSline* line, GLUSuint totalNumberVertices, GLUSfloat* lineVertices, GLUSuint totalNumberIndices, GLUSindex* lineIndices)
+{
+	if (!line || !lineVertices || !lineIndices)
+	{
+		return GLUS_FALSE;
+	}
+
+	memset(line, 0, sizeof(GLUSline));
+
+	line->numberVertices = totalNumberVertices;
+	line->numberIndices = totalNumberIndices;
+
+	if (totalNumberVertices > 0)
+	{
+		line->vertices = (GLUSfloat*)glusMemoryMalloc(totalNumberVertices * 4 * sizeof(GLUSfloat));
+
+		if (line->vertices == 0)
+		{
+			glusLineDestroyf(line);
+
+			return GLUS_FALSE;
+		}
+
+		memcpy(line->vertices, lineVertices, totalNumberVertices * 4 * sizeof(GLUSfloat));
+	}
+	if (totalNumberIndices > 0)
+	{
+		line->indices = (GLUSindex*)glusMemoryMalloc(totalNumberIndices * sizeof(GLUSindex));
+
+		if (line->indices == 0)
+		{
+			glusLineDestroyf(line);
+
+			return GLUS_FALSE;
+		}
+
+		memcpy(line->indices, lineIndices, totalNumberIndices * sizeof(GLUSindex));
+	}
+
+	line->mode = GLUS_LINES;
+
+	return GLUS_TRUE;
 }
 
 static GLUSboolean glusWavefrontCopyData(GLUSshape* shape, GLUSuint totalNumberVertices, GLUSfloat* triangleVertices, GLUSuint totalNumberNormals, GLUSfloat* triangleNormals, GLUSuint totalNumberTexCoords, GLUSfloat* triangleTexCoords)
@@ -678,6 +764,8 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 	while (!feof(f))
 	{
+		buffer[0] = 0;
+
 		if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
 		{
 			if (ferror(f))
@@ -1241,6 +1329,169 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 		memcpy(&currentObjectList->object, wavefront, sizeof(GLUSwavefront));
 	}
+
+	return result;
+}
+
+GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
+{
+	GLUSboolean result;
+
+	FILE* f;
+
+	GLUSchar buffer[GLUS_BUFFERSIZE];
+	GLUSchar identifier[7];
+
+	GLUSfloat x, y, z;
+
+	GLUSindex start, end;
+
+	GLUSfloat* vertices = 0;
+
+	GLUSindex* indices = 0;
+
+	GLUSuint numberVertices = 0;
+
+	GLUSuint numberIndices = 0;
+
+	// Objects
+
+	GLUSuint numberObjects = 0;
+
+	if (line)
+	{
+		memset(line, 0, sizeof(GLUSline));
+	}
+
+	if (!filename || !line)
+	{
+		return GLUS_FALSE;
+	}
+
+	f = fopen(filename, "r");
+
+	if (!f)
+	{
+		return GLUS_FALSE;
+	}
+
+	if (!glusWavefrontMallocTempMemoryLine(&vertices, &indices))
+	{
+		glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+		fclose(f);
+
+		return GLUS_FALSE;
+	}
+
+	while (!feof(f))
+	{
+		buffer[0] = 0;
+
+		if (fgets(buffer, GLUS_BUFFERSIZE, f) == 0)
+		{
+			if (ferror(f))
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+		}
+
+		if (strncmp(buffer, "o", 1) == 0)
+		{
+			if (numberObjects == GLUS_MAX_OBJECTS)
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			numberObjects++;
+		}
+		else if (strncmp(buffer, "v", 1) == 0)
+		{
+			if (numberVertices == GLUS_MAX_ATTRIBUTES)
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			sscanf(buffer, "%s %f %f %f", identifier, &x, &y, &z);
+
+			vertices[4 * numberVertices + 0] = x;
+			vertices[4 * numberVertices + 1] = y;
+			vertices[4 * numberVertices + 2] = z;
+			vertices[4 * numberVertices + 3] = 1.0f;
+
+			numberVertices++;
+		}
+		else if (strncmp(buffer, "l", 1) == 0)
+		{
+			if (numberIndices == GLUS_MAX_LINE_ATTRIBUTES)
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			sscanf(buffer, "%s %d %d", identifier, &start, &end);
+
+			if (start > 0)
+			{
+				start--;
+			}
+			else if (start < 0)
+			{
+				start += numberVertices;
+			}
+			else
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			if (end > 0)
+			{
+				end--;
+			}
+			else if (end < 0)
+			{
+				end += numberVertices;
+			}
+			else
+			{
+				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
+
+				fclose(f);
+
+				return GLUS_FALSE;
+			}
+
+			indices[numberIndices + 0] = start;
+			indices[numberIndices + 1] = end;
+
+			numberIndices += 2;;
+		}
+	}
+
+	fclose(f);
+
+	result = glusWavefrontCopyDataLine(line, numberVertices, vertices, numberIndices, indices);
+
+	glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
 	return result;
 }
