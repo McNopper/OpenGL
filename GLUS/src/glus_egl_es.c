@@ -47,7 +47,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not initialize EGL");
 
-        glusEGLTerminate(display, 0, 0);
+        glusEGLTerminate(&display, 0, 0);
 
         return EGL_FALSE;
     }
@@ -58,7 +58,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not bind API");
 
-        glusEGLTerminate(display, 0, 0);
+        glusEGLTerminate(&display, 0, 0);
 
         return EGL_FALSE;
     }
@@ -68,7 +68,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not choose EGL configuration");
 
-        glusEGLTerminate(display, 0, 0);
+        glusEGLTerminate(&display, 0, 0);
 
         return EGL_FALSE;
     }
@@ -77,7 +77,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     {
         glusLogPrint(GLUS_LOG_ERROR, "No EGL configuration returned");
 
-        glusEGLTerminate(display, 0, 0);
+        glusEGLTerminate(&display, 0, 0);
 
         return EGL_FALSE;
     }
@@ -88,7 +88,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL context");
 
-        glusEGLTerminate(eglDisplay, 0, 0);
+        glusEGLTerminate(&display, 0, 0);
 
         return EGL_FALSE;
     }

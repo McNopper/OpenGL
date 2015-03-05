@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+05.03.2015 - Fixed bug during EGL context creation, when previous commands did fail.
+
 19.02.2015 - Added wavefront object line loading.
 		   - Fixed bug in wavefront loading, that last triangle/line was added twice.
 
