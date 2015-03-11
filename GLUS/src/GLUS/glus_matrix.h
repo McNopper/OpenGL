@@ -675,48 +675,60 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4MultiplyPlanef(GLUSfloat result[4], c
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param matrix The used matrix.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat matrix[16]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix4x4GetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat matrix[16]);
 
 /**
  * Extracts the Euler angles from a 4x4 matrix, which was created by a Rz * Ry * Rz transformation.
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param matrix The used matrix.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix4x4GetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat matrix[16]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix4x4GetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat matrix[16]);
 
 /**
  * Extracts the Euler angles from a 3x3 matrix, which was created by a Rz * Rx * Ry transformation.
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param matrix The used matrix.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat matrix[9]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix3x3GetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat matrix[9]);
 
 /**
  * Extracts the Euler angles from a 3x3 matrix, which was created by a Rz * Ry * Rx transformation.
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param matrix The used matrix.
+  *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat matrix[9]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix3x3GetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat matrix[9]);
 
 /**
  * Extracts the angle from a 3x3 matrix, which is used in 2D.
  *
  * @param angle Resulting angle in degrees.
  * @param matrix The used matrix.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix3x3GetAnglef(GLUSfloat* angle, const GLUSfloat matrix[9]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix3x3GetAnglef(GLUSfloat* angle, const GLUSfloat matrix[9]);
 
 /**
  * Extracts the angle from a 2x2 matrix.
  *
  * @param angle Resulting angle in degrees.
  * @param matrix The used matrix.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusMatrix2x2GetAnglef(GLUSfloat* angle, const GLUSfloat matrix[4]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix2x2GetAnglef(GLUSfloat* angle, const GLUSfloat matrix[4]);
 
 /**
  * Extracts the scales from a 4x4 matrix.

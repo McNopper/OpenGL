@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+11.03.2015 - Improved function robustness, when extracting angles from matrices and quaternions.
+
 05.03.2015 - Fixed bug during EGL context creation, when previous commands did fail.
 
 19.02.2015 - Added wavefront object line loading.

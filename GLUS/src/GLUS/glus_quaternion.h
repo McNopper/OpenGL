@@ -197,16 +197,20 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetVector3f(GLUSfloat vector[3], 
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param quaternion The used Quaternion.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat quaternion[4]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat quaternion[4]);
 
 /**
  * Extracts the Euler angles from a Quaternion, created by Rz * Ry * Rx.
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param quaternion The used Quaternion.
+ *
+ * @return GLUS_TRUE, if a extraction could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat quaternion[4]);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat quaternion[4]);
 
 /**
  * Spherical interpolation of two Quaternions.
@@ -215,7 +219,9 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3],
  * @param quaternion0 The first Quaternion.
  * @param quaternion1 The second Quaternion.
  * @param t The fraction of both Quaternions.
+ *
+ * @return GLUS_TRUE, if a slerp could be done.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
+GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
 
 #endif /* GLUS_QUATERNION_H_ */
