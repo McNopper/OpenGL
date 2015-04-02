@@ -434,27 +434,57 @@ EGLNativeDisplayType _glusOsGetNativeDisplayType()
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
 {
+	char eventFilename[256];
+	int eventNumber;
+
+	int fileDescriptor;
+
+	uint32_t eventBits;
+
 	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'fullscreen' and 'noResize' are not used");
 	glusLogPrint(GLUS_LOG_INFO, "Key events are mapped to US keyboard");
 	glusLogPrint(GLUS_LOG_INFO, "Touch display is used for mouse events and are limited");
 
-	g_keyFileDescriptor = open("/dev/input/event5", O_RDONLY | O_NONBLOCK);
+	strcpy(eventFilename, "/dev/input/event0");
 
-	if (g_keyFileDescriptor < 0)
+	for (eventNumber = 0; eventNumber < 10; eventNumber++)
 	{
-		glusLogPrint(GLUS_LOG_WARNING, "Could not open key input device");
-	}
-	else
-	{
-		// Disable echo.
-		system("stty -echo");
-	}
+		eventFilename[16] = '0' + (char)eventNumber;
 
-	g_touchFileDescriptor = open("/dev/input/event0", O_RDONLY | O_NONBLOCK);
+		fileDescriptor = open(eventFilename, O_RDONLY | O_NONBLOCK);
 
-	if (g_touchFileDescriptor < 0)
-	{
-		glusLogPrint(GLUS_LOG_WARNING, "Could not open touch input device");
+		if (fileDescriptor < 0)
+		{
+			continue;
+		}
+
+		eventBits = 0;
+		if (ioctl(fileDescriptor, EVIOCGBIT(0, EV_MAX), &eventBits) < 0)
+		{
+			close(fileDescriptor);
+
+			continue;
+		}
+
+		if (eventBits == 0x120013 && g_keyFileDescriptor < 0)
+		{
+			glusLogPrint(GLUS_LOG_INFO, "Found keyboard on '%s'", eventFilename);
+
+			g_keyFileDescriptor = fileDescriptor;
+
+			// Disable echo.
+			system("stty -echo");
+		}
+		else if (eventBits == 0xb && g_touchFileDescriptor < 0)
+		{
+			glusLogPrint(GLUS_LOG_INFO, "Found touch display on '%s'", eventFilename);
+
+			g_touchFileDescriptor = fileDescriptor;
+		}
+		else
+		{
+			close(fileDescriptor);
+		}
 	}
 
 	g_nativeWindow = fbCreateWindow(g_nativeDisplay, 0, 0, width, height);
