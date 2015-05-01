@@ -222,7 +222,7 @@ GLUSvoid GLUSAPIENTRY glusVector3Reflectf(GLUSfloat result[3], const GLUSfloat i
 
 GLUSvoid GLUSAPIENTRY glusVector2Reflectf(GLUSfloat result[2], const GLUSfloat incident[2], const GLUSfloat normal[2])
 {
-	glusVector2MultiplyScalarf(result, normal, 2.0f * glusVector3Dotf(normal, incident));
+	glusVector2MultiplyScalarf(result, normal, 2.0f * glusVector2Dotf(normal, incident));
 
 	glusVector2SubtractVector2f(result, incident, result);
 }

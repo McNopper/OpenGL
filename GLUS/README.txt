@@ -70,6 +70,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+01.05.2015 - Removed issue after running cppcheck.
+
 02.04.2015 - Improved keyboard and touch screen detection on i.MX6.
 
 11.03.2015 - Improved function robustness, when extracting angles from matrices and quaternions.
