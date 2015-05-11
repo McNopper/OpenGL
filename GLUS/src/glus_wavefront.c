@@ -1344,7 +1344,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 
 	GLUSfloat x, y, z;
 
-	GLUSindex start, end;
+	GLUSint start, end;
 
 	GLUSfloat* vertices = 0;
 
@@ -1480,8 +1480,8 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 				return GLUS_FALSE;
 			}
 
-			indices[numberIndices + 0] = start;
-			indices[numberIndices + 1] = end;
+			indices[numberIndices + 0] = (GLUSindex)start;
+			indices[numberIndices + 1] = (GLUSindex)end;
 
 			numberIndices += 2;;
 		}

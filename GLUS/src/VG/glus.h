@@ -202,6 +202,12 @@ extern "C"
 #include "../GLUS/glus_profile.h"
 
 //
+// Time
+//
+
+#include "../GLUS/glus_time.h"
+
+//
 // Ray tracing
 //
 

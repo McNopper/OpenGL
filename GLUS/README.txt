@@ -70,6 +70,9 @@ Yours Norbert Nopper
 
 Changelog:
 
+11.05.2015 - Added time stamp querying function.
+		   - Removed warning in OpenGL ES 2.0 code.
+
 01.05.2015 - Removed issue after running cppcheck.
 
 02.04.2015 - Improved keyboard and touch screen detection on i.MX6.
