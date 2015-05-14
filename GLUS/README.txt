@@ -28,10 +28,10 @@ SDKs and Libraries:
 
 OpenGL ES SDKs and Libraries:
 
-- OpenGL ES 3.1: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
-- OpenGL ES 3.0: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 3.1: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 3.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
 				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
-- OpenGL ES 2.0: PowerVR SDK 3.4 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 2.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
 				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
 				 ANGLE http://code.google.com/p/angleproject/
 				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
@@ -69,6 +69,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+14.05.2015 - Updated OpenGL ES libraries.
 
 11.05.2015 - Added time stamp querying function.
 		   - Removed warning in OpenGL ES 2.0 code.
