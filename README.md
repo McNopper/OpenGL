@@ -96,3 +96,5 @@ Example42 - FXAA (OpenGL 4.3)
 Example43 - Scene with several models having groups and materials
 
 Example44 - Conservative rasterization
+
+Example45 - GPU voxelization (OpenGL 4.4, Work in progress, artifacts and crashes can occur)
