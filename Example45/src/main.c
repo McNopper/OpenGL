@@ -18,12 +18,14 @@
 #define BINDING_DIFFUSE 0
 
 #define WINDOW_SIZE 512
+
+// Size of the 3D texture.
 #define VOXEL_GRID_SIZE 128
 
 // Values, that the model is inside the voxel grid.
-#define EYE ((GLfloat)WINDOW_SIZE * 0.5f)
+#define EYE ((GLfloat)VOXEL_GRID_SIZE * 0.5f)
 #define NEAR 0.0f
-#define FAR ((GLfloat)WINDOW_SIZE)
+#define FAR ((GLfloat)VOXEL_GRID_SIZE)
 
 //
 
@@ -66,6 +68,9 @@ GLUSboolean init(GLUSvoid)
 
 	GLUSgroupList* groupWalker;
 	GLUSmaterialList* materialWalker;
+
+	GLfloat halfPixelSize[2];
+	GLfloat dimension[2];
 
     glusFileLoadText("../Example45/shader/voxelize.vert.glsl", &vertexSource);
     glusFileLoadText("../Example45/shader/voxelize.geom.glsl", &geometrySource);
@@ -185,6 +190,25 @@ GLUSboolean init(GLUSvoid)
 
     glUniformMatrix4fv(g_viewMatrixLocation, 1, GL_FALSE, g_viewMatrix);
 
+    //
+
+    glusMatrix4x4Orthof(g_projectionMatrix, -(GLfloat)VOXEL_GRID_SIZE * 0.5f, (GLfloat)VOXEL_GRID_SIZE * 0.5f, -(GLfloat)VOXEL_GRID_SIZE * 0.5f, (GLfloat)VOXEL_GRID_SIZE * 0.5f, NEAR, FAR);
+
+    glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, g_projectionMatrix);
+
+    //
+
+    dimension[0] = (GLfloat)VOXEL_GRID_SIZE;
+    dimension[1] = (GLfloat)VOXEL_GRID_SIZE;
+
+    glUniform2fv(g_dimensionLocation, 1, dimension);
+
+    // Calculate the half dimension of a pixel in NDC coordinates.
+    // NDC coordinates go from -1.0 to 1.0. So (1.0 - (-1.0)) * 0.5 / length is half the length.
+    halfPixelSize[0] = 1.0f / dimension[0];
+    halfPixelSize[1] = 1.0f / dimension[1];
+
+    glUniform2fv(g_halfPixelSizeLocation, 1, halfPixelSize);
 
     //
 
@@ -242,30 +266,7 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-	GLfloat halfPixelSize[2];
-	GLfloat dimension[2];
-
-    glViewport(0, 0, width, height);
-
-    glUseProgram(g_program.program);
-
-    glusMatrix4x4Orthof(g_projectionMatrix, -(GLfloat)width * 0.5f, (GLfloat)width * 0.5f, -(GLfloat)height * 0.5f, (GLfloat)height * 0.5f, NEAR, FAR);
-
-    glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, g_projectionMatrix);
-
-    //
-
-    dimension[0] = (GLfloat)width;
-    dimension[1] = (GLfloat)height;
-
-    glUniform2fv(g_dimensionLocation, 1, dimension);
-
-    // Calculate the half dimension of a pixel in NDC coordinates.
-    // NDC coordinates go from -1.0 to 1.0. So (1.0 - (-1.0)) * 0.5 / length is half the length.
-    halfPixelSize[0] = 1.0f / dimension[0];
-    halfPixelSize[1] = 1.0f / dimension[1];
-    
-    glUniform2fv(g_halfPixelSizeLocation, 1, halfPixelSize);
+	// Do nothing, as all initialization is done in the init() function.
 }
 
 GLUSboolean update(GLUSfloat time)
@@ -298,11 +299,11 @@ GLUSboolean update(GLUSfloat time)
 
     glusMatrix4x4Identityf(g_modelMatrix);
 
-    glusMatrix4x4Translatef(g_modelMatrix, 0.0f, -200.0f, 0.0f);
+    glusMatrix4x4Translatef(g_modelMatrix, 0.0f, -50.0f, 0.0f);
 
     glusMatrix4x4RotateRyf(g_modelMatrix, angle);
 
-    glusMatrix4x4Scalef(g_modelMatrix, 3000.0f, 3000.0f, 3000.0f);
+    glusMatrix4x4Scalef(g_modelMatrix, 750.0f, 750.0f, 750.0f);
 
     glUniformMatrix4fv(g_modelMatrixLocation, 1, GL_FALSE, g_modelMatrix);
 
@@ -311,6 +312,8 @@ GLUSboolean update(GLUSfloat time)
 	//
 
 	glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI);
+
+    glViewport(0, 0, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE);
 
 	//
 	// Render model.
@@ -355,6 +358,8 @@ GLUSboolean update(GLUSfloat time)
 	glUseProgram(g_fullscreenProgram.program);
 
 	glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);
+
+    glViewport(0, 0, WINDOW_SIZE, WINDOW_SIZE);
 
 	glBindVertexArray(g_fullscreenVao);
 

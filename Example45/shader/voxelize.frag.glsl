@@ -65,9 +65,9 @@ void main(void)
 		discard;
 	}
 
-    ivec3 dim = imageSize(u_voxelGrid);
+    ivec3 dim = imageSize(u_voxelGrid) - ivec3(1);
 	
-    // Conservative depth rasterization preparation: Get hafl range, how much depth pixels are affected.
+    // Conservative depth rasterization preparation: Get half range, how much depth pixels are affected.
     
     float halfDepthRange = fwidth(gl_FragCoord.z) * 0.5;
 	
@@ -78,11 +78,11 @@ void main(void)
     // Sample point location addresses the correct voxel grid entry ...
 	gridPosition.xy = ivec2(vec2(dim.xy) * (gl_FragCoord.xy / u_dimension));
 	// ... but has to be adjusted for z, as it is in the range of 0 and 1. 
-	gridPosition.z = int(vec2(dim.z - 1) * gl_FragCoord.z);
+	gridPosition.z = int(float(dim.z) * gl_FragCoord.z);
 	
 	// Because of conservative depth rasterization, possibly a range has to be updated in the voxel grid. 
-	ivec3 gridPositionStart = ivec3(gridPosition.xy, int(vec2(dim.z - 1) * clamp(gl_FragCoord.z - halfDepthRange, 0.0, 1.0)));
-	ivec3 gridPositionEnd = ivec3(gridPosition.xy, int(vec2(dim.z - 1) * clamp(gl_FragCoord.z + halfDepthRange, 0.0, 1.0)));
+	ivec3 gridPositionStart = ivec3(gridPosition.xy, int(float(dim.z) * clamp(gl_FragCoord.z - halfDepthRange, 0.0, 1.0)));
+	ivec3 gridPositionEnd = ivec3(gridPosition.xy, int(float(dim.z) * clamp(gl_FragCoord.z + halfDepthRange, 0.0, 1.0)));
 	
 	ivec3 gridPositionStep = ivec3(0, 0, 1);
 	
