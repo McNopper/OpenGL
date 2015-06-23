@@ -17,7 +17,7 @@ out vec4 v_aabb;
 
 out vec2 v_texCoord;
 
-out float v_orientation;
+out flat float v_orientation;
 
 // See Gpu Gems 2, Chapter 42: Conservative Rasterization. (http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter42.html)
 // See "Conservative and Tiled Rasterization Using a Modified Triangle Setup." Journal of Graphics Tools. 

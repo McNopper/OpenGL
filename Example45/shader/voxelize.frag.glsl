@@ -1,18 +1,16 @@
 #version 440 core
 
 // As 1 byte for the counter.
-#define MAX_COLOR_VALUES 255.0
+#define MAX_COLOR_VALUES 256.0
 
 layout (binding = 1) uniform sampler2D u_diffuse;
-
-uniform vec2 u_dimension;
 
 in vec2 v_pos;
 in vec4 v_aabb;
 
 in vec2 v_texCoord;
 
-in float v_orientation;
+in flat float v_orientation;
 
 layout (r32ui, binding = 0) uniform coherent volatile uimage3D u_voxelGrid;
 
@@ -39,16 +37,16 @@ void imageAtomicAverage(ivec3 pos, vec4 addingColor)
         // Unpack the current average ...
         color = unpackUnorm4x8(actualValue);
         // ... and convert back to the sum.
-        color.w *= MAX_COLOR_VALUES;
+        color.a *= MAX_COLOR_VALUES;
         color.rgb *= color.w;
                 
         // Add the current color ...        
         color.rgb += addingColor.rgb;
-        color.w += 1.0;
+        color.a += 1.0;
         
         // ... and normalize back.
-        color.rgb /= color.w;
-        color.w /= MAX_COLOR_VALUES;
+        color.rgb /= color.a;
+        color.a /= MAX_COLOR_VALUES;
      
      
         // Pack and try to store this value as the new value.
@@ -65,7 +63,7 @@ void main(void)
 		discard;
 	}
 
-    ivec3 dim = imageSize(u_voxelGrid) - ivec3(1);
+    float depth = imageSize(u_voxelGrid).z - 1;
 	
     // Conservative depth rasterization preparation: Get half range, how much depth pixels are affected.
     
@@ -76,13 +74,14 @@ void main(void)
 	ivec3 gridPosition;
 	
     // Sample point location addresses the correct voxel grid entry ...
-	gridPosition.xy = ivec2(vec2(dim.xy) * (gl_FragCoord.xy / u_dimension));
+	gridPosition.xy = ivec2(gl_FragCoord.xy);
+	
 	// ... but has to be adjusted for z, as it is in the range of 0 and 1. 
-	gridPosition.z = int(float(dim.z) * gl_FragCoord.z);
+	gridPosition.z = int(depth * gl_FragCoord.z);
 	
 	// Because of conservative depth rasterization, possibly a range has to be updated in the voxel grid. 
-	ivec3 gridPositionStart = ivec3(gridPosition.xy, int(float(dim.z) * clamp(gl_FragCoord.z - halfDepthRange, 0.0, 1.0)));
-	ivec3 gridPositionEnd = ivec3(gridPosition.xy, int(float(dim.z) * clamp(gl_FragCoord.z + halfDepthRange, 0.0, 1.0)));
+	ivec3 gridPositionStart = ivec3(gridPosition.xy, int(depth * clamp(gl_FragCoord.z - halfDepthRange, 0.0, 1.0)));
+	ivec3 gridPositionEnd = ivec3(gridPosition.xy, int(depth * clamp(gl_FragCoord.z + halfDepthRange, 0.0, 1.0)));
 	
 	ivec3 gridPositionStep = ivec3(0, 0, 1);
 	

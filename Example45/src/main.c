@@ -35,7 +35,6 @@ static GLint g_projectionMatrixLocation;
 static GLint g_viewMatrixLocation;
 static GLint g_modelMatrixLocation;
 
-static GLint g_dimensionLocation;
 static GLint g_halfPixelSizeLocation;
 
 //
@@ -70,7 +69,6 @@ GLUSboolean init(GLUSvoid)
 	GLUSmaterialList* materialWalker;
 
 	GLfloat halfPixelSize[2];
-	GLfloat dimension[2];
 
     glusFileLoadText("../Example45/shader/voxelize.vert.glsl", &vertexSource);
     glusFileLoadText("../Example45/shader/voxelize.geom.glsl", &geometrySource);
@@ -88,7 +86,6 @@ GLUSboolean init(GLUSvoid)
     g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
     g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
 
-    g_dimensionLocation = glGetUniformLocation(g_program.program, "u_dimension");
     g_halfPixelSizeLocation = glGetUniformLocation(g_program.program, "u_halfPixelSize");
 
     //
@@ -198,15 +195,10 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    dimension[0] = (GLfloat)VOXEL_GRID_SIZE;
-    dimension[1] = (GLfloat)VOXEL_GRID_SIZE;
-
-    glUniform2fv(g_dimensionLocation, 1, dimension);
-
     // Calculate the half dimension of a pixel in NDC coordinates.
     // NDC coordinates go from -1.0 to 1.0. So (1.0 - (-1.0)) * 0.5 / length is half the length.
-    halfPixelSize[0] = 1.0f / dimension[0];
-    halfPixelSize[1] = 1.0f / dimension[1];
+    halfPixelSize[0] = 1.0f / (GLfloat)VOXEL_GRID_SIZE;
+    halfPixelSize[1] = 1.0f / (GLfloat)VOXEL_GRID_SIZE;
 
     glUniform2fv(g_halfPixelSizeLocation, 1, halfPixelSize);
 
@@ -299,11 +291,11 @@ GLUSboolean update(GLUSfloat time)
 
     glusMatrix4x4Identityf(g_modelMatrix);
 
-    glusMatrix4x4Translatef(g_modelMatrix, 0.0f, -50.0f, 0.0f);
+    glusMatrix4x4Translatef(g_modelMatrix, 0.0f, -200.0f * VOXEL_GRID_SIZE / WINDOW_SIZE, 0.0f);
 
     glusMatrix4x4RotateRyf(g_modelMatrix, angle);
 
-    glusMatrix4x4Scalef(g_modelMatrix, 750.0f, 750.0f, 750.0f);
+    glusMatrix4x4Scalef(g_modelMatrix, 3000.0f * VOXEL_GRID_SIZE / WINDOW_SIZE, 3000.0f * VOXEL_GRID_SIZE / WINDOW_SIZE, 3000.0f * VOXEL_GRID_SIZE / WINDOW_SIZE);
 
     glUniformMatrix4fv(g_modelMatrixLocation, 1, GL_FALSE, g_modelMatrix);
 
