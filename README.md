@@ -97,4 +97,4 @@ Example43 - Scene with several models having groups and materials
 
 Example44 - Conservative rasterization
 
-Example45 - GPU voxelization (OpenGL 4.4, Work in progress, artifacts on NVIDIA and crashes on AMD can occur)
+Example45 - GPU voxelization (OpenGL 4.4, Work in progress, minimal voxelization artifacts to be removed)

@@ -12,11 +12,8 @@ uniform vec2 u_halfPixelSize;
 
 in vec2 v_g_texCoord[];
 
-out vec2 v_pos;
 out vec4 v_aabb;
-
 out vec2 v_texCoord;
-
 out flat float v_orientation;
 
 // See Gpu Gems 2, Chapter 42: Conservative Rasterization. (http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter42.html)
@@ -27,43 +24,77 @@ void main(void)
     int i;
     
     vec4 vertex[3];
+    vec2 texCoord[3];
     
     for (i = 0; i < gl_in.length(); i++)
     {
         vertex[i] = u_projectionMatrix * u_viewMatrix * u_modelMatrix * gl_in[i].gl_Position;
-        vertex[i] /= vertex[i].w; 
+        vertex[i] /= vertex[i].w;
+        
+        texCoord[i] = v_g_texCoord[i]; 
     }
+    
+    // Find largest face area
+    
+    vec3 triangleNormal = abs(normalize(cross(vertex[1].xyz - vertex[0].xyz, vertex[2].xyz - vertex[0].xyz)));
 
-    // Find largest face area and swizzle coordinates.
-
-    vec3 triangleNormal = abs(normalize(cross(vertex[1].xyz - vertex[0].xyz, vertex[2].xyz - vertex[0].xyz)));    
+    vec3 temp;
 
     if (triangleNormal.x < triangleNormal.z && triangleNormal.y < triangleNormal.z)
     {
+        // z-axis is depth.
+    
 	    v_orientation = 0.0;
     }
-    else if (triangleNormal.x < triangleNormal.y)
+    else if (triangleNormal.x < triangleNormal.y && triangleNormal.z < triangleNormal.y)
     {
+        // y-axis is depth.
+    
         v_orientation = 1.0;
         
-	    for (i = 0; i < gl_in.length(); i++)
-	    {
-	        vertex[i].yz = vertex[i].zy;  
-	    }
+        for (i = 0; i < gl_in.length(); i++)
+        {
+            temp.y = vertex[i].z;
+            temp.z = -vertex[i].y;
+            
+            vertex[i].yz = temp.yz; 
+        }
     }
     else
     {
+        // x-axis is depth.
+    
         v_orientation = 2.0;
         
         for (i = 0; i < gl_in.length(); i++)
         {
-            vertex[i].xz = vertex[i].zx;  
+            temp.x = vertex[i].z;
+            temp.z = -vertex[i].x; 
+            
+            vertex[i].xz = temp.xz; 
         }
-    }    
+    }
+        
+    // Change winding, otherwise there are artifacts for the back faces.
 
+    triangleNormal = normalize(cross(vertex[1].xyz - vertex[0].xyz, vertex[2].xyz - vertex[0].xyz));
+    
+    if (dot(triangleNormal, vec3(0.0, 0.0, 1.0)) < 0.0)
+    {
+        vec4 vertexTemp = vertex[2];
+        vec2 texCoordTemp = texCoord[2];
+        
+        vertex[2] = vertex[1];
+        texCoord[2] = texCoord[1];
+    
+        vertex[1] = vertexTemp;
+        texCoord[1] = texCoordTemp;
+    }
+    
     //
     
     // Axis aligned bounding box (AABB) initialized with maximum/minimum NDC values.
+    
     vec4 aabb = vec4(1.0, 1.0, -1.0, -1.0);
 
     for (i = 0; i < gl_in.length(); i++)
@@ -79,7 +110,7 @@ void main(void)
     //
     
     // Add offset of half pixel size to AABB.
-    aabb += vec4(-u_halfPixelSize, u_halfPixelSize);
+    v_aabb = aabb + vec4(-u_halfPixelSize, u_halfPixelSize);
 
 	//
     
@@ -106,50 +137,40 @@ void main(void)
 		// Half pixel size is d. Absolute of plane's xy, as the sign is already in the normal of the plane. 
 		plane[i].z -= dot(u_halfPixelSize, abs(plane[i].xy));
     }
-    
-    //
-    // Triangle plane to later calculate the new z coordinate.
-    //
-
-    vec4 trianglePlane;
         
-    trianglePlane.xyz = normalize(cross(vertex[1].xyz - vertex[0].xyz, vertex[2].xyz - vertex[0].xyz));
-        
-    trianglePlane.w = -dot(vertex[0].xyz, trianglePlane.xyz);
-    
     //    
     // Create conservative rasterized triangle.
     // 
     
-    vec3 intersect;
-        
+    vec3 intersect[3];
+
     for (i = 0; i < gl_in.length(); i++)
     {
-    	// As both planes go through the origin, the intersecting line goes also through the origin. This simplifies the intersection calculation.
-    	// The intersecting line is perpendicular to both planes (see Wolfram MathWorld),
-    	// so the intersection line is just the cross product of both normals. 
-    	intersect = cross(plane[i], plane[(i+1) % 3]);
-    	
+        // As both planes go through the origin, the intersecting line goes also through the origin. This simplifies the intersection calculation.
+        // The intersecting line is perpendicular to both planes (see Wolfram MathWorld),
+        // so the intersection line is just the cross product of both normals. 
+        intersect[i] = cross(plane[i], plane[(i+1) % 3]);
+        
+        if (intersect[i].z == 0.0)
+        {
+            return;
+        }
+        
         //
         // The line is a direction (x, y, w) but projects to the same point in window space.
         //
         // Compare: (x, y, w) <=> (x/w, y/w, 1) => (xClip, yClip)
-        //
-    	intersect /= intersect.z; 
-    
-        gl_Position.xy = intersect.xy;
+        intersect[i] /= intersect[i].z; 
+    }
         
-        // Calculate the new z-Coordinate derived from a point on a plane.
+    for (i = 0; i < gl_in.length(); i++)
+    {
+        gl_Position.xyw = intersect[i];
         
-        gl_Position.z = -(trianglePlane.x * intersect.x + trianglePlane.y * intersect.y + trianglePlane.w) / trianglePlane.z;   
-          
-        gl_Position.w = 1.0;
+        // TODO Calculate proper depth of expanded vertex.
+        gl_Position.z = vertex[i].z;
 		
-		// Later NDC position if each fragment.
-		v_pos = intersect.xy;
-		v_aabb = aabb;
-		
-		v_texCoord = v_g_texCoord[i];
+		v_texCoord = texCoord[i];
 
         EmitVertex();
     }
