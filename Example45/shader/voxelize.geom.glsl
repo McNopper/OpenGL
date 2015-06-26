@@ -90,11 +90,23 @@ void main(void)
         vertex[1] = vertexTemp;
         texCoord[1] = texCoordTemp;
     }
+        
+    // Triangle plane to later calculate the new z coordinate.
+
+    vec4 trianglePlane;
+        
+    trianglePlane.xyz = normalize(cross(vertex[1].xyz - vertex[0].xyz, vertex[2].xyz - vertex[0].xyz));
+        
+    trianglePlane.w = -dot(vertex[0].xyz, trianglePlane.xyz);
     
-    //
+    if (trianglePlane.z == 0.0)
+    {
+        return;
+    }
     
-    // Axis aligned bounding box (AABB) initialized with maximum/minimum NDC values.
+    // Axis aligned bounding box (AABB).
     
+    // AABB initialized with maximum/minimum NDC values.
     vec4 aabb = vec4(1.0, 1.0, -1.0, -1.0);
 
     for (i = 0; i < gl_in.length(); i++)
@@ -104,15 +116,11 @@ void main(void)
 
 		aabb.zw = max(aabb.zw, vertex[i].xy);
     }
-        
-    //
-    // Calculate triangle for conservative rasterization.
-    //
-    
+
     // Add offset of half pixel size to AABB.
     v_aabb = aabb + vec4(-u_halfPixelSize, u_halfPixelSize);
-
-	//
+        
+    // Calculate triangle for conservative rasterization.
     
 	vec3 plane[3];
 	       
@@ -138,9 +146,7 @@ void main(void)
 		plane[i].z -= dot(u_halfPixelSize, abs(plane[i].xy));
     }
         
-    //    
     // Create conservative rasterized triangle.
-    // 
     
     vec3 intersect[3];
 
@@ -162,14 +168,14 @@ void main(void)
         // Compare: (x, y, w) <=> (x/w, y/w, 1) => (xClip, yClip)
         intersect[i] /= intersect[i].z; 
     }
-        
+            
     for (i = 0; i < gl_in.length(); i++)
     {
         gl_Position.xyw = intersect[i];
         
-        // TODO Calculate proper depth of expanded vertex.
-        gl_Position.z = vertex[i].z;
-		
+        // Calculate the new z-Coordinate derived from a point on a plane.
+        gl_Position.z = -(trianglePlane.x * intersect[i].x + trianglePlane.y * intersect[i].y + trianglePlane.w) / trianglePlane.z;   
+        		
 		v_texCoord = texCoord[i];
 
         EmitVertex();

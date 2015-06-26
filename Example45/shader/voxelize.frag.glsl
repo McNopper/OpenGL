@@ -48,11 +48,11 @@ void imageAtomicAverage(ivec3 pos, vec4 addingColor)
         color.a /= MAX_COLOR_VALUES;
      
      
-        // Pack and try to store this value as the new value.
+        // Pack and ...
         newValue = packUnorm4x8(color);
         
         
-        // Try to store again ...
+        // ... try to store again ...
         actualValue = imageAtomicCompSwap(u_voxelGrid, pos, expectedValue, newValue);
     }
 }
@@ -62,6 +62,7 @@ void main(void)
 {
     ivec3 gridSize = imageSize(u_voxelGrid);
 
+    // Get xy-NDC of fragment.
     vec2 pos = (gl_FragCoord.xy / vec2(gridSize.xy)) * 2.0 - 1.0;
 
 	// Discard pixels, which are not inside the AABB.
@@ -79,7 +80,6 @@ void main(void)
 	
 	// ... but has to be adjusted for z, as it is in the range of 0 and 1. 
     float depth = float(gridSize.z - 1);
-    
 	gridPosition.z = int(depth * gl_FragCoord.z);
 
 	// Conservative depth rasterization preparation: Get half range, how much depth pixels are affected.    
@@ -115,7 +115,6 @@ void main(void)
         gridPositionStep = ivec3(-1, 0, 0);
     }
 
-    // TODO Remove minimal artifacts: Holes and stripes.
     for (int i = 0; i < gridRange; i++)
     {
         // Note: Alpha channel contains the normalized counter.
