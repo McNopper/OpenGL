@@ -4,8 +4,7 @@ GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities:
 How to build GLUS and the examples:
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
-   For building with Visual C++ 2013, CMake and the Windows SDK 8.1 are needed. 
-2. Import GLUS as an existing project.
+2. Import GLUS, External and Binaries or VG_Binaries as an existing project.
 3. Set the build configuration in Eclipse to your operating system.
 4. Build GLUS.
 5. Import an example as an existing project.
@@ -16,7 +15,7 @@ How to build GLUS and the examples:
 If you get build errors:
 
 - Please make sure, that you install all the needed header and libraries.
-- Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
+- Pre-build libraries are located in the External project folder. If you want/need to, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 - Libraries for the i.MX6 platform are not included.
 - Libraries for OpenGL ES and OpenVG are not included.
@@ -24,7 +23,7 @@ If you get build errors:
 SDKs and Libraries:
 
 - GLEW 1.12.0 http://glew.sourceforge.net/
-- GLFW 3.1    http://www.glfw.org/
+- GLFW 3.1.1  http://www.glfw.org/
 
 OpenGL ES SDKs and Libraries:
 
@@ -39,6 +38,10 @@ OpenGL ES SDKs and Libraries:
 OpenVG SDKs and Libraries:
 
 - OpenVG 1.1: Sample Implementation http://www.khronos.org/registry/vg/
+
+SDKs used for Windows:
+
+- MinGW-w64 - for 32 and 64 bit Windows: http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/5.1.0/threads-posix/dwarf/  
 
 SDKs/Libraries/Images used for Raspberry Pi:
 
@@ -69,6 +72,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+11.07.2015 - Improved, updated README.
 
 14.05.2015 - Updated OpenGL ES libraries.
 
