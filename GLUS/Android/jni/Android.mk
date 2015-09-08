@@ -64,7 +64,7 @@ LOCAL_CFLAGS    += -DGLUS_BASE_DIRECTORY=\"/sdcard/Download/Binaries/\"
 
 # Add specfic files.
 
-PROJECT_FILES += $(LOCAL_PATH)/../../src/glus_os_android.c
+PROJECT_FILES += $(LOCAL_PATH)/../../src/glus_os_android_es.c
 
 # Generate the final list.
 
