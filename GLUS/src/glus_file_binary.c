@@ -36,7 +36,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	binaryfile->length = 0;
 
-	f = fopen(filename, "rb");
+	f = glusFileOpen(filename, "rb");
 
 	if (!f)
 	{
@@ -100,7 +100,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveBinary(const GLUSchar* filename, const GLUS
 		return GLUS_FALSE;
 	}
 
-	file = fopen(filename, "wb");
+	file = glusFileOpen(filename, "wb");
 
 	if (!file)
 	{

@@ -36,7 +36,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	textfile->length = 0;
 
-	f = fopen(filename, "rb");
+	f = glusFileOpen(filename, "rb");
 
 	if (!f)
 	{
@@ -100,7 +100,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveText(const GLUSchar* filename, const GLUSte
 		return GLUS_FALSE;
 	}
 
-	file = fopen(filename, "w");
+	file = glusFileOpen(filename, "w");
 
 	if (!file)
 	{

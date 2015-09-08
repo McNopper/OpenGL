@@ -73,6 +73,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+08.09.2015 - Added basic Android support for OprnGL ES.
+
 11.07.2015 - Improved, updated README.
 
 14.05.2015 - Updated OpenGL ES libraries.

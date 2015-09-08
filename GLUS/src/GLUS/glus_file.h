@@ -52,4 +52,16 @@ typedef struct _GLUSbinaryfile
 
 } GLUSbinaryfile;
 
+/**
+ * Opens the file whose name is specified in the parameter filename and
+ * associates it with a stream that can be identified in future operations by the FILE pointer returned.
+ *
+ * @param filename C string containing the name of the file to be opened.
+ * @param mode C string containing a file access mode
+ *
+ * @return If the file is successfully opened, the function returns a pointer to a FILE object that can be used to identify the stream on future operations.
+ *		   Otherwise, a null pointer is returned.
+ */
+GLUSAPI FILE* GLUSAPIENTRY glusFileOpen(const char * filename, const char * mode);
+
 #endif /* GLUS_FILE_H_ */

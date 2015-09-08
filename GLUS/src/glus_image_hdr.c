@@ -219,7 +219,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	hdrimage->data = 0;
 
 	// open filename in "read binary" mode
-	file = fopen(filename, "rb");
+	file = glusFileOpen(filename, "rb");
 
 	if (!file)
 	{
@@ -496,7 +496,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 	}
 
 	// open filename in "write binary" mode
-	file = fopen(filename, "wb");
+	file = glusFileOpen(filename, "wb");
 
 	if (!file)
 	{

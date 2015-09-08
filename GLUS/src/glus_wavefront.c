@@ -260,7 +260,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 		return GLUS_FALSE;
 	}
 
-	f = fopen(filename, "r");
+	f = glusFileOpen(filename, "r");
 
 	if (!f)
 	{
@@ -746,7 +746,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 		return GLUS_FALSE;
 	}
 
-	f = fopen(filename, "r");
+	f = glusFileOpen(filename, "r");
 
 	if (!f)
 	{
@@ -1368,7 +1368,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 		return GLUS_FALSE;
 	}
 
-	f = fopen(filename, "r");
+	f = glusFileOpen(filename, "r");
 
 	if (!f)
 	{

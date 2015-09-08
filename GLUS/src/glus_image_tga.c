@@ -119,7 +119,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	tgaimage->format = 0;
 
 	// open filename in "read binary" mode
-	file = fopen(filename, "rb");
+	file = glusFileOpen(filename, "rb");
 
 	if (!file)
 	{
@@ -521,7 +521,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 	}
 
 	// open filename in "write binary" mode
-	file = fopen(filename, "wb");
+	file = glusFileOpen(filename, "wb");
 
 	if (!file)
 	{

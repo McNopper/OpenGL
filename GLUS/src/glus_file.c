@@ -17,6 +17,26 @@
 
 #include "GL/glus.h"
 
+FILE* GLUSAPIENTRY glusFileOpen(const char * filename, const char * mode)
+{
+	char buffer[GLUS_MAX_FILENAME];
+
+	if (!filename)
+	{
+		return 0;
+	}
+
+	if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
+	{
+		return 0;
+	}
+
+	strcpy(buffer, GLUS_BASE_DIRECTORY);
+	strcat(buffer, filename);
+
+	return fopen(buffer, mode);
+}
+
 GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
 {
 	if (!f)
