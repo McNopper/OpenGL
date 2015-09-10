@@ -45,7 +45,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	if (fseek(f, 0, SEEK_END))
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		return GLUS_FALSE;
 	}
@@ -54,7 +54,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	if (binaryfile->length < 0 || binaryfile->length == GLUS_MAX_BINARYILE_LENGTH)
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		binaryfile->length = 0;
 
@@ -65,7 +65,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 
 	if (!binaryfile->binary)
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		binaryfile->length = 0;
 
@@ -85,7 +85,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadBinary(const GLUSchar* filename, GLUSbinary
 		return GLUS_FALSE;
 	}
 
-	fclose(f);
+	glusFileClose(f);
 
 	return GLUS_TRUE;
 }
@@ -114,7 +114,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveBinary(const GLUSchar* filename, const GLUS
 		return GLUS_FALSE;
 	}
 
-	fclose(file);
+	glusFileClose(file);
 
 	return GLUS_TRUE;
 }

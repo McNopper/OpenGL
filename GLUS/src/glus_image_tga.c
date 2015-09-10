@@ -129,7 +129,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// seek through the tga header, up to the type:
 	if (fseek(file, 2, SEEK_CUR))
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -145,7 +145,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// check the type
 	if (imageType != 1 && imageType != 2 && imageType != 3 && imageType != 9 && imageType != 10 && imageType != 11)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -160,7 +160,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 		// seek through the tga header, up to the width/height:
 		if (fseek(file, 9, SEEK_CUR))
 		{
-			fclose(file);
+			glusFileClose(file);
 
 			return GLUS_FALSE;
 		}
@@ -197,7 +197,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 		// seek through the tga header, up to the width/height:
 		if (fseek(file, 4, SEEK_CUR))
 		{
-			fclose(file);
+			glusFileClose(file);
 
 			return GLUS_FALSE;
 		}
@@ -252,7 +252,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// check the pixel depth
 	if (bitsPerPixel != 8 && bitsPerPixel != 24 && bitsPerPixel != 32)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyTga(tgaimage);
 
@@ -274,7 +274,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// move file pointer to beginning of targa data
 	if (fseek(file, 1, SEEK_CUR))
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyTga(tgaimage);
 
@@ -291,7 +291,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 
 		if (!colorMap)
 		{
-			fclose(file);
+			glusFileClose(file);
 
 			glusImageDestroyTga(tgaimage);
 
@@ -325,7 +325,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	// verify memory allocation
 	if (!tgaimage->data)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyTga(tgaimage);
 
@@ -447,7 +447,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadTga(const GLUSchar* filename, GLUStgaimage
 	}
 
 	// close the file
-	fclose(file);
+	glusFileClose(file);
 
 	if (hasColorMap)
 	{
@@ -542,7 +542,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 			bitsPerPixel = 32;
 		break;
 		default:
-			fclose(file);
+			glusFileClose(file);
 			return GLUS_FALSE;
 	}
 
@@ -610,7 +610,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 
 	if (!data)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -631,7 +631,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveTga(const GLUSchar* filename, const GLUStg
 		return GLUS_FALSE;
 	}
 
-	fclose(file);
+	glusFileClose(file);
 
 	return GLUS_TRUE;
 }

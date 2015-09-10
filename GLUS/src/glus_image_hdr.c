@@ -90,7 +90,7 @@ static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint wi
 
 				if (scanLength > width)
 				{
-					fclose(file);
+					glusFileClose(file);
 
 					return -1;
 				}
@@ -115,7 +115,7 @@ static GLUSint glusImageDecodeNewRLE(FILE* file, GLUSubyte* scanline, GLUSint wi
 
 				if (scanLength > width)
 				{
-					fclose(file);
+					glusFileClose(file);
 
 					return -1;
 				}
@@ -240,7 +240,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	// Identifier
 	if (strncmp(buffer, "#?RADIANCE", 10))
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -248,7 +248,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	// Go to variables
 	if (fseek(file, 1, SEEK_CUR))
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -294,7 +294,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 	if (!sscanf(buffer, "-Y %d +X %d", &height, &width))
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyHdr(hdrimage);
 
@@ -310,7 +310,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 	if (!hdrimage->data)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyHdr(hdrimage);
 
@@ -324,7 +324,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 	{
 		glusMemoryFree(scanline);
 
-		fclose(file);
+		glusFileClose(file);
 
 		glusImageDestroyHdr(hdrimage);
 
@@ -378,7 +378,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 				{
 					glusMemoryFree(scanline);
 
-					fclose(file);
+					glusFileClose(file);
 
 					glusImageDestroyHdr(hdrimage);
 
@@ -443,7 +443,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 			{
 				glusMemoryFree(scanline);
 
-				fclose(file);
+				glusFileClose(file);
 
 				glusImageDestroyHdr(hdrimage);
 
@@ -472,7 +472,7 @@ GLUSboolean GLUSAPIENTRY glusImageLoadHdr(const GLUSchar* filename, GLUShdrimage
 
 	glusMemoryFree(scanline);
 
-	fclose(file);
+	glusFileClose(file);
 
 	return GLUS_TRUE;
 }
@@ -514,7 +514,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 	// Resolution
 	if (fprintf(file, "-Y %d +X %d\n", hdrimage->height, hdrimage->width) < 0)
 	{
-		fclose(file);
+		glusFileClose(file);
 
 		return GLUS_FALSE;
 	}
@@ -535,7 +535,7 @@ GLUSboolean GLUSAPIENTRY glusImageSaveHdr(const GLUSchar* filename, const GLUShd
 		}
 	}
 
-	fclose(file);
+	glusFileClose(file);
 
 	return GLUS_TRUE;
 }

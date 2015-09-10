@@ -64,4 +64,15 @@ typedef struct _GLUSbinaryfile
  */
 GLUSAPI FILE* GLUSAPIENTRY glusFileOpen(const char * filename, const char * mode);
 
+
+/**
+ * Closes the file associated with the stream and disassociates it.
+ *
+ * @param stream Pointer to a FILE object that specifies the stream to be closed.
+ *
+ * @return If the stream is successfully closed, a zero value is returned.
+ * On failure, EOF is returned.
+ */
+GLUSAPI int GLUSAPIENTRY glusFileClose(FILE* stream);
+
 #endif /* GLUS_FILE_H_ */

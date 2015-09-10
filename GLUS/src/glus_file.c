@@ -17,26 +17,6 @@
 
 #include "GL/glus.h"
 
-FILE* GLUSAPIENTRY glusFileOpen(const char * filename, const char * mode)
-{
-	char buffer[GLUS_MAX_FILENAME];
-
-	if (!filename)
-	{
-		return 0;
-	}
-
-	if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
-	{
-		return 0;
-	}
-
-	strcpy(buffer, GLUS_BASE_DIRECTORY);
-	strcat(buffer, filename);
-
-	return fopen(buffer, mode);
-}
-
 GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
 {
 	if (!f)
@@ -46,7 +26,7 @@ GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
 
 	if (actualRead < expectedRead)
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		return GLUS_FALSE;
 	}
@@ -65,11 +45,38 @@ GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrit
 	{
 		if (ferror(f))
 		{
-			fclose(f);
+			glusFileClose(f);
 
 			return GLUS_FALSE;
 		}
 	}
 
 	return GLUS_TRUE;
+}
+
+FILE* GLUSAPIENTRY glusFileOpen(const char* filename, const char* mode)
+{
+	char buffer[GLUS_MAX_FILENAME];
+
+	if (!filename)
+	{
+		// Note: Automatic errno setting.
+		return fopen(filename, mode);
+	}
+
+	if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
+	{
+		// Note: Automatic errno setting.
+		return fopen(filename, mode);
+	}
+
+	strcpy(buffer, GLUS_BASE_DIRECTORY);
+	strcat(buffer, filename);
+
+	return fopen(buffer, mode);
+}
+
+int GLUSAPIENTRY glusFileClose(FILE* stream)
+{
+	return fclose(stream);
 }

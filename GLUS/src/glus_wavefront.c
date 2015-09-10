@@ -275,7 +275,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 		{
 			if (ferror(f))
 			{
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -298,7 +298,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 
 			if (k >= GLUS_BUFFERSIZE)
 			{
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -319,7 +319,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 
 			if (i >= GLUS_BUFFERSIZE - k)
 			{
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -337,7 +337,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 			{
 				glusWavefrontDestroyMaterial(materialList);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -456,7 +456,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 		}
 	}
 
-	fclose(f);
+	glusFileClose(f);
 
 	return GLUS_TRUE;
 }
@@ -757,7 +757,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 	{
 		glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-		fclose(f);
+		glusFileClose(f);
 
 		return GLUS_FALSE;
 	}
@@ -772,7 +772,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 			{
 				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -793,7 +793,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 				{
 					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-					fclose(f);
+					glusFileClose(f);
 
 					return GLUS_FALSE;
 				}
@@ -812,7 +812,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 					{
 						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-						fclose(f);
+						glusFileClose(f);
 
 						return GLUS_FALSE;
 					}
@@ -833,7 +833,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -867,7 +867,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 				{
 					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-					fclose(f);
+					glusFileClose(f);
 
 					return GLUS_FALSE;
 				}
@@ -888,7 +888,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-						fclose(f);
+						glusFileClose(f);
 
 						return GLUS_FALSE;
 					}
@@ -930,7 +930,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 					{
 						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-						fclose(f);
+						glusFileClose(f);
 
 						return GLUS_FALSE;
 					}
@@ -949,7 +949,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 				{
 					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-					fclose(f);
+					glusFileClose(f);
 
 					return GLUS_FALSE;
 				}
@@ -990,7 +990,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 				{
 					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-					fclose(f);
+					glusFileClose(f);
 
 					return GLUS_FALSE;
 				}
@@ -1011,7 +1011,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 
 						glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-						fclose(f);
+						glusFileClose(f);
 
 						return GLUS_FALSE;
 					}
@@ -1032,7 +1032,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 				{
 					glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-					fclose(f);
+					glusFileClose(f);
 
 					return GLUS_FALSE;
 				}
@@ -1046,7 +1046,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 			{
 				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1064,7 +1064,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 			{
 				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1083,7 +1083,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 			{
 				glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1177,7 +1177,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1193,7 +1193,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1214,7 +1214,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1229,7 +1229,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1249,7 +1249,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1264,7 +1264,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 						{
 							glusWavefrontFreeTempMemory(&vertices, &normals, &texCoords, &triangleVertices, &triangleNormals, &triangleTexCoords);
 
-							fclose(f);
+							glusFileClose(f);
 
 							return GLUS_FALSE;
 						}
@@ -1284,7 +1284,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 		}
 	}
 
-	fclose(f);
+	glusFileClose(f);
 
 	if (wavefront && currentGroupList)
 	{
@@ -1379,7 +1379,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 	{
 		glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-		fclose(f);
+		glusFileClose(f);
 
 		return GLUS_FALSE;
 	}
@@ -1394,7 +1394,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1406,7 +1406,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1419,7 +1419,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1439,7 +1439,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1458,7 +1458,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1475,7 +1475,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 			{
 				glusWavefrontFreeTempMemoryLine(&vertices, &indices);
 
-				fclose(f);
+				glusFileClose(f);
 
 				return GLUS_FALSE;
 			}
@@ -1487,7 +1487,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 		}
 	}
 
-	fclose(f);
+	glusFileClose(f);
 
 	result = glusWavefrontCopyDataLine(line, numberVertices, vertices, numberIndices, indices);
 

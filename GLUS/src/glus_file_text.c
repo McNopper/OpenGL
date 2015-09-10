@@ -45,7 +45,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	if (fseek(f, 0, SEEK_END))
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		return GLUS_FALSE;
 	}
@@ -54,7 +54,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	if (textfile->length < 0 || textfile->length == GLUS_MAX_TEXTFILE_LENGTH)
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		textfile->length = 0;
 
@@ -65,7 +65,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 
 	if (!textfile->text)
 	{
-		fclose(f);
+		glusFileClose(f);
 
 		textfile->length = 0;
 
@@ -85,7 +85,7 @@ GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile
 		return GLUS_FALSE;
 	}
 
-	fclose(f);
+	glusFileClose(f);
 
 	return GLUS_TRUE;
 }
@@ -114,7 +114,7 @@ GLUSboolean GLUSAPIENTRY glusFileSaveText(const GLUSchar* filename, const GLUSte
 		return GLUS_FALSE;
 	}
 
-	fclose(file);
+	glusFileClose(file);
 
 	return GLUS_TRUE;
 }
