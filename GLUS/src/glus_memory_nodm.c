@@ -17,15 +17,23 @@
 
 #include "GL/glus.h"
 
-// 4 byte alignment.
-#define GLUS_ALIGNMENT 4
+// Data type used for the memory array.
+#define GLUS_MEMORY_DATA_TYPE uint32_t
+
+// Data size of the data type.
+#define GLUS_MEMORY_DATA_SIZE sizeof(GLUS_MEMORY_DATA_TYPE)
+
+// Alignment in memory.
+#define GLUS_MEMORY_DATA_ALIGNMENT_SIZE (GLUS_MEMORY_DATA_SIZE * 2)
+
+// Factor to get the right alignment.
+#define GLUS_MEMORY_DATAT_ALIGNMENT_FACTOR (GLUS_MEMORY_DATA_ALIGNMENT_SIZE / GLUS_MEMORY_DATA_SIZE)
 
 // 128 MB of memory. Change only here, if more or less is needed.
-// Division by 4 bytes, as uint32_t is used.
-#define GLUS_MEMORY_SIZE (128*1024*1024/GLUS_ALIGNMENT)
+#define GLUS_MEMORY_SIZE (128*1024*1024/GLUS_MEMORY_DATA_SIZE)
 
 // Number of memory table entries.
-#define GLUS_MEMORY_TABLE_ENTRIES	1024
+#define GLUS_MEMORY_TABLE_ENTRIES	2048
 
 // States of a memory block entry.
 #define GLUS_VALID_AND_FREE		1
@@ -55,9 +63,9 @@ typedef struct _GLUSmemoryTable {
 } GLUSmemoryTable;
 
 /**
- * Available memory with 4 byte alignment. If alignment is changed, do also adapt size.
+ * Available memory with given data type.
  */
-static uint32_t g_memory[GLUS_MEMORY_SIZE];
+static GLUS_MEMORY_DATA_TYPE g_memory[GLUS_MEMORY_SIZE];
 
 /**
  * Memory table used to manage the memory array.
@@ -69,37 +77,29 @@ static GLUSmemoryTable g_memoryTable[GLUS_MEMORY_TABLE_ENTRIES] = {{GLUS_VALID_A
  */
 static size_t g_memoryTableEntries = 1;
 
-static GLUSboolean glusMemoryFindTableEntry(size_t* foundTableIndex)
+static GLUSboolean glusMemoryInitTableEntry(size_t startIndex, size_t lengthIndices)
 {
-	GLUSuint tableIndex = 0;
+    size_t tableIndex = 0;
 
-	if (!foundTableIndex)
-	{
-		return GLUS_FALSE;
-	}
+	//
 
-	while (tableIndex < g_memoryTableEntries)
-	{
-		// If not valid, the table entry can be reused.
-		if (g_memoryTable[tableIndex].status == GLUS_INVALID)
-		{
-			*foundTableIndex = tableIndex;
+    while (tableIndex < g_memoryTableEntries)
+    {
+        // If not valid, the table entry can be reused.
+        if (g_memoryTable[tableIndex].status == GLUS_INVALID)
+        {
+            break;
+        }
 
-			return GLUS_TRUE;
-		}
+        tableIndex++;
+    }
 
-		tableIndex++;
-	}
+    if (tableIndex >= GLUS_MEMORY_TABLE_ENTRIES)
+    {
+        return GLUS_FALSE;
+    }
 
-	return GLUS_FALSE;
-}
-
-static GLUSboolean glusMemoryInitTableEntry(size_t tableIndex, size_t startIndex, size_t lengthIndices)
-{
-	if (tableIndex > g_memoryTableEntries || tableIndex >= GLUS_MEMORY_TABLE_ENTRIES)
-	{
-		return GLUS_FALSE;
-	}
+	//
 
 	g_memoryTable[tableIndex].status = GLUS_VALID_AND_FREE;
 	g_memoryTable[tableIndex].startIndex = startIndex;
@@ -148,6 +148,7 @@ static GLUSvoid glusMemoryGarbageCollect()
 
 							g_memoryTable[otherTableIndex].status = GLUS_INVALID;
 
+							// Continue to try to merge.
 							continueGC = GLUS_TRUE;
 						}
 					}
@@ -165,12 +166,21 @@ static void* glusMemoryInternalMalloc(size_t size)
 {
 	GLUSuint tableIndex = 0;
 
-	// 4 byte alignment.
-	size_t lengthIndices = size % GLUS_ALIGNMENT == 0 ? (size / GLUS_ALIGNMENT) : (size / GLUS_ALIGNMENT + 1);
+	// Calculate needed indecies.
+	size_t lengthIndices = size % GLUS_MEMORY_DATA_SIZE == 0 ? (size / GLUS_MEMORY_DATA_SIZE) : (size / GLUS_MEMORY_DATA_SIZE + 1);
 
-	if (lengthIndices * GLUS_ALIGNMENT < size)
+	size_t alignmentIndicesRest = lengthIndices % GLUS_MEMORY_DATAT_ALIGNMENT_FACTOR;
+
+	// Needed for overflow of lengthIndices.
+	if (lengthIndices * GLUS_MEMORY_DATA_SIZE < size)
 	{
 		return 0;
+	}
+
+	// Test an adjust alignment.
+	if (alignmentIndicesRest != 0)
+	{
+	    lengthIndices += GLUS_MEMORY_DATAT_ALIGNMENT_FACTOR - alignmentIndicesRest;
 	}
 
 	while (tableIndex < g_memoryTableEntries)
@@ -178,20 +188,16 @@ static void* glusMemoryInternalMalloc(size_t size)
 		// Search for a memory table entry, where the size fits in.
 		if (g_memoryTable[tableIndex].status == GLUS_VALID_AND_FREE && g_memoryTable[tableIndex].lengthIndices >= lengthIndices)
 		{
-			size_t otherTableIndex;
-
-			// Try to reuse an entry.
-			if (!glusMemoryFindTableEntry(&otherTableIndex))
-			{
-				otherTableIndex = tableIndex + 1;
-			}
-
-			// Assign the rest of the available memory to another table entry.
-			if (!glusMemoryInitTableEntry(otherTableIndex, g_memoryTable[tableIndex].startIndex + lengthIndices, g_memoryTable[tableIndex].lengthIndices - lengthIndices))
-			{
-				// No empty entry could be found, so do not split and use all memory.
-				lengthIndices = g_memoryTable[tableIndex].lengthIndices;
-			}
+		    // Is a split needed?
+		    if (lengthIndices < g_memoryTable[tableIndex].lengthIndices)
+		    {
+                // Assign the rest of the available memory to another table entry.
+                if (!glusMemoryInitTableEntry(g_memoryTable[tableIndex].startIndex + lengthIndices, g_memoryTable[tableIndex].lengthIndices - lengthIndices))
+                {
+                    // No empty entry could be found, so do not split and use all memory.
+                    lengthIndices = g_memoryTable[tableIndex].lengthIndices;
+                }
+		    }
 
 			// Entry now manages the requested memory.
 			g_memoryTable[tableIndex].status = GLUS_VALID_AND_LOCKED;

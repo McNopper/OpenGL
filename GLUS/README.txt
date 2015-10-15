@@ -73,6 +73,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+15.10.2015 - Optimized/fixed own dynamic memory manager.
+
 10.09.2015 - Optimized file abstraction.
 
 08.09.2015 - Added basic Android support for OpenGL ES.
