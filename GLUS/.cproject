@@ -12,15 +12,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019" name="x86__Windows__MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019" name="x86__Windows__MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.1960201744" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.150529700" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -50,7 +50,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -67,15 +67,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673" name="x86__Windows__MinGW_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.release">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673" name="x86__Windows__MinGW_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.release">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.release.1071540673." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.release.1424542738" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.release.1936783791" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.release"/>
@@ -102,7 +102,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_mac.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_sdl_es.c|glus_os_wrapper_es.c|glus_line_es2.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_linux.c|glus_windows.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_imx6_es.c|glus_version_vg.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_mac.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_platform_es.c|glus_egl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_sdl_es.c|glus_os_wrapper_es.c|glus_line_es2.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_linux.c|glus_windows.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_raspberrypi_sdl_es.c|glus_imx6_es.c|glus_version_vg.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -119,15 +119,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381" name="x86__Linux__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381" name="x86__Linux__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1958609328" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1232421838" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -154,7 +154,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -172,15 +172,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.2121099883" name="x64__Darwin__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.2121099883" name="x64__Darwin__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.2121099883." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.base.1128088367" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64" id="cdt.managedbuild.target.gnu.platform.macosx.base.1991358256" name="Debug Platform" osList="macosx" superClass="cdt.managedbuild.target.gnu.platform.macosx.base"/>
@@ -207,7 +207,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -224,15 +224,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878" name="x64__Linux__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878" name="x64__Linux__GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1594234980" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1264506242" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -259,7 +259,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -276,15 +276,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.1098488581" name="x64__Linux__GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.1098488581" name="x64__Linux__GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1663163878.1098488581." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.289545178" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1984778735" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -311,7 +311,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time_es.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_memory_nodm.c|glus_window_egl_es.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_programpipeline_es31.c|glus_sdl_es.c|GLES2/glus.h|glus_os_wrapper_es.c|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_texgen_es2.c|glus_perlin_es.c|glus_egl_es.c|glus_platform_es.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -329,15 +329,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836" name="x86_PowerVR_Windows_GLES3_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836" name="x86_PowerVR_Windows_GLES3_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.1563512181" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.2111423606" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -370,7 +370,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_sdl_es.c|glus_shaderprogram.c|GLES2/glus_es.h|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_texgen_es2.c|glus_raspberrypi_sdl_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_sdl_es.c|glus_shaderprogram.c|GLES2/glus_es.h|glus_line_es2.c|glus_shaderprogram_es31.c|glus_shape_texgen_es2.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_texgen_es2.c|glus_raspberrypi_sdl_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -388,15 +388,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762" name="x86_PowerVR_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762" name="x86_PowerVR_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.1186195478" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.1476078323" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -429,7 +429,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -447,15 +447,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553" name="ARMv6_VC4_Linux_GLES2_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553" name="ARMv6_VC4_Linux_GLES2_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1289737432" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1082747245" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-linux-gnueabihf-" valueType="string"/>
@@ -474,6 +474,7 @@
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.220233724" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GLUS_ES2=1"/>
 								</option>
+								<option id="gnu.c.compiler.option.misc.other.137476236" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.721272365" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1335575296" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -489,7 +490,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -506,15 +507,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938" name="ARMv6_VC4_Linux_GLES2_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938" name="ARMv6_VC4_Linux_GLES2_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1162398101" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1134716225" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-linux-gnueabihf-" valueType="string"/>
@@ -548,7 +549,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -565,17 +566,17 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299" name="x64_Mali_Linux_GLES2_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299" name="x64_Mali_Linux_GLES2_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299." name="/" resourcePath="">
 						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.base.1886495786" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1807341671" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -605,7 +606,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -622,17 +623,17 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681" name="x64_Mali_Linux_GLES3_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.MakeErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681" name="x64_Mali_Linux_GLES3_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1644329299.1692306681." name="/" resourcePath="">
 						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.base.1941356990" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.906294320" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -662,7 +663,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_wavefront_es2.c|glus_os_raspberrypi_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_line_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_shape_es2.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_wavefront_es2.c|glus_os_raspberrypi_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_line_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_shape_es2.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -678,15 +679,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699" name="x86_AMD_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699" name="x86_AMD_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.703901300" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.1710588637" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -719,7 +720,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -735,15 +736,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699.122563763" name="x86_ANGLE_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699.122563763" name="x86_ANGLE_Windows_GLES2_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.333098699.122563763." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.541698178" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.523832823" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -776,7 +777,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_sdl_es.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_raspberrypi_sdl_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|GLES3/glus_es.h|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -792,19 +793,19 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958" name="ARMv7_Vivante_Linux_GLES2_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958" name="ARMv7_Vivante_Linux_GLES2_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.303613930" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.52176155" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-poky-linux-gnueabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.852334020" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="../Development/iMX6/fsl-release-bsp/build-fb/tmp/sysroots/x86_64-linux/usr/bin/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.852334020" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.1151695622" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/GLUS/DebugRaspberryPi}" id="cdt.managedbuild.builder.gnu.cross.1792868863" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.456557538" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
@@ -818,7 +819,7 @@
 									<listOptionValue builtIn="false" value="EGL_API_FB"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1659310510" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.misc.other.108915604" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -mfloat-abi=hard" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.108915604" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -march=armv7-a -mthumb-interwork -mfloat-abi=hard -mfpu=neon -mtune=cortex-a9 --sysroot=/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1542108826" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1411257822" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -834,7 +835,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -850,15 +851,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097" name="x86_Khronos_Windows_VG11_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097" name="x86_Khronos_Windows_VG11_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.285349130" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.1117781865" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -892,7 +893,7 @@
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1180798284" name="glus.h" rcbsApplicability="disable" resourcePath="src/GLES2/glus2.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_shaderprogram.c|glus_wavefront.c|glus_extension.c|glus_log.c|glus_texgen.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|GLES3/glus_es.h|glus_sdl_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|glus_screenshot.c|GLES3/glus.h|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_raspberrypi_sdl_es.c|glus_imx6_es.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_shaderprogram.c|glus_wavefront.c|glus_extension.c|glus_log.c|glus_texgen.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|GLES3/glus_es.h|glus_sdl_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|glus_screenshot.c|GLES3/glus.h|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_raspberrypi_sdl_es.c|glus_imx6_es.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -908,22 +909,22 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653" name="ARMv7_Vivante_Linux_VG11_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653" name="ARMv7_Vivante_Linux_VG11_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug" postannouncebuildStep="" postbuildStep="" preannouncebuildStep="" prebuildStep="">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653." name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.711146439" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
+						<toolChain errorParsers="" id="cdt.managedbuild.toolchain.gnu.cross.base.711146439" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.670609574" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-poky-linux-gnueabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.435599303" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="../Development/iMX6/fsl-release-bsp/build-fb/tmp/sysroots/x86_64-linux/usr/bin/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.435599303" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.355614978" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/GLUS}/ARMv7_Vivante_Linux_VG11_GCC_Release" id="cdt.managedbuild.builder.gnu.cross.1462541966" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.2107608634" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
+							<builder buildPath="${workspace_loc:/GLUS}/ARMv7_Vivante_Linux_VG11_GCC_Release" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="cdt.managedbuild.builder.gnu.cross.1462541966" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.cross.c.compiler.2107608634" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
 								<option id="gnu.c.compiler.option.include.paths.27081246" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.788382398" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GLUS_VG11=1"/>
@@ -934,7 +935,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.836103916" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1963642320" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.dialect.std.711593890" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.misc.other.1974659191" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -mfloat-abi=hard" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.1974659191" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -march=armv7-a -mthumb-interwork -mfloat-abi=hard -mfpu=neon -mtune=cortex-a9 --sysroot=/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1759641763" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.501682402" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -943,15 +944,15 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1093312808" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.321483856" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1001361213" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.1082543675" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
+							<tool command="ar" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="" id="cdt.managedbuild.tool.gnu.cross.archiver.1001361213" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
+							<tool command="as" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.cross.assembler.1082543675" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.608124974" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1846977762.1481771097.1229320653.src/GLES2/glus.h" name="glus.h" rcbsApplicability="disable" resourcePath="src/GLES2/glus2.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_shaderprogram.c|glus_wavefront.c|glus_extension.c|glus_log.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|GLES3/glus_es.h|glus_sdl_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|glus_screenshot.c|GLES3/glus.h|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_raspberrypi_sdl_es.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|GLES2/glus.h|glus_shaderprogram.c|glus_wavefront.c|glus_extension.c|glus_log.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|GLES3/glus_es.h|glus_sdl_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|glus_screenshot.c|GLES3/glus.h|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_raspberrypi_sdl_es.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -967,15 +968,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283" name="ARMv6_VC4_Linux_VG11_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283" name="ARMv6_VC4_Linux_VG11_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1960448888" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1455562727" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-linux-gnueabihf-" valueType="string"/>
@@ -1010,7 +1011,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_wavefront.c|glus_shaderprogram.c|glus_extension.c|glus_extension_vg.c|glus_log.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_screenshot.c|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_imx6_es.c|glus_version_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_wavefront.c|glus_shaderprogram.c|glus_extension.c|glus_extension_vg.c|glus_log.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_screenshot.c|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_imx6_es.c|glus_version_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -1026,15 +1027,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283.1598032221" name="ARMv6_VC4_Linux_VG11_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283.1598032221" name="ARMv6_VC4_Linux_VG11_GCC_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.464798283.1598032221." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1286928716" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1522902516" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-linux-gnueabihf-" valueType="string"/>
@@ -1069,7 +1070,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_wavefront.c|glus_shaderprogram.c|glus_extension.c|glus_extension_vg.c|glus_log.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_screenshot.c|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_imx6_es.c|glus_version_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_line.c|glus_line_wavefront.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_internal_wavefront_type.c|glus_internal_wavefront_uint.c|glus_internal_wavefront.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_os_windows_es.c|glus_program_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_shape_wavefront.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_wavefront.c|glus_shaderprogram.c|glus_extension.c|glus_extension_vg.c|glus_log.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_shape_es2.c|glus_linux_es.c|glus_shaderprogram_es.c|glus_line_es2.c|glus_shape.c|glus_shape_texgen_es2.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_screenshot.c|glus_shape_texgen.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_version.c|glus_imx6_es.c|glus_version_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -1085,15 +1086,15 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1144375164" name="x86_PowerVR_Windows_GLES31_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1144375164" name="x86_PowerVR_Windows_GLES31_MinGW_Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.837986836.1144375164." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.457351112" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.1608384563" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
@@ -1126,7 +1127,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|GLES2/glus.h|glus_sdl_es.c|glus_shaderprogram.c|GLES2/glus_es.h|glus_line_es2.c|glus_shape_texgen_es2.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_texgen_es2.c|glus_raspberrypi_sdl_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_os_linux_imx6_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_imx6_es.c|glus_program_es.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_debug.c|glus_programpipeline.c|GLES2/glus.h|glus_sdl_es.c|glus_shaderprogram.c|GLES2/glus_es.h|glus_line_es2.c|glus_shape_texgen_es2.c|glus_extension_vg.c|glus_screenshot_vg.c|glus_wavefront_es2.c|glus_shape_adjacency.c|glus_glfw.c|glus_texgen_es2.c|glus_raspberrypi_sdl_es.c|glus_raspberrypi_es.c|glus_imx6_es.c|glus_version_vg.c|glus_linux_es.c|glus_shape_es2.c|glus_shaderprogram_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -1142,19 +1143,19 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.184736139" name="ARMv7_Vivante_Linux_GLES3_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.184736139" name="ARMv7_Vivante_Linux_GLES3_GCC_Release" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.1519633019.28342381.1908778913.1690190553.1508710938.1982164958.184736139." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.670878817" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1480344288" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-poky-linux-gnueabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.662549522" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="../Development/iMX6/fsl-release-bsp/build-fb/tmp/sysroots/x86_64-linux/usr/bin/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.662549522" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.1043579485" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder buildPath="${workspace_loc:/GLUS/DebugRaspberryPi}" id="cdt.managedbuild.builder.gnu.cross.124309538" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.1478456864" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
@@ -1168,7 +1169,7 @@
 									<listOptionValue builtIn="false" value="EGL_API_FB"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.983022231" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.misc.other.340809893" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -mfloat-abi=hard" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.340809893" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -march=armv7-a -mthumb-interwork -mfloat-abi=hard -mfpu=neon -mtune=cortex-a9 --sysroot=/opt/fsl-imx-fb/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.688478638" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1722442805" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -1184,7 +1185,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="glus_os_android_es.c|glus_os_android.c|glus_time.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="glus_time.c|glus_os_linux_raspberrypi_es.c|glus_internal_wavefront_type_es2.c|glus_os_raspberrypi_es.c|glus_os_linux_es.c|glus_os_windows_es.c|glus_program_es31.c|glus_program.c|glus_memory_nodm.c|glus_window_glfw.c|glus_shape_wavefront_es2.c|glus_memory_no_dm.c|glus_wavefront_es2.c|glus_shape_es2.c|glus_line_es2.c|glus_debug.c|glus_programpipeline.c|glus_programpipeline_es31.c|glus_shaderprogram.c|glus_shaderprogram_es31.c|GLES3/glus.h|glus_extension_vg.c|glus_screenshot_vg.c|glus_shape_adjacency.c|glus_glfw.c|glus_platform_es.c|glus_windows_es.c|glus_texgen.c|glus_raspberrypi_es.c|glus_version_vg.c|glus_linux_es.c|glus_log_vg.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -1204,8 +1205,8 @@
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
 		<configuration configurationName="ARMv7_Vivante_Linux_VG11_GCC_Release"/>
-		<configuration configurationName="x64_Mali_Linux_GLES3_GCC_Debug"/>
 		<configuration configurationName="x86__Windows__MSVC_Release"/>
+		<configuration configurationName="x64_Mali_Linux_GLES3_GCC_Debug"/>
 		<configuration configurationName="x86__Windows_GLES3_MinGW_Debug"/>
 		<configuration configurationName="ReleaseLinux64">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
@@ -1223,21 +1224,22 @@
 		<configuration configurationName="x86_ANGLE_Windows_GLES2_MinGW_Debug"/>
 		<configuration configurationName="ARMv6_VC4_Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="x86__Linux__GCC_Debug"/>
-		<configuration configurationName="DebugVC">
-			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
-		</configuration>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="DebugVC">
+			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
+		</configuration>
 		<configuration configurationName="x86__Windows__MinGW_Release"/>
-		<configuration configurationName="x64__Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="DebugLinux">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
+		<configuration configurationName="x64__Linux_GLES2_GCC_Debug"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/GLUS"/>
 		</configuration>
 		<configuration configurationName="x86_AMD_Windows_GLES2_MinGW_Debug"/>
+		<configuration configurationName="ARMv7_Vivante_Linux_GLES3_GCC_Release"/>
 		<configuration configurationName="x86__Windows_GLES2_MinGW_Debug"/>
 		<configuration configurationName="x86_Khronos_Windows_VG11_MinGW_Debug"/>
 		<configuration configurationName="ReleaseVC">

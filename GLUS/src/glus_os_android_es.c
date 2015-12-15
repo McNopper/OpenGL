@@ -24,6 +24,10 @@ extern GLUSvoid _glusWindowInternalReshape(GLUSint width, GLUSint height);
 
 extern GLUSvoid _glusWindowInternalClose(GLUSvoid);
 
+extern GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action);
+
+extern GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y);
+
 //
 
 static EGLNativeDisplayType g_nativeDisplay = EGL_DEFAULT_DISPLAY;
@@ -56,26 +60,17 @@ static void onAppCmd(struct android_app* app, int32_t cmd)
 	{
 		case APP_CMD_INIT_WINDOW:
 			{
-				int32_t orientation = AConfiguration_getOrientation (g_app->config);
+				int32_t orientation = AConfiguration_getOrientation(g_app->config);
 
-				int32_t width;
-				int32_t height;
+				g_width = ANativeWindow_getWidth(g_app->window);
+				g_height = ANativeWindow_getHeight(g_app->window);
 
-				if (orientation == ACONFIGURATION_ORIENTATION_PORT)
+				if (orientation != ACONFIGURATION_ORIENTATION_PORT)
 				{
-					width = ANativeWindow_getWidth(g_app->window);
-					height = ANativeWindow_getHeight(g_app->window);
-				}
-				else
-				{
-					height = ANativeWindow_getWidth(g_app->window);
-					width = ANativeWindow_getHeight(g_app->window);
-				}
+					int32_t  temp = g_width;
 
-				if (width != g_width || height != g_height)
-				{
-					g_width = width;
-					g_height = height;
+					g_width = g_height;
+					g_height = temp;
 				}
 
 				g_nativeWindow = app->window;
@@ -101,6 +96,56 @@ static void onAppCmd(struct android_app* app, int32_t cmd)
 	}
 }
 
+static int32_t onInputEvent(struct android_app* app, AInputEvent* event)
+{
+	if (!event)
+	{
+		return 0;
+	}
+
+	int32_t type = AInputEvent_getType(event);
+
+	if (AINPUT_EVENT_TYPE_MOTION == type)
+	{
+		static float lastX = -1.0f;
+		static float lastY = -1.0f;
+
+		static GLUSboolean pressed = GLUS_FALSE;
+
+		//
+
+		float x = AMotionEvent_getX(event, 0);
+		float y = AMotionEvent_getY(event, 0);
+
+		if (x != lastX || y != lastY)
+		{
+			lastX = x;
+			lastY = y;
+
+			_glusWindowInternalMouseMove(x, y);
+		}
+
+		//
+
+		float pressure = AMotionEvent_getPressure(event, 0);
+
+		if (pressure == 0.0f && pressed)
+		{
+			pressed = GLUS_FALSE;
+
+			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+		}
+		else if (pressure >= 1.0f && !pressed)
+		{
+			pressed = GLUS_TRUE;
+
+			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+		}
+	}
+
+	return 0;
+}
+
 void android_main(struct android_app* app)
 {
 	// Make sure glue isn't stripped.
@@ -114,6 +159,7 @@ void android_main(struct android_app* app)
 	g_app = app;
 
 	g_app->onAppCmd = onAppCmd;
+	g_app->onInputEvent = onInputEvent;
 
 	g_app->activity->callbacks->onConfigurationChanged = onConfigurationChanged;
 
@@ -163,7 +209,7 @@ GLUSvoid _glusOsPollEvents()
     int events;
     struct android_poll_source* androidPollSource;
 
-    while ((ident = ALooper_pollAll( 0, NULL, &events, (void**)&androidPollSource)) >= 0)
+    while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&androidPollSource)) >= 0)
     {
          if (androidPollSource != NULL)
          {
@@ -173,18 +219,15 @@ GLUSvoid _glusOsPollEvents()
 
 	int32_t orientation = AConfiguration_getOrientation (g_app->config);
 
-	int32_t width;
-	int32_t height;
+	int32_t width = ANativeWindow_getWidth(g_app->window);
+	int32_t height = ANativeWindow_getHeight(g_app->window);
 
-	if (orientation == ACONFIGURATION_ORIENTATION_PORT)
+	if (orientation != ACONFIGURATION_ORIENTATION_PORT)
 	{
-		width = ANativeWindow_getWidth(g_app->window);
-		height = ANativeWindow_getHeight(g_app->window);
-	}
-	else
-	{
-		height = ANativeWindow_getWidth(g_app->window);
-		width = ANativeWindow_getHeight(g_app->window);
+		int32_t temp = width;
+
+		width = height;
+		height = temp;
 	}
 
 	if (width != g_width || height != g_height)

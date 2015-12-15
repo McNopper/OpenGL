@@ -34,6 +34,8 @@ extern GLUSvoid _glusWindowInternalKey(GLUSint key, GLUSint state);
 
 extern GLUSvoid _glusWindowInternalMouse(GLUSint button, GLUSint action);
 
+extern GLUSvoid _glusWindowInternalMouseWheel(GLUSint pos);
+
 extern GLUSvoid _glusWindowInternalMouseMove(GLUSint x, GLUSint y);
 
 // Map, if possible, to GLFW keys
@@ -277,6 +279,8 @@ static int g_keyFileDescriptor = -1;
 
 static int g_touchFileDescriptor = -1;
 
+static int g_powermateFileDescriptor = -1;
+
 static int g_displayWidth = -1;
 
 static int g_displayHeight = -1;
@@ -409,6 +413,48 @@ GLUSvoid _glusOsPollEvents()
 			}
 		} while (numBytes > 0);
 	}
+
+
+	if (g_powermateFileDescriptor >= 0)
+	{
+		struct input_event powermateEvent;
+
+		ssize_t numBytes;
+
+		do
+		{
+			numBytes = read(g_powermateFileDescriptor, &powermateEvent, sizeof(struct input_event));
+
+			if (numBytes > 0)
+			{
+				if (powermateEvent.type == 1)
+				{
+					if (powermateEvent.code == 256)
+					{
+						if (powermateEvent.value == 1)
+						{
+							_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
+						}
+						else if (powermateEvent.value == 0)
+						{
+							_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
+						}
+					}
+				}
+				else if (powermateEvent.type == 2)
+				{
+					if (powermateEvent.code == 7)
+					{
+						static int mouseWheel = 0;
+
+						mouseWheel += powermateEvent.value;
+
+						_glusWindowInternalMouseWheel(mouseWheel);
+					}
+				}
+			}
+		} while (numBytes > 0);
+	}
 }
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
@@ -474,6 +520,12 @@ EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSi
 
 			// Disable echo.
 			system("stty -echo");
+		}
+		else if (eventBits == 0x17 && g_powermateFileDescriptor < 0)
+		{
+			glusLogPrint(GLUS_LOG_INFO, "Found power mate on '%s'", eventFilename);
+
+			g_powermateFileDescriptor = fileDescriptor;
 		}
 		else if (eventBits == 0xb && g_touchFileDescriptor < 0)
 		{
@@ -543,6 +595,14 @@ GLUSvoid _glusOsDestroyNativeWindowDisplay()
 		g_currentY = -1;
 
 		g_pressed = 0;
+	}
+
+
+	if (g_powermateFileDescriptor >= 0)
+	{
+		close(g_powermateFileDescriptor);
+
+		g_powermateFileDescriptor = -1;
 	}
 }
 
