@@ -4,8 +4,7 @@ GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities:
 How to build GLUS and the examples:
 
 1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
-   For building with Visual C++ 2013, CMake and the Windows SDK 8.1 are needed. 
-2. Import GLUS as an existing project.
+2. Import GLUS, External and Binaries or VG_Binaries as an existing project.
 3. Set the build configuration in Eclipse to your operating system.
 4. Build GLUS.
 5. Import an example as an existing project.
@@ -16,7 +15,7 @@ How to build GLUS and the examples:
 If you get build errors:
 
 - Please make sure, that you install all the needed header and libraries.
-- Pre-build libraries are located in the External project folder. If you want, replace these libraries with your own build.
+- Pre-build libraries are located in the External project folder. If you want/need to, replace these libraries with your own build.
 - Libraries for the Raspberry PI platform are not included.
 - Libraries for the i.MX6 platform are not included.
 - Libraries for OpenGL ES and OpenVG are not included.
@@ -24,21 +23,25 @@ If you get build errors:
 SDKs and Libraries:
 
 - GLEW 1.12.0 http://glew.sourceforge.net/
-- GLFW 3.1    http://www.glfw.org/
+- GLFW 3.1.1  http://www.glfw.org/
 
 OpenGL ES SDKs and Libraries:
 
 - OpenGL ES 3.1: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
 - OpenGL ES 3.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
-				 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
+                 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
 - OpenGL ES 2.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
-				 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
-				 ANGLE http://code.google.com/p/angleproject/
-				 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
+                 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
+                 ANGLE http://code.google.com/p/angleproject/
+                 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
 
 OpenVG SDKs and Libraries:
 
 - OpenVG 1.1: Sample Implementation http://www.khronos.org/registry/vg/
+
+SDKs used for Windows:
+
+- MinGW-w64 - for 32 and 64 bit Windows: http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/5.1.0/threads-posix/dwarf/  
 
 SDKs/Libraries/Images used for Raspberry Pi:
 
@@ -55,12 +58,12 @@ Build configuration naming:
 
 [CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
 
-CPU:								ARMv6, ARMv7, x64, x86
-GPU/Emulator (Optional):			AMD, ANGLE, Khronos, Mali, PowerVR, VC4, Vivante  
-OS: 								Darwin, Linux, Windows
-OpenGL/OpenGL ES/OpenVG (Optional):	GLES2, GLES3, GLES31, VG11
-Compiler:							GCC, MinGW
-Configuration:						Debug, Release
+CPU:                                ARMv6, ARMv7, x64, x86
+GPU/Emulator (Optional):            AMD, ANGLE, Khronos, Mali, PowerVR, VC4, Vivante  
+OS:                                 Darwin, Linux, Windows
+OpenGL/OpenGL ES/OpenVG (Optional): GLES2, GLES3, GLES31, VG11
+Compiler:                           GCC, MinGW
+Configuration:                      Debug, Release
 
 e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
 
@@ -72,10 +75,18 @@ Changelog:
 
 15.12.2015 - Updated to Yocto Linux 3.14.52-1.1.0, supporting also the i.MX6 Quad Plus.
 
+15.10.2015 - Optimized/fixed own dynamic memory manager.
+
+10.09.2015 - Optimized file abstraction.
+
+08.09.2015 - Added basic Android support for OpenGL ES.
+
+11.07.2015 - Improved, updated README.
+
 14.05.2015 - Updated OpenGL ES libraries.
 
 11.05.2015 - Added time stamp querying function.
-		   - Removed warning in OpenGL ES 2.0 code.
+           - Removed warning in OpenGL ES 2.0 code.
 
 01.05.2015 - Removed issue after running cppcheck.
 
@@ -86,15 +97,15 @@ Changelog:
 05.03.2015 - Fixed bug during EGL context creation, when previous commands did fail.
 
 19.02.2015 - Added wavefront object line loading.
-		   - Fixed bug in wavefront loading, that last triangle/line was added twice.
+           - Fixed bug in wavefront loading, that last triangle/line was added twice.
 
 18.02.2015 - Improved color channel mapping for OpenGL ES and OpenVG.
-		   - Improved basic FPS profiler.
+           - Improved basic FPS profiler.
 
 12.02.2015 - Fixed loading and cleanup code for wavefront object scenes.
 
 11.02.2015 - Renamed log error output in OpenVG: From glGetError() to vgGetError().
-		   - Added a field of view check, when creating a perspective matrix. Now, no crash can happen.
+           - Added a field of view check, when creating a perspective matrix. Now, no crash can happen.
 
 10.02.2015 - Added possibility to pass surface attribute list. This allows e.g. to create a single buffered windows surface.
 
@@ -109,7 +120,7 @@ Changelog:
 06.11.2014 - Fixed bug in wavefront loading: When object file was not found, clean up did crash.
 
 31.10.2014 - Fixed bug in EGL initialization: EGLContext had EGLDisplay type.
-		   - Fixed bug in TGA save: Count and size were swapped. 
+           - Fixed bug in TGA save: Count and size were swapped. 
 
 24.10.2014 - Fixed fullscreen mode under desktop Linux using OpenGL ES or OpenVG.
 
@@ -117,7 +128,7 @@ Changelog:
 
 20.10.2014 - Fixed issue in wavefront scene loading. Added OpenGL Example43 plus assets.
 
-		   - Updated paths and links in the projects. 
+           - Updated paths and links in the projects. 
 
 17.10.2014 - Added wavefront scene loading and improved loader at all. Minor bug fixing. 
 
@@ -136,6 +147,6 @@ Changelog:
 29.08.2014 - Reorganisation and improvement of READMEs.
 
 27.08.2014 - Cleaning up and refactoring code inside GLUS 2.0 draft version. No interface changes.
-		   - Renamed files for Raspberry Pi and i.MX6.
+           - Renamed files for Raspberry Pi and i.MX6.
 
 26.08.2014 - Draft version of GLUS 2.0.
