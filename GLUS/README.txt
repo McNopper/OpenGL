@@ -27,10 +27,10 @@ SDKs and Libraries:
 
 OpenGL ES SDKs and Libraries:
 
-- OpenGL ES 3.1: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
-- OpenGL ES 3.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 3.1: PowerVR SDK 4.0 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 3.0: PowerVR SDK 4.0 http://community.imgtec.com/developers/powervr/
                  Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
-- OpenGL ES 2.0: PowerVR SDK 3.5 http://community.imgtec.com/developers/powervr/
+- OpenGL ES 2.0: PowerVR SDK 4.0 http://community.imgtec.com/developers/powervr/
                  Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
                  ANGLE http://code.google.com/p/angleproject/
                  AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
@@ -72,6 +72,8 @@ Yours Norbert Nopper
 
 
 Changelog:
+
+29.12.2015 - Updated to PowerVR SDK 4.0.
 
 15.12.2015 - Updated to Yocto Linux 3.14.52-1.1.0, supporting also the i.MX6 Quad Plus.
 

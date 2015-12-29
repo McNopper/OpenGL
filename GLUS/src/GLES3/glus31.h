@@ -33,6 +33,8 @@ extern "C"
 // OpenGL ES 3.1 and EGL.
 //
 
+#define GL_GLEXT_PROTOTYPES 1
+
 #include <GLES3/gl31.h>
 #include <EGL/egl.h>
 
