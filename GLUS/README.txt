@@ -73,6 +73,8 @@ Yours Norbert Nopper
 
 Changelog:
 
+28.04.2016 - Fixed wrong function name in Android module. 
+
 29.12.2015 - Updated to PowerVR SDK 4.0.
 
 15.12.2015 - Updated to Yocto Linux 3.14.52-1.1.0, supporting also the i.MX6 Quad Plus.

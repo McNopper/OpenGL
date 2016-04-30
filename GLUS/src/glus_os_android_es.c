@@ -133,13 +133,13 @@ static int32_t onInputEvent(struct android_app* app, AInputEvent* event)
 		{
 			pressed = GLUS_FALSE;
 
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+			_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
 		}
 		else if (pressure >= 1.0f && !pressed)
 		{
 			pressed = GLUS_TRUE;
 
-			_glusInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+			_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
 		}
 	}
 
