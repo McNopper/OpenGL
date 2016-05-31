@@ -354,7 +354,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.mingw.lib.debug.option.optimization.level.1100701135" name="Optimization Level" superClass="gnu.c.compiler.mingw.lib.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.mingw.lib.debug.option.debugging.level.1230769684" name="Debug Level" superClass="gnu.c.compiler.mingw.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.286778189" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_4.0\Builds\Include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_2016_R1.2\Builds\Include&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.wconversion.1014126167" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.warnings.extrawarn.1450258814" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
@@ -413,7 +413,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.mingw.lib.debug.option.optimization.level.1835581882" name="Optimization Level" superClass="gnu.c.compiler.mingw.lib.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.mingw.lib.debug.option.debugging.level.839663779" name="Debug Level" superClass="gnu.c.compiler.mingw.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1348688400" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_4.0\Builds\Include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_2016_R1.2\Builds\Include&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.wconversion.1664457055" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.warnings.extrawarn.781571552" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
@@ -1111,7 +1111,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.mingw.lib.debug.option.optimization.level.273003282" name="Optimization Level" superClass="gnu.c.compiler.mingw.lib.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.mingw.lib.debug.option.debugging.level.1773129777" name="Debug Level" superClass="gnu.c.compiler.mingw.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.536482512" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_4.0\Builds\Include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Imagination\PowerVR_Graphics\PowerVR_SDK\SDK_2016_R1.2\Builds\Include&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.wconversion.286889319" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.warnings.extrawarn.1352670192" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
