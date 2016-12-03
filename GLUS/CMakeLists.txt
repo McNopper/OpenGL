@@ -183,3 +183,4 @@ ELSE()
 ENDIF()
 
 add_library(GLUS ${C_FILES} ${H_FILES})
+target_include_directories (GLUS PUBLIC ${GLUS_SOURCE_DIR}/src)
