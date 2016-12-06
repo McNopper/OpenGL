@@ -51,10 +51,10 @@ ENDIF()
 
 # set GLFW valiables
 # set(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-set(GLFW_BUILD_EXAMPLES OFF)
-set(GLFW_BUILD_TESTS OFF)
-set(GLFW_BUILD_DOCS OFF)
-set(GLFW_INSTALL OFF)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
+set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 
 # set GLUS variables
 set(ENV_DIR ${Processor}/${OperatingSystem}/${Compiler})
