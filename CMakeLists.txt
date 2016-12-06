@@ -59,11 +59,12 @@ set(GLFW_INSTALL OFF)
 # set GLUS variables
 set(ENV_DIR ${Processor}/${OperatingSystem}/${Compiler})
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/External/${ENV_DIR}/include)
+set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/External/${ENV_DIR}/lib)
 
 set(GLFW_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/GLFW/include)
 
-include_directories(${EXTERNAL_INCLUDE_DIR})
-link_directories(${LIBRARY_OUTPUT_PATH})
+include_directories(${GLFW_INCLUDE_DIR} ${EXTERNAL_INCLUDE_DIR})
+link_directories(${EXTERNAL_LIB_DIR} ${LIBRARY_OUTPUT_PATH})
 
 add_subdirectory(GLUS)
 add_subdirectory(GLFW)
