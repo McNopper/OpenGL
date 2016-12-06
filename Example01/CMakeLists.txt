@@ -8,4 +8,4 @@ file(GLOB SOURCES "src/*.cpp" "src/*.c")
 
 add_executable(Example01 ${SOURCES})
 
-target_link_libraries (Example01 LINK_PUBLIC GLUS)
+target_link_libraries(Example01 ${LIBRARIES_TO_LINK} GLUS)
