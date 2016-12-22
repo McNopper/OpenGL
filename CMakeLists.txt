@@ -1,0 +1,65 @@
+cmake_minimum_required(VERSION 2.8)
+project(GLUS-examples)
+
+find_package(PkgConfig)
+pkg_search_module(GLUS REQUIRED GLUS)
+
+add_definitions("-std=c99")
+
+include_directories(${GLUS_INCLUDE_DIRS})
+
+function(example ex_name)
+
+    file(GLOB ${ex_name}_FILES ${ex_name}/src/*.c)
+    add_executable(${ex_name} ${${ex_name}_FILES})
+    target_link_libraries(${ex_name} ${GLUS_LDFLAGS} m)
+
+endfunction()
+
+example(Example01)
+example(Example02)
+example(Example03)
+example(Example04)
+example(Example05)
+example(Example06)
+example(Example07)
+example(Example08)
+example(Example09)
+example(Example10)
+example(Example11)
+example(Example12)
+example(Example13)
+example(Example14)
+example(Example15)
+example(Example16)
+example(Example17)
+example(Example18)
+example(Example19)
+example(Example20)
+example(Example21)
+example(Example22)
+example(Example23)
+example(Example24)
+example(Example25)
+example(Example26)
+example(Example27)
+example(Example28)
+example(Example29)
+example(Example30)
+example(Example31)
+example(Example32)
+example(Example33)
+example(Example34)
+example(Example35)
+example(Example36)
+example(Example37)
+example(Example38)
+example(Example39)
+example(Example40)
+example(Example41)
+example(Example42)
+
+
+
+
+
