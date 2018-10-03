@@ -53,7 +53,7 @@ void main(void)
 	float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
 	
 	// If contrast is lower than a maximum threshold ...
-	if (lumaMax - lumaMin < lumaMax * u_lumaThreshold)
+	if (lumaMax - lumaMin <= lumaMax * u_lumaThreshold)
 	{
 		// ... do no AA and return.
 		fragColor = vec4(rgbM, 1.0);
