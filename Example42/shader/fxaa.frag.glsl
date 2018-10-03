@@ -53,7 +53,7 @@ void main(void)
 	float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
 	
 	// If contrast is lower than a maximum threshold ...
-	if (lumaMax - lumaMin < lumaMax * u_lumaThreshold)
+	if (lumaMax - lumaMin <= lumaMax * u_lumaThreshold)
 	{
 		// ... do no AA and return.
 		fragColor = vec4(rgbM, 1.0);
@@ -74,7 +74,7 @@ void main(void)
 	float minSamplingDirectionFactor = 1.0 / (min(abs(samplingDirection.x), abs(samplingDirection.y)) + samplingDirectionReduce);
     
     // Calculate final sampling direction vector by reducing, clamping to a range and finally adapting to the texture size. 
-    samplingDirection = clamp(samplingDirection * minSamplingDirectionFactor, vec2(-u_maxSpan, -u_maxSpan), vec2(u_maxSpan, u_maxSpan)) * u_texelStep;
+    samplingDirection = clamp(samplingDirection * minSamplingDirectionFactor, vec2(-u_maxSpan), vec2(u_maxSpan)) * u_texelStep;
 	
 	// Inner samples on the tab.
 	vec3 rgbSampleNeg = texture(u_colorTexture, v_texCoord + samplingDirection * (1.0/3.0 - 0.5)).rgb;
