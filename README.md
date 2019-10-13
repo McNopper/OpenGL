@@ -91,7 +91,7 @@ Example40 - Cloth simulation using compute shader (OpenGL 4.3)
 
 Example41 - Ocean wave height/normal map calculation with FFT using compute shader (OpenGL 4.3, NVIDIA hardware under Linux has artifacts)
 
-Example42 - FXAA (OpenGL 4.3)
+Example42 - Fast Approximate Anti Aliasing - FXAA (OpenGL 4.3)
 
 Example43 - Scene with several models having groups and materials
 
