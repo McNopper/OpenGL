@@ -17,7 +17,7 @@
  */
 GLUSboolean init(GLUSvoid)
 {
-    // The background will just cleared with blue color.
+    // The background will just cleared with blue color(rgba).
     glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
 
     return GLUS_TRUE;
@@ -78,12 +78,13 @@ int main(int argc, char* argv[])
     		EGL_NONE
     };
 
+	//Initialization function
     glusWindowSetInitFunc(init);
-
+	//Resizes Window per frame
     glusWindowSetReshapeFunc(reshape);
-
+	//Updates per frame
     glusWindowSetUpdateFunc(update);
-
+	//Terminate Window function
     glusWindowSetTerminateFunc(terminate);
 
     if (!glusWindowCreate("GLUS Example Window", 640, 480, GLUS_FALSE, GLUS_FALSE, eglConfigAttributes, eglContextAttributes, 0))
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
         printf("Could not create window!\n");
         return -1;
     }
-
+	//Run the current frame
     glusWindowRun();
 
     return 0;
