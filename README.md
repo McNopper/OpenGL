@@ -1,6 +1,8 @@
 OpenGL
 ======
 
+OpenGL (Open Graphics Library) is a set of cross-language, cross-platform, end-to-end API's for rendering 2D and 3D computer graphics. Applications of OpenGL include [CAD](https://en.wikipedia.org/wiki/Computer-aided_design), [Virtual Reality applications](https://en.wikipedia.org/wiki/Virtual_reality), [Dynamic Simulations](https://en.wikipedia.org/wiki/Dynamic_simulation), and [Video Games](https://en.wikipedia.org/wiki/Video_game).
+
 OpenGL 3 and OpenGL 4 with GLSL
 
 Please read [GLUS/README.txt](https://github.com/McNopper/OpenGL/blob/master/GLUS/README.txt)
