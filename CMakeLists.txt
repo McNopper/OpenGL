@@ -14,6 +14,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     SET(Processor "x64")
     SET(OperatingSystem "Darwin")
     SET(Compiler "GCC")	
+    set(LIBRARIES_TO_LINK glew glfw  "-framework OpenGL")
 
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Linux
