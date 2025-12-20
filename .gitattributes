@@ -4,6 +4,24 @@
 * text=auto
 
 ###############################################################################
+# Binary files - do not normalize line endings
+###############################################################################
+*.hdr binary
+*.tga binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.dds binary
+*.exe binary
+*.dll binary
+*.lib binary
+*.a binary
+*.so binary
+*.dylib binary
+
+###############################################################################
 # Set default behavior for command prompt diff.
 #
 # This is need for earlier builds of msysgit that does not have it on by
