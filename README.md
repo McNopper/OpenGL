@@ -192,8 +192,6 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example33](screenshots/Example33.png)
 
-*Note: HDR environment map files may be corrupted due to Git line ending conversion (not yet fixed)*
-
 ### Example34 - Subsurface scattering
 
 ![Example34](screenshots/Example34.png)
