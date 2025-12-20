@@ -20,7 +20,7 @@ From the project root directory:
 **Windows (Visual Studio):**
 ```bash
 mkdir build && cd build
-cmake -A x64 ..
+cmake ..
 cmake --build . --config Release
 ```
 
@@ -28,7 +28,7 @@ cmake --build . --config Release
 ```bash
 mkdir build && cd build
 cmake ..
-make -j$(nproc)
+make
 ```
 
 ## Dependencies

@@ -36,15 +36,15 @@ Dependencies (GLFW and GLEW) are automatically downloaded and built via CMake Fe
 **Windows (Visual Studio):**
 ```bash
 mkdir build && cd build
-cmake -A x64 ..
-cmake --build . --config Release
+cmake ..
+cmake --build .
 ```
 
 **Linux / macOS:**
 ```bash
 mkdir build && cd build
 cmake ..
-make -j$(nproc)
+make
 ```
 
 Executables will be in the `Binaries/` directory.
