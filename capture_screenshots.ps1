@@ -1,3 +1,8 @@
+param(
+    [int[]]$ExampleNumbers,
+    [switch]$All
+)
+
 # Screenshot capture script for OpenGL examples with DPI awareness
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -122,18 +127,58 @@ $binariesPath = "D:\Development\GitHub\OpenGL\Binaries"
 $imagesPath = "D:\Development\GitHub\OpenGL\screenshots"
 $examples = Get-ChildItem "$binariesPath\Example*.exe" | Sort-Object Name
 
-Write-Host "`n=== Capturing Screenshots for All Examples ===" -ForegroundColor Green
+if (-not $examples -or $examples.Count -eq 0)
+{
+    Write-Error "No example executables found in $binariesPath"
+    exit 1
+}
+
+$selectedExamples = $examples
+$selectionDescription = "all examples"
+$modeLabel = "All Examples"
+
+if ($ExampleNumbers -and $ExampleNumbers.Count -gt 0)
+{
+    $uniqueExampleNumbers = $ExampleNumbers | Sort-Object -Unique
+    $formattedExampleNames = $uniqueExampleNumbers | ForEach-Object { "Example{0:D2}" -f $_ }
+    $selectedExamples = $examples | Where-Object { $formattedExampleNames -contains $_.BaseName }
+
+    $missingExamples = $formattedExampleNames | Where-Object { $_ -notin $selectedExamples.BaseName }
+    if ($missingExamples)
+    {
+        Write-Warning ("Skipping missing executables: {0}" -f ($missingExamples -join ", "))
+    }
+
+    if (-not $selectedExamples -or $selectedExamples.Count -eq 0)
+    {
+        Write-Error ("No matching examples found for numbers: {0}" -f ($uniqueExampleNumbers -join ", "))
+        exit 1
+    }
+
+    $selectionDescription = "examples: {0}" -f ($formattedExampleNames -join ", ")
+    $modeLabel = "Selected Examples"
+}
+elseif (-not $All)
+{
+    $All = $true
+}
+
+Write-Host ("`n=== Capturing Screenshots for {0} ===" -f $modeLabel) -ForegroundColor Green
+Write-Host ("Target set: {0}" -f $selectionDescription) -ForegroundColor Cyan
 Write-Host "DPI Aware: Enabled" -ForegroundColor Cyan
-Write-Host "Total examples: $($examples.Count)`n" -ForegroundColor Yellow
+Write-Host ("Total examples: {0}`n" -f $selectedExamples.Count) -ForegroundColor Yellow
 
 $successCount = 0
 $failCount = 0
 
-foreach ($exe in $examples) {
+for ($position = 0; $position -lt $selectedExamples.Count; $position++)
+{
+    $exe = $selectedExamples[$position]
     $exeName = $exe.BaseName
     $index = [int]($exeName -replace 'Example', '')
+    $current = $position + 1
     
-    Write-Host "[$index/45] Capturing $exeName..." -ForegroundColor Cyan
+    Write-Host ("[{0}/{1}] Capturing {2} (Example {3})..." -f $current, $selectedExamples.Count, $exeName, $index) -ForegroundColor Cyan
     
     # Start the application
     $process = Start-Process -FilePath $exe.FullName -WorkingDirectory $binariesPath -PassThru
@@ -159,7 +204,7 @@ foreach ($exe in $examples) {
         $process.CloseMainWindow() | Out-Null
         Start-Sleep -Milliseconds 500
         if (-not $process.HasExited) {
-            $process | Stop-Process -Force
+            Stop-Process -Id $process.Id -Force
         }
     }
     

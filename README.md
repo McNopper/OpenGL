@@ -224,8 +224,6 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example41](screenshots/Example41.png)
 
-*Note: Visual artifacts may be visible due to hardware-specific compute shader limitations (not yet fixed)*
-
 ### Example42 - Fast Approximate Anti Aliasing - FXAA (OpenGL 4.3)
 
 ![Example42](screenshots/Example42.png)

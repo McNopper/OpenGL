@@ -21,7 +21,7 @@ float sampleImage(ivec2 pos)
 
 vec3 calculateNormal(ivec2 texCoord)
 {
-	vec3 normal;
+	vec3 normal = vec3(0.0);
 
 	// Horizontal and vertical sampling.
 	ivec2 right = ivec2(texCoord.s + 1, texCoord.t);
