@@ -31,37 +31,23 @@ FetchContent_Declare(
 )
 
 # Fetch GLEW from GitHub
+set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(ONLY_LIBS ON CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     glew
     GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
     GIT_TAG glew-cmake-2.2.0
 )
 
-set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_STATIC ON CACHE BOOL "" FORCE)
-set(ONLY_LIBS ON CACHE BOOL "" FORCE)
-
-# Populate GLEW and patch its CMakeLists.txt
 FetchContent_GetProperties(glew)
 if(NOT glew_POPULATED)
     FetchContent_Populate(glew)
-    
-    # Patch GLEW CMakeLists.txt to fix cmake_minimum_required version
-    set(GLEW_CMAKE_FILE "${glew_SOURCE_DIR}/CMakeLists.txt")
-    if(EXISTS "${GLEW_CMAKE_FILE}")
-        file(READ "${GLEW_CMAKE_FILE}" GLEW_CMAKE_CONTENT)
-        string(REPLACE 
-            "cmake_minimum_required(VERSION 2.8.12)" 
-            "cmake_minimum_required(VERSION 3.5)" 
-            GLEW_CMAKE_CONTENT_FIXED 
-            "${GLEW_CMAKE_CONTENT}"
-        )
-        if(NOT "${GLEW_CMAKE_CONTENT}" STREQUAL "${GLEW_CMAKE_CONTENT_FIXED}")
-            file(WRITE "${GLEW_CMAKE_FILE}" "${GLEW_CMAKE_CONTENT_FIXED}")
-            message(STATUS "Patched GLEW CMakeLists.txt to use CMake 3.5")
-        endif()
-    endif()
-    
+    # Patch the CMakeLists.txt to use a modern CMake version
+    file(READ "${glew_SOURCE_DIR}/CMakeLists.txt" GLEW_CMAKE_CONTENT)
+    string(REPLACE "cmake_minimum_required(VERSION 2.8.12)" "cmake_minimum_required(VERSION 3.5)" GLEW_CMAKE_CONTENT "${GLEW_CMAKE_CONTENT}")
+    file(WRITE "${glew_SOURCE_DIR}/CMakeLists.txt" "${GLEW_CMAKE_CONTENT}")
     add_subdirectory(${glew_SOURCE_DIR} ${glew_BINARY_DIR})
 endif()
 
