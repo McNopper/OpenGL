@@ -52,11 +52,9 @@ Executables will be in the `Binaries/` directory.
 ### Dependencies
 
 All dependencies are automatically fetched and built:
-- **GLFW 3.4** - Windowing and input (zlib/libpng License)
-- **GLEW 2.2.0** - OpenGL Extension Wrangler (Modified BSD/MIT License)
+- **GLFW 3.4** - Windowing and input
+- **GLEW 2.2.0** - OpenGL Extension Wrangler
 - **OpenGL 3.2+** - System graphics library
-
-See `THIRD-PARTY-LICENSES.txt` for full license information.
 
 ## Examples
 
@@ -154,8 +152,6 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example23](screenshots/Example23.png)
 
-*Note: AMD hardware may show artifacts*
-
 ### Example24 - Erode effect using perlin noise
 
 ![Example24](screenshots/Example24.png)
@@ -196,6 +192,8 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example33](screenshots/Example33.png)
 
+*Note: HDR environment map files may be corrupted due to Git line ending conversion (not yet fixed)*
+
 ### Example34 - Subsurface scattering
 
 ![Example34](screenshots/Example34.png)
@@ -207,8 +205,6 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 ### Example36 - Order independent transparency using linked list (OpenGL 4.4)
 
 ![Example36](screenshots/Example36.png)
-
-*Note: AMD hardware may show artifacts*
 
 ### Example37 - CPU ray marching
 
@@ -222,8 +218,6 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example39](screenshots/Example39.png)
 
-*Note: AMD hardware may not work properly*
-
 ### Example40 - Cloth simulation using compute shader (OpenGL 4.3)
 
 ![Example40](screenshots/Example40.png)
@@ -232,7 +226,7 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example41](screenshots/Example41.png)
 
-*Note: NVIDIA hardware under Linux may show artifacts*
+*Note: Visual artifacts may be visible due to hardware-specific compute shader limitations (not yet fixed)*
 
 ### Example42 - Fast Approximate Anti Aliasing - FXAA (OpenGL 4.3)
 
