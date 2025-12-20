@@ -3,9 +3,62 @@ OpenGL
 
 OpenGL 3 and OpenGL 4 with GLSL
 
-Please read [GLUS/README.txt](https://github.com/McNopper/OpenGL/blob/master/GLUS/README.txt)
+## Build Instructions
 
-Please read [Binaries/README.txt](https://github.com/McNopper/OpenGL/blob/master/Binaries/README.txt)
+### Prerequisites
+
+**Required:**
+- **CMake 3.14 or higher** - [Download](https://cmake.org/download/)
+- **C/C++ Compiler**:
+  - Windows: Visual Studio 2013+ (MSVC)
+  - Linux: GCC or Clang
+  - macOS: Xcode Command Line Tools
+- **Git** - For fetching dependencies
+- **OpenGL 3.2+** compatible graphics driver
+
+### Verify Installation
+
+Check if CMake is installed:
+```bash
+cmake --version
+```
+Should show version 3.14 or higher.
+
+Check if Git is installed:
+```bash
+git --version
+```
+
+### Building
+
+Dependencies (GLFW and GLEW) are automatically downloaded and built via CMake FetchContent.
+
+**Windows (Visual Studio):**
+```bash
+mkdir build && cd build
+cmake -A x64 ..
+cmake --build . --config Release
+```
+
+**Linux / macOS:**
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
+
+Executables will be in the `Binaries/` directory.
+
+### Dependencies
+
+All dependencies are automatically fetched and built:
+- **GLFW 3.4** - Windowing and input (zlib/libpng License)
+- **GLEW 2.2.0** - OpenGL Extension Wrangler (Modified BSD/MIT License)
+- **OpenGL 3.2+** - System graphics library
+
+See `THIRD-PARTY-LICENSES.txt` for full license information.
+
+## Examples
 
 ======
 

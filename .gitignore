@@ -249,3 +249,20 @@ CMakeCache.txt
 cmake_install.cmake
 *.sln
 **CMakeFiles
+
+# Eclipse CDT files
+.project
+.cproject
+.settings/
+
+# Compiled executables in Binaries folder
+# Windows executables
+Binaries/*.exe
+# Linux executables (no extension)
+Binaries/Example[0-9]*
+# macOS executables and bundles
+Binaries/*.app
+
+# CMake build artifacts
+lib/
+_deps/

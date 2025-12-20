@@ -1,79 +1,68 @@
-GLUS - Modern OpenGL, OpenGL ES and OpenVG Utilities:
------------------------------------------------------
+GLUS - Modern OpenGL Utilities
+===============================
 
-How to build GLUS and the examples:
+GLUS is automatically built as part of the main project using CMake.
 
-1. Install Eclipse IDE for C/C++ Developers and a GNU Compiler Collection for your operating system.
-2. Import GLUS, External and Binaries or VG_Binaries as an existing project.
-3. Set the build configuration in Eclipse to your operating system.
-4. Build GLUS.
-5. Import an example as an existing project.
-6. Set the build configuration of the example in Eclipse to your operating system.
-7. Build the example.
-8. The executable is located in the Binaries or VG_Binaries folder.
+## Prerequisites
 
-If you get build errors:
+- **CMake 3.14 or higher** - [Download CMake](https://cmake.org/download/)
+- **C/C++ Compiler**:
+  - Windows: Visual Studio 2013 or newer (MSVC)
+  - Linux: GCC or Clang
+  - macOS: Xcode Command Line Tools (Clang)
+- **Git** - For fetching dependencies
+- **OpenGL 3.2+** compatible graphics driver
 
-- Please make sure, that you install all the needed header and libraries.
-- Pre-build libraries are located in the External project folder. If you want/need to, replace these libraries with your own build.
-- Libraries for the Raspberry PI platform are not included.
-- Libraries for the i.MX6 platform are not included.
-- Libraries for OpenGL ES and OpenVG are not included.
+## Building
 
-SDKs and Libraries:
+From the project root directory:
 
-- GLEW 1.12.0 http://glew.sourceforge.net/
-- GLFW 3.1.1  http://www.glfw.org/
+**Windows (Visual Studio):**
+```bash
+mkdir build && cd build
+cmake -A x64 ..
+cmake --build . --config Release
+```
 
-OpenGL ES SDKs and Libraries:
+**Linux / macOS:**
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
 
-- OpenGL ES 3.1: PowerVR SDK 2016 R1.2 http://community.imgtec.com/developers/powervr/
-- OpenGL ES 3.0: PowerVR SDK 2016 R1.2 http://community.imgtec.com/developers/powervr/
-                 Mali OpenGL ES 3.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/
-- OpenGL ES 2.0: PowerVR SDK 2016 R1.2 http://community.imgtec.com/developers/powervr/
-                 Mali OpenGL ES 2.0 Emulator http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-2-0-emulator/
-                 ANGLE http://code.google.com/p/angleproject/
-                 AMD OpenGL ES 2.0 SDK http://developer.amd.com/tools-and-sdks/graphics-development/amd-opengl-es-sdk/
+## Dependencies
 
-OpenVG SDKs and Libraries:
+All dependencies are automatically fetched via CMake FetchContent:
+- **GLFW 3.4** - Window and input management
+- **GLEW 2.2.0** - OpenGL extension loading
 
-- OpenVG 1.1: Sample Implementation http://www.khronos.org/registry/vg/
+No manual installation of external libraries required!
 
-SDKs used for Windows:
+## Output
 
-- MinGW-w64 - for 32 and 64 bit Windows: http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/5.1.0/threads-posix/dwarf/  
+- Static library: `lib/GLUS.lib` (or `lib/libGLUS.a` on Linux/macOS)
+- Examples: Compiled to `Binaries/` directory
 
-SDKs/Libraries/Images used for Raspberry Pi:
+## Dependencies (Auto-Downloaded)
 
-- GCC Toolchain for Raspberry Pi https://github.com/raspberrypi/tools
-- SDL 1.2 http://www.libsdl.org/download-1.2.php
-- Raspbian "wheezy" http://www.raspberrypi.org/downloads
+- **GLFW 3.4** - https://github.com/glfw/glfw
+- **GLEW 2.2.0** - https://github.com/nigels-com/glew
 
-SDKs/Libraries/Images used for i.MX6:
+These are automatically downloaded and built via CMake FetchContent.
 
-- i.MX 6 Series Software and Development Tool Resources http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=IMX6_SW
-
-
-Build configuration naming:
-
-[CPU]_[GPU]_[OS]_[OpenGL]_[Compiler]_[Configuration]
-
-CPU:                                ARMv6, ARMv7, x64, x86
-GPU/Emulator (Optional):            AMD, ANGLE, Khronos, Mali, PowerVR, VC4, Vivante  
-OS:                                 Darwin, Linux, Windows
-OpenGL/OpenGL ES/OpenVG (Optional): GLES2, GLES3, GLES31, VG11
-Compiler:                           GCC, MinGW
-Configuration:                      Debug, Release
-
-e.g. x86__Windows__MinGW_Debug or ARMv6_VC4_Linux_GLES2_GCC_Release
-
+---
 
 Yours Norbert Nopper
 
+---
 
-Changelog:
+## Historical Changelog (Legacy Eclipse Build)
 
-31.05.2016 - Updated to PowerVR SDK 2016 R1.2. 
+Note: This changelog covers the legacy Eclipse-based build system.
+For current CMake build changes, see git commit history.
+
+31.05.2016 - Updated to PowerVR SDK 2016 R1.2.
 
 28.04.2016 - Fixed wrong function name in Android module. 
 

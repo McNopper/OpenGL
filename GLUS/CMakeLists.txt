@@ -8,7 +8,7 @@
 # (c) Norbert Nopper
 # 
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 project(GLUS)
 
@@ -76,8 +76,6 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	ENDIF()
 		
 ENDIF()
-	
-include_directories(${EXTERNAL_INCLUDE_DIR})	
 		
 # Files only valid for desktop OpenGL
 list(APPEND ONLY_GL_C_FILES		${GLUS_SOURCE_DIR}/src/glus_window_glfw.c
