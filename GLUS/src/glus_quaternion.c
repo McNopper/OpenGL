@@ -359,12 +359,21 @@ GLUSboolean GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSflo
 
     GLUSfloat cosAlpha = quaternion0[0] * quaternion1[0] + quaternion0[1] * quaternion1[1] + quaternion0[2] * quaternion1[2] + quaternion0[3] * quaternion1[3];
 
-    GLUSfloat alpha = acosf(glusMathClampf(cosAlpha, -1.0f, 1.0f));
-
-    GLUSfloat sinAlpha = sinf(alpha);
+    GLUSfloat alpha;
+    GLUSfloat sinAlpha;
 
     GLUSfloat a;
     GLUSfloat b;
+
+    // Fall back to nlerp when quaternions are nearly parallel to avoid numerical instability.
+    if (cosAlpha > 0.95f)
+    {
+        return glusQuaternionNlerpf(result, quaternion0, quaternion1, t);
+    }
+
+    alpha = acosf(glusMathClampf(cosAlpha, -1.0f, 1.0f));
+
+    sinAlpha = sinf(alpha);
 
     if (sinAlpha == 0.0f)
     {
@@ -383,4 +392,35 @@ GLUSboolean GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSflo
     }
 
     return GLUS_TRUE;
+}
+
+GLUSvoid GLUSAPIENTRY glusQuaternionLerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t)
+{
+    GLUSint i;
+
+    for (i = 0; i < 4; i++)
+    {
+        result[i] = (1.0f - t) * quaternion0[i] + t * quaternion1[i];
+    }
+}
+
+GLUSboolean GLUSAPIENTRY glusQuaternionNlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t)
+{
+    glusQuaternionLerpf(result, quaternion0, quaternion1, t);
+
+    return glusQuaternionNormalizef(result);
+}
+
+GLUSboolean GLUSAPIENTRY glusQuaternionRotationBetweenVectorsf(GLUSfloat result[4], const GLUSfloat vector0[3], const GLUSfloat vector1[3])
+{
+    GLUSfloat cross[3];
+
+    glusVector3Crossf(cross, vector0, vector1);
+
+    result[0] = cross[0];
+    result[1] = cross[1];
+    result[2] = cross[2];
+    result[3] = glusVector3Dotf(vector0, vector1) + 1.0f;
+
+    return glusQuaternionNormalizef(result);
 }

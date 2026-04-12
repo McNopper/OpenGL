@@ -213,7 +213,29 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[
 GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat quaternion[4]);
 
 /**
- * Spherical interpolation of two Quaternions.
+ * Linear interpolation of two Quaternions.
+ *
+ * @param result The interpolated Quaternion.
+ * @param quaternion0 The first Quaternion.
+ * @param quaternion1 The second Quaternion.
+ * @param t The fraction of both Quaternions.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionLerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
+
+/**
+ * Normalized linear interpolation of two Quaternions.
+ *
+ * @param result The interpolated and normalized Quaternion.
+ * @param quaternion0 The first Quaternion.
+ * @param quaternion1 The second Quaternion.
+ * @param t The fraction of both Quaternions.
+ *
+ * @return GLUS_TRUE, if normalization succeeded.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionNlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
+
+/**
+ * Spherical interpolation of two Quaternions. Falls back to nlerp when the quaternions are nearly parallel.
  *
  * @param result The interpolated Quaternion.
  * @param quaternion0 The first Quaternion.
@@ -223,5 +245,16 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[
  * @return GLUS_TRUE, if a slerp could be done.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSfloat quaternion0[4], const GLUSfloat quaternion1[4], const GLUSfloat t);
+
+/**
+ * Creates a Quaternion representing the rotation between two normalized vectors.
+ *
+ * @param result The resulting rotation Quaternion.
+ * @param vector0 The first normalized vector.
+ * @param vector1 The second normalized vector.
+ *
+ * @return GLUS_TRUE, if the Quaternion could be created.
+ */
+GLUSAPI GLUSboolean GLUSAPIENTRY glusQuaternionRotationBetweenVectorsf(GLUSfloat result[4], const GLUSfloat vector0[3], const GLUSfloat vector1[3]);
 
 #endif /* GLUS_QUATERNION_H_ */
