@@ -17,35 +17,6 @@
 
 #include "GL/glus.h"
 
-static GLUSboolean glusMatrix4x4IsRowZero(const double matrix[16], GLUSint row)
-{
-    GLUSint column;
-
-    for (column = 0; column < 4; column++)
-    {
-        if (matrix[column * 4 + row] != 0.0)
-        {
-            return GLUS_FALSE;
-        }
-    }
-
-    return GLUS_TRUE;
-}
-
-static GLUSboolean glusMatrix4x4IsColumnZero(const double matrix[16], GLUSint column)
-{
-    GLUSint row;
-
-    for (row = 0; row < 4; row++)
-    {
-        if (matrix[column * 4 + row] != 0.0)
-        {
-            return GLUS_FALSE;
-        }
-    }
-
-    return GLUS_TRUE;
-}
 
 static GLUSvoid glusMatrix4x4DivideRowByScalar(double result[16], double matrix[16], GLUSint row, double  value)
 {
@@ -484,78 +455,59 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Inversef(GLUSfloat matrix[16])
     }
 
     //
-    // Make triangle form
+    // Gauss-Jordan elimination with partial pivoting.
+    // Each iteration reduces one column to a unit pivot and eliminates
+    // that column from all other rows (forward and back in one pass).
     //
     for (column = 0; column < 4; column++)
     {
-        GLUSint row;
+        GLUSint pivotRow = column;
+        double maxVal = 0.0;
+        double pivotVal;
 
+        //
+        // Find the row with the largest absolute value in this column
+        // (partial pivoting for numerical stability).
+        //
         for (row = column; row < 4; row++)
         {
-        	//
-            // Is row all zero, then return false
-            //
-            if (glusMatrix4x4IsRowZero(copy, row))
+            double absVal = copy[column * 4 + row];
+            if (absVal < 0.0) absVal = -absVal;
+            if (absVal > maxVal)
             {
-                return GLUS_FALSE;
-            }
-
-            //
-            // Divide, if not zero, by copy[column*4+row]
-            //
-            if (copy[column * 4 + row] != 0.0)
-            {
-                glusMatrix4x4DivideRowByScalar(matrix_as_double, copy, row, copy[column * 4 + row]);
+                maxVal = absVal;
+                pivotRow = row;
             }
         }
 
         //
-        // Is column all zero, then return false
+        // If no non-zero pivot exists the matrix is singular.
         //
-        if (glusMatrix4x4IsColumnZero(copy, column))
+        if (maxVal == 0.0)
         {
             return GLUS_FALSE;
         }
 
         //
-        // Is pivot [column*4+row] = 1.0
+        // Swap the best pivot row into the diagonal position.
         //
-        for (row = column + 1; row < 4; row++)
+        if (pivotRow != column)
         {
-            if (copy[column * 4 + row] == 1.0)
-            {
-                //
-                // Swap with pivot row = column
-                //
-                glusMatrix4x4SwapRow(matrix_as_double, copy, column, row);
-
-                break;
-            }
+            glusMatrix4x4SwapRow(matrix_as_double, copy, column, pivotRow);
         }
 
-        for (row = column + 1; row < 4; row++)
-        {
-            //
-            // Subtract, [column*4+row] not zero, current row minus pivot row = column
-            //
-            if (copy[column * 4 + row] != 0.0)
-            {
-                glusMatrix4x4AddRow(matrix_as_double, copy, row, column, -1.0);
-            }
-        }
-    }
+        //
+        // Normalize the pivot row so the diagonal element becomes 1.
+        //
+        pivotVal = copy[column * 4 + column];
+        glusMatrix4x4DivideRowByScalar(matrix_as_double, copy, column, pivotVal);
 
-    //
-    // Make diagonal form
-    //
-    for (column = 3; column >= 0; column--)
-    {
-        for (row = column - 1; row >= 0; row--)
+        //
+        // Eliminate this column from every other row (both above and below).
+        //
+        for (row = 0; row < 4; row++)
         {
-            //
-            // Subtract, if [column*4+row] not zero, current row minus pivot row = column with factor [column*4+row]
-            //
-            if (copy[column * 4 + row] != 0.0)
+            if (row != column && copy[column * 4 + row] != 0.0)
             {
                 glusMatrix4x4AddRow(matrix_as_double, copy, row, column, -copy[column * 4 + row]);
             }
