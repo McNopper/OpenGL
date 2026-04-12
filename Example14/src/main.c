@@ -326,7 +326,7 @@ GLUSboolean init(GLUSvoid)
     // ... t extend
     tMaxDetailLevel = (GLuint) floorf(logf(g_tMapExtend) / logf(2.0f));
 
-    overallMaxDetailLevel = glusMathMinf(sMaxDetailLevel, tMaxDetailLevel);
+    overallMaxDetailLevel = sMaxDetailLevel < tMaxDetailLevel ? sMaxDetailLevel : tMaxDetailLevel;
 
     // Do checking of calculated parameters
     if (MINIMUM_DETAIL_LEVEL > overallMaxDetailLevel)
@@ -343,14 +343,14 @@ GLUSboolean init(GLUSvoid)
         return GLUS_FALSE;
     }
 
-    if (powf(2.0f, overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS)) > 32.0f)
+    if (powf(2.0f, (GLfloat)(overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS))) > 32.0f)
     {
-        printf("Tessellation level to high %d > 32\n", (GLint) powf(2.0f, overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS)));
+        printf("Tessellation level to high %d > 32\n", (GLint) powf(2.0f, (GLfloat)(overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS))));
 
         return GLUS_FALSE;
     }
 
-    detailStep = powf(2.0f, overallMaxDetailLevel - MINIMUM_DETAIL_LEVEL);
+    detailStep = powf(2.0f, (GLfloat)(overallMaxDetailLevel - MINIMUM_DETAIL_LEVEL));
 
     g_sNumPoints = (GLuint) ceilf(g_sMapExtend / detailStep) - 1;
 

@@ -797,7 +797,7 @@ GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GL
 					}
 					else if (targetImage->format == GLUS_LUMINANCE)
 					{
-						channels[0] = sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] * toLuminace[0];
+						channels[0] = (GLUSubyte)(sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] * toLuminace[0]);
 					}
 				}
 				else if (sourceImage->format == GLUS_ALPHA)
@@ -826,7 +826,7 @@ GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GL
 				{
 					if (targetImage->format == GLUS_RED)
 					{
-						channels[0] = glusMathClampf(sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] / toLuminace[0], 0.0f, 1.0f);
+						channels[0] = (GLUSubyte)glusMathClampf(sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + 0] / toLuminace[0], 0.0f, 1.0f);
 					}
 					else if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
 					{
@@ -867,12 +867,14 @@ GLUSboolean GLUSAPIENTRY glusImageConvertTga(GLUStgaimage* targetImage, const GL
 					}
 					else if (targetImage->format == GLUS_LUMINANCE)
 					{
-						channels[0] = 0.0f;
+						GLUSfloat luminance = 0.0f;
 
 						for (c = 0; c < 3; c++)
 						{
-							channels[0] += sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + c] * toLuminace[c];
+							luminance += sourceImage->data[sourceNumberChannels * z * sourceImage->height * sourceImage->width + sourceNumberChannels * y * sourceImage->width + sourceNumberChannels * x + c] * toLuminace[c];
 						}
+
+						channels[0] = (GLUSubyte)luminance;
 					}
 					else if (targetImage->format == GLUS_RGB || targetImage->format == GLUS_RGBA)
 					{

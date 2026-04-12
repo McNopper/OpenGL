@@ -576,6 +576,9 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateSpheref(GLUSshape* shape, const GLUSfloa
     GLUSuint numberIndices = numberParallels * numberSlices * 6;
 
     GLUSfloat angleStep = (2.0f * GLUS_PI) / ((GLUSfloat) numberSlices);
+    // Latitude uses PI/numberParallels so the sphere always spans exactly
+    // north pole to south pole, regardless of whether numberSlices is odd or even.
+    GLUSfloat latitudeStep = GLUS_PI / ((GLUSfloat) numberParallels);
 
     GLUSuint indexIndices;
 
@@ -620,9 +623,9 @@ GLUSboolean GLUSAPIENTRY glusShapeCreateSpheref(GLUSshape* shape, const GLUSfloa
             GLUSuint tangentIndex = (i * (numberSlices + 1) + j) * 3;
             GLUSuint texCoordsIndex = (i * (numberSlices + 1) + j) * 2;
 
-            shape->vertices[vertexIndex + 0] = radius * sinf(angleStep * (GLUSfloat) i) * sinf(angleStep * (GLUSfloat) j);
-            shape->vertices[vertexIndex + 1] = radius * cosf(angleStep * (GLUSfloat) i);
-            shape->vertices[vertexIndex + 2] = radius * sinf(angleStep * (GLUSfloat) i) * cosf(angleStep * (GLUSfloat) j);
+            shape->vertices[vertexIndex + 0] = radius * sinf(latitudeStep * (GLUSfloat) i) * sinf(angleStep * (GLUSfloat) j);
+            shape->vertices[vertexIndex + 1] = radius * cosf(latitudeStep * (GLUSfloat) i);
+            shape->vertices[vertexIndex + 2] = radius * sinf(latitudeStep * (GLUSfloat) i) * cosf(angleStep * (GLUSfloat) j);
             shape->vertices[vertexIndex + 3] = 1.0f;
 
             shape->normals[normalIndex + 0] = shape->vertices[vertexIndex + 0] / radius;

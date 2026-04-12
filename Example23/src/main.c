@@ -76,7 +76,7 @@ static GLuint g_normalTexture;
 
 //
 
-static const GLfloat g_displacementScale = 0.3;
+static const GLfloat g_displacementScale = 0.3f;
 
 GLUSboolean init(GLUSvoid)
 {

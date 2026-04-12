@@ -76,7 +76,7 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    GLint i;
+    GLUSuint i;
     GLfloat matrix[16];
 
     GLfloat* normals;

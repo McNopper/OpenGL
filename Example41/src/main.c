@@ -129,7 +129,7 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape gridPlane;
 
-    GLint i, k;
+    GLUSuint i, k;
     GLfloat matrix[16];
 
     GLfloat* h0Data;

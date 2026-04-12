@@ -30,7 +30,7 @@ static GLfloat g_roughness = 0.1f;
 static GLfloat g_R0 = 0.2f;
 
 // Base color.
-static GLfloat g_colorMaterial[3] = { 0.8, 0.8, 0.8 };
+static GLfloat g_colorMaterial[3] = { 0.8f, 0.8f, 0.8f };
 
 //
 

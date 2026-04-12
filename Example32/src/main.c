@@ -140,7 +140,7 @@ GLUSboolean init(GLUSvoid)
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
-	GLfloat colorMaterial[3] = { 0.8, 0.8, 0.8 };
+	GLfloat colorMaterial[3] = { 0.8f, 0.8f, 0.8f };
 
 	glusFileLoadText("../Example32/shader/brdf.vert.glsl", &vertexSource);
 	glusFileLoadText("../Example32/shader/brdf.frag.glsl", &fragmentSource);
