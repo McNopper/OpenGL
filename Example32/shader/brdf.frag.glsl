@@ -188,7 +188,8 @@ void main(void)
 	vec2 randomPoint;
 	
 	// see http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf Section Specular G
-	float k = (u_roughnessMaterial + 1.0) * (u_roughnessMaterial + 1.0) / 8.0;
+	// For IBL, k = roughness^2 / 2 (not the direct lighting formula (roughness+1)^2 / 8)
+	float k = u_roughnessMaterial * u_roughnessMaterial / 2.0;
 
 	for (uint sampleIndex = 0; sampleIndex < u_numberSamples; sampleIndex++)
 	{

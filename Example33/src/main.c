@@ -20,6 +20,11 @@
 #define SCREEN_HEIGHT	768
 #define MSAA_SAMPLES	4
 
+#define BACKGROUND_CUBEMAP_SIZE	512
+#define SPECULAR_CUBEMAP_SIZE	512
+#define DIFFUSE_CUBEMAP_SIZE	128
+#define BRDF_LUT_SIZE		512
+
 static GLfloat g_exposure = 3.0f;
 static GLfloat g_gamma = 2.2f;
 
@@ -65,6 +70,8 @@ static GLuint g_fullscreenVAO;
 //
 
 static GLuint g_texture[3];
+
+static GLuint g_backgroundCubemapTexture;
 
 //
 //
@@ -135,17 +142,36 @@ GLUSboolean init(GLUSvoid)
 	GLUSshape wavefront;
 
 	// 6 sides of diffuse and specular; all roughness levels of specular.
-	GLUShdrimage image[6 * NUMBER_ROUGHNESS + 6];
+	// These are no longer loaded from disk; kept for potential future use.
 
 	// The look up table (LUT) is stored in a raw binary file.
-	GLUSbinaryfile rawimage;
+	// This is no longer loaded from disk; generated on GPU instead.
 
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
 
-	GLchar buffer[27] = "doge2/doge2_POS_X_00_s.hdr";
+	GLint k, m;
 
-	GLint i, k, m;
+	// IBL prefilter programs and their uniforms (temporary, used only during init).
+	GLUSprogram specularPrefilterProgram;
+	GLint panoramaTexSPLoc, faceSPLoc, roughnessSPLoc;
+
+	GLUSprogram diffusePrefilterProgram;
+	GLint panoramaTexDPLoc, faceDPLoc;
+
+	GLUSprogram brdfLutProgram;
+
+	// Panorama-to-cubemap program for the visible background sphere.
+	GLUSprogram panoramaToCubemapProgram;
+	GLint panoramaTexBGLoc, faceBGLoc;
+
+	// Shared GPU resources for all prefilter passes.
+	GLuint panoramaGLTexture;
+	GLuint prefilterFBO;
+	GLuint quadVBO;
+	GLuint quadVAO;
+	GLUShdrimage panoramaImage;
+	GLfloat quadVertices[8];
 
 	//
 
@@ -253,162 +279,248 @@ GLUSboolean init(GLUSvoid)
 	//
 	//
 
-	for (i = 0; i < 2; i++)
+	//
+	// ---- GPU IBL prefilter ----
+	// Load the HDR panorama once, then generate all IBL textures on the GPU.
+	//
+
+	printf("Loading panorama 'doge2.hdr' ... ");
+	if (!glusImageLoadHdr("doge2.hdr", &panoramaImage))
 	{
-		if (i == 0)
+		printf("failed!\n");
+		return GLUS_FALSE;
+	}
+	printf("done.\n");
+
+	glGenTextures(1, &panoramaGLTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F,
+			panoramaImage.width, panoramaImage.height,
+			0, GL_RGB, GL_FLOAT, panoramaImage.data);
+	glusImageDestroyHdr(&panoramaImage);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// Shared FBO and fullscreen quad for all prefilter passes.
+	glGenFramebuffers(1, &prefilterFBO);
+
+	quadVertices[0] = -1.0f; quadVertices[1] = -1.0f;
+	quadVertices[2] =  1.0f; quadVertices[3] = -1.0f;
+	quadVertices[4] = -1.0f; quadVertices[5] =  1.0f;
+	quadVertices[6] =  1.0f; quadVertices[7] =  1.0f;
+
+	glGenBuffers(1, &quadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	// location=0 is set in the vertex shader with layout(location=0).
+	glGenVertexArrays(1, &quadVAO);
+	glBindVertexArray(quadVAO);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, prefilterFBO);
+
+	// ------------------------------------------------------------------
+	// Pass 1: specular pre-filtered cubemap array (g_texture[0])
+	//   Layout: 6 * NUMBER_ROUGHNESS layers.
+	//   Layer index = roughness_level * 6 + face.
+	//   Roughness range 0..1 mapped to levels 0..NUMBER_ROUGHNESS-1.
+	// ------------------------------------------------------------------
+
+	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/prefilter_specular.frag.glsl", &fragmentSource);
+	glusProgramBuildFromSource(&specularPrefilterProgram,
+			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
+
+	panoramaTexSPLoc = glGetUniformLocation(specularPrefilterProgram.program, "u_panoramaTexture");
+	faceSPLoc        = glGetUniformLocation(specularPrefilterProgram.program, "u_face");
+	roughnessSPLoc   = glGetUniformLocation(specularPrefilterProgram.program, "u_roughness");
+
+	glGenTextures(1, &g_texture[0]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
+	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F,
+			SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, 6 * NUMBER_ROUGHNESS,
+			0, GL_RGB, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+
+	glUseProgram(specularPrefilterProgram.program);
+	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+	glUniform1i(panoramaTexSPLoc, 0);
+	glViewport(0, 0, SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE);
+
+	printf("Generating specular cubemap array (%dx%d, %d roughness levels) ...\n",
+			SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, NUMBER_ROUGHNESS);
+
+	for (k = 0; k < NUMBER_ROUGHNESS; k++)
+	{
+		GLfloat roughness = (NUMBER_ROUGHNESS > 1) ? (GLfloat)k / (GLfloat)(NUMBER_ROUGHNESS - 1) : 0.0f;
+		glUniform1f(roughnessSPLoc, roughness);
+
+		for (m = 0; m < 6; m++)
 		{
-			buffer[21] = 's';
+			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+					g_texture[0], 0, k * 6 + m);
+			glUniform1i(faceSPLoc, m);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
-		else
-		{
-			buffer[21] = 'd';
-		}
-
-		for (k = 0; k < NUMBER_ROUGHNESS; k++)
-		{
-			if (i == 1 && k > 0)
-			{
-				continue;
-			}
-
-			buffer[18] = '0' + k / 10;
-			buffer[19] = '0' + k % 10;
-
-			for (m = 0; m < 6; m++)
-			{
-				if (m % 2 == 0)
-				{
-					buffer[12] = 'P';
-					buffer[13] = 'O';
-					buffer[14] = 'S';
-				}
-				else
-				{
-					buffer[12] = 'N';
-					buffer[13] = 'E';
-					buffer[14] = 'G';
-				}
-
-				switch (m)
-				{
-					case 0:
-					case 1:
-						buffer[16] = 'X';
-						break;
-					case 2:
-					case 3:
-						buffer[16] = 'Y';
-						break;
-					case 4:
-					case 5:
-						buffer[16] = 'Z';
-						break;
-				}
-
-				printf("Loading '%s' ...", buffer);
-
-				if (!glusImageLoadHdr(buffer, &image[i*NUMBER_ROUGHNESS*6 + k*6 + m]))
-				{
-					printf(" error!\n");
-					continue;
-				}
-
-				printf(" done.\n");
-			}
-		}
+		printf("  roughness level %d (%.2f) done.\n", k, roughness);
 	}
 
-    glGenTextures(1, &g_texture[0]);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
+	glusProgramDestroy(&specularPrefilterProgram);
 
-	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F, image[0].width, image[0].height, 6*NUMBER_ROUGHNESS, 0, GL_RGB, GL_FLOAT, 0);
+	// ------------------------------------------------------------------
+	// Pass 2: diffuse irradiance cubemap (g_texture[1])
+	// ------------------------------------------------------------------
 
-	glusLogPrintError(GLUS_LOG_INFO, "glTexImage3D()");
+	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/prefilter_diffuse.frag.glsl", &fragmentSource);
+	glusProgramBuildFromSource(&diffusePrefilterProgram,
+			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
-    for (i = 0; i < NUMBER_ROUGHNESS; i++)
-    {
-        for (k = 0; k < 6; k++)
-        {
-        	glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0,  6*i + k, image[i*6 + k].width, image[i*6 + k].height, 1, image[i*6 + k].format, GL_FLOAT, image[i*6 + k].data);
+	panoramaTexDPLoc = glGetUniformLocation(diffusePrefilterProgram.program, "u_panoramaTexture");
+	faceDPLoc        = glGetUniformLocation(diffusePrefilterProgram.program, "u_face");
 
-        	glusLogPrintError(GLUS_LOG_INFO, "glTexSubImage3D() %d %d", i, k);
-        }
-    }
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
-
-    //
-
-    glGenTextures(1, &g_texture[1]);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
-
-    for (i = 0; i < 6; i++)
-    {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image[i + 6*NUMBER_ROUGHNESS].format, image[i + 6*NUMBER_ROUGHNESS].width, image[i + 6*NUMBER_ROUGHNESS].height, 0, image[i + 6*NUMBER_ROUGHNESS].format, GL_FLOAT, image[i + 6*NUMBER_ROUGHNESS].data);
-
-    	glusLogPrintError(GLUS_LOG_INFO, "glTexImage2D() %d", i);
-    }
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-    //
-
-	printf("Loading 'doge2/EnvironmentBRDF_1024.data' ...");
-    if (!glusFileLoadBinary("doge2/EnvironmentBRDF_1024.data", &rawimage))
-    {
-		printf(" error!\n");
-    }
-    else
-    {
-    	printf(" done.\n");
-    }
-
-    glGenTextures(1, &g_texture[2]);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, g_texture[2]);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, 1024, 1024, 0, GL_RG, GL_FLOAT, (GLfloat*)rawimage.binary);
-
-    glusLogPrintError(GLUS_LOG_INFO, "glTexImage2D()");
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glusFileDestroyBinary(&rawimage);
-
-    //
-
-	for (i = 0; i < 2; i++)
+	glGenTextures(1, &g_texture[1]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
+	for (m = 0; m < 6; m++)
 	{
-		for (k = 0; k < NUMBER_ROUGHNESS; k++)
-		{
-			if (i == 1 && k > 0)
-			{
-				continue;
-			}
-
-			for (m = 0; m < 6; m++)
-			{
-				glusImageDestroyHdr(&image[i*NUMBER_ROUGHNESS*6 + k*6 + m]);
-			}
-		}
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
+				DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
 	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	glUseProgram(diffusePrefilterProgram.program);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+	glUniform1i(panoramaTexDPLoc, 0);
+	glViewport(0, 0, DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
+
+	printf("Generating diffuse irradiance cubemap (%dx%d) ...\n",
+			DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
+
+	for (m = 0; m < 6; m++)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_texture[1], 0);
+		glUniform1i(faceDPLoc, m);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+	printf("  diffuse irradiance done.\n");
+
+	glusProgramDestroy(&diffusePrefilterProgram);
+
+	// ------------------------------------------------------------------
+	// Pass 3: BRDF integration LUT (g_texture[2])
+	//   UV layout: x = NdotV, y = roughness (both in [0,1]).
+	//   Output: RG32F (scale, bias) as in Karis 2013.
+	// ------------------------------------------------------------------
+
+	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/brdf_lut.frag.glsl", &fragmentSource);
+	glusProgramBuildFromSource(&brdfLutProgram,
+			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
+
+	glGenTextures(1, &g_texture[2]);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, g_texture[2]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F,
+			BRDF_LUT_SIZE, BRDF_LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUseProgram(brdfLutProgram.program);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_texture[2], 0);
+	glViewport(0, 0, BRDF_LUT_SIZE, BRDF_LUT_SIZE);
+
+	printf("Generating BRDF LUT (%dx%d) ...\n", BRDF_LUT_SIZE, BRDF_LUT_SIZE);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	printf("  BRDF LUT done.\n");
+
+	glusProgramDestroy(&brdfLutProgram);
+
+	// ------------------------------------------------------------------
+	// Pass 4: sharp background cubemap from the same panorama (g_backgroundCubemapTexture)
+	// ------------------------------------------------------------------
+
+	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example33/shader/panorama_to_cubemap.frag.glsl", &fragmentSource);
+	glusProgramBuildFromSource(&panoramaToCubemapProgram,
+			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
+
+	panoramaTexBGLoc = glGetUniformLocation(panoramaToCubemapProgram.program, "u_panoramaTexture");
+	faceBGLoc        = glGetUniformLocation(panoramaToCubemapProgram.program, "u_face");
+
+	glGenTextures(1, &g_backgroundCubemapTexture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
+	for (m = 0; m < 6; m++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
+				BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	glUseProgram(panoramaToCubemapProgram.program);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+	glUniform1i(panoramaTexBGLoc, 0);
+	glViewport(0, 0, BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE);
+
+	for (m = 0; m < 6; m++)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_backgroundCubemapTexture, 0);
+		glUniform1i(faceBGLoc, m);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+
+	glusProgramDestroy(&panoramaToCubemapProgram);
+
+	// ------------------------------------------------------------------
+	// Clean up all shared prefilter resources (textures live in g_texture[]).
+	// ------------------------------------------------------------------
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &quadVAO);
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteFramebuffers(1, &prefilterFBO);
+	glDeleteTextures(1, &panoramaGLTexture);
+
+	printf("IBL prefilter complete.\n");
 
 	//
 
@@ -484,7 +596,8 @@ GLUSboolean init(GLUSvoid)
 
 	glUseProgram(g_backgroundProgram.program);
 
-	glUniform1i(g_textureBackgroundLocation, 0);
+	// Background cubemap is on texture unit 3.
+	glUniform1i(g_textureBackgroundLocation, 3);
 
 	glGenVertexArrays(1, &g_backgroundVAO);
 	glBindVertexArray(g_backgroundVAO);
@@ -494,6 +607,11 @@ GLUSboolean init(GLUSvoid)
 	glEnableVertexAttribArray(g_vertexBackgroundLocation);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
+
+	// Bind background cubemap to unit 3 (persistent; not rebound elsewhere).
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
+	glActiveTexture(GL_TEXTURE0);
 
 	//
 
@@ -629,6 +747,13 @@ GLUSvoid terminate(GLUSvoid)
 		glDeleteTextures(1, &g_texture[1]);
 
 		g_texture[1] = 0;
+	}
+
+	if (g_backgroundCubemapTexture)
+	{
+		glDeleteTextures(1, &g_backgroundCubemapTexture);
+
+		g_backgroundCubemapTexture = 0;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);

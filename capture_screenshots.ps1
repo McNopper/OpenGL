@@ -123,8 +123,8 @@ function Capture-Window {
 }
 
 # Main script
-$binariesPath = "D:\Development\GitHub\OpenGL\Binaries"
-$imagesPath = "D:\Development\GitHub\OpenGL\screenshots"
+$binariesPath = Join-Path $PSScriptRoot "Binaries"
+$imagesPath   = Join-Path $PSScriptRoot "screenshots"
 $examples = Get-ChildItem "$binariesPath\Example*.exe" | Sort-Object Name
 
 if (-not $examples -or $examples.Count -eq 0)
