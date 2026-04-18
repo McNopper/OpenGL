@@ -144,8 +144,7 @@ GLUSboolean init(GLUSvoid)
 	// 6 sides of diffuse and specular; all roughness levels of specular.
 	// These are no longer loaded from disk; kept for potential future use.
 
-	// The look up table (LUT) is stored in a raw binary file.
-	// This is no longer loaded from disk; generated on GPU instead.
+	// The BRDF integration LUT is generated on the GPU at startup (brdf_lut.frag.glsl).
 
 	GLUStextfile vertexSource;
 	GLUStextfile fragmentSource;
