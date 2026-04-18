@@ -19,7 +19,7 @@ out vec4 fragColor;
 // see http://gl.ict.usc.edu/Data/HighResProbes/
 vec2 panorama(vec3 ray)
 {
-	return vec2(0.5 + 0.5*atan(ray.x, -ray.z)/GLUS_PI, 1.0 - acos(ray.y)/GLUS_PI);
+	return vec2(0.5 + 0.5*atan(ray.x, -ray.z)/GLUS_PI, 1.0 - acos(clamp(ray.y, -1.0, 1.0))/GLUS_PI);
 }
 
 // Same face mapping as panorama_to_cubemap.frag.glsl (OpenGL Table 8.19).
