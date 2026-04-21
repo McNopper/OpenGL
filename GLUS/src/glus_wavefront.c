@@ -251,7 +251,7 @@ static GLUSboolean glusWavefrontLoadMaterial(const GLUSchar* filename, GLUSmater
 	GLUSchar buffer[GLUS_BUFFERSIZE];
 	GLUSchar* checkBuffer;
 	GLUSchar name[GLUS_MAX_STRING];
-	GLUSchar identifier[7];
+	GLUSchar identifier[32]; /* was [7]; "map_bump" is 8 chars + null = 9 bytes */
 
 	GLUSmaterialList* currentMaterialList = 0;
 
@@ -684,7 +684,7 @@ GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shape, GLUS
 	FILE* f;
 
 	GLUSchar buffer[GLUS_BUFFERSIZE];
-	GLUSchar identifier[7];
+	GLUSchar identifier[32];
 
 	GLUSfloat x, y, z;
 	GLUSfloat s, t;
@@ -1340,7 +1340,7 @@ GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* line)
 	FILE* f;
 
 	GLUSchar buffer[GLUS_BUFFERSIZE];
-	GLUSchar identifier[7];
+	GLUSchar identifier[32];
 
 	GLUSfloat x, y, z;
 
