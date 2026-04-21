@@ -58,7 +58,7 @@ All dependencies are automatically fetched and built:
 
 ## Examples
 
-All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
+All 46 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 
 - [Example01 - Basic window and OpenGL 3 initialization](#example01---basic-window-and-opengl-3-initialization)
 - [Example02 - Rendering of a triangle](#example02---rendering-of-a-triangle)
@@ -105,6 +105,7 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example43 - Scene with several models having groups and materials](#example43---scene-with-several-models-having-groups-and-materials)
 - [Example44 - Conservative rasterization](#example44---conservative-rasterization)
 - [Example45 - GPU voxelization (OpenGL 4.4)](#example45---gpu-voxelization-opengl-44)
+- [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.4)](#example46---voxel-cone-tracing---global-illumination-opengl-44)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -285,3 +286,12 @@ All 45 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 ### Example45 - GPU voxelization (OpenGL 4.4)
 
 ![Example45](screenshots/Example45.png)
+
+### Example46 - Voxel cone tracing - Global illumination (OpenGL 4.4)
+
+Real-time global illumination using voxel cone tracing based on [Crassin et al. 2011](https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf).
+The Sponza scene is first voxelized into a 64³ RGBA8 3D texture with a dominant-axis geometry shader.
+Mipmaps are generated for the voxel grid, then the final pass traces six diffuse cones plus a specular cone
+per fragment to compute indirect illumination, ambient occlusion, and specular reflections.
+
+![Example46](screenshots/Example46.png)
