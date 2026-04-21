@@ -210,10 +210,13 @@ void main()
     occlusion = min(1.0, 1.5 * occlusion);
 
     // Indirect specular via a narrow cone along the reflection vector.
-    vec3  R           = reflect(-V, N);
+    // Cone aperture is derived from material shininess using the Phong lobe
+    // solid-angle relationship: tan(halfAngle) = sqrt(2 / (shininess + 2)).
+    // Clamped to [0.02, 0.577] — nearly mirror to 60-degree diffuse spread.
+    vec3  R                = reflect(-V, N);
+    float specTanHalfAngle = clamp(sqrt(2.0 / max(u_shininess + 2.0, 1.0)), 0.02, 0.5774);
     float specOcc;
-    // ~8-degree half-angle gives mirror-like reflections on glossy surfaces.
-    vec3  indirSpec   = 2.0 * u_specularColor.rgb * coneTrace(R, 0.07, specOcc).rgb;
+    vec3  indirSpec        = 2.0 * u_specularColor.rgb * coneTrace(R, specTanHalfAngle, specOcc).rgb;
 
     // Combine direct and indirect contributions modulated by AO.
     vec3 finalColor =

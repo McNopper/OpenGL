@@ -294,7 +294,7 @@ The Sponza scene is first voxelized into a 64³ RGBA8 3D texture with a dominant
 Mipmaps are generated for the voxel grid, then the final pass traces six diffuse cones plus a specular cone
 per fragment to compute indirect illumination, ambient occlusion, and specular reflections.
 
-**Comparison with the original paper:**
+**Simplifications vs. the original paper:**
 
 | Aspect | Paper | This implementation |
 |---|---|---|
@@ -302,6 +302,5 @@ per fragment to compute indirect illumination, ambient occlusion, and specular r
 | Voxel filtering | Anisotropic pre-filtering: per-face directional radiance propagated up the octree | Isotropic `glGenerateMipmap` box filter |
 | Radiance storage | Per-face (6 directions) for directional shadowing | Single isotropic value per voxel |
 | Voxel write | Atomic accumulation when multiple triangles cover the same voxel | Plain `imageStore` (last-write-wins) |
-| Specular cone aperture | Roughness-derived per material | Fixed half-angle (tan ≈ 0.07, ~4°) |
 
 ![Example46](screenshots/Example46.png)
