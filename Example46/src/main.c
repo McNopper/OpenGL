@@ -21,9 +21,12 @@
  * https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf
  *
  * Camera controls:
- *   W / S  - move forward / backward
- *   A / D  - rotate left / right
- *   V      - re-voxelise the scene
+ *   W / S        - move forward / backward
+ *   A / D        - strafe left / right
+ *   Cursor left  - rotate left
+ *   Cursor right - rotate right
+ *   Cursor up    - look up
+ *   Cursor down  - look down
  */
 
 #include <math.h>
@@ -31,44 +34,38 @@
 
 #include "GL/glus.h"
 
-/* -------------------------------------------------------------------------
- * Constants
- * ---------------------------------------------------------------------- */
-
 #define WINDOW_WIDTH    1024
 #define WINDOW_HEIGHT   768
 
-/* Resolution of the 3-D voxel grid (must be a power of two). */
+// Resolution of the 3-D voxel grid (must be a power of two).
 #define VCT_GRID_SIZE   64
 
-/* Number of mip levels = log2(VCT_GRID_SIZE) + 1. */
+// Number of mip levels = log2(VCT_GRID_SIZE) + 1.
 #define VCT_MIPLEVELS   7
 
-/* World space is normalised so the scene fits inside [-1, 1]^3. */
+// World space is normalised so the scene fits inside [-1, 1]^3.
 #define VCT_WORLD_SIZE  2.0f
 
-/* Sponza bounding box: X [-192.09, 179.99], Y [-12.64, 142.94], Z [-118.28, 110.54]
- * Scale = 2 / max_range = 2 / 372.08 ~= 0.005375
- * Translate = -center = (6.05, -65.15, 3.87) applied before scale. */
+// Sponza bounding box: X [-192.09, 179.99], Y [-12.64, 142.94], Z [-118.28, 110.54]
+// Scale = 2 / max_range = 2 / 372.08 ~= 0.005375
+// Translate = -center = (6.05, -65.15, 3.87) applied before scale.
 #define SPONZA_SCALE    0.005375f
 #define SPONZA_TX       6.05f
 #define SPONZA_TY      -65.15f
 #define SPONZA_TZ       3.87f
 
-/* Attribute locations shared by both shader programs. */
+// Attribute locations shared by both shader programs.
 #define LOCATION_VERTEX   0
 #define LOCATION_NORMAL   1
 #define LOCATION_TEXCOORD 2
 
-/* Texture/image unit bindings. */
-#define BINDING_VOXEL_GRID   0   /* image3D (voxelise) / sampler3D (vct) */
-#define BINDING_DIFFUSE_TEX  1   /* sampler2D per-material diffuse        */
+// Texture/image unit bindings.
+#define BINDING_VOXEL_GRID   0
+#define BINDING_DIFFUSE_TEX  1
 
-/* -------------------------------------------------------------------------
- * Shader programs
- * ---------------------------------------------------------------------- */
+//
 
-/* Pass 1: voxelisation (vert + geom + frag, writes to image3D). */
+// Pass 1: voxelisation (vert + geom + frag, writes to image3D).
 static GLUSprogram g_voxelizeProgram;
 
 static GLint g_voxelize_modelMatrixLoc;
@@ -79,7 +76,9 @@ static GLint g_voxelize_hasDiffuseTextureLoc;
 static GLint g_voxelize_voxelGridSizeLoc;
 static GLint g_voxelize_halfPixelSizeLoc;
 
-/* Pass 2: VCT rendering (vert + frag, samples sampler3D). */
+//
+
+// Pass 2: VCT rendering (vert + frag, samples sampler3D).
 static GLUSprogram g_vctProgram;
 
 static GLint g_vct_modelMatrixLoc;
@@ -94,320 +93,318 @@ static GLint g_vct_hasDiffuseTextureLoc;
 static GLint g_vct_voxelGridWorldSizeLoc;
 static GLint g_vct_voxelDimensionsLoc;
 
-/* -------------------------------------------------------------------------
- * Scene data
- * ---------------------------------------------------------------------- */
+//
+
+// Scene data.
+
+//
 
 static GLUSwavefront g_wavefront;
 
-static GLuint g_voxelGrid;    /* RGBA8 3-D texture, VCT_MIPLEVELS mip levels */
+static GLuint g_voxelGrid;
 
-/* Model matrix (uniform scale + translate). */
+// Model matrix (uniform scale + translate).
 static GLfloat g_modelMatrix[16];
 
-/* -------------------------------------------------------------------------
- * Camera state
- * ---------------------------------------------------------------------- */
+//
 
-/* Eye position in normalised world space.
- * Standing on the ground floor of the Sponza corridor, looking along +X
- * so that the hanging flags on the colonnade are visible. */
+// Camera state.
+// Eye position in normalised world space,
+// standing on the ground floor of the Sponza corridor, looking along +X.
+//
 static GLfloat g_eye[3] = { 0.0f, -0.30f, 0.0f };
 
-/* Horizontal yaw in degrees.  0 = looking along -Z; 90 = looking along +X. */
+// Horizontal yaw in degrees.  0 = looking along -Z; 90 = looking along +X.
 static GLfloat g_yaw = 90.0f;
 
-/* Key states for continuous camera movement. */
+// Vertical pitch in degrees.  Positive = looking up.  Clamped to [-89, 89].
+static GLfloat g_pitch = 0.0f;
+
+// Key states for continuous camera movement.
 static GLboolean g_moveForward  = GLUS_FALSE;
 static GLboolean g_moveBackward = GLUS_FALSE;
+static GLboolean g_strafeLeft   = GLUS_FALSE;
+static GLboolean g_strafeRight  = GLUS_FALSE;
 static GLboolean g_turnLeft     = GLUS_FALSE;
 static GLboolean g_turnRight    = GLUS_FALSE;
+static GLboolean g_turnUp       = GLUS_FALSE;
+static GLboolean g_turnDown     = GLUS_FALSE;
 
-/* -------------------------------------------------------------------------
- * Voxelisation flag
- * ---------------------------------------------------------------------- */
+//
 
-/* Set to GLUS_TRUE to (re-)voxelise on the next frame. */
-static GLboolean g_needsVoxelization = GLUS_TRUE;
+// Voxelisation done flag - voxelisation runs once on the first frame.
 
-/* -------------------------------------------------------------------------
- * Window dimensions (updated by reshape)
- * ---------------------------------------------------------------------- */
+//
+
+static GLboolean g_voxelizationDone = GLUS_FALSE;
+
+//
+
+// Window dimensions (updated by reshape).
+
+//
+
 static GLint g_windowWidth  = WINDOW_WIDTH;
 static GLint g_windowHeight = WINDOW_HEIGHT;
 
-/* =========================================================================
- * Key handler
- * ====================================================================== */
-
 GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 {
-    if (k == 'w') g_moveForward  = pressed;
-    if (k == 's') g_moveBackward = pressed;
-    if (k == 'a') g_turnLeft     = pressed;
-    if (k == 'd') g_turnRight    = pressed;
+	if (k == 'w') g_moveForward  = pressed;
+	if (k == 's') g_moveBackward = pressed;
+	if (k == 'a') g_strafeLeft   = pressed;
+	if (k == 'd') g_strafeRight  = pressed;
 
-    /* Press 'v' to trigger a manual re-voxelisation. */
-    if (k == 'v' && pressed)
-        g_needsVoxelization = GLUS_TRUE;
+	// Cursor left/right rotate the camera. GLFW_KEY_LEFT=263, GLFW_KEY_RIGHT=262.
+	if (k == 263) g_turnLeft  = pressed;
+	if (k == 262) g_turnRight = pressed;
+
+	// Cursor up/down tilt the camera. GLFW_KEY_UP=265, GLFW_KEY_DOWN=264.
+	if (k == 265) g_turnUp   = pressed;
+	if (k == 264) g_turnDown = pressed;
 }
 
-/* =========================================================================
- * Init
- * ====================================================================== */
+//
+// Init.
+//
 
 GLUSboolean init(GLUSvoid)
 {
-    GLUStextfile vertexSource;
-    GLUStextfile geometrySource;
-    GLUStextfile fragmentSource;
-    GLUStgaimage  image;
+	GLUStextfile vertexSource;
+	GLUStextfile geometrySource;
+	GLUStextfile fragmentSource;
+	GLUStgaimage image;
 
-    GLUSgroupList*    groupWalker;
-    GLUSmaterialList* materialWalker;
+	GLUSgroupList*    groupWalker;
+	GLUSmaterialList* materialWalker;
 
+	//
+	// Build voxelisation program (vert + geom + frag).
+	//
 
-    /* ------------------------------------------------------------------
-     * Build voxelisation program (vert + geom + frag).
-     * ---------------------------------------------------------------- */
+	glusFileLoadText("../Example46/shader/voxelize.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example46/shader/voxelize.geom.glsl", &geometrySource);
+	glusFileLoadText("../Example46/shader/voxelize.frag.glsl", &fragmentSource);
 
-    glusFileLoadText("../Example46/shader/voxelize.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example46/shader/voxelize.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example46/shader/voxelize.frag.glsl", &fragmentSource);
+	glusProgramBuildFromSource(&g_voxelizeProgram,
+	                           (const GLUSchar**) &vertexSource.text,
+	                           0, 0,
+	                           (const GLUSchar**) &geometrySource.text,
+	                           (const GLUSchar**) &fragmentSource.text);
 
-    glusProgramBuildFromSource(&g_voxelizeProgram,
-                               (const GLUSchar**) &vertexSource.text,
-                               0, 0,
-                               (const GLUSchar**) &geometrySource.text,
-                               (const GLUSchar**) &fragmentSource.text);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&geometrySource);
+	glusFileDestroyText(&fragmentSource);
 
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&geometrySource);
-    glusFileDestroyText(&fragmentSource);
+	glUseProgram(g_voxelizeProgram.program);
 
-    glUseProgram(g_voxelizeProgram.program);
+	g_voxelize_modelMatrixLoc        = glGetUniformLocation(g_voxelizeProgram.program, "u_modelMatrix");
+	g_voxelize_lightPosLoc           = glGetUniformLocation(g_voxelizeProgram.program, "u_lightPos");
+	g_voxelize_lightColorLoc         = glGetUniformLocation(g_voxelizeProgram.program, "u_lightColor");
+	g_voxelize_diffuseColorLoc       = glGetUniformLocation(g_voxelizeProgram.program, "u_diffuseColor");
+	g_voxelize_hasDiffuseTextureLoc  = glGetUniformLocation(g_voxelizeProgram.program, "u_hasDiffuseTexture");
+	g_voxelize_voxelGridSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_voxelGridSize");
+	g_voxelize_halfPixelSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_halfPixelSize");
 
-    g_voxelize_modelMatrixLoc        = glGetUniformLocation(g_voxelizeProgram.program, "u_modelMatrix");
-    g_voxelize_lightPosLoc           = glGetUniformLocation(g_voxelizeProgram.program, "u_lightPos");
-    g_voxelize_lightColorLoc         = glGetUniformLocation(g_voxelizeProgram.program, "u_lightColor");
-    g_voxelize_diffuseColorLoc       = glGetUniformLocation(g_voxelizeProgram.program, "u_diffuseColor");
-    g_voxelize_hasDiffuseTextureLoc  = glGetUniformLocation(g_voxelizeProgram.program, "u_hasDiffuseTexture");
-    g_voxelize_voxelGridSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_voxelGridSize");
-    g_voxelize_halfPixelSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_halfPixelSize");
+	// Static uniforms set once.
+	glUniform3f(g_voxelize_lightPosLoc,   0.0f,  0.38f, 0.0f);
+	glUniform3f(g_voxelize_lightColorLoc, 2.0f,  2.0f,  2.0f);
+	glUniform1i(g_voxelize_voxelGridSizeLoc, VCT_GRID_SIZE);
+	glUniform2f(g_voxelize_halfPixelSizeLoc, 1.0f / (GLfloat)VCT_GRID_SIZE, 1.0f / (GLfloat)VCT_GRID_SIZE);
 
-    /* Static uniforms set once. */
-    glUniform3f(g_voxelize_lightPosLoc,   0.0f,  0.38f, 0.0f);
-    glUniform3f(g_voxelize_lightColorLoc, 2.0f,  2.0f,  2.0f);
-    glUniform1i(g_voxelize_voxelGridSizeLoc, VCT_GRID_SIZE);
-    glUniform2f(g_voxelize_halfPixelSizeLoc, 1.0f / (GLfloat)VCT_GRID_SIZE, 1.0f / (GLfloat)VCT_GRID_SIZE);
+	glUseProgram(0);
 
-    glUseProgram(0);
+	//
+	// Build VCT rendering program (vert + frag).
+	//
 
+	glusFileLoadText("../Example46/shader/vct.vert.glsl", &vertexSource);
+	glusFileLoadText("../Example46/shader/vct.frag.glsl", &fragmentSource);
 
-    /* ------------------------------------------------------------------
-     * Build VCT rendering program (vert + frag).
-     * ---------------------------------------------------------------- */
+	glusProgramBuildFromSource(&g_vctProgram,
+	                           (const GLUSchar**) &vertexSource.text,
+	                           0, 0, 0,
+	                           (const GLUSchar**) &fragmentSource.text);
 
-    glusFileLoadText("../Example46/shader/vct.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example46/shader/vct.frag.glsl", &fragmentSource);
+	glusFileDestroyText(&vertexSource);
+	glusFileDestroyText(&fragmentSource);
 
-    glusProgramBuildFromSource(&g_vctProgram,
-                               (const GLUSchar**) &vertexSource.text,
-                               0, 0, 0,
-                               (const GLUSchar**) &fragmentSource.text);
+	glUseProgram(g_vctProgram.program);
 
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
+	g_vct_modelMatrixLoc        = glGetUniformLocation(g_vctProgram.program, "u_modelMatrix");
+	g_vct_mvpMatrixLoc          = glGetUniformLocation(g_vctProgram.program, "u_mvpMatrix");
+	g_vct_cameraPosLoc          = glGetUniformLocation(g_vctProgram.program, "u_cameraPos");
+	g_vct_lightPosLoc           = glGetUniformLocation(g_vctProgram.program, "u_lightPos");
+	g_vct_lightColorLoc         = glGetUniformLocation(g_vctProgram.program, "u_lightColor");
+	g_vct_diffuseColorLoc       = glGetUniformLocation(g_vctProgram.program, "u_diffuseColor");
+	g_vct_specularColorLoc      = glGetUniformLocation(g_vctProgram.program, "u_specularColor");
+	g_vct_shininessLoc          = glGetUniformLocation(g_vctProgram.program, "u_shininess");
+	g_vct_hasDiffuseTextureLoc  = glGetUniformLocation(g_vctProgram.program, "u_hasDiffuseTexture");
+	g_vct_voxelGridWorldSizeLoc = glGetUniformLocation(g_vctProgram.program, "u_voxelGridWorldSize");
+	g_vct_voxelDimensionsLoc    = glGetUniformLocation(g_vctProgram.program, "u_voxelDimensions");
 
-    glUseProgram(g_vctProgram.program);
+	// Static uniforms set once.
+	glUniform3f(g_vct_lightPosLoc,          0.0f,  0.38f, 0.0f);
+	glUniform3f(g_vct_lightColorLoc,        2.0f,  2.0f,  2.0f);
+	glUniform1f(g_vct_voxelGridWorldSizeLoc, VCT_WORLD_SIZE);
+	glUniform1i(g_vct_voxelDimensionsLoc,    VCT_GRID_SIZE);
 
-    g_vct_modelMatrixLoc        = glGetUniformLocation(g_vctProgram.program, "u_modelMatrix");
-    g_vct_mvpMatrixLoc          = glGetUniformLocation(g_vctProgram.program, "u_mvpMatrix");
-    g_vct_cameraPosLoc          = glGetUniformLocation(g_vctProgram.program, "u_cameraPos");
-    g_vct_lightPosLoc           = glGetUniformLocation(g_vctProgram.program, "u_lightPos");
-    g_vct_lightColorLoc         = glGetUniformLocation(g_vctProgram.program, "u_lightColor");
-    g_vct_diffuseColorLoc       = glGetUniformLocation(g_vctProgram.program, "u_diffuseColor");
-    g_vct_specularColorLoc      = glGetUniformLocation(g_vctProgram.program, "u_specularColor");
-    g_vct_shininessLoc          = glGetUniformLocation(g_vctProgram.program, "u_shininess");
-    g_vct_hasDiffuseTextureLoc  = glGetUniformLocation(g_vctProgram.program, "u_hasDiffuseTexture");
-    g_vct_voxelGridWorldSizeLoc = glGetUniformLocation(g_vctProgram.program, "u_voxelGridWorldSize");
-    g_vct_voxelDimensionsLoc    = glGetUniformLocation(g_vctProgram.program, "u_voxelDimensions");
+	glUseProgram(0);
 
-    /* Static uniforms set once. */
-    glUniform3f(g_vct_lightPosLoc,          0.0f,  0.38f, 0.0f);
-    glUniform3f(g_vct_lightColorLoc,        2.0f,  2.0f,  2.0f);
-    glUniform1f(g_vct_voxelGridWorldSizeLoc, VCT_WORLD_SIZE);
-    glUniform1i(g_vct_voxelDimensionsLoc,    VCT_GRID_SIZE);
+	//
+	// Load the Sponza wavefront model.
+	//
 
-    glUseProgram(0);
+	if (!glusWavefrontLoad("sponza.obj", &g_wavefront))
+	{
+		printf("Could not load sponza.obj\n");
+		return GLUS_FALSE;
+	}
 
+	// Vertices VBO (4 floats per vertex).
+	glGenBuffers(1, &g_wavefront.verticesVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+	glBufferData(GL_ARRAY_BUFFER,
+	             g_wavefront.numberVertices * 4 * sizeof(GLfloat),
+	             (GLfloat*) g_wavefront.vertices,
+	             GL_STATIC_DRAW);
 
-    /* ------------------------------------------------------------------
-     * Load the Sponza wavefront model.
-     * ---------------------------------------------------------------- */
+	// Normals VBO (3 floats per vertex).
+	glGenBuffers(1, &g_wavefront.normalsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
+	glBufferData(GL_ARRAY_BUFFER,
+	             g_wavefront.numberVertices * 3 * sizeof(GLfloat),
+	             (GLfloat*) g_wavefront.normals,
+	             GL_STATIC_DRAW);
 
-    if (!glusWavefrontLoad("sponza.obj", &g_wavefront))
-    {
-        printf("Could not load sponza.obj\n");
-        return GLUS_FALSE;
-    }
+	// Texture coordinates VBO (2 floats per vertex).
+	glGenBuffers(1, &g_wavefront.texCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+	glBufferData(GL_ARRAY_BUFFER,
+	             g_wavefront.numberVertices * 2 * sizeof(GLfloat),
+	             (GLfloat*) g_wavefront.texCoords,
+	             GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /* Vertices VBO (4 floats per vertex). */
-    glGenBuffers(1, &g_wavefront.verticesVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 4 * sizeof(GLfloat),
-                 (GLfloat*) g_wavefront.vertices,
-                 GL_STATIC_DRAW);
+	//
+	// Create per-group index buffers and VAOs.
+	// Both programs use the same attribute locations so a single VAO per group suffices.
+	//
 
-    /* Normals VBO (3 floats per vertex). */
-    glGenBuffers(1, &g_wavefront.normalsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 3 * sizeof(GLfloat),
-                 (GLfloat*) g_wavefront.normals,
-                 GL_STATIC_DRAW);
+	glUseProgram(g_vctProgram.program);
 
-    /* Texture coordinates VBO (2 floats per vertex). */
-    glGenBuffers(1, &g_wavefront.texCoordsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 2 * sizeof(GLfloat),
-                 (GLfloat*) g_wavefront.texCoords,
-                 GL_STATIC_DRAW);
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		glGenBuffers(1, &groupWalker->group.indicesVBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		             groupWalker->group.numberIndices * sizeof(GLuint),
+		             (GLuint*) groupWalker->group.indices,
+		             GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glGenVertexArrays(1, &groupWalker->group.vao);
+		glBindVertexArray(groupWalker->group.vao);
 
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+		glVertexAttribPointer(LOCATION_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(LOCATION_VERTEX);
 
-    /* ------------------------------------------------------------------
-     * Create per-group index buffers and VAOs.
-     * Both programs use the same attribute locations so a single VAO
-     * per group suffices.
-     * ---------------------------------------------------------------- */
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
+		glVertexAttribPointer(LOCATION_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(LOCATION_NORMAL);
 
-    glUseProgram(g_vctProgram.program);
+		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+		glVertexAttribPointer(LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(LOCATION_TEXCOORD);
 
-    groupWalker = g_wavefront.groups;
-    while (groupWalker)
-    {
-        glGenBuffers(1, &groupWalker->group.indicesVBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     groupWalker->group.numberIndices * sizeof(GLuint),
-                     (GLuint*) groupWalker->group.indices,
-                     GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
 
-        glGenVertexArrays(1, &groupWalker->group.vao);
-        glBindVertexArray(groupWalker->group.vao);
+		glBindVertexArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
-        glVertexAttribPointer(LOCATION_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(LOCATION_VERTEX);
+		groupWalker = groupWalker->next;
+	}
 
-        glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
-        glVertexAttribPointer(LOCATION_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(LOCATION_NORMAL);
+	glUseProgram(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
-        glVertexAttribPointer(LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(LOCATION_TEXCOORD);
+	//
+	// Load per-material diffuse textures.
+	//
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+	glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
 
-        glBindVertexArray(0);
+	materialWalker = g_wavefront.materials;
+	while (materialWalker)
+	{
+		if (materialWalker->material.diffuseTextureFilename[0] != '\0')
+		{
+			if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
+			{
+				// Non-fatal: some materials have no texture.
+				printf("Warning: could not load texture %s\n",
+				       materialWalker->material.diffuseTextureFilename);
+				materialWalker = materialWalker->next;
+				continue;
+			}
 
-        groupWalker = groupWalker->next;
-    }
+			glGenTextures(1, &materialWalker->material.diffuseTextureName);
+			glBindTexture(GL_TEXTURE_2D, materialWalker->material.diffuseTextureName);
 
-    glUseProgram(0);
+			glTexImage2D(GL_TEXTURE_2D, 0,
+			             image.format, image.width, image.height, 0,
+			             image.format, GL_UNSIGNED_BYTE, image.data);
 
+			glGenerateMipmap(GL_TEXTURE_2D);
 
-    /* ------------------------------------------------------------------
-     * Load per-material diffuse textures.
-     * ---------------------------------------------------------------- */
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
-    materialWalker = g_wavefront.materials;
-    while (materialWalker)
-    {
-        if (materialWalker->material.diffuseTextureFilename[0] != '\0')
-        {
-            if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
-            {
-                /* Non-fatal: some materials have no texture. */
-                printf("Warning: could not load texture %s\n",
-                       materialWalker->material.diffuseTextureFilename);
-                materialWalker = materialWalker->next;
-                continue;
-            }
+			glusImageDestroyTga(&image);
+		}
 
-            glGenTextures(1, &materialWalker->material.diffuseTextureName);
-            glBindTexture(GL_TEXTURE_2D, materialWalker->material.diffuseTextureName);
+		materialWalker = materialWalker->next;
+	}
 
-            glTexImage2D(GL_TEXTURE_2D, 0,
-                         image.format, image.width, image.height, 0,
-                         image.format, GL_UNSIGNED_BYTE, image.data);
+	glActiveTexture(GL_TEXTURE0);
 
-            glGenerateMipmap(GL_TEXTURE_2D);
+	//
+	// Create the RGBA8 3-D voxel radiance texture.
+	//
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glGenTextures(1, &g_voxelGrid);
+	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+	glTexStorage3D(GL_TEXTURE_3D, VCT_MIPLEVELS, GL_RGBA8,
+	               VCT_GRID_SIZE, VCT_GRID_SIZE, VCT_GRID_SIZE);
 
-            glusImageDestroyTga(&image);
-        }
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        materialWalker = materialWalker->next;
-    }
+	glBindTexture(GL_TEXTURE_3D, 0);
 
-    glActiveTexture(GL_TEXTURE0);
+	// Model matrix: translate to centre the scene, then scale to fit into [-1, 1]^3.
+	// GLUS operations post-multiply: M = Scale * Translate, so M*v = Scale*(v + translate).
+	glusMatrix4x4Identityf(g_modelMatrix);
+	glusMatrix4x4Scalef(g_modelMatrix, SPONZA_SCALE, SPONZA_SCALE, SPONZA_SCALE);
+	glusMatrix4x4Translatef(g_modelMatrix, SPONZA_TX, SPONZA_TY, SPONZA_TZ);
 
+	//
+	// Global OpenGL state.
+	//
 
-    /* ------------------------------------------------------------------
-     * Create the RGBA8 3-D voxel radiance texture.
-     * ---------------------------------------------------------------- */
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
-    glGenTextures(1, &g_voxelGrid);
-    glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
-
-    glTexStorage3D(GL_TEXTURE_3D, VCT_MIPLEVELS, GL_RGBA8,
-                   VCT_GRID_SIZE, VCT_GRID_SIZE, VCT_GRID_SIZE);
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_3D, 0);
-
-    /* ------------------------------------------------------------------
-     * Model matrix: first translate to centre the scene, then scale to
-     * fit into [-1, 1]^3.  In GLUS the operations post-multiply, so we
-     * apply Scale first and Translate second: M = Scale * Translate.
-     * For a vertex v:  M*v = Scale * (v + translate) = s*(v - center).
-     * ---------------------------------------------------------------- */
-
-    glusMatrix4x4Identityf(g_modelMatrix);
-    glusMatrix4x4Scalef(g_modelMatrix, SPONZA_SCALE, SPONZA_SCALE, SPONZA_SCALE);
-    glusMatrix4x4Translatef(g_modelMatrix, SPONZA_TX, SPONZA_TY, SPONZA_TZ);
-
-    /* ------------------------------------------------------------------
-     * Global OpenGL state.
-     * ---------------------------------------------------------------- */
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-
-    return GLUS_TRUE;
+	return GLUS_TRUE;
 }
 
 /* =========================================================================
@@ -416,285 +413,317 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-    g_windowWidth  = width;
-    g_windowHeight = height;
+	g_windowWidth  = width;
+	g_windowHeight = height;
 }
 
-/* =========================================================================
- * Update (called every frame)
- * ====================================================================== */
+//
+// Update (called every frame).
+//
 
 GLUSboolean update(GLUSfloat time)
 {
-    GLUSgroupList* groupWalker;
+	static const GLubyte clearValue[4] = { 0, 0, 0, 0 };
 
-    GLfloat viewMatrix[16];
-    GLfloat projectionMatrix[16];
-    GLfloat mvpMatrix[16];
-    GLfloat vpMatrix[16];
+	GLUSgroupList* groupWalker;
 
-    static const GLubyte clearValue[4] = { 0, 0, 0, 0 };
-    /* ------------------------------------------------------------------
-     * Camera update
-     * ---------------------------------------------------------------- */
+	GLfloat viewMatrix[16];
+	GLfloat projectionMatrix[16];
+	GLfloat mvpMatrix[16];
+	GLfloat vpMatrix[16];
 
-    {
-        GLfloat moveSpeed = 0.5f * time;  /* world units per second */
-        GLfloat turnSpeed = 60.0f * time; /* degrees per second     */
+	GLfloat moveSpeed;
+	GLfloat turnSpeed;
+	GLfloat yawRad;
+	GLfloat pitchRad;
+	GLfloat fwdX;
+	GLfloat fwdZ;
+	GLfloat rightX;
+	GLfloat rightZ;
 
-        if (g_turnLeft)  g_yaw -= turnSpeed;
-        if (g_turnRight) g_yaw += turnSpeed;
+	//
+	// Camera update.
+	//
 
-        /* Forward direction in world XZ plane. */
-        GLfloat yawRad = g_yaw * GLUS_PI / 180.0f;
-        GLfloat fwdX   =  sinf(yawRad);
-        GLfloat fwdZ   = -cosf(yawRad);
+	moveSpeed = 0.5f * time;
+	turnSpeed = 60.0f * time;
 
-        if (g_moveForward)  { g_eye[0] += fwdX * moveSpeed; g_eye[2] += fwdZ * moveSpeed; }
-        if (g_moveBackward) { g_eye[0] -= fwdX * moveSpeed; g_eye[2] -= fwdZ * moveSpeed; }
+	if (g_turnLeft)  g_yaw -= turnSpeed;
+	if (g_turnRight) g_yaw += turnSpeed;
 
-        /* Look-at target is one unit ahead along the forward vector. */
-        glusMatrix4x4LookAtf(viewMatrix,
-                             g_eye[0],          g_eye[1],          g_eye[2],
-                             g_eye[0] + fwdX,   g_eye[1],          g_eye[2] + fwdZ,
-                             0.0f, 1.0f, 0.0f);
+	if (g_turnUp)   g_pitch += turnSpeed;
+	if (g_turnDown) g_pitch -= turnSpeed;
 
-        glusMatrix4x4Perspectivef(projectionMatrix,
-                                  60.0f,
-                                  (GLfloat) g_windowWidth / (GLfloat) g_windowHeight,
-                                  0.001f, 10.0f);
+	if (g_pitch >  89.0f) g_pitch =  89.0f;
+	if (g_pitch < -89.0f) g_pitch = -89.0f;
 
-        glusMatrix4x4Multiplyf(vpMatrix, projectionMatrix, viewMatrix);
-        glusMatrix4x4Multiplyf(mvpMatrix, vpMatrix, g_modelMatrix);
-    }
+	yawRad   = g_yaw   * GLUS_PI / 180.0f;
+	pitchRad = g_pitch * GLUS_PI / 180.0f;
+	fwdX   =  sinf(yawRad) * cosf(pitchRad);
+	fwdZ   = -cosf(yawRad) * cosf(pitchRad);
+	rightX =  cosf(yawRad);
+	rightZ =  sinf(yawRad);
 
-    /* ------------------------------------------------------------------
-     * Voxelisation pass (runs only when g_needsVoxelization is set).
-     * ---------------------------------------------------------------- */
+	if (g_moveForward)  { g_eye[0] += fwdX   * moveSpeed; g_eye[2] += fwdZ   * moveSpeed; }
+	if (g_moveBackward) { g_eye[0] -= fwdX   * moveSpeed; g_eye[2] -= fwdZ   * moveSpeed; }
+	if (g_strafeLeft)   { g_eye[0] -= rightX * moveSpeed; g_eye[2] -= rightZ * moveSpeed; }
+	if (g_strafeRight)  { g_eye[0] += rightX * moveSpeed; g_eye[2] += rightZ * moveSpeed; }
 
-    if (g_needsVoxelization)
-    {
-        g_needsVoxelization = GLUS_FALSE;
+	glusMatrix4x4LookAtf(viewMatrix,
+	                     g_eye[0],        g_eye[1],                      g_eye[2],
+	                     g_eye[0] + fwdX, g_eye[1] + sinf(pitchRad),     g_eye[2] + fwdZ,
+	                     0.0f, 1.0f, 0.0f);
 
-        /* Clear the base mip level of the voxel grid before re-voxelising. */
-        glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
-        glClearTexImage(g_voxelGrid, 0, GL_RGBA, GL_UNSIGNED_BYTE, clearValue);
-        glBindTexture(GL_TEXTURE_3D, 0);
+	glusMatrix4x4Perspectivef(projectionMatrix,
+	                          60.0f,
+	                          (GLfloat) g_windowWidth / (GLfloat) g_windowHeight,
+	                          0.001f, 10.0f);
 
-        /* State for voxelisation: no colour output, no depth test, no culling. */
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glViewport(0, 0, VCT_GRID_SIZE, VCT_GRID_SIZE);
+	glusMatrix4x4Multiplyf(vpMatrix, projectionMatrix, viewMatrix);
+	glusMatrix4x4Multiplyf(mvpMatrix, vpMatrix, g_modelMatrix);
 
-        glUseProgram(g_voxelizeProgram.program);
+	//
+	// Voxelisation pass (runs once on the first frame).
+	//
 
-        glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
+	if (!g_voxelizationDone)
+	{
+		g_voxelizationDone = GLUS_TRUE;
 
-        /* Bind the voxel grid as a write-only image at binding point 0. */
-        glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0,
-                           GL_WRITE_ONLY, GL_RGBA8);
+		// Clear the base mip level of the voxel grid before voxelising.
+		glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+		glClearTexImage(g_voxelGrid, 0, GL_RGBA, GL_UNSIGNED_BYTE, clearValue);
+		glBindTexture(GL_TEXTURE_3D, 0);
 
-        glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+		// State for voxelisation: no colour output, no depth test, no culling.
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glViewport(0, 0, VCT_GRID_SIZE, VCT_GRID_SIZE);
 
-        groupWalker = g_wavefront.groups;
-        while (groupWalker)
-        {
-            if (groupWalker->group.material)
-            {
-                glUniform4fv(g_voxelize_diffuseColorLoc, 1,
-                             groupWalker->group.material->diffuse);
+		glUseProgram(g_voxelizeProgram.program);
 
-                if (groupWalker->group.material->diffuseTextureName)
-                {
-                    glBindTexture(GL_TEXTURE_2D,
-                                  groupWalker->group.material->diffuseTextureName);
-                    glUniform1i(g_voxelize_hasDiffuseTextureLoc, 1);
-                }
-                else
-                {
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
-                }
-            }
-            else
-            {
-                glUniform4f(g_voxelize_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
-            }
+		glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
 
-            glBindVertexArray(groupWalker->group.vao);
-            glDrawElements(GL_TRIANGLES,
-                           groupWalker->group.numberIndices,
-                           GL_UNSIGNED_INT, 0);
+		// Bind the voxel grid as a write-only image at binding point 0.
+		glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0,
+		                   GL_WRITE_ONLY, GL_RGBA8);
 
-            groupWalker = groupWalker->next;
-        }
+		glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
 
-        glBindVertexArray(0);
-        glActiveTexture(GL_TEXTURE0);
+		groupWalker = g_wavefront.groups;
+		while (groupWalker)
+		{
+			if (groupWalker->group.material)
+			{
+				glUniform4fv(g_voxelize_diffuseColorLoc, 1,
+				             groupWalker->group.material->diffuse);
 
-        /* Unbind image. */
-        glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0,
-                           GL_WRITE_ONLY, GL_RGBA8);
+				if (groupWalker->group.material->diffuseTextureName)
+				{
+					glBindTexture(GL_TEXTURE_2D,
+					              groupWalker->group.material->diffuseTextureName);
+					glUniform1i(g_voxelize_hasDiffuseTextureLoc, 1);
+				}
+				else
+				{
+					glBindTexture(GL_TEXTURE_2D, 0);
+					glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
+				}
+			}
+			else
+			{
+				glUniform4f(g_voxelize_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
+			}
 
-        /* Ensure all image writes are visible before mip generation. */
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
-                        GL_TEXTURE_FETCH_BARRIER_BIT);
+			glBindVertexArray(groupWalker->group.vao);
+			glDrawElements(GL_TRIANGLES,
+			               groupWalker->group.numberIndices,
+			               GL_UNSIGNED_INT, 0);
 
-        /* Generate mip chain for cone tracing (lodLevel sampling). */
-        glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
-        glGenerateMipmap(GL_TEXTURE_3D);
-        glBindTexture(GL_TEXTURE_3D, 0);
+			groupWalker = groupWalker->next;
+		}
 
-        /* Restore rendering state. */
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glViewport(0, 0, g_windowWidth, g_windowHeight);
-    }
+		glBindVertexArray(0);
+		glActiveTexture(GL_TEXTURE0);
 
-    /* ------------------------------------------------------------------
-     * VCT rendering pass
-     * ---------------------------------------------------------------- */
+		glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0,
+		                   GL_WRITE_ONLY, GL_RGBA8);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Ensure all image writes are visible before mip generation.
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
+		                GL_TEXTURE_FETCH_BARRIER_BIT);
 
-    glUseProgram(g_vctProgram.program);
+		// Generate mip chain for cone tracing.
+		glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+		glGenerateMipmap(GL_TEXTURE_3D);
+		glBindTexture(GL_TEXTURE_3D, 0);
 
-    glUniformMatrix4fv(g_vct_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
-    glUniformMatrix4fv(g_vct_mvpMatrixLoc,   1, GL_FALSE, mvpMatrix);
-    glUniform3fv(g_vct_cameraPosLoc, 1, g_eye);
+		// Restore rendering state.
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glViewport(0, 0, g_windowWidth, g_windowHeight);
+	}
 
-    /* Bind the voxel grid as a trilinear-mipmapped sampler at unit 0. */
-    glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
-    glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+	//
+	// VCT rendering pass.
+	//
 
-    glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    groupWalker = g_wavefront.groups;
-    while (groupWalker)
-    {
-        if (groupWalker->group.material)
-        {
-            glUniform4fv(g_vct_diffuseColorLoc,  1, groupWalker->group.material->diffuse);
-            glUniform4fv(g_vct_specularColorLoc, 1, groupWalker->group.material->specular);
-            glUniform1f(g_vct_shininessLoc,         groupWalker->group.material->shininess);
+	glUseProgram(g_vctProgram.program);
 
-            if (groupWalker->group.material->diffuseTextureName)
-            {
-                glBindTexture(GL_TEXTURE_2D,
-                              groupWalker->group.material->diffuseTextureName);
-                glUniform1i(g_vct_hasDiffuseTextureLoc, 1);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
-            }
-        }
-        else
-        {
-            glUniform4f(g_vct_diffuseColorLoc,  0.8f, 0.8f, 0.8f, 1.0f);
-            glUniform4f(g_vct_specularColorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
-            glUniform1f(g_vct_shininessLoc, 10.0f);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
-        }
+	glUniformMatrix4fv(g_vct_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
+	glUniformMatrix4fv(g_vct_mvpMatrixLoc,   1, GL_FALSE, mvpMatrix);
+	glUniform3fv(g_vct_cameraPosLoc, 1, g_eye);
 
-        glBindVertexArray(groupWalker->group.vao);
-        glDrawElements(GL_TRIANGLES,
-                       groupWalker->group.numberIndices,
-                       GL_UNSIGNED_INT, 0);
+	// Bind the voxel grid as a trilinear-mipmapped sampler at unit 0.
+	glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
+	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
 
-        groupWalker = groupWalker->next;
-    }
+	glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
 
-    glBindVertexArray(0);
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		if (groupWalker->group.material)
+		{
+			glUniform4fv(g_vct_diffuseColorLoc,  1, groupWalker->group.material->diffuse);
+			glUniform4fv(g_vct_specularColorLoc, 1, groupWalker->group.material->specular);
+			glUniform1f(g_vct_shininessLoc,         groupWalker->group.material->shininess);
 
-    glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
-    glBindTexture(GL_TEXTURE_3D, 0);
-    glActiveTexture(GL_TEXTURE0);
+			if (groupWalker->group.material->diffuseTextureName)
+			{
+				glBindTexture(GL_TEXTURE_2D,
+				              groupWalker->group.material->diffuseTextureName);
+				glUniform1i(g_vct_hasDiffuseTextureLoc, 1);
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
+			}
+		}
+		else
+		{
+			glUniform4f(g_vct_diffuseColorLoc,  0.8f, 0.8f, 0.8f, 1.0f);
+			glUniform4f(g_vct_specularColorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+			glUniform1f(g_vct_shininessLoc, 10.0f);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
+		}
 
-    return GLUS_TRUE;
+		glBindVertexArray(groupWalker->group.vao);
+		glDrawElements(GL_TRIANGLES,
+		               groupWalker->group.numberIndices,
+		               GL_UNSIGNED_INT, 0);
+
+		groupWalker = groupWalker->next;
+	}
+
+	glBindVertexArray(0);
+
+	glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	return GLUS_TRUE;
 }
 
-/* =========================================================================
- * Terminate
- * ====================================================================== */
+//
+// Terminate.
+//
 
 GLUSvoid terminate(GLUSvoid)
 {
-    GLUSgroupList*    groupWalker;
-    GLUSmaterialList* materialWalker;
+	GLUSgroupList*    groupWalker;
+	GLUSmaterialList* materialWalker;
 
-    /* Voxel grid texture. */
-    glBindTexture(GL_TEXTURE_3D, 0);
-    if (g_voxelGrid)
-    {
-        glDeleteTextures(1, &g_voxelGrid);
-        g_voxelGrid = 0;
-    }
+	// Voxel grid texture.
+	glBindTexture(GL_TEXTURE_3D, 0);
 
-    /* VBOs. */
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	if (g_voxelGrid)
+	{
+		glDeleteTextures(1, &g_voxelGrid);
 
-    if (g_wavefront.verticesVBO)
-    {
-        glDeleteBuffers(1, &g_wavefront.verticesVBO);
-        g_wavefront.verticesVBO = 0;
-    }
-    if (g_wavefront.normalsVBO)
-    {
-        glDeleteBuffers(1, &g_wavefront.normalsVBO);
-        g_wavefront.normalsVBO = 0;
-    }
-    if (g_wavefront.texCoordsVBO)
-    {
-        glDeleteBuffers(1, &g_wavefront.texCoordsVBO);
-        g_wavefront.texCoordsVBO = 0;
-    }
+		g_voxelGrid = 0;
+	}
 
-    /* Per-group VAOs and index buffers. */
-    glBindVertexArray(0);
+	//
 
-    groupWalker = g_wavefront.groups;
-    while (groupWalker)
-    {
-        if (groupWalker->group.indicesVBO)
-        {
-            glDeleteBuffers(1, &groupWalker->group.indicesVBO);
-            groupWalker->group.indicesVBO = 0;
-        }
-        if (groupWalker->group.vao)
-        {
-            glDeleteVertexArrays(1, &groupWalker->group.vao);
-            groupWalker->group.vao = 0;
-        }
-        groupWalker = groupWalker->next;
-    }
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /* Per-material textures. */
-    glBindTexture(GL_TEXTURE_2D, 0);
+	if (g_wavefront.verticesVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.verticesVBO);
 
-    materialWalker = g_wavefront.materials;
-    while (materialWalker)
-    {
-        if (materialWalker->material.diffuseTextureName)
-        {
-            glDeleteTextures(1, &materialWalker->material.diffuseTextureName);
-            materialWalker->material.diffuseTextureName = 0;
-        }
-        materialWalker = materialWalker->next;
-    }
+		g_wavefront.verticesVBO = 0;
+	}
 
-    /* Shader programs. */
-    glUseProgram(0);
-    glusProgramDestroy(&g_voxelizeProgram);
-    glusProgramDestroy(&g_vctProgram);
+	if (g_wavefront.normalsVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.normalsVBO);
 
-    glusWavefrontDestroy(&g_wavefront);
+		g_wavefront.normalsVBO = 0;
+	}
+
+	if (g_wavefront.texCoordsVBO)
+	{
+		glDeleteBuffers(1, &g_wavefront.texCoordsVBO);
+
+		g_wavefront.texCoordsVBO = 0;
+	}
+
+	// Per-group VAOs and index buffers.
+	glBindVertexArray(0);
+
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		if (groupWalker->group.indicesVBO)
+		{
+			glDeleteBuffers(1, &groupWalker->group.indicesVBO);
+
+			groupWalker->group.indicesVBO = 0;
+		}
+
+		if (groupWalker->group.vao)
+		{
+			glDeleteVertexArrays(1, &groupWalker->group.vao);
+
+			groupWalker->group.vao = 0;
+		}
+
+		groupWalker = groupWalker->next;
+	}
+
+	// Per-material textures.
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	materialWalker = g_wavefront.materials;
+	while (materialWalker)
+	{
+		if (materialWalker->material.diffuseTextureName)
+		{
+			glDeleteTextures(1, &materialWalker->material.diffuseTextureName);
+
+			materialWalker->material.diffuseTextureName = 0;
+		}
+
+		materialWalker = materialWalker->next;
+	}
+
+	//
+
+	glUseProgram(0);
+
+	glusProgramDestroy(&g_voxelizeProgram);
+	glusProgramDestroy(&g_vctProgram);
+
+	glusWavefrontDestroy(&g_wavefront);
 }
 
 /* =========================================================================
@@ -703,40 +732,40 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-    EGLint eglConfigAttributes[] = {
-        EGL_RED_SIZE,   8,
-        EGL_GREEN_SIZE, 8,
-        EGL_BLUE_SIZE,  8,
-        EGL_DEPTH_SIZE, 24,
-        EGL_STENCIL_SIZE, 0,
-        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-        EGL_NONE
-    };
+	EGLint eglConfigAttributes[] = {
+	        EGL_RED_SIZE,   8,
+	        EGL_GREEN_SIZE, 8,
+	        EGL_BLUE_SIZE,  8,
+	        EGL_DEPTH_SIZE, 24,
+	        EGL_STENCIL_SIZE, 0,
+	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	        EGL_NONE
+	};
 
-    EGLint eglContextAttributes[] = {
-        EGL_CONTEXT_MAJOR_VERSION, 4,
-        EGL_CONTEXT_MINOR_VERSION, 4,
-        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
-        EGL_NONE
-    };
+	EGLint eglContextAttributes[] = {
+	        EGL_CONTEXT_MAJOR_VERSION, 4,
+	        EGL_CONTEXT_MINOR_VERSION, 4,
+	        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+	        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+	        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+	        EGL_NONE
+	};
 
-    glusWindowSetInitFunc(init);
-    glusWindowSetReshapeFunc(reshape);
-    glusWindowSetUpdateFunc(update);
-    glusWindowSetTerminateFunc(terminate);
-    glusWindowSetKeyFunc(key);
+	glusWindowSetInitFunc(init);
+	glusWindowSetReshapeFunc(reshape);
+	glusWindowSetUpdateFunc(update);
+	glusWindowSetTerminateFunc(terminate);
+	glusWindowSetKeyFunc(key);
 
-    if (!glusWindowCreate("GLUS Example Window", WINDOW_WIDTH, WINDOW_HEIGHT,
-                          GLUS_FALSE, GLUS_TRUE,
-                          eglConfigAttributes, eglContextAttributes, 0))
-    {
-        printf("Could not create window!\n");
-        return -1;
-    }
+	if (!glusWindowCreate("GLUS Example Window", WINDOW_WIDTH, WINDOW_HEIGHT,
+	                      GLUS_FALSE, GLUS_TRUE,
+	                      eglConfigAttributes, eglContextAttributes, 0))
+	{
+		printf("Could not create window!\n");
+		return -1;
+	}
 
-    glusWindowRun();
+	glusWindowRun();
 
-    return 0;
+	return 0;
 }
