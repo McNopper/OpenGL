@@ -77,6 +77,7 @@ static GLint g_voxelize_lightColorLoc;
 static GLint g_voxelize_diffuseColorLoc;
 static GLint g_voxelize_hasDiffuseTextureLoc;
 static GLint g_voxelize_voxelGridSizeLoc;
+static GLint g_voxelize_halfPixelSizeLoc;
 
 /* Pass 2: VCT rendering (vert + frag, samples sampler3D). */
 static GLUSprogram g_vctProgram;
@@ -192,11 +193,13 @@ GLUSboolean init(GLUSvoid)
     g_voxelize_diffuseColorLoc       = glGetUniformLocation(g_voxelizeProgram.program, "u_diffuseColor");
     g_voxelize_hasDiffuseTextureLoc  = glGetUniformLocation(g_voxelizeProgram.program, "u_hasDiffuseTexture");
     g_voxelize_voxelGridSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_voxelGridSize");
+    g_voxelize_halfPixelSizeLoc      = glGetUniformLocation(g_voxelizeProgram.program, "u_halfPixelSize");
 
     /* Static uniforms set once. */
     glUniform3f(g_voxelize_lightPosLoc,   0.0f,  0.38f, 0.0f);
     glUniform3f(g_voxelize_lightColorLoc, 2.0f,  2.0f,  2.0f);
     glUniform1i(g_voxelize_voxelGridSizeLoc, VCT_GRID_SIZE);
+    glUniform2f(g_voxelize_halfPixelSizeLoc, 1.0f / (GLfloat)VCT_GRID_SIZE, 1.0f / (GLfloat)VCT_GRID_SIZE);
 
     glUseProgram(0);
 
