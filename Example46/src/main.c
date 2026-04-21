@@ -108,12 +108,13 @@ static GLfloat g_modelMatrix[16];
  * Camera state
  * ---------------------------------------------------------------------- */
 
-/* Eye position in normalised world space. */
-static GLfloat g_eye[3] = { 0.75f, -0.05f, 0.0f };
+/* Eye position in normalised world space.
+ * Standing on the ground floor of the Sponza corridor, looking along +X
+ * so that the hanging flags on the colonnade are visible. */
+static GLfloat g_eye[3] = { 0.0f, -0.30f, 0.0f };
 
-/* Horizontal yaw in degrees.  0 = looking along -Z; 90 = looking along +X;
- * 270 = looking along -X (into the Sponza main hall from the +X end). */
-static GLfloat g_yaw = 270.0f;
+/* Horizontal yaw in degrees.  0 = looking along -Z; 90 = looking along +X. */
+static GLfloat g_yaw = 90.0f;
 
 /* Key states for continuous camera movement. */
 static GLboolean g_moveForward  = GLUS_FALSE;
@@ -164,6 +165,7 @@ GLUSboolean init(GLUSvoid)
     GLUSgroupList*    groupWalker;
     GLUSmaterialList* materialWalker;
 
+
     /* ------------------------------------------------------------------
      * Build voxelisation program (vert + geom + frag).
      * ---------------------------------------------------------------- */
@@ -197,6 +199,7 @@ GLUSboolean init(GLUSvoid)
     glUniform1i(g_voxelize_voxelGridSizeLoc, VCT_GRID_SIZE);
 
     glUseProgram(0);
+
 
     /* ------------------------------------------------------------------
      * Build VCT rendering program (vert + frag).
@@ -235,6 +238,7 @@ GLUSboolean init(GLUSvoid)
 
     glUseProgram(0);
 
+
     /* ------------------------------------------------------------------
      * Load the Sponza wavefront model.
      * ---------------------------------------------------------------- */
@@ -244,6 +248,7 @@ GLUSboolean init(GLUSvoid)
         printf("Could not load sponza.obj\n");
         return GLUS_FALSE;
     }
+
 
     /* Vertices VBO (4 floats per vertex). */
     glGenBuffers(1, &g_wavefront.verticesVBO);
@@ -270,6 +275,7 @@ GLUSboolean init(GLUSvoid)
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
     /* ------------------------------------------------------------------
      * Create per-group index buffers and VAOs.
@@ -313,6 +319,7 @@ GLUSboolean init(GLUSvoid)
     }
 
     glUseProgram(0);
+
 
     /* ------------------------------------------------------------------
      * Load per-material diffuse textures.
@@ -358,6 +365,7 @@ GLUSboolean init(GLUSvoid)
 
     glActiveTexture(GL_TEXTURE0);
 
+
     /* ------------------------------------------------------------------
      * Create the RGBA8 3-D voxel radiance texture.
      * ---------------------------------------------------------------- */
@@ -395,6 +403,7 @@ GLUSboolean init(GLUSvoid)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
+
     return GLUS_TRUE;
 }
 
@@ -422,7 +431,6 @@ GLUSboolean update(GLUSfloat time)
     GLfloat vpMatrix[16];
 
     static const GLubyte clearValue[4] = { 0, 0, 0, 0 };
-
     /* ------------------------------------------------------------------
      * Camera update
      * ---------------------------------------------------------------- */
@@ -514,7 +522,7 @@ GLUSboolean update(GLUSfloat time)
             }
 
             glBindVertexArray(groupWalker->group.vao);
-            glDrawElements(groupWalker->group.mode,
+            glDrawElements(GL_TRIANGLES,
                            groupWalker->group.numberIndices,
                            GL_UNSIGNED_INT, 0);
 
@@ -593,7 +601,7 @@ GLUSboolean update(GLUSfloat time)
         }
 
         glBindVertexArray(groupWalker->group.vao);
-        glDrawElements(groupWalker->group.mode,
+        glDrawElements(GL_TRIANGLES,
                        groupWalker->group.numberIndices,
                        GL_UNSIGNED_INT, 0);
 
