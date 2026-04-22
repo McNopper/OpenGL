@@ -27,7 +27,7 @@
  *   Cursor right - rotate right
  *   Cursor up    - look up
  *   Cursor down  - look down
- *   Space        - start / stop sphere orbit  (starts paused)
+ *   Space        - toggle sphere orbit on/off
  */
 
 #include <math.h>
@@ -140,9 +140,8 @@ static GLuint    g_sphereVAO          = 0;
 
 // Accumulated time used to animate the sphere orbit.
 static GLfloat  g_totalTime    = 0.0f;
-// Sphere orbit starts paused so the initial position (directly in front of
-// the camera, angle 0) is held until the user presses Space to begin.
-static GLboolean g_spherePaused = GLUS_TRUE;
+// When GLUS_TRUE the sphere orbit is frozen (toggled with Space).
+static GLboolean g_spherePaused = GLUS_FALSE;
 
 // Model matrix (uniform scale + translate).
 static GLfloat g_modelMatrix[16];
