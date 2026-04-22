@@ -1,4 +1,4 @@
-#version 440 core
+#version 460 core
 
 // Voxel Cone Tracing fragment shader.
 //
@@ -45,6 +45,44 @@ uniform int   u_voxelDimensions;     // Number of voxels per axis.
 
 // Front-to-back alpha at which cone marching terminates early.
 const float ALPHA_THRESH = 0.95;
+
+// -----------------------------------------------------------------------
+// Tuning constants
+// -----------------------------------------------------------------------
+
+// Scale applied to indirect diffuse irradiance gathered by hemisphere cones.
+// Higher = brighter global illumination; lower = subtler indirect light.
+const float INDIRECT_DIFFUSE_SCALE = 10.0;
+
+// Scale applied to indirect specular irradiance from the reflection cone.
+// Higher = stronger mirror-like reflections in the voxel grid.
+const float INDIRECT_SPECULAR_SCALE = 2.0;
+
+// Raw AO scale before clamping. Higher values deepen shadow in occluded areas.
+const float AO_SCALE = 1.5;
+
+// AO blend weight [0, 1]. 0 = no occlusion applied; 1 = full occlusion.
+// Lower values reduce harsh darkening in tight corners and crevices.
+const float AO_BLEND = 0.8;
+
+// Occlusion attenuation by cone diameter. Reduces the weight of distant
+// occluders to prevent over-darkening of large open areas.
+const float AO_DISTANCE_ATTENUATION = 0.03;
+
+// Tangent of 30 degrees (= tan(PI/6)). Used as the half-angle for the
+// 60-degree diffuse cones and as the maximum specular cone aperture.
+const float TAN_30_DEG = 0.5774;
+
+// Minimum specular cone half-angle tangent (near-mirror surface).
+// Increasing this widens the specular cone on glossy materials.
+const float SPEC_CONE_MIN = 0.02;
+
+// Fraction of cone diameter to advance per marching step.
+// 0.5 gives smooth overlapping samples (~2x oversampling per voxel).
+const float CONE_STEP = 0.5;
+
+// Alpha threshold for discarding fully-transparent surface fragments.
+const float SURFACE_ALPHA_THRESH = 0.1;
 
 // -----------------------------------------------------------------------
 // 6-cone hemisphere sampling configuration (Crassin et al. 2011, Fig. 7).
@@ -127,10 +165,10 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion)
 
         // Occlusion attenuated by cone diameter so distant blockers contribute
         // less (reduces over-darkening of large open areas).
-        occlusion += (a * voxelColor.a) / (1.0 + 0.03 * diameter);
+        occlusion += (a * voxelColor.a) / (1.0 + AO_DISTANCE_ATTENUATION * diameter);
 
         // Advance by half the diameter for smooth, overlapping samples.
-        dist += diameter * 0.5;
+        dist += diameter * CONE_STEP;
     }
 
     return vec4(color, alpha);
@@ -156,7 +194,7 @@ vec4 indirectLight(out float occlusion_out)
     {
         float occlusion = 0.0;
         // 60-degree aperture per cone → tanHalfAngle = tan(30°) ≈ 0.5774.
-        color         += coneWeights[i] * coneTrace(tangentToWorld * coneDirections[i], 0.5774, occlusion);
+        color         += coneWeights[i] * coneTrace(tangentToWorld * coneDirections[i], TAN_30_DEG, occlusion);
         occlusion_out += coneWeights[i] * occlusion;
     }
 
@@ -186,7 +224,7 @@ void main()
         alpha  = u_diffuseColor.a;
     }
 
-    if (alpha < 0.1)
+    if (alpha < SURFACE_ALPHA_THRESH)
         discard;
 
     vec3 N = normalize(v_normal);
@@ -204,20 +242,20 @@ void main()
 
     // Indirect diffuse via hemisphere cone tracing.
     float occlusion   = 0.0;
-    vec3  indirDiff   = 10.0 * indirectLight(occlusion).rgb;
+    vec3  indirDiff   = INDIRECT_DIFFUSE_SCALE * indirectLight(occlusion).rgb;
 
     // Ambient occlusion derived from cone alpha accumulation.
     // Blend towards 1.0 to soften the darkening effect.
-    occlusion = mix(1.0, min(1.0, 1.5 * occlusion), 0.8);
+    occlusion = mix(1.0, min(1.0, AO_SCALE * occlusion), AO_BLEND);
 
     // Indirect specular via a narrow cone along the reflection vector.
     // Cone aperture is derived from material shininess using the Phong lobe
     // solid-angle relationship: tan(halfAngle) = sqrt(2 / (shininess + 2)).
     // Clamped to [0.02, 0.577] — nearly mirror to 60-degree diffuse spread.
     vec3  R                = reflect(-V, N);
-    float specTanHalfAngle = clamp(sqrt(2.0 / max(u_shininess + 2.0, 1.0)), 0.02, 0.5774);
+    float specTanHalfAngle = clamp(sqrt(2.0 / max(u_shininess + 2.0, 1.0)), SPEC_CONE_MIN, TAN_30_DEG);
     float specOcc;
-    vec3  indirSpec        = 2.0 * u_specularColor.rgb * coneTrace(R, specTanHalfAngle, specOcc).rgb;
+    vec3  indirSpec        = INDIRECT_SPECULAR_SCALE * u_specularColor.rgb * coneTrace(R, specTanHalfAngle, specOcc).rgb;
 
     // Combine direct and indirect contributions modulated by AO.
     vec3 finalColor =

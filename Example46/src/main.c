@@ -27,7 +27,7 @@
  *   Cursor right - rotate right
  *   Cursor up    - look up
  *   Cursor down  - look down
- *   Space        - toggle sphere orbit on/off
+ *   Space        - start / stop sphere orbit  (starts paused)
  */
 
 #include <math.h>
@@ -63,6 +63,31 @@
 // Texture/image unit bindings.
 #define BINDING_VOXEL_GRID   0
 #define BINDING_DIFFUSE_TEX  1
+
+// -----------------------------------------------------------------------
+// Emissive sphere tuning
+// -----------------------------------------------------------------------
+
+// Visual radius of the emissive sphere in normalised world space [-1,1]^3.
+// Smaller = tighter point-like source; larger = more diffuse emitter.
+#define SPHERE_RADIUS        0.02f
+
+// Emissive colour of the sphere (warm orange).
+// Hue and saturation control the tint cast onto nearby surfaces via GI.
+#define SPHERE_COLOR_R       1.0f
+#define SPHERE_COLOR_G       0.8f
+#define SPHERE_COLOR_B       0.2f
+
+// Radius of the circular orbit in the XZ plane (world space).
+// Larger = sphere sweeps a wider area, illuminating more of the scene.
+#define SPHERE_ORBIT_RADIUS  0.243f
+
+// Fixed Y height of the orbit centre. Keep above the floor (~-0.40).
+// Lower = more floor/column illumination; higher = lights walls/ceiling.
+#define SPHERE_ORBIT_Y      -0.26f
+
+// Seconds for one complete revolution. Smaller = faster.
+#define SPHERE_ORBIT_PERIOD  7.5f
 
 //
 
@@ -115,8 +140,9 @@ static GLuint    g_sphereVAO          = 0;
 
 // Accumulated time used to animate the sphere orbit.
 static GLfloat  g_totalTime    = 0.0f;
-// When GLUS_TRUE the sphere orbit is frozen (toggled with Space).
-static GLboolean g_spherePaused = GLUS_FALSE;
+// Sphere orbit starts paused so the initial position (directly in front of
+// the camera, angle 0) is held until the user presses Space to begin.
+static GLboolean g_spherePaused = GLUS_TRUE;
 
 // Model matrix (uniform scale + translate).
 static GLfloat g_modelMatrix[16];
@@ -370,6 +396,15 @@ GLUSboolean init(GLUSvoid)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+			// Anisotropic filtering reduces texture seams and shimmer on
+			// surfaces viewed at steep angles (walls, columns, floor).
+			// Core since OpenGL 4.6 — no extension check required.
+			{
+				GLfloat maxAniso = 1.0f;
+				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAniso);
+			}
+
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glusImageDestroyTga(&image);
@@ -392,9 +427,16 @@ GLUSboolean init(GLUSvoid)
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	// CLAMP_TO_BORDER with a zero border prevents edge-texel radiance from
+	// bleeding into coarse mip levels when cone traces step near the grid boundary.
+	{
+		static const GLfloat zeroBorder[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+		glTexParameterfv(GL_TEXTURE_3D, GL_TEXTURE_BORDER_COLOR, zeroBorder);
+	}
 
 	glBindTexture(GL_TEXTURE_3D, 0);
 
@@ -410,7 +452,7 @@ GLUSboolean init(GLUSvoid)
 	// matrix is a pure translation updated every frame.
 	//
 
-	glusShapeCreateSpheref(&g_sphere, 0.02f, 24);
+	glusShapeCreateSpheref(&g_sphere, SPHERE_RADIUS, 24);
 
 	glGenBuffers(1, &g_sphereVerticesVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, g_sphereVerticesVBO);
@@ -547,15 +589,13 @@ GLUSboolean update(GLUSfloat time)
 	// Sphere orbits a fixed world-space centre near the Sponza floor,
 	// independent of camera position or orientation.
 	{
-		const GLfloat orbitRadius = 0.243f;  // world-space circle radius
-		const GLfloat floorY      = -0.26f; // raised orbit height
-		GLfloat angle = g_totalTime * 2.0f * GLUS_PI / 7.5f;
+		GLfloat angle = g_totalTime * 2.0f * GLUS_PI / SPHERE_ORBIT_PERIOD;
 
 		glusMatrix4x4Identityf(sphereModelMatrix);
 		glusMatrix4x4Translatef(sphereModelMatrix,
-		                        orbitRadius * cosf(angle),
-		                        floorY,
-		                        orbitRadius * sinf(angle));
+		                        SPHERE_ORBIT_RADIUS * cosf(angle),
+		                        SPHERE_ORBIT_Y,
+		                        SPHERE_ORBIT_RADIUS * sinf(angle));
 	}
 
 	//
@@ -627,7 +667,7 @@ GLUSboolean update(GLUSfloat time)
 	// Voxelise sphere as emissive: its colour is stored directly as radiance so
 	// VCT cone traces from neighbouring surfaces pick it up as indirect light.
 	glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, sphereModelMatrix);
-	glUniform4f(g_voxelize_diffuseColorLoc, 1.0f, 0.8f, 0.2f, 1.0f);
+	glUniform4f(g_voxelize_diffuseColorLoc, SPHERE_COLOR_R, SPHERE_COLOR_G, SPHERE_COLOR_B, 1.0f);
 	glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUniform1i(g_voxelize_isEmissiveLoc, 1);
@@ -718,7 +758,7 @@ GLUSboolean update(GLUSfloat time)
 	glusMatrix4x4Multiplyf(sphereMvpMatrix, vpMatrix, sphereModelMatrix);
 	glUniformMatrix4fv(g_vct_modelMatrixLoc, 1, GL_FALSE, sphereModelMatrix);
 	glUniformMatrix4fv(g_vct_mvpMatrixLoc,   1, GL_FALSE, sphereMvpMatrix);
-	glUniform4f(g_vct_diffuseColorLoc,  1.0f, 0.8f, 0.2f, 1.0f);
+	glUniform4f(g_vct_diffuseColorLoc,  SPHERE_COLOR_R, SPHERE_COLOR_G, SPHERE_COLOR_B, 1.0f);
 	glUniform4f(g_vct_specularColorLoc, 1.0f, 0.9f, 0.5f, 1.0f);
 	glUniform1f(g_vct_shininessLoc, 128.0f);
 	glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
@@ -855,7 +895,7 @@ int main(int argc, char* argv[])
 
 	EGLint eglContextAttributes[] = {
 	        EGL_CONTEXT_MAJOR_VERSION, 4,
-	        EGL_CONTEXT_MINOR_VERSION, 4,
+	        EGL_CONTEXT_MINOR_VERSION, 6,
 	        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
 	        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
 	        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,

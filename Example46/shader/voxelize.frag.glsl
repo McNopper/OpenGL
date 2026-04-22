@@ -1,4 +1,4 @@
-#version 440 core
+#version 460 core
 
 // Voxelization fragment shader.
 //
@@ -10,6 +10,24 @@
 // Cyril Crassin et al., "Interactive Indirect Illumination Using Voxel Cone
 // Tracing", Pacific Graphics 2011.
 // https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf
+
+// -----------------------------------------------------------------------
+// Tuning constants
+// -----------------------------------------------------------------------
+
+// Alpha threshold below which a fragment is considered fully transparent.
+// Lower = keep more semi-transparent geometry (e.g. leaves); higher = stricter.
+const float ALPHA_DISCARD_THRESH = 0.1;
+
+// Ambient radiance added to all non-emissive voxels.
+// Prevents completely black surfaces when direct light is zero.
+// Higher values lift the global brightness floor.
+const float VOXEL_AMBIENT = 0.15;
+
+// Emissive brightness multiplier stored into RGBA16F voxels (values > 1 allowed).
+// Higher values keep emissive radiance visible in coarser mip levels,
+// extending the indirect-light influence radius across the scene.
+const float EMISSIVE_BOOST = 8.0;
 
 in vec3 g_worldPosition;
 in vec3 g_normal;
@@ -56,7 +74,7 @@ void main()
     }
 
     // Discard fully transparent fragments (e.g. leaves mask).
-    if (alpha < 0.1)
+    if (alpha < ALPHA_DISCARD_THRESH)
         return;
 
     vec3 radiance;
@@ -64,7 +82,7 @@ void main()
     {
         // Emissive material: store colour at 8x brightness so the value
         // survives mip averaging and remains visible to distant cone traces.
-        radiance = albedo * 8.0;
+        radiance = albedo * EMISSIVE_BOOST;
     }
     else
     {
@@ -74,7 +92,7 @@ void main()
         float NdotL = max(dot(N, L), 0.0);
 
         // Small ambient term prevents completely dark voxels.
-        radiance = (u_lightColor * NdotL + 0.15) * albedo;
+        radiance = (u_lightColor * NdotL + VOXEL_AMBIENT) * albedo;
     }
 
     imageStore(u_voxelGrid, voxelPos, vec4(radiance, 1.0));

@@ -105,7 +105,7 @@ All 46 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example43 - Scene with several models having groups and materials](#example43---scene-with-several-models-having-groups-and-materials)
 - [Example44 - Conservative rasterization](#example44---conservative-rasterization)
 - [Example45 - GPU voxelization (OpenGL 4.4)](#example45---gpu-voxelization-opengl-44)
-- [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.4)](#example46---voxel-cone-tracing---global-illumination-opengl-44)
+- [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)](#example46---voxel-cone-tracing---global-illumination-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -287,18 +287,19 @@ All 46 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 
 ![Example45](screenshots/Example45.png)
 
-### Example46 - Voxel cone tracing - Global illumination (OpenGL 4.4)
+### Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)
 
 Real-time global illumination using voxel cone tracing based on [Crassin et al. 2011](https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf).
-The Sponza scene is first voxelized into a 64³ RGBA8 3D texture with a dominant-axis geometry shader.
+The Sponza scene is first voxelized into a 256³ RGBA16F 3D texture with a dominant-axis geometry shader.
 Mipmaps are generated for the voxel grid, then the final pass traces six diffuse cones plus a specular cone
 per fragment to compute indirect illumination, ambient occlusion, and specular reflections.
+A small emissive sphere orbits the scene as the sole indirect light source (Space to pause/resume).
 
 **Simplifications vs. the original paper:**
 
 | Aspect | Paper | This implementation |
 |---|---|---|
-| Scene representation | Sparse Voxel Octree (SVO) — adaptive, high-resolution | Flat 64³ RGBA8 3D texture — simpler, lower resolution |
+| Scene representation | Sparse Voxel Octree (SVO) — adaptive, high-resolution | Flat 256³ RGBA16F 3D texture — simpler, lower resolution |
 | Voxel filtering | Anisotropic pre-filtering: per-face directional radiance propagated up the octree | Isotropic `glGenerateMipmap` box filter |
 | Radiance storage | Per-face (6 directions) for directional shadowing | Single isotropic value per voxel |
 | Voxel write | Atomic accumulation when multiple triangles cover the same voxel | Plain `imageStore` (last-write-wins) |
