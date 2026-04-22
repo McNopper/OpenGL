@@ -74,7 +74,7 @@ void main()
         float NdotL = max(dot(N, L), 0.0);
 
         // Small ambient term prevents completely dark voxels.
-        radiance = (u_lightColor * NdotL + 0.2) * albedo;
+        radiance = (u_lightColor * NdotL + 0.15) * albedo;
     }
 
     imageStore(u_voxelGrid, voxelPos, vec4(radiance, 1.0));

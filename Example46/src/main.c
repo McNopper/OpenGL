@@ -42,7 +42,7 @@
 #define VCT_GRID_SIZE   256
 
 // Number of mip levels = log2(VCT_GRID_SIZE) + 1.
-#define VCT_MIPLEVELS   7
+#define VCT_MIPLEVELS   9
 
 // World space is normalised so the scene fits inside [-1, 1]^3.
 #define VCT_WORLD_SIZE  2.0f
@@ -564,7 +564,7 @@ GLUSboolean update(GLUSfloat time)
 
 	// Ensure any previous frame's imageStore and texture-fetch operations on the
 	// voxel grid are complete before we overwrite it with glClearTexImage.
-	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
 	// Clear the base mip level of the voxel grid before voxelising.
 	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);

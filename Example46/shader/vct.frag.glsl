@@ -22,7 +22,7 @@ in vec2 v_texCoord;
 
 out vec4 fragColor;
 
-// Voxel radiance volume (mip-mapped RGBA8).
+// Voxel radiance volume (mip-mapped RGBA16F).
 layout(binding = 0) uniform sampler3D u_voxelGrid;
 
 // Per-material diffuse texture.
@@ -207,7 +207,8 @@ void main()
     vec3  indirDiff   = 10.0 * indirectLight(occlusion).rgb;
 
     // Ambient occlusion derived from cone alpha accumulation.
-    occlusion = min(1.0, 1.5 * occlusion);
+    // Blend towards 1.0 to soften the darkening effect.
+    occlusion = mix(1.0, min(1.0, 1.5 * occlusion), 0.8);
 
     // Indirect specular via a narrow cone along the reflection vector.
     // Cone aperture is derived from material shininess using the Phong lobe
