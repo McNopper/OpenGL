@@ -9,7 +9,7 @@
  *
  * Demonstrates real-time global illumination via Voxel Cone Tracing (VCT).
  *
- * The scene is first voxelised into a 64^3 RGBA8 radiance volume (mip-mapped).
+ * The scene is first voxelised into a 256^3 RGBA16F radiance volume (mip-mapped).
  * Each frame the Sponza atrium is rendered with a cone-tracing fragment shader
  * that traces hemisphere cones for indirect diffuse, a specular cone and an
  * ambient-occlusion estimate, all sourced from the voxel texture.
@@ -27,6 +27,7 @@
  *   Cursor right - rotate right
  *   Cursor up    - look up
  *   Cursor down  - look down
+ *   Space        - toggle sphere orbit on/off
  */
 
 #include <math.h>
@@ -38,7 +39,7 @@
 #define WINDOW_HEIGHT   768
 
 // Resolution of the 3-D voxel grid (must be a power of two).
-#define VCT_GRID_SIZE   64
+#define VCT_GRID_SIZE   256
 
 // Number of mip levels = log2(VCT_GRID_SIZE) + 1.
 #define VCT_MIPLEVELS   7
@@ -75,6 +76,7 @@ static GLint g_voxelize_diffuseColorLoc;
 static GLint g_voxelize_hasDiffuseTextureLoc;
 static GLint g_voxelize_voxelGridSizeLoc;
 static GLint g_voxelize_halfPixelSizeLoc;
+static GLint g_voxelize_isEmissiveLoc;
 
 //
 
@@ -102,6 +104,19 @@ static GLint g_vct_voxelDimensionsLoc;
 static GLUSwavefront g_wavefront;
 
 static GLuint g_voxelGrid;
+
+// Moving emissive sphere.
+static GLUSshape g_sphere;
+static GLuint    g_sphereVerticesVBO  = 0;
+static GLuint    g_sphereNormalsVBO   = 0;
+static GLuint    g_sphereTexCoordsVBO = 0;
+static GLuint    g_sphereIndicesVBO   = 0;
+static GLuint    g_sphereVAO          = 0;
+
+// Accumulated time used to animate the sphere orbit.
+static GLfloat  g_totalTime    = 0.0f;
+// When GLUS_TRUE the sphere orbit is frozen (toggled with Space).
+static GLboolean g_spherePaused = GLUS_FALSE;
 
 // Model matrix (uniform scale + translate).
 static GLfloat g_modelMatrix[16];
@@ -132,18 +147,6 @@ static GLboolean g_turnDown     = GLUS_FALSE;
 
 //
 
-// Voxelisation done flag - voxelisation runs once on the first frame.
-
-//
-
-static GLboolean g_voxelizationDone = GLUS_FALSE;
-
-//
-
-// Window dimensions (updated by reshape).
-
-//
-
 static GLint g_windowWidth  = WINDOW_WIDTH;
 static GLint g_windowHeight = WINDOW_HEIGHT;
 
@@ -161,6 +164,9 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 	// Cursor up/down tilt the camera. GLFW_KEY_UP=265, GLFW_KEY_DOWN=264.
 	if (k == 265) g_turnUp   = pressed;
 	if (k == 264) g_turnDown = pressed;
+
+	// Space (key 32) toggles the sphere orbit on/off.
+	if (k == 32 && pressed) g_spherePaused = !g_spherePaused;
 }
 
 //
@@ -207,9 +213,11 @@ GLUSboolean init(GLUSvoid)
 
 	// Static uniforms set once.
 	glUniform3f(g_voxelize_lightPosLoc,   0.0f,  0.38f, 0.0f);
-	glUniform3f(g_voxelize_lightColorLoc, 2.0f,  2.0f,  2.0f);
+	glUniform3f(g_voxelize_lightColorLoc, 0.0f,  0.0f,  0.0f);
 	glUniform1i(g_voxelize_voxelGridSizeLoc, VCT_GRID_SIZE);
 	glUniform2f(g_voxelize_halfPixelSizeLoc, 1.0f / (GLfloat)VCT_GRID_SIZE, 1.0f / (GLfloat)VCT_GRID_SIZE);
+	g_voxelize_isEmissiveLoc = glGetUniformLocation(g_voxelizeProgram.program, "u_isEmissive");
+	glUniform1i(g_voxelize_isEmissiveLoc, 0);
 
 	glUseProgram(0);
 
@@ -244,7 +252,7 @@ GLUSboolean init(GLUSvoid)
 
 	// Static uniforms set once.
 	glUniform3f(g_vct_lightPosLoc,          0.0f,  0.38f, 0.0f);
-	glUniform3f(g_vct_lightColorLoc,        2.0f,  2.0f,  2.0f);
+	glUniform3f(g_vct_lightColorLoc,        0.0f,  0.0f,  0.0f);
 	glUniform1f(g_vct_voxelGridWorldSizeLoc, VCT_WORLD_SIZE);
 	glUniform1i(g_vct_voxelDimensionsLoc,    VCT_GRID_SIZE);
 
@@ -373,13 +381,13 @@ GLUSboolean init(GLUSvoid)
 	glActiveTexture(GL_TEXTURE0);
 
 	//
-	// Create the RGBA8 3-D voxel radiance texture.
+	// Create the RGBA16F 3-D voxel radiance texture.
 	//
 
 	glGenTextures(1, &g_voxelGrid);
 	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
 
-	glTexStorage3D(GL_TEXTURE_3D, VCT_MIPLEVELS, GL_RGBA8,
+	glTexStorage3D(GL_TEXTURE_3D, VCT_MIPLEVELS, GL_RGBA16F,
 	               VCT_GRID_SIZE, VCT_GRID_SIZE, VCT_GRID_SIZE);
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -395,6 +403,56 @@ GLUSboolean init(GLUSvoid)
 	glusMatrix4x4Identityf(g_modelMatrix);
 	glusMatrix4x4Scalef(g_modelMatrix, SPONZA_SCALE, SPONZA_SCALE, SPONZA_SCALE);
 	glusMatrix4x4Translatef(g_modelMatrix, SPONZA_TX, SPONZA_TY, SPONZA_TZ);
+
+	//
+	// Create sphere geometry (radius 0.05, 24 slices) for the moving emissive orb.
+	// The sphere lives directly in normalised world space [-1,1]^3, so its model
+	// matrix is a pure translation updated every frame.
+	//
+
+	glusShapeCreateSpheref(&g_sphere, 0.02f, 24);
+
+	glGenBuffers(1, &g_sphereVerticesVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereVerticesVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 4 * sizeof(GLfloat),
+	             g_sphere.vertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &g_sphereNormalsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereNormalsVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 3 * sizeof(GLfloat),
+	             g_sphere.normals, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &g_sphereTexCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereTexCoordsVBO);
+	glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 2 * sizeof(GLfloat),
+	             g_sphere.texCoords, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &g_sphereIndicesVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_sphereIndicesVBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_sphere.numberIndices * sizeof(GLuint),
+	             (GLuint*) g_sphere.indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glGenVertexArrays(1, &g_sphereVAO);
+	glBindVertexArray(g_sphereVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereVerticesVBO);
+	glVertexAttribPointer(LOCATION_VERTEX,   4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(LOCATION_VERTEX);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereNormalsVBO);
+	glVertexAttribPointer(LOCATION_NORMAL,   3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(LOCATION_NORMAL);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_sphereTexCoordsVBO);
+	glVertexAttribPointer(LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(LOCATION_TEXCOORD);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_sphereIndicesVBO);
+
+	glBindVertexArray(0);
 
 	//
 	// Global OpenGL state.
@@ -423,7 +481,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	static const GLubyte clearValue[4] = { 0, 0, 0, 0 };
+	static const GLfloat clearValue[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	GLUSgroupList* groupWalker;
 
@@ -431,6 +489,8 @@ GLUSboolean update(GLUSfloat time)
 	GLfloat projectionMatrix[16];
 	GLfloat mvpMatrix[16];
 	GLfloat vpMatrix[16];
+	GLfloat sphereModelMatrix[16];
+	GLfloat sphereMvpMatrix[16];
 
 	GLfloat moveSpeed;
 	GLfloat turnSpeed;
@@ -440,6 +500,8 @@ GLUSboolean update(GLUSfloat time)
 	GLfloat fwdZ;
 	GLfloat rightX;
 	GLfloat rightZ;
+
+	if (!g_spherePaused) g_totalTime += time;
 
 	//
 	// Camera update.
@@ -482,91 +544,117 @@ GLUSboolean update(GLUSfloat time)
 	glusMatrix4x4Multiplyf(vpMatrix, projectionMatrix, viewMatrix);
 	glusMatrix4x4Multiplyf(mvpMatrix, vpMatrix, g_modelMatrix);
 
-	//
-	// Voxelisation pass (runs once on the first frame).
-	//
-
-	if (!g_voxelizationDone)
+	// Sphere orbits a fixed world-space centre near the Sponza floor,
+	// independent of camera position or orientation.
 	{
-		g_voxelizationDone = GLUS_TRUE;
+		const GLfloat orbitRadius = 0.243f;  // world-space circle radius
+		const GLfloat floorY      = -0.26f; // raised orbit height
+		GLfloat angle = g_totalTime * 2.0f * GLUS_PI / 7.5f;
 
-		// Clear the base mip level of the voxel grid before voxelising.
-		glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
-		glClearTexImage(g_voxelGrid, 0, GL_RGBA, GL_UNSIGNED_BYTE, clearValue);
-		glBindTexture(GL_TEXTURE_3D, 0);
+		glusMatrix4x4Identityf(sphereModelMatrix);
+		glusMatrix4x4Translatef(sphereModelMatrix,
+		                        orbitRadius * cosf(angle),
+		                        floorY,
+		                        orbitRadius * sinf(angle));
+	}
 
-		// State for voxelisation: no colour output, no depth test, no culling.
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-		glViewport(0, 0, VCT_GRID_SIZE, VCT_GRID_SIZE);
+	//
+	// Voxelisation pass (runs every frame so the moving sphere updates the grid).
+	//
 
-		glUseProgram(g_voxelizeProgram.program);
+	// Ensure any previous frame's imageStore and texture-fetch operations on the
+	// voxel grid are complete before we overwrite it with glClearTexImage.
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
-		glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
+	// Clear the base mip level of the voxel grid before voxelising.
+	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+	glClearTexImage(g_voxelGrid, 0, GL_RGBA, GL_FLOAT, clearValue);
+	glBindTexture(GL_TEXTURE_3D, 0);
 
-		// Bind the voxel grid as a write-only image at binding point 0.
-		glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0,
-		                   GL_WRITE_ONLY, GL_RGBA8);
+	// State for voxelisation: no colour output, no depth test, no culling.
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glViewport(0, 0, VCT_GRID_SIZE, VCT_GRID_SIZE);
 
-		glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+	glUseProgram(g_voxelizeProgram.program);
 
-		groupWalker = g_wavefront.groups;
-		while (groupWalker)
+	// Voxelise Sponza with normal Lambertian lighting.
+	glUniform1i(g_voxelize_isEmissiveLoc, 0);
+	glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, g_modelMatrix);
+
+	// Bind the voxel grid as a write-only image at binding point 0.
+	glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0,
+	                   GL_WRITE_ONLY, GL_RGBA16F);
+
+	glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+
+	groupWalker = g_wavefront.groups;
+	while (groupWalker)
+	{
+		if (groupWalker->group.material)
 		{
-			if (groupWalker->group.material)
-			{
-				glUniform4fv(g_voxelize_diffuseColorLoc, 1,
-				             groupWalker->group.material->diffuse);
+			glUniform4fv(g_voxelize_diffuseColorLoc, 1,
+			             groupWalker->group.material->diffuse);
 
-				if (groupWalker->group.material->diffuseTextureName)
-				{
-					glBindTexture(GL_TEXTURE_2D,
-					              groupWalker->group.material->diffuseTextureName);
-					glUniform1i(g_voxelize_hasDiffuseTextureLoc, 1);
-				}
-				else
-				{
-					glBindTexture(GL_TEXTURE_2D, 0);
-					glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
-				}
+			if (groupWalker->group.material->diffuseTextureName)
+			{
+				glBindTexture(GL_TEXTURE_2D,
+				              groupWalker->group.material->diffuseTextureName);
+				glUniform1i(g_voxelize_hasDiffuseTextureLoc, 1);
 			}
 			else
 			{
-				glUniform4f(g_voxelize_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
 			}
-
-			glBindVertexArray(groupWalker->group.vao);
-			glDrawElements(GL_TRIANGLES,
-			               groupWalker->group.numberIndices,
-			               GL_UNSIGNED_INT, 0);
-
-			groupWalker = groupWalker->next;
+		}
+		else
+		{
+			glUniform4f(g_voxelize_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
 		}
 
-		glBindVertexArray(0);
-		glActiveTexture(GL_TEXTURE0);
+		glBindVertexArray(groupWalker->group.vao);
+		glDrawElements(GL_TRIANGLES,
+		               groupWalker->group.numberIndices,
+		               GL_UNSIGNED_INT, 0);
 
-		glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0,
-		                   GL_WRITE_ONLY, GL_RGBA8);
-
-		// Ensure all image writes are visible before mip generation.
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
-		                GL_TEXTURE_FETCH_BARRIER_BIT);
-
-		// Generate mip chain for cone tracing.
-		glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
-		glGenerateMipmap(GL_TEXTURE_3D);
-		glBindTexture(GL_TEXTURE_3D, 0);
-
-		// Restore rendering state.
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glViewport(0, 0, g_windowWidth, g_windowHeight);
+		groupWalker = groupWalker->next;
 	}
+
+	// Voxelise sphere as emissive: its colour is stored directly as radiance so
+	// VCT cone traces from neighbouring surfaces pick it up as indirect light.
+	glUniformMatrix4fv(g_voxelize_modelMatrixLoc, 1, GL_FALSE, sphereModelMatrix);
+	glUniform4f(g_voxelize_diffuseColorLoc, 1.0f, 0.8f, 0.2f, 1.0f);
+	glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(g_voxelize_isEmissiveLoc, 1);
+
+	glBindVertexArray(g_sphereVAO);
+	glDrawElements(GL_TRIANGLES, g_sphere.numberIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0,
+	                   GL_WRITE_ONLY, GL_RGBA16F);
+
+	// Ensure all image writes are visible before mip generation.
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
+	                GL_TEXTURE_FETCH_BARRIER_BIT);
+
+	// Generate mip chain for cone tracing.
+	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+	glGenerateMipmap(GL_TEXTURE_3D);
+	glBindTexture(GL_TEXTURE_3D, 0);
+
+	// Restore rendering state.
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glViewport(0, 0, g_windowWidth, g_windowHeight);
 
 	//
 	// VCT rendering pass.
@@ -624,6 +712,21 @@ GLUSboolean update(GLUSfloat time)
 		groupWalker = groupWalker->next;
 	}
 
+	glBindVertexArray(0);
+
+	// Render the emissive sphere with the VCT shader.
+	glusMatrix4x4Multiplyf(sphereMvpMatrix, vpMatrix, sphereModelMatrix);
+	glUniformMatrix4fv(g_vct_modelMatrixLoc, 1, GL_FALSE, sphereModelMatrix);
+	glUniformMatrix4fv(g_vct_mvpMatrixLoc,   1, GL_FALSE, sphereMvpMatrix);
+	glUniform4f(g_vct_diffuseColorLoc,  1.0f, 0.8f, 0.2f, 1.0f);
+	glUniform4f(g_vct_specularColorLoc, 1.0f, 0.9f, 0.5f, 1.0f);
+	glUniform1f(g_vct_shininessLoc, 128.0f);
+	glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
+	glActiveTexture(GL_TEXTURE0 + BINDING_DIFFUSE_TEX);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindVertexArray(g_sphereVAO);
+	glDrawElements(GL_TRIANGLES, g_sphere.numberIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 	glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
@@ -719,6 +822,14 @@ GLUSvoid terminate(GLUSvoid)
 	//
 
 	glUseProgram(0);
+
+	// Sphere GPU resources.
+	if (g_sphereVAO)          { glDeleteVertexArrays(1, &g_sphereVAO);          g_sphereVAO          = 0; }
+	if (g_sphereIndicesVBO)   { glDeleteBuffers(1, &g_sphereIndicesVBO);         g_sphereIndicesVBO   = 0; }
+	if (g_sphereTexCoordsVBO) { glDeleteBuffers(1, &g_sphereTexCoordsVBO);       g_sphereTexCoordsVBO = 0; }
+	if (g_sphereNormalsVBO)   { glDeleteBuffers(1, &g_sphereNormalsVBO);         g_sphereNormalsVBO   = 0; }
+	if (g_sphereVerticesVBO)  { glDeleteBuffers(1, &g_sphereVerticesVBO);        g_sphereVerticesVBO  = 0; }
+	glusShapeDestroyf(&g_sphere);
 
 	glusProgramDestroy(&g_voxelizeProgram);
 	glusProgramDestroy(&g_vctProgram);

@@ -204,7 +204,7 @@ void main()
 
     // Indirect diffuse via hemisphere cone tracing.
     float occlusion   = 0.0;
-    vec3  indirDiff   = 4.0 * indirectLight(occlusion).rgb;
+    vec3  indirDiff   = 10.0 * indirectLight(occlusion).rgb;
 
     // Ambient occlusion derived from cone alpha accumulation.
     occlusion = min(1.0, 1.5 * occlusion);
