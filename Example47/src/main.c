@@ -493,17 +493,17 @@ GLUSboolean update(GLUSfloat time)
 
     {
         GLfloat rad = g_orbitAngle * GLUS_PI / 180.0f;
-        eyeX = 4.0f * sinf(rad);
-        eyeZ = 4.0f * cosf(rad);
+        eyeX = 4.5f * sinf(rad);
+        eyeZ = 4.5f * cosf(rad);
     }
 
     glusMatrix4x4LookAtf(viewMatrix,
-                         eyeX, 1.5f, eyeZ,
+                         eyeX, 2.0f, eyeZ,
                          0.0f, 0.0f, 0.0f,
                          0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Perspectivef(projectionMatrix,
-                              40.0f,
+                              50.0f,
                               (GLfloat) g_windowWidth / (GLfloat) g_windowHeight,
                               0.1f, 100.0f);
 
