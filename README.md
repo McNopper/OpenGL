@@ -317,7 +317,7 @@ by cycling through three axis passes is a straightforward generalisation studied
 in the parallel computing literature.  GPU sort implementations (bitonic, radix,
 odd-even) have existed since the mid-2000s.
 
-**What is novel.**
+**What is the application insight.**
 Using a 3D RGBA8 texture directly as the sort array, where the sort key of each
 element is its own colour — Red sorted along X, Green along Y, Blue along Z —
 with no index remapping.  The data set is the complete RGB8 lattice: all N³
@@ -329,7 +329,7 @@ distinct colours, one per voxel, so every axis sort has a unique total order.
 | Y-axis lines | Green (G) | G increases with y |
 | Z-axis lines | Blue (B) | B increases with z |
 
-**What is a breakthrough.**
+**What makes it elegant.**
 The choice of data produces a unique fixed-point property: the only
 configuration that simultaneously satisfies all three axis sorts is the perfect
 RGB cube,
