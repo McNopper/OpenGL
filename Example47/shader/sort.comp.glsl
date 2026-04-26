@@ -1,92 +1,88 @@
 #version 460 core
 
 /**
- * Odd-even transposition sort — OpenGL 4.6 subgroup-shuffle variant.
+ * Odd-even transposition sort — shared memory variant.
  *
- * GRID_N is injected from the host after querying GL_SUBGROUP_SIZE_KHR so
- * that local_size_x == gl_SubgroupSize.  With exactly one subgroup per work
- * group every compare-swap uses GL_KHR_shader_subgroup_shuffle — no shared
- * memory, no barriers.
+ * GRID_N is injected from the host at compile time.
+ * Each work group handles one complete line of the 3D texture.
+ * GRID_N passes of odd-even compare-swap fully sort the line.
  *
- * gl_SubgroupInvocationID is used as the line index so that shuffle lane
- * addresses always match the actual subgroup lane, independent of how the
- * implementation maps local invocations to subgroup lanes.
+ * Two barriers per pass guarantee correctness across warps:
+ *   1. after the read phase  — no thread writes before all reads are done
+ *   2. after the write phase — next pass only starts when all writes are visible
  *
- *   Even pass (pass & 1 == 0):  compare-swap pairs (0,1), (2,3), (4,5), ...
- *   Odd  pass (pass & 1 == 1):  compare-swap pairs (1,2), (3,4), (5,6), ...
- *
- * GRID_N passes guarantee full convergence of each line.
- * Repeating axis dispatches 0 → 1 → 2  GRID_N times converges to the
- * RGB cube:  texel(x,y,z).rgb = (x,y,z) * 255 / (GRID_N-1).
- *
- * u_axis:  0 = sort all X-rows    by R
- *          1 = sort all Y-columns by G
- *          2 = sort all Z-tubes   by B
+ * u_axis: 0 = sort all X-rows    by R
+ *         1 = sort all Y-columns by G
+ *         2 = sort all Z-tubes   by B
  */
 
-#extension GL_KHR_shader_subgroup_basic   : require
-#extension GL_KHR_shader_subgroup_shuffle : require
-
-// GRID_N injected from host (equals gl_SubgroupSize on this device).
 layout(local_size_x = GRID_N) in;
 
 layout(rgba8, binding = 0) uniform image3D u_colorImage;
 
 uniform int u_axis;
 
+shared vec4 s_line[GRID_N];
+
 void main()
 {
-    // Use gl_SubgroupInvocationID as the line index so shuffle lane addresses
-    // always match the actual subgroup lane regardless of invocation ordering.
-    uint lid = gl_SubgroupInvocationID;
-    int  j   = int(gl_WorkGroupID.x);   // first  transverse coordinate
-    int  k   = int(gl_WorkGroupID.y);   // second transverse coordinate
+    uint  lid = gl_LocalInvocationID.x;
+    int   j   = int(gl_WorkGroupID.x);
+    int   k   = int(gl_WorkGroupID.y);
 
     ivec3 pos;
     if      (u_axis == 0) pos = ivec3(int(lid), j, k);
     else if (u_axis == 1) pos = ivec3(j, int(lid), k);
     else                  pos = ivec3(j, k, int(lid));
 
-    vec4 myVal = imageLoad(u_colorImage, pos);
+    // Load line into shared memory.
+    s_line[lid] = imageLoad(u_colorImage, pos);
+    barrier();
 
     for (int pass = 0; pass < GRID_N; pass++)
     {
-        float myKey = (u_axis == 0) ? myVal.r
-                    : (u_axis == 1) ? myVal.g
-                    :                 myVal.b;
-
-        vec4  pVal;
-        float pKey;
+        // Determine pair partner for this pass.
+        uint neighbor;
+        bool paired;
 
         if ((pass & 1) == 0)
         {
-            // Even pass: exchange between lid and lid^1 (0<->1, 2<->3, ...).
-            pVal = subgroupShuffleXor(myVal, 1u);
-            pKey = (u_axis == 0) ? pVal.r : (u_axis == 1) ? pVal.g : pVal.b;
+            // Even pass: pairs (0,1), (2,3), (4,5), ...
+            neighbor = lid ^ 1u;
+            paired   = true;
         }
         else
         {
-            // Odd pass: exchange across the (1,2),(3,4),... boundary.
-            // Boundary threads (0, GRID_N-1) read themselves — no swap follows.
-            uint srcLane;
-            if      (lid == 0u)                srcLane = 0u;
-            else if (lid == uint(GRID_N) - 1u) srcLane = uint(GRID_N) - 1u;
-            else if ((lid & 1u) == 1u)         srcLane = lid + 1u;
-            else                               srcLane = lid - 1u;
-
-            pVal = subgroupShuffle(myVal, srcLane);
-            pKey = (u_axis == 0) ? pVal.r : (u_axis == 1) ? pVal.g : pVal.b;
+            // Odd pass: pairs (1,2), (3,4), (5,6), ...
+            // Thread 0 and GRID_N-1 sit at boundaries with no partner.
+            if (lid == 0u || lid == uint(GRID_N) - 1u)
+            {
+                neighbor = lid;
+                paired   = false;
+            }
+            else
+            {
+                neighbor = ((lid & 1u) == 1u) ? lid + 1u : lid - 1u;
+                paired   = true;
+            }
         }
 
-        // Lower-in-pair thread wants min; upper wants max.
-        // lowerInPair: even lids on even passes, odd lids on odd passes.
-        bool lowerInPair = (lid & 1u) == (uint(pass) & 1u);
-        bool active      = (pass & 1) == 0
-                         || (lid > 0u && lid < uint(GRID_N) - 1u);
+        // Read phase: capture both values before any thread writes.
+        vec4 myVal = s_line[lid];
+        vec4 nVal  = s_line[neighbor];
+        barrier();
 
-        if (active && (lowerInPair ? (myKey > pKey) : (myKey < pKey)))
-            myVal = pVal;
+        // Write phase: swap if out of order.
+        if (paired)
+        {
+            float myKey = (u_axis == 0) ? myVal.r : (u_axis == 1) ? myVal.g : myVal.b;
+            float nKey  = (u_axis == 0) ? nVal.r  : (u_axis == 1) ? nVal.g  : nVal.b;
+
+            if (lid < neighbor ? (myKey > nKey) : (myKey < nKey))
+                s_line[lid] = nVal;
+        }
+        barrier();
     }
 
-    imageStore(u_colorImage, pos, myVal);
+    imageStore(u_colorImage, pos, s_line[lid]);
 }

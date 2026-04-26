@@ -43,8 +43,7 @@
 #define WINDOW_WIDTH  1024
 #define WINDOW_HEIGHT 768
 
-// Grid dimension — derived from GL_SUBGROUP_SIZE_KHR at startup so that
-// local_size_x == gl_SubgroupSize (one work group = one subgroup).
+// Grid dimension — queried from hardware limits at startup.
 // Injected into the sort shader as #define GRID_N <n> before compilation.
 static GLint g_gridN = 32;   // default; overwritten in init()
 
@@ -143,49 +142,28 @@ static void generateShuffledColors(GLubyte* data, GLuint n)
     }
 }
 
-// Query GL_SUBGROUP_SIZE_KHR and derive the ideal grid dimension:
-// GRID_N = subgroup size so that one compute work group = one subgroup,
-// enabling pure subgroup-shuffle sort with no shared memory.
+// Query hardware limits and derive a suitable grid dimension.
+// GRID_N = 32 is a good default (32^3 = 32 768 points, fits in any GPU's
+// shared memory, and 32 odd-even passes guarantee convergence of each line).
 static GLint queryIdealGridN(void)
 {
-    GLint subgroupSize   = 0;
-    GLint supportedStages, supportedFeatures;
     GLint maxLocalX, maxInvocations;
     GLint n, p;
 
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &maxLocalX);
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,  &maxInvocations);
+    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvocations);
 
-    // Verify that compute + shuffle subgroup operations are available.
-    glGetIntegerv(GL_SUBGROUP_SUPPORTED_STAGES_KHR,   &supportedStages);
-    glGetIntegerv(GL_SUBGROUP_SUPPORTED_FEATURES_KHR, &supportedFeatures);
-
-    if ((supportedStages   & GL_COMPUTE_SHADER_BIT)            &&
-        (supportedFeatures & GL_SUBGROUP_FEATURE_SHUFFLE_BIT_KHR))
-    {
-        glGetIntegerv(GL_SUBGROUP_SIZE_KHR, &subgroupSize);
-    }
-
-    if (subgroupSize < 2)
-    {
-        printf("GL_KHR_shader_subgroup shuffle unavailable; using default g_gridN=32.\n");
-        subgroupSize = 32;
-    }
-
-    // Cap at 64: current hardware max (NVIDIA=32, AMD RDNA=32/64, Intel Xe=8-32).
-    // Beyond 64 the point-cloud memory and sort cost grow rapidly (64^3 = 262 144).
-    n = subgroupSize;
-    if (n > 64)           n = 64;
-    if (n > maxLocalX)    n = maxLocalX;
+    n = 32;
+    if (n > maxLocalX)      n = maxLocalX;
     if (n > maxInvocations) n = maxInvocations;
 
-    // Round down to nearest power of two.
+    // Round down to nearest power of two (required for odd-even pairing).
     p = 1;
     while (p * 2 <= n) p *= 2;
     n = p;
 
-    printf("GL_SUBGROUP_SIZE_KHR=%d  maxLocalX=%d  maxInvocations=%d  -> g_gridN=%d\n",
-           subgroupSize, maxLocalX, maxInvocations, n);
+    printf("maxLocalX=%d  maxInvocations=%d  -> g_gridN=%d\n",
+           maxLocalX, maxInvocations, n);
 
     return n;
 }
@@ -234,10 +212,13 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
     if (!pressed)
         return;
 
-    // Space: start sort.
-    if (k == 32 && !g_sorting && !g_sorted)
+    // Space: start sort if idle, or restart once finished.
+    if (k == 32 && !g_sorting)
     {
         g_sorting = GLUS_TRUE;
+        g_sorted  = GLUS_FALSE;
+        g_sortStep = 0;
+        g_accumTime = 0.0f;
     }
 
     // F: complete all remaining sort steps in a single frame.
@@ -396,10 +377,13 @@ GLUSboolean init(GLUSvoid)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     glusLogPrint(GLUS_LOG_INFO, "Controls:");
-    glusLogPrint(GLUS_LOG_INFO, "  Space : start sort");
+    glusLogPrint(GLUS_LOG_INFO, "  Space : start/restart sort");
     glusLogPrint(GLUS_LOG_INFO, "  F     : finish all remaining steps at once");
     glusLogPrint(GLUS_LOG_INFO, "  +/-   : increase/decrease step delay (current: %d ms)", g_stepDelayMs);
     glusLogPrint(GLUS_LOG_INFO, "  R     : reshuffle and restart");
+
+    // Start sorting immediately on launch.
+    g_sorting = GLUS_TRUE;
 
     return GLUS_TRUE;
 }
