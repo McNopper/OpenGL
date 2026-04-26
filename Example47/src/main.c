@@ -246,8 +246,8 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
         g_fullSpeed = GLUS_TRUE;
     }
 
-    // + / =: decrease step delay (faster), minimum 0 ms.
-    if ((k == '+' || k == '=') && g_stepDelayMs > 0)
+    // +: decrease step delay (faster), minimum 0 ms.
+    if (k == '+' && g_stepDelayMs > 0)
     {
         g_stepDelayMs -= 50;
         if (g_stepDelayMs < 0) g_stepDelayMs = 0;
