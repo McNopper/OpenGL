@@ -309,29 +309,47 @@ A small emissive sphere orbits the scene as the sole indirect light source (Spac
 
 ### Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)
 
-**Novelty.** A novel GPU sorting algorithm that uses a 3D RGBA8 texture as its
-native data structure.  An N³ point cloud is initialised with all N³ unique
-RGB8 lattice colours placed in a random order.  A compute shader then applies
-odd-even transposition sort repeatedly along each spatial axis:
+**What already exists.**
+Odd-even transposition sort was described by Knuth (1973) and maps directly to
+parallel hardware.  Shearsort — sorting a 2D grid by alternating row and column
+passes — was introduced by Scherson & Sen (1986).  Extending it to a 3D grid
+by cycling through three axis passes is a straightforward generalisation studied
+in the parallel computing literature.  GPU sort implementations (bitonic, radix,
+odd-even) have existed since the mid-2000s.
 
-| Dispatch | Sort key | Effect |
+**What is novel.**
+Using a 3D RGBA8 texture directly as the sort array, where the sort key of each
+element is its own colour — Red sorted along X, Green along Y, Blue along Z —
+with no index remapping.  The data set is the complete RGB8 lattice: all N³
+distinct colours, one per voxel, so every axis sort has a unique total order.
+
+| Dispatch | Sort key | Converges to |
 |---|---|---|
-| X-axis | Red channel (R) | R increases along x |
-| Y-axis | Green channel (G) | G increases along y |
-| Z-axis | Blue channel (B) | B increases along z |
+| X-axis lines | Red (R) | R increases with x |
+| Y-axis lines | Green (G) | G increases with y |
+| Z-axis lines | Blue (B) | B increases with z |
 
-**Breakthrough.** The three axis sorts share exactly one stable fixed point: the
-perfect RGB cube where `texel(x,y,z).rgb = (x,y,z) × 255 / (N−1)`.
-Every corner maps to a pure colour — `(0,0,0)→black`, `(1,0,0)→red`,
-`(1,1,1)→white` — and the main diagonal becomes the greyscale ramp.
-Starting from random colour noise the cube crystallises step by step, making
-the convergence visually striking.
+**What is a breakthrough.**
+The choice of data produces a unique fixed-point property: the only
+configuration that simultaneously satisfies all three axis sorts is the perfect
+RGB cube,
 
-**GL 4.6 highlight.** The grid dimension GRID_N is set at startup by querying
-`GL_SUBGROUP_SIZE_KHR` (the hardware warp / wavefront size) so that each
-compute work group spans exactly one subgroup.  The sort then uses
-`GL_KHR_shader_subgroup_shuffle` (`subgroupShuffleXor`, `subgroupShuffle`)
-for all compare-swap exchanges — eliminating shared memory and `barrier()`
-calls entirely.  Controls: Space to start sorting, R to reshuffle.
+```
+texel(x, y, z).rgb  =  (x, y, z) × 255 / (N − 1)
+```
+
+This means correctness is *self-evident* — if the rendered cube shows a smooth
+RGB gradient the sort has converged correctly, with no checksum or external
+oracle needed.  Starting from random colour noise the cube crystallises step by
+step, making convergence visually striking.  Corners map to pure colours:
+`(0,0,0)→black`, `(1,0,0)→red`, `(0,1,0)→green`, `(0,0,1)→blue`,
+`(1,1,1)→white`; the main diagonal becomes the greyscale ramp.
+
+**GL 4.6 highlight.** The sort runs in a compute shader using `shared` memory
+and two `barrier()` calls per pass (one after the read phase, one after the
+write phase).  At startup `GL_MAX_COMPUTE_WORK_GROUP_SIZE` and
+`GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS` are queried and GRID_N is capped at 32
+(32³ = 32 768 points, fits in shared memory on all hardware).  Controls: Space
+to start, F to finish instantly, +/- to adjust step delay, R to reshuffle.
 
 ![Example47](screenshots/Example47.png)
