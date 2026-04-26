@@ -58,7 +58,7 @@ All dependencies are automatically fetched and built:
 
 ## Examples
 
-All 46 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
+All 47 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 
 - [Example01 - Basic window and OpenGL 3 initialization](#example01---basic-window-and-opengl-3-initialization)
 - [Example02 - Rendering of a triangle](#example02---rendering-of-a-triangle)
@@ -106,6 +106,7 @@ All 46 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example44 - Conservative rasterization](#example44---conservative-rasterization)
 - [Example45 - GPU voxelization (OpenGL 4.4)](#example45---gpu-voxelization-opengl-44)
 - [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)](#example46---voxel-cone-tracing---global-illumination-opengl-46)
+- [Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)](#example47---3d-spatial-colour-sort--rgb-cube-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -305,3 +306,32 @@ A small emissive sphere orbits the scene as the sole indirect light source (Spac
 | Voxel write | Atomic accumulation when multiple triangles cover the same voxel | Plain `imageStore` (last-write-wins) |
 
 ![Example46](screenshots/Example46.png)
+
+### Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)
+
+**Novelty.** A novel GPU sorting algorithm that uses a 3D RGBA8 texture as its
+native data structure.  An N³ point cloud is initialised with all N³ unique
+RGB8 lattice colours placed in a random order.  A compute shader then applies
+odd-even transposition sort repeatedly along each spatial axis:
+
+| Dispatch | Sort key | Effect |
+|---|---|---|
+| X-axis | Red channel (R) | R increases along x |
+| Y-axis | Green channel (G) | G increases along y |
+| Z-axis | Blue channel (B) | B increases along z |
+
+**Breakthrough.** The three axis sorts share exactly one stable fixed point: the
+perfect RGB cube where `texel(x,y,z).rgb = (x,y,z) × 255 / (N−1)`.
+Every corner maps to a pure colour — `(0,0,0)→black`, `(1,0,0)→red`,
+`(1,1,1)→white` — and the main diagonal becomes the greyscale ramp.
+Starting from random colour noise the cube crystallises step by step, making
+the convergence visually striking.
+
+**GL 4.6 highlight.** The grid dimension GRID_N is set at startup by querying
+`GL_SUBGROUP_SIZE_KHR` (the hardware warp / wavefront size) so that each
+compute work group spans exactly one subgroup.  The sort then uses
+`GL_KHR_shader_subgroup_shuffle` (`subgroupShuffleXor`, `subgroupShuffle`)
+for all compare-swap exchanges — eliminating shared memory and `barrier()`
+calls entirely.  Controls: Space to start sorting, R to reshuffle.
+
+![Example47](screenshots/Example47.png)
