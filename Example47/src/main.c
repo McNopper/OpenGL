@@ -28,9 +28,8 @@
  *
  * Controls:
  *   Space  -  start the sort animation
- *   F      -  finish all remaining steps instantly (full speed)
  *   + / -  -  increase / decrease delay between steps (default 100 ms)
- *   R      -  reset to a new random shuffle
+ *   R      -  reshuffle to a new random order
  */
 
 #include <math.h>
@@ -90,7 +89,6 @@ static GLuint g_vao = 0;
 static GLint     g_sortStep     = 0;
 static GLboolean g_sorting     = GLUS_FALSE;
 static GLboolean g_sorted      = GLUS_FALSE;
-static GLboolean g_fullSpeed   = GLUS_FALSE; // F: complete all steps in one frame
 static GLint     g_stepDelayMs = 100;        // ms between steps; 0 = STEPS_PER_FRAME/frame
 static GLfloat   g_accumTime   = 0.0f;       // accumulated time for delay mode (seconds)
 
@@ -200,8 +198,31 @@ static void resetSortState(void)
     g_sortStep   = 0;
     g_sorting    = GLUS_FALSE;
     g_sorted     = GLUS_FALSE;
-    g_fullSpeed  = GLUS_FALSE;
     g_accumTime  = 0.0f;
+}
+
+// -----------------------------------------------------------------------
+// Character callback — handles typed characters; used for +/- speed control
+// because GLFW key codes do not map to '+' on all keyboard layouts.
+// -----------------------------------------------------------------------
+
+static GLUSvoid charInput(GLFWwindow* window, GLUSuint codepoint)
+{
+    (void)window;
+
+    if (codepoint == '+' && g_stepDelayMs < 1000)
+    {
+        g_stepDelayMs += 50;
+        glusLogPrint(GLUS_LOG_INFO, "Step delay: %d ms", g_stepDelayMs);
+    }
+
+    if (codepoint == '-' && g_stepDelayMs > 0)
+    {
+        g_stepDelayMs -= 50;
+        if (g_stepDelayMs < 0) g_stepDelayMs = 0;
+        glusLogPrint(GLUS_LOG_INFO, "Step delay: %d ms%s",
+                     g_stepDelayMs, g_stepDelayMs == 0 ? " (smooth)" : "");
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -222,29 +243,7 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
         g_accumTime = 0.0f;
     }
 
-    // F: complete all remaining sort steps in a single frame.
-    if ((k == 'f' || k == 'F') && g_sorting)
-    {
-        g_fullSpeed = GLUS_TRUE;
-    }
-
-    // +: decrease step delay (faster), minimum 0 ms.
-    if (k == '+' && g_stepDelayMs > 0)
-    {
-        g_stepDelayMs -= 50;
-        if (g_stepDelayMs < 0) g_stepDelayMs = 0;
-        glusLogPrint(GLUS_LOG_INFO, "Step delay: %d ms%s",
-                     g_stepDelayMs, g_stepDelayMs == 0 ? " (smooth)" : "");
-    }
-
-    // -: increase step delay (slower), maximum 1000 ms.
-    if (k == '-' && g_stepDelayMs < 1000)
-    {
-        g_stepDelayMs += 50;
-        glusLogPrint(GLUS_LOG_INFO, "Step delay: %d ms", g_stepDelayMs);
-    }
-
-    // R: reshuffle and reset.
+    // R: reshuffle the texture; press Space to start sorting.
     if (k == 'r' || k == 'R')
     {
         GLubyte* data = (GLubyte*)malloc((size_t)(g_gridN * g_gridN * g_gridN) * 4);
@@ -379,10 +378,9 @@ GLUSboolean init(GLUSvoid)
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     glusLogPrint(GLUS_LOG_INFO, "Controls:");
-    glusLogPrint(GLUS_LOG_INFO, "  Space : start/restart sort");
-    glusLogPrint(GLUS_LOG_INFO, "  F     : finish all remaining steps at once");
-    glusLogPrint(GLUS_LOG_INFO, "  +/-   : increase/decrease step delay (current: %d ms)", g_stepDelayMs);
-    glusLogPrint(GLUS_LOG_INFO, "  R     : reshuffle and restart");
+    glusLogPrint(GLUS_LOG_INFO, "  Space : start sort");
+    glusLogPrint(GLUS_LOG_INFO, "  +/-   : slower/faster step delay (current: %d ms)", g_stepDelayMs);
+    glusLogPrint(GLUS_LOG_INFO, "  R     : reshuffle");
 
     // Start sorting immediately on launch.
     g_sorting = GLUS_TRUE;
@@ -418,9 +416,8 @@ GLUSboolean update(GLUSfloat time)
 
     //
     // Sort pass: advance sort by the number of steps determined by the current mode.
-    //   g_fullSpeed  == TRUE  → all remaining steps at once (F key)
-    //   g_stepDelayMs > 0     → one step per delay period (+/- keys)
-    //   g_stepDelayMs == 0    → STEPS_PER_FRAME steps per frame (smooth animation)
+    //   g_stepDelayMs > 0  → one step per delay period (+/- keys)
+    //   g_stepDelayMs == 0 → STEPS_PER_FRAME steps per frame (smooth animation)
     //
     if (g_sorting)
     {
@@ -430,12 +427,7 @@ GLUSboolean update(GLUSfloat time)
         // Total visible steps = GRID_N cycles × 3 axes.
         GLint totalSteps = g_gridN * 3;
 
-        if (g_fullSpeed)
-        {
-            stepsThisFrame = totalSteps - g_sortStep;
-            g_fullSpeed    = GLUS_FALSE;
-        }
-        else if (g_stepDelayMs > 0)
+        if (g_stepDelayMs > 0)
         {
             g_accumTime += time;
             if (g_accumTime >= g_stepDelayMs * 0.001f)
@@ -609,6 +601,8 @@ int main(int argc, char* argv[])
         printf("Could not create window!\n");
         return -1;
     }
+
+    glfwSetCharCallback(glfwGetCurrentContext(), charInput);
 
     glusWindowRun();
 

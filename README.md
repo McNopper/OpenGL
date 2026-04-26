@@ -350,6 +350,6 @@ and two `barrier()` calls per pass (one after the read phase, one after the
 write phase).  At startup `GL_MAX_COMPUTE_WORK_GROUP_SIZE` and
 `GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS` are queried and GRID_N is capped at 32
 (32³ = 32 768 points, fits in shared memory on all hardware).  Controls: Space
-to start, F to finish instantly, +/- to adjust step delay, R to reshuffle.
+to start, +/- to adjust step delay, R to reshuffle.
 
 ![Example47](screenshots/Example47.png)
