@@ -61,6 +61,7 @@ static GLint g_gridN = 32;   // default; overwritten in init()
 static GLUSprogram g_sortProgram;
 
 static GLint g_sort_axisLoc;
+static GLint g_sort_passLoc;
 
 //
 // Render program (attribute-less point cloud).
@@ -300,6 +301,7 @@ GLUSboolean init(GLUSvoid)
     glUseProgram(g_sortProgram.program);
 
     g_sort_axisLoc = glGetUniformLocation(g_sortProgram.program, "u_axis");
+    g_sort_passLoc = glGetUniformLocation(g_sortProgram.program, "u_pass");
 
     glUseProgram(0);
 
@@ -423,6 +425,9 @@ GLUSboolean update(GLUSfloat time)
     if (g_sorting)
     {
         GLint stepsThisFrame;
+        // One visible step = one full axis sort (GRID_N single-pass dispatches).
+        // Axis cycles X→Y→Z→X→... so the animation shows each axis in turn.
+        // Total visible steps = GRID_N cycles × 3 axes.
         GLint totalSteps = g_gridN * 3;
 
         if (g_fullSpeed)
@@ -459,13 +464,20 @@ GLUSboolean update(GLUSfloat time)
 
             for (s = 0; s < stepsThisFrame && g_sorting; s++)
             {
-                // axis cycles 0->1->2->0->... (X->Y->Z->X->...)
-                glUniform1i(g_sort_axisLoc, g_sortStep % 3);
+                // One visible step = one full axis sort: GRID_N single-pass dispatches.
+                // Axis cycles X(0)→Y(1)→Z(2)→X(0)→...
+                int axis = g_sortStep % 3;
+                int p;
 
-                // One work group per line: (g_gridN x g_gridN) groups.
-                glDispatchCompute(g_gridN, g_gridN, 1);
+                for (p = 0; p < g_gridN; p++)
+                {
+                    glUniform1i(g_sort_axisLoc, axis);
+                    glUniform1i(g_sort_passLoc, p);
 
-                glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+                    glDispatchCompute(g_gridN, g_gridN, 1);
+
+                    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+                }
 
                 g_sortStep++;
 
