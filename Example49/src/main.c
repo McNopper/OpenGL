@@ -1,5 +1,5 @@
 /**
- * OpenGL 4 - Example 49
+ * OpenGL 4 - Example 50
  *
  * @author  Norbert Nopper norbert@nopper.tv
  *
@@ -7,10 +7,10 @@
  *
  * Copyright Norbert Nopper
  *
- * glTF 2.0 PBR renderer with Image-Based Lighting.
+ * glTF 2.0 PBR renderer with Image-Based Lighting and skeletal animation.
  *
  * Usage:  Example49 [path/to/model.glb]  [path/to/panorama.hdr]
- * Defaults: einstein/scene.gltf / sunny_rose_garden_4k.hdr next to the binary.
+ * Defaults: phoenix/scene.gltf / sunny_rose_garden_4k.hdr next to the binary.
  *
  * IBL pipeline (uses GLUS IBL API):
  *   Pass 1 — Pre-filtered specular cubemap array (GGX importance sampling)
@@ -18,8 +18,14 @@
  *   Pass 3 — BRDF split-sum LUT
  *   Pass 4 — Background cubemap (plain panorama remap, no filtering)
  *
+ * Animation pipeline (uses GLUS animation API):
+ *   All TRS channels from all animations are sampled each frame and composed
+ *   into per-node world matrices.  Skinned meshes use joint matrices derived
+ *   from world matrices × inverse bind matrices.
+ *
  * PBR rendering:
- *   Pass A — Opaque + Alpha-mask primitives
+ *   Pass A — Opaque + Alpha-mask primitives (non-skinned: g_pbrProg,
+ *             skinned: g_pbrSkinnedProg)
  *   Pass B — Alpha-blend primitives
  *   Resolve — MSAA tone-mapped fullscreen quad
  *
@@ -52,9 +58,14 @@
 #define NUMBER_ROUGHNESS        6
 #define MSAA_SAMPLES            4
 
-#define MAX_PRIMITIVES  4096
-#define MAX_TEXTURES    1024
-#define MAX_IMAGE_CACHE 1024
+#define MAX_PRIMITIVES    4096
+#define MAX_TEXTURES      1024
+#define MAX_IMAGE_CACHE   1024
+#define MAX_NODES         1024
+#define MAX_NODE_CHILDREN   16
+#define MAX_SKINS           16
+#define MAX_JOINTS         128
+#define MAX_ANIM_CHANNELS 1024
 
 // Camera and rendering constants
 #define CAMERA_ORBIT_RADIUS_FACTOR  1.8f
@@ -73,6 +84,10 @@
 #define SCENE_RADIUS_MIN            0.01f
 #define CAMERA_DEG_TO_RAD           (GLUS_PI / 180.0f)
 
+#define ANIM_PATH_TRANSLATION 0
+#define ANIM_PATH_ROTATION    1
+#define ANIM_PATH_SCALE       2
+
 //
 // Data structures
 //
@@ -84,10 +99,12 @@ GLuint  vbo_pos;
 GLuint  vbo_nor;
 GLuint  vbo_tan;
 GLuint  vbo_uv0;
+GLuint  vbo_joints;   // JOINTS_0 (float*4); 0 if not skinned
+GLuint  vbo_weights;  // WEIGHTS_0 (float*4); 0 if not skinned
 GLuint  ibo;
-GLsizei vertexCount;  // used when ibo == 0
+GLsizei vertexCount;
 GLsizei indexCount;
-GLenum  indexType;    // GL_UNSIGNED_INT
+GLenum  indexType;
 
 // Material
 GLuint baseColorTexture;
@@ -102,14 +119,47 @@ GLfloat roughnessFactor;
 GLfloat emissiveFactor[3];
 GLfloat occlusionStrength;
 GLfloat alphaCutoff;
-GLint   alphaMode;    // 0=OPAQUE,1=MASK,2=BLEND
+GLint   alphaMode;    // 0=OPAQUE, 1=MASK, 2=BLEND
 GLint   doubleSided;
 GLint   hasNormalMap;
 
-// World transform
+// Transform
+GLint   nodeIdx;      // index into g_nodes[]
+GLint   skinIdx;      // -1 = not skinned, else index into g_skins[]
 GLfloat modelMatrix[16];
 GLfloat normalMatrix[9];
 } GltfPrimitive;
+
+typedef struct
+{
+GLfloat translation[3];
+GLfloat rotation[4];       // xyzw quaternion
+GLfloat scale[3];
+GLint   hasMatrix;
+GLfloat localMatrix[16];   // used only when hasMatrix == 1
+GLfloat worldMatrix[16];   // recomputed every frame
+GLint   parentIdx;
+GLint   childIndices[MAX_NODE_CHILDREN];
+GLint   childCount;
+} GltfNode;
+
+typedef struct
+{
+GLint   jointCount;
+GLint   jointNodeIndices[MAX_JOINTS];
+GLfloat inverseBindMatrices[MAX_JOINTS * 16];
+GLfloat jointMatrices[MAX_JOINTS * 16];  // recomputed every frame
+} GltfSkin;
+
+typedef struct
+{
+GLint    nodeIdx;
+GLint    path;          // ANIM_PATH_*
+GLint    interpolation; // GLUS_ANIMATION_*
+GLint    count;         // number of keyframes
+GLfloat* times;         // [count]
+GLfloat* values;        // [output->count * components]
+} AnimChannel;
 
 typedef struct
 {
@@ -131,6 +181,22 @@ static GLint           g_numCacheEntries = 0;
 static GLuint          g_defaultWhiteTexture  = 0;
 static GLuint          g_defaultNormalTexture = 0;
 
+// Node hierarchy
+static GltfNode g_nodes[MAX_NODES];
+static GLint    g_numNodes     = 0;
+static GLint    g_rootNodes[MAX_NODES];
+static GLint    g_numRootNodes = 0;
+
+// Skins
+static GltfSkin g_skins[MAX_SKINS];
+static GLint    g_numSkins = 0;
+
+// Animation
+static AnimChannel g_animChannels[MAX_ANIM_CHANNELS];
+static GLint       g_numAnimChannels = 0;
+static GLfloat     g_animTime        = 0.0f;
+static GLfloat     g_animDuration    = 0.0f;
+
 // Scene bounds
 static GLfloat g_sceneMin[3]    = {  1e30f,  1e30f,  1e30f };
 static GLfloat g_sceneMax[3]    = { -1e30f, -1e30f, -1e30f };
@@ -140,10 +206,10 @@ static GLfloat g_sceneCenterZ   = 0.0f;
 static GLfloat g_sceneRadius    = 1.0f;
 
 // Camera
-static GLfloat g_orbitAngle  = 0.0f;   // degrees
+static GLfloat g_orbitAngle  = 0.0f;
 static GLfloat g_orbitRadius = 5.0f;
 static GLfloat g_cameraY     = 0.0f;
-static GLfloat g_orbitSpeed  = 18.0f;  // deg/s
+static GLfloat g_orbitSpeed  = 18.0f;
 static GLfloat g_viewProjectionMatrix[16];
 static GLfloat g_eye[4];
 
@@ -157,9 +223,9 @@ static GLuint g_brdfLutTexture   = 0;
 static GLuint g_bgCubemapTexture = 0;
 
 // Background sphere
-static GLuint  g_bgVAO       = 0;
-static GLuint  g_bgVBO       = 0;
-static GLuint  g_bgIBO       = 0;
+static GLuint  g_bgVAO        = 0;
+static GLuint  g_bgVBO        = 0;
+static GLuint  g_bgIBO        = 0;
 static GLsizei g_bgIndexCount = 0;
 
 // Empty VAO for attribute-less fullscreen draw
@@ -176,8 +242,9 @@ static GLint  g_windowHeight = 0;
 static GLUSprogram g_bgProg;
 static GLUSprogram g_fullscreenProg;
 static GLUSprogram g_pbrProg;
+static GLUSprogram g_pbrSkinnedProg;
 
-// Uniform locations — PBR
+// Uniform locations — non-skinned PBR
 static GLint g_u_modelMatrix;
 static GLint g_u_vpMatrix;
 static GLint g_u_normalMatrix;
@@ -190,6 +257,19 @@ static GLint g_u_occlusionStrength;
 static GLint g_u_alphaCutoff;
 static GLint g_u_alphaMode;
 static GLint g_u_hasNormalMap;
+
+// Uniform locations — skinned PBR
+static GLint g_u_vpMatrix_sk;
+static GLint g_u_eye_sk;
+static GLint g_u_jointMatrices_sk;
+static GLint g_u_baseColorFactor_sk;
+static GLint g_u_metallicFactor_sk;
+static GLint g_u_roughnessFactor_sk;
+static GLint g_u_emissiveFactor_sk;
+static GLint g_u_occlusionStrength_sk;
+static GLint g_u_alphaCutoff_sk;
+static GLint g_u_alphaMode_sk;
+static GLint g_u_hasNormalMap_sk;
 
 // Uniform locations — background
 static GLint g_u_vpMatrix_bg;
@@ -221,15 +301,12 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 return tex;
 }
 
-// Register a texture for cleanup.
 static void trackTexture(GLuint tex)
 {
 if (g_numTextures < MAX_TEXTURES)
 g_textures[g_numTextures++] = tex;
 }
 
-// Load a 2-D texture from a cgltf_image.
-// Returns a cached texture if the image was already loaded.
 static GLuint loadImageTexture(cgltf_image* image, const GLUSchar* basePath, GLint sRGB)
 {
 GLint          w, h, comp;
@@ -243,7 +320,6 @@ const GLubyte* embeddedBuf;
 if (!image)
 return g_defaultWhiteTexture;
 
-// Check cache
 for (i = 0; i < g_numCacheEntries; i++)
 if (g_imageCache[i].image == image)
 return g_imageCache[i].texture;
@@ -253,7 +329,6 @@ embeddedBuf = NULL;
 
 if (image->buffer_view)
 {
-// Embedded image data (GLB)
 embeddedBuf = (const GLubyte*)image->buffer_view->buffer->data
             + image->buffer_view->offset;
 pixels = stbi_load_from_memory(embeddedBuf, (int)image->buffer_view->size,
@@ -261,7 +336,6 @@ pixels = stbi_load_from_memory(embeddedBuf, (int)image->buffer_view->size,
 }
 else if (image->uri && strncmp(image->uri, "data:", 5) != 0)
 {
-// External file
 if (basePath[0])
 snprintf(path, sizeof(path), "%s%s", basePath, image->uri);
 else
@@ -305,7 +379,6 @@ g_numCacheEntries++;
 return tex;
 }
 
-// Apply sampler parameters from cgltf (its enum values equal GL constants).
 static void applyGltfSampler(const cgltf_sampler* sampler)
 {
 if (!sampler) return;
@@ -333,11 +406,10 @@ if (p[i] > g_sceneMax[i]) g_sceneMax[i] = p[i];
 }
 }
 
-// Transform all 8 corners of an AABB by modelMatrix and expand global bounds.
 static void expandBoundsAABB(const GLfloat minP[3], const GLfloat maxP[3],
                               const GLfloat modelMatrix[16])
 {
-GLint  cx, cy, cz;
+GLint cx, cy, cz;
 for (cx = 0; cx < 2; cx++)
 for (cy = 0; cy < 2; cy++)
 for (cz = 0; cz < 2; cz++)
@@ -359,11 +431,299 @@ expandBoundsWithPoint(wp3);
 }
 
 //
+// Node hierarchy helpers
+//
+
+// Build the local 4x4 matrix from a node's TRS or raw matrix.
+static void buildLocalMatrix(const GltfNode* gn, GLfloat result[16])
+{
+GLfloat T[16], R[16], S[16], RS[16];
+
+if (gn->hasMatrix)
+{
+memcpy(result, gn->localMatrix, 64);
+return;
+}
+
+glusMatrix4x4Identityf(T);
+T[12] = gn->translation[0];
+T[13] = gn->translation[1];
+T[14] = gn->translation[2];
+
+glusQuaternionGetMatrix4x4f(R, (GLUSfloat*)gn->rotation);
+
+glusMatrix4x4Identityf(S);
+S[0]  = gn->scale[0];
+S[5]  = gn->scale[1];
+S[10] = gn->scale[2];
+
+glusMatrix4x4Multiplyf(RS, R, S);
+glusMatrix4x4Multiplyf(result, T, RS);
+}
+
+// Recursively compute world matrices, top-down.
+static void computeWorldMatrix(GLint nodeIdx, const GLfloat parentWorld[16])
+{
+GLfloat local[16];
+GLint   ci;
+
+buildLocalMatrix(&g_nodes[nodeIdx], local);
+glusMatrix4x4Multiplyf(g_nodes[nodeIdx].worldMatrix, parentWorld, local);
+
+for (ci = 0; ci < g_nodes[nodeIdx].childCount; ci++)
+computeWorldMatrix(g_nodes[nodeIdx].childIndices[ci],
+                   g_nodes[nodeIdx].worldMatrix);
+}
+
+// Copy TRS and parent/child relationships from cgltf into g_nodes[].
+static void buildNodeHierarchy(const cgltf_data* data)
+{
+GLint ni, ci, i;
+
+g_numNodes = (GLint)data->nodes_count;
+if (g_numNodes > MAX_NODES)
+{
+printf("Warning: node count %d exceeds MAX_NODES %d, clamping\n",
+       g_numNodes, MAX_NODES);
+g_numNodes = MAX_NODES;
+}
+
+for (ni = 0; ni < g_numNodes; ni++)
+{
+const cgltf_node* node = &data->nodes[ni];
+GltfNode*         gn   = &g_nodes[ni];
+
+gn->translation[0] = gn->translation[1] = gn->translation[2] = 0.0f;
+gn->rotation[0] = gn->rotation[1] = gn->rotation[2] = 0.0f;
+gn->rotation[3] = 1.0f;
+gn->scale[0] = gn->scale[1] = gn->scale[2] = 1.0f;
+gn->hasMatrix  = 0;
+gn->parentIdx  = -1;
+gn->childCount = 0;
+glusMatrix4x4Identityf(gn->worldMatrix);
+
+if (node->has_matrix)
+{
+gn->hasMatrix = 1;
+for (i = 0; i < 16; i++)
+gn->localMatrix[i] = (GLfloat)node->matrix[i];
+}
+else
+{
+if (node->has_translation)
+{
+gn->translation[0] = (GLfloat)node->translation[0];
+gn->translation[1] = (GLfloat)node->translation[1];
+gn->translation[2] = (GLfloat)node->translation[2];
+}
+if (node->has_rotation)
+{
+gn->rotation[0] = (GLfloat)node->rotation[0];
+gn->rotation[1] = (GLfloat)node->rotation[1];
+gn->rotation[2] = (GLfloat)node->rotation[2];
+gn->rotation[3] = (GLfloat)node->rotation[3];
+}
+if (node->has_scale)
+{
+gn->scale[0] = (GLfloat)node->scale[0];
+gn->scale[1] = (GLfloat)node->scale[1];
+gn->scale[2] = (GLfloat)node->scale[2];
+}
+}
+
+gn->childCount = (GLint)node->children_count;
+if (gn->childCount > MAX_NODE_CHILDREN)
+{
+printf("Warning: node %d has %d children, clamping to %d\n",
+       ni, gn->childCount, MAX_NODE_CHILDREN);
+gn->childCount = MAX_NODE_CHILDREN;
+}
+for (ci = 0; ci < gn->childCount; ci++)
+gn->childIndices[ci] = (GLint)(node->children[ci] - data->nodes);
+}
+
+// Set parent indices from child lists.
+for (ni = 0; ni < g_numNodes; ni++)
+for (ci = 0; ci < g_nodes[ni].childCount; ci++)
+{
+GLint childIdx = g_nodes[ni].childIndices[ci];
+if (childIdx >= 0 && childIdx < g_numNodes)
+g_nodes[childIdx].parentIdx = ni;
+}
+}
+
+// Find scene root nodes.
+static void buildRootNodes(const cgltf_data* data)
+{
+GLint ri, ni;
+
+g_numRootNodes = 0;
+
+if (data->scene)
+{
+g_numRootNodes = (GLint)data->scene->nodes_count;
+for (ri = 0; ri < g_numRootNodes; ri++)
+g_rootNodes[ri] = (GLint)(data->scene->nodes[ri] - data->nodes);
+}
+else
+{
+for (ni = 0; ni < g_numNodes; ni++)
+if (g_nodes[ni].parentIdx == -1 && g_numRootNodes < MAX_NODES)
+g_rootNodes[g_numRootNodes++] = ni;
+}
+}
+
+// Recompute all world matrices from the scene roots.
+static void computeAllWorldMatrices(void)
+{
+GLfloat identity[16];
+GLint   ri;
+
+glusMatrix4x4Identityf(identity);
+for (ri = 0; ri < g_numRootNodes; ri++)
+computeWorldMatrix(g_rootNodes[ri], identity);
+}
+
+//
+// Skin helpers
+//
+
+// Copy joint indices and inverse bind matrices from cgltf.
+static void loadSkins(const cgltf_data* data)
+{
+GLint si, ji;
+
+g_numSkins = (GLint)data->skins_count;
+if (g_numSkins > MAX_SKINS)
+{
+printf("Warning: skin count %d exceeds MAX_SKINS %d, clamping\n",
+       g_numSkins, MAX_SKINS);
+g_numSkins = MAX_SKINS;
+}
+
+for (si = 0; si < g_numSkins; si++)
+{
+const cgltf_skin* skin = &data->skins[si];
+GltfSkin*         gs   = &g_skins[si];
+
+gs->jointCount = (GLint)skin->joints_count;
+if (gs->jointCount > MAX_JOINTS)
+{
+printf("Warning: skin %d has %d joints, clamping to %d\n",
+       si, gs->jointCount, MAX_JOINTS);
+gs->jointCount = MAX_JOINTS;
+}
+
+for (ji = 0; ji < gs->jointCount; ji++)
+gs->jointNodeIndices[ji] = (GLint)(skin->joints[ji] - data->nodes);
+
+// Default IBM = identity; overwrite when accessor is present.
+for (ji = 0; ji < gs->jointCount; ji++)
+glusMatrix4x4Identityf(&gs->inverseBindMatrices[ji * 16]);
+
+if (skin->inverse_bind_matrices)
+{
+GLint accessorCount = (GLint)skin->inverse_bind_matrices->count;
+GLint readCount = (accessorCount < gs->jointCount) ? accessorCount : gs->jointCount;
+for (ji = 0; ji < readCount; ji++)
+cgltf_accessor_read_float(skin->inverse_bind_matrices, ji,
+                          &gs->inverseBindMatrices[ji * 16], 16);
+}
+}
+}
+
+// Recompute joint matrices: jointMatrix[j] = worldMatrix(joint[j]) * IBM[j].
+static void computeJointMatrices(void)
+{
+GLint si, ji;
+
+for (si = 0; si < g_numSkins; si++)
+{
+GltfSkin* gs = &g_skins[si];
+for (ji = 0; ji < gs->jointCount; ji++)
+{
+GLint jni = gs->jointNodeIndices[ji];
+glusMatrix4x4Multiplyf(&gs->jointMatrices[ji * 16],
+                       g_nodes[jni].worldMatrix,
+                       &gs->inverseBindMatrices[ji * 16]);
+}
+}
+}
+
+//
+// Animation helpers
+//
+
+// Load all animation channels from all clips into a flat list.
+static void loadAnimations(const cgltf_data* data)
+{
+GLint    ai, chi, kfi;
+GLfloat  maxTime;
+
+maxTime           = 0.0f;
+g_numAnimChannels = 0;
+
+for (ai = 0; ai < (GLint)data->animations_count; ai++)
+{
+const cgltf_animation* anim = &data->animations[ai];
+
+for (chi = 0; chi < (GLint)anim->channels_count; chi++)
+{
+const cgltf_animation_channel* ch      = &anim->channels[chi];
+const cgltf_animation_sampler* sampler = ch->sampler;
+AnimChannel* ac;
+GLint path, interp, components, outputCount;
+
+if (!ch->target_node) continue;
+if (g_numAnimChannels >= MAX_ANIM_CHANNELS) break;
+
+switch (ch->target_path)
+{
+case cgltf_animation_path_type_translation: path = ANIM_PATH_TRANSLATION; break;
+case cgltf_animation_path_type_rotation:    path = ANIM_PATH_ROTATION;    break;
+case cgltf_animation_path_type_scale:       path = ANIM_PATH_SCALE;       break;
+default: continue;
+}
+
+switch (sampler->interpolation)
+{
+case cgltf_interpolation_type_step:         interp = GLUS_ANIMATION_STEP;        break;
+case cgltf_interpolation_type_cubic_spline: interp = GLUS_ANIMATION_CUBICSPLINE; break;
+default:                                    interp = GLUS_ANIMATION_LINEAR;      break;
+}
+
+ac              = &g_animChannels[g_numAnimChannels++];
+ac->nodeIdx     = (GLint)(ch->target_node - data->nodes);
+ac->path        = path;
+ac->interpolation = interp;
+ac->count       = (GLint)sampler->input->count;
+components      = (path == ANIM_PATH_ROTATION) ? 4 : 3;
+outputCount     = (GLint)sampler->output->count;
+
+ac->times  = (GLfloat*)malloc((size_t)ac->count * sizeof(GLfloat));
+ac->values = (GLfloat*)malloc((size_t)outputCount * components * sizeof(GLfloat));
+
+for (kfi = 0; kfi < ac->count; kfi++)
+cgltf_accessor_read_float(sampler->input, kfi, &ac->times[kfi], 1);
+
+for (kfi = 0; kfi < outputCount; kfi++)
+cgltf_accessor_read_float(sampler->output, kfi,
+                          &ac->values[kfi * components], components);
+
+if (ac->count > 0 && ac->times[ac->count - 1] > maxTime)
+maxTime = ac->times[ac->count - 1];
+}
+}
+
+g_animDuration = maxTime;
+}
+
+//
 // glTF scene loading
 //
 
 static void processMesh(const cgltf_data* data, const cgltf_mesh* mesh,
-                        const GLfloat parentMatrix[16], const GLUSchar* basePath)
+                        GLint nodeIdx, GLint skinIdx, const GLUSchar* basePath)
 {
 GLint pi;
 (void)data;
@@ -377,6 +737,8 @@ const cgltf_accessor*  accPos;
 const cgltf_accessor*  accNor;
 const cgltf_accessor*  accTan;
 const cgltf_accessor*  accUV0;
+const cgltf_accessor*  accJoints;
+const cgltf_accessor*  accWeights;
 GLint                  ai;
 GLsizei                vertCount;
 GLfloat*               buf;
@@ -387,20 +749,23 @@ if (g_numPrimitives >= MAX_PRIMITIVES) break;
 gp = &g_primitives[g_numPrimitives++];
 memset(gp, 0, sizeof(*gp));
 
-// --- World transform copy ---
-memcpy(gp->modelMatrix, parentMatrix, 64);
+gp->nodeIdx = nodeIdx;
+gp->skinIdx = skinIdx;
 
-// --- Normal matrix = transpose(inverse(modelMatrix)) ---
-memcpy(tmpM, parentMatrix, 64);
+// World transform from pre-computed node world matrix.
+memcpy(gp->modelMatrix, g_nodes[nodeIdx].worldMatrix, 64);
+memcpy(tmpM, gp->modelMatrix, 64);
 glusMatrix4x4Inversef(tmpM);
 glusMatrix4x4Transposef(tmpM);
 glusMatrix4x4ExtractMatrix3x3f(gp->normalMatrix, tmpM);
 
-// --- Attribute accessors ---
-accPos = NULL;
-accNor = NULL;
-accTan = NULL;
-accUV0 = NULL;
+// Attribute accessors.
+accPos     = NULL;
+accNor     = NULL;
+accTan     = NULL;
+accUV0     = NULL;
+accJoints  = NULL;
+accWeights = NULL;
 
 for (ai = 0; ai < (GLint)prim->attributes_count; ai++)
 {
@@ -408,17 +773,19 @@ const cgltf_attribute* attr = &prim->attributes[ai];
 if (attr->index != 0) continue;
 switch (attr->type)
 {
-case cgltf_attribute_type_position: accPos = attr->data; break;
-case cgltf_attribute_type_normal:   accNor = attr->data; break;
-case cgltf_attribute_type_tangent:  accTan = attr->data; break;
-case cgltf_attribute_type_texcoord: accUV0 = attr->data; break;
+case cgltf_attribute_type_position: accPos     = attr->data; break;
+case cgltf_attribute_type_normal:   accNor     = attr->data; break;
+case cgltf_attribute_type_tangent:  accTan     = attr->data; break;
+case cgltf_attribute_type_texcoord: accUV0     = attr->data; break;
+case cgltf_attribute_type_joints:   accJoints  = attr->data; break;
+case cgltf_attribute_type_weights:  accWeights = attr->data; break;
 default: break;
 }
 }
 
 if (!accPos) { g_numPrimitives--; continue; }
 
-// --- Expand scene bounds ---
+// Expand scene bounds using the rest-pose world matrix.
 if (accPos->has_min && accPos->has_max)
 {
 GLfloat lMin[3];
@@ -429,12 +796,12 @@ lMin[2] = (GLfloat)accPos->min[2];
 lMax[0] = (GLfloat)accPos->max[0];
 lMax[1] = (GLfloat)accPos->max[1];
 lMax[2] = (GLfloat)accPos->max[2];
-expandBoundsAABB(lMin, lMax, parentMatrix);
+expandBoundsAABB(lMin, lMax, g_nodes[nodeIdx].worldMatrix);
 }
 
 vertCount = (GLsizei)accPos->count;
 
-// --- Upload positions ---
+// Positions.
 {
 GLsizei vi;
 buf = (GLfloat*)malloc((size_t)vertCount * 3 * sizeof(GLfloat));
@@ -446,7 +813,7 @@ glBufferData(GL_ARRAY_BUFFER, vertCount * 3 * sizeof(GLfloat), buf, GL_STATIC_DR
 free(buf);
 }
 
-// --- Upload normals (or flat zero if missing) ---
+// Normals.
 {
 GLsizei vi;
 buf = (GLfloat*)calloc((size_t)vertCount * 3, sizeof(GLfloat));
@@ -459,7 +826,7 @@ glBufferData(GL_ARRAY_BUFFER, vertCount * 3 * sizeof(GLfloat), buf, GL_STATIC_DR
 free(buf);
 }
 
-// --- Upload tangents (or zero if missing) ---
+// Tangents.
 {
 GLsizei vi;
 buf = (GLfloat*)calloc((size_t)vertCount * 4, sizeof(GLfloat));
@@ -470,10 +837,10 @@ glGenBuffers(1, &gp->vbo_tan);
 glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_tan);
 glBufferData(GL_ARRAY_BUFFER, vertCount * 4 * sizeof(GLfloat), buf, GL_STATIC_DRAW);
 free(buf);
-gp->hasNormalMap = (accTan != NULL);
+gp->hasNormalMap = (accTan != NULL) ? 1 : 0;
 }
 
-// --- Upload UVs (or zero if missing) ---
+// UVs.
 {
 GLsizei vi;
 buf = (GLfloat*)calloc((size_t)vertCount * 2, sizeof(GLfloat));
@@ -486,13 +853,15 @@ glBufferData(GL_ARRAY_BUFFER, vertCount * 2 * sizeof(GLfloat), buf, GL_STATIC_DR
 free(buf);
 }
 
-// --- Upload indices if present ---
+// Indices.
 if (prim->indices)
 {
-const cgltf_accessor* accIdx = prim->indices;
-GLsizei idxCount = (GLsizei)accIdx->count;
-unsigned int* ibuf = (unsigned int*)malloc((size_t)idxCount * sizeof(unsigned int));
-GLsizei ii;
+const cgltf_accessor* accIdx  = prim->indices;
+GLsizei               idxCount = (GLsizei)accIdx->count;
+unsigned int*         ibuf;
+GLsizei               ii;
+
+ibuf = (unsigned int*)malloc((size_t)idxCount * sizeof(unsigned int));
 for (ii = 0; ii < idxCount; ii++)
 ibuf[ii] = (unsigned int)cgltf_accessor_read_index(accIdx, ii);
 glGenBuffers(1, &gp->ibo);
@@ -508,7 +877,7 @@ else
 gp->vertexCount = vertCount;
 }
 
-// --- Build VAO ---
+// Build VAO.
 glGenVertexArrays(1, &gp->vao);
 glBindVertexArray(gp->vao);
 
@@ -528,12 +897,56 @@ glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_uv0);
 glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, 0);
 glEnableVertexAttribArray(3);
 
+// Skinning attributes.
+if (skinIdx >= 0 && accJoints && accWeights)
+{
+GLfloat* jbuf;
+GLfloat* wbuf;
+GLuint   jval[4];
+GLsizei  vi;
+
+jbuf = (GLfloat*)malloc((size_t)vertCount * 4 * sizeof(GLfloat));
+for (vi = 0; vi < vertCount; vi++)
+{
+cgltf_accessor_read_uint(accJoints, vi, jval, 4);
+jbuf[vi * 4 + 0] = (GLfloat)jval[0];
+jbuf[vi * 4 + 1] = (GLfloat)jval[1];
+jbuf[vi * 4 + 2] = (GLfloat)jval[2];
+jbuf[vi * 4 + 3] = (GLfloat)jval[3];
+}
+glGenBuffers(1, &gp->vbo_joints);
+glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_joints);
+glBufferData(GL_ARRAY_BUFFER, vertCount * 4 * sizeof(GLfloat), jbuf, GL_STATIC_DRAW);
+free(jbuf);
+
+wbuf = (GLfloat*)malloc((size_t)vertCount * 4 * sizeof(GLfloat));
+for (vi = 0; vi < vertCount; vi++)
+cgltf_accessor_read_float(accWeights, vi, wbuf + vi * 4, 4);
+glGenBuffers(1, &gp->vbo_weights);
+glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_weights);
+glBufferData(GL_ARRAY_BUFFER, vertCount * 4 * sizeof(GLfloat), wbuf, GL_STATIC_DRAW);
+free(wbuf);
+
+glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_joints);
+glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+glEnableVertexAttribArray(4);
+
+glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_weights);
+glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, 0);
+glEnableVertexAttribArray(5);
+}
+else if (skinIdx >= 0)
+{
+// Skinned mesh without joint data — fall back to non-skinned.
+gp->skinIdx = -1;
+}
+
 if (gp->ibo)
 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gp->ibo);
 
 glBindVertexArray(0);
 
-// --- Material defaults ---
+// Material defaults.
 gp->baseColorFactor[0] = 1.0f;
 gp->baseColorFactor[1] = 1.0f;
 gp->baseColorFactor[2] = 1.0f;
@@ -615,67 +1028,22 @@ memcpy(gp->emissiveFactor, mat->emissive_factor, 12);
 }
 }
 
-// Recursive node traversal.
-static void processNode(const cgltf_data* data, const cgltf_node* node,
-                        const GLfloat parentMatrix[16], const GLUSchar* basePath)
+// Recursive mesh-upload traversal — world matrices must be computed first.
+static void processNodeMeshes(const cgltf_data* data, const cgltf_node* node,
+                              const GLUSchar* basePath)
 {
-GLfloat localMatrix[16];
-GLfloat worldMatrix[16];
-GLint   ci;
-GLint   i;
-GLfloat T[16], R[16], S[16], RS[16];
-GLfloat q[4];
+GLint nodeIdx = (GLint)(node - data->nodes);
+GLint skinIdx = -1;
+GLint ci;
 
-glusMatrix4x4Identityf(localMatrix);
-
-if (node->has_matrix)
-{
-// cgltf stores column-major — same layout as GLUS.
-for (i = 0; i < 16; i++)
-localMatrix[i] = (GLfloat)node->matrix[i];
-}
-else
-{
-// Compose TRS
-glusMatrix4x4Identityf(T);
-glusMatrix4x4Identityf(R);
-glusMatrix4x4Identityf(S);
-
-if (node->has_translation)
-{
-T[12] = (GLfloat)node->translation[0];
-T[13] = (GLfloat)node->translation[1];
-T[14] = (GLfloat)node->translation[2];
-}
-
-if (node->has_rotation)
-{
-// cgltf quaternion is [x,y,z,w] — same as GLUS.
-q[0] = (GLfloat)node->rotation[0];
-q[1] = (GLfloat)node->rotation[1];
-q[2] = (GLfloat)node->rotation[2];
-q[3] = (GLfloat)node->rotation[3];
-glusQuaternionGetMatrix4x4f(R, q);
-}
-
-if (node->has_scale)
-{
-S[0]  = (GLfloat)node->scale[0];
-S[5]  = (GLfloat)node->scale[1];
-S[10] = (GLfloat)node->scale[2];
-}
-
-glusMatrix4x4Multiplyf(RS, R, S);
-glusMatrix4x4Multiplyf(localMatrix, T, RS);
-}
-
-glusMatrix4x4Multiplyf(worldMatrix, parentMatrix, localMatrix);
+if (node->skin)
+skinIdx = (GLint)(node->skin - data->skins);
 
 if (node->mesh)
-processMesh(data, node->mesh, worldMatrix, basePath);
+processMesh(data, node->mesh, nodeIdx, skinIdx, basePath);
 
 for (ci = 0; ci < (GLint)node->children_count; ci++)
-processNode(data, node->children[ci], worldMatrix, basePath);
+processNodeMeshes(data, node->children[ci], basePath);
 }
 
 //
@@ -690,7 +1058,6 @@ GLUSshape     sphere;
 cgltf_options gltfOptions;
 cgltf_data*   gltfData;
 cgltf_result  res;
-GLfloat       identity[16];
 GLUSchar      basePath[1024];
 GLUStextfile  vertexSource;
 GLUStextfile  fragmentSource;
@@ -702,8 +1069,7 @@ GLint         ni;
 GLfloat       dx, dy, dz;
 
 // ----------------------------------------------------------------
-// Build shader programs for background and fullscreen resolve.
-// PBR and IBL shaders are loaded from GLUS/shader/.
+// Build shader programs.
 // ----------------------------------------------------------------
 
 glusFileLoadText("../Example49/shader/background.vert.glsl", &vertexSource);
@@ -736,6 +1102,16 @@ return GLUS_FALSE;
 }
 glusFileDestroyText(&vertexSource); glusFileDestroyText(&fragmentSource);
 
+glusFileLoadText("../GLUS/shader/glus_gltf_pbr_skinned.vert.glsl", &vertexSource);
+glusFileLoadText("../GLUS/shader/glus_gltf_pbr.frag.glsl", &fragmentSource);
+if (!glusProgramBuildFromSource(&g_pbrSkinnedProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+{
+glusFileDestroyText(&vertexSource); glusFileDestroyText(&fragmentSource);
+printf("Failed to build skinned PBR program\n");
+return GLUS_FALSE;
+}
+glusFileDestroyText(&vertexSource); glusFileDestroyText(&fragmentSource);
+
 // ----------------------------------------------------------------
 // Fullscreen VAO (attribute-less draw using gl_VertexID).
 // ----------------------------------------------------------------
@@ -743,15 +1119,14 @@ glusFileDestroyText(&vertexSource); glusFileDestroyText(&fragmentSource);
 glGenVertexArrays(1, &g_fullscreenVAO);
 
 // ----------------------------------------------------------------
-// Default textures (created before loadImageTexture is first called).
+// Default textures.
 // ----------------------------------------------------------------
 
 g_defaultWhiteTexture  = createTexture1x1(255, 255, 255, 255);
 g_defaultNormalTexture = createTexture1x1(128, 128, 255, 255);
 
 // ----------------------------------------------------------------
-// IBL — load panorama and run all four GPU prefilter passes via
-// the GLUS IBL API.  Panorama texture is deleted afterwards.
+// IBL — load panorama and run all four GPU prefilter passes.
 // ----------------------------------------------------------------
 
 printf("Loading panorama '%s' ...\n", g_panoramaPath);
@@ -775,7 +1150,6 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 glBindTexture(GL_TEXTURE_2D, 0);
 
-// Tell GLUS IBL where to find its shaders.
 glusIblSetShaderPath("../GLUS/shader/");
 
 printf("Pre-filtering specular cubemap (%dx%d, %d levels) ...\n",
@@ -812,7 +1186,6 @@ printf("Error: glusIblBuildBackgroundCubemap failed\n");
 return GLUS_FALSE;
 }
 
-// Panorama no longer needed on the GPU.
 glDeleteTextures(1, &panoramaTex);
 
 // ----------------------------------------------------------------
@@ -863,7 +1236,6 @@ glUniform1i(glGetUniformLocation(g_pbrProg.program, "u_brdfLUT"),               
 glUniform1f(glGetUniformLocation(g_pbrProg.program, "u_roughnessScale"),
             (GLfloat)(NUMBER_ROUGHNESS - 1));
 
-// Cache per-frame uniform locations.
 g_u_modelMatrix       = glGetUniformLocation(g_pbrProg.program, "u_modelMatrix");
 g_u_vpMatrix          = glGetUniformLocation(g_pbrProg.program, "u_viewProjectionMatrix");
 g_u_normalMatrix      = glGetUniformLocation(g_pbrProg.program, "u_normalMatrix");
@@ -876,6 +1248,30 @@ g_u_occlusionStrength = glGetUniformLocation(g_pbrProg.program, "u_occlusionStre
 g_u_alphaCutoff       = glGetUniformLocation(g_pbrProg.program, "u_alphaCutoff");
 g_u_alphaMode         = glGetUniformLocation(g_pbrProg.program, "u_alphaMode");
 g_u_hasNormalMap      = glGetUniformLocation(g_pbrProg.program, "u_hasNormalMap");
+
+glUseProgram(g_pbrSkinnedProg.program);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_baseColorTexture"),         0);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_metallicRoughnessTexture"), 1);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_normalTexture"),            2);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_occlusionTexture"),         3);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_emissiveTexture"),          4);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_specularEnvMap"),           5);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_diffuseEnvMap"),            6);
+glUniform1i(glGetUniformLocation(g_pbrSkinnedProg.program, "u_brdfLUT"),                  7);
+glUniform1f(glGetUniformLocation(g_pbrSkinnedProg.program, "u_roughnessScale"),
+            (GLfloat)(NUMBER_ROUGHNESS - 1));
+
+g_u_vpMatrix_sk          = glGetUniformLocation(g_pbrSkinnedProg.program, "u_viewProjectionMatrix");
+g_u_eye_sk               = glGetUniformLocation(g_pbrSkinnedProg.program, "u_eye");
+g_u_jointMatrices_sk     = glGetUniformLocation(g_pbrSkinnedProg.program, "u_jointMatrices");
+g_u_baseColorFactor_sk   = glGetUniformLocation(g_pbrSkinnedProg.program, "u_baseColorFactor");
+g_u_metallicFactor_sk    = glGetUniformLocation(g_pbrSkinnedProg.program, "u_metallicFactor");
+g_u_roughnessFactor_sk   = glGetUniformLocation(g_pbrSkinnedProg.program, "u_roughnessFactor");
+g_u_emissiveFactor_sk    = glGetUniformLocation(g_pbrSkinnedProg.program, "u_emissiveFactor");
+g_u_occlusionStrength_sk = glGetUniformLocation(g_pbrSkinnedProg.program, "u_occlusionStrength");
+g_u_alphaCutoff_sk       = glGetUniformLocation(g_pbrSkinnedProg.program, "u_alphaCutoff");
+g_u_alphaMode_sk         = glGetUniformLocation(g_pbrSkinnedProg.program, "u_alphaMode");
+g_u_hasNormalMap_sk      = glGetUniformLocation(g_pbrSkinnedProg.program, "u_hasNormalMap");
 
 g_u_vpMatrix_bg = glGetUniformLocation(g_bgProg.program, "u_viewProjectionMatrix");
 
@@ -915,23 +1311,33 @@ bsl = strrchr(tmp, '\\');
 sep = (sl > bsl) ? sl : bsl;
 if (sep) { *(sep + 1) = '\0'; strncpy(basePath, tmp, sizeof(basePath) - 1); }
 
-// Traverse default scene (or all nodes if no scene is defined).
-glusMatrix4x4Identityf(identity);
+// Build node hierarchy and initial world matrices.
+buildNodeHierarchy(gltfData);
+buildRootNodes(gltfData);
+computeAllWorldMatrices();
 
+// Load skins and initial joint matrices.
+loadSkins(gltfData);
+computeJointMatrices();
+
+// Load animation channels.
+loadAnimations(gltfData);
+
+// Upload mesh data (world matrices must be ready).
 if (gltfData->scene)
 {
 for (ni = 0; ni < (GLint)gltfData->scene->nodes_count; ni++)
-processNode(gltfData, gltfData->scene->nodes[ni], identity, basePath);
+processNodeMeshes(gltfData, gltfData->scene->nodes[ni], basePath);
 }
 else
 {
 for (ni = 0; ni < (GLint)gltfData->nodes_count; ni++)
-processNode(gltfData, &gltfData->nodes[ni], identity, basePath);
+processNodeMeshes(gltfData, &gltfData->nodes[ni], basePath);
 }
 
 cgltf_free(gltfData);
-printf("Loaded %d primitives, %d unique textures\n",
-       g_numPrimitives, g_numTextures);
+printf("Loaded %d primitives, %d textures, %d skins, %d anim channels (duration %.2fs)\n",
+       g_numPrimitives, g_numTextures, g_numSkins, g_numAnimChannels, g_animDuration);
 
 // ----------------------------------------------------------------
 // Compute scene centre / orbit radius from AABB.
@@ -971,14 +1377,12 @@ printf("Scene centre (%.2f, %.2f, %.2f)  radius %.2f  orbit %.2f\n",
 return GLUS_TRUE;
 }
 
-// Called when the window is resized.
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
 if (height == 0) height = 1;
 g_windowWidth  = width;
 g_windowHeight = height;
 
-// (Re-)create MSAA framebuffer.
 if (g_msaaFBO)
 {
 glDeleteFramebuffers(1, &g_msaaFBO);
@@ -1006,25 +1410,45 @@ glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-// Helper: bind all material textures for a primitive and set uniforms.
+// Bind material textures and select the correct PBR program.
 static void bindPrimitiveMaterial(const GltfPrimitive* gp)
 {
+GLint isSkinned = (gp->skinIdx >= 0);
+
 glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, gp->baseColorTexture);
 glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, gp->metallicRoughnessTexture);
 glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, gp->normalTexture);
 glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, gp->occlusionTexture);
 glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_2D, gp->emissiveTexture);
 
+if (isSkinned)
+{
+const GltfSkin* gs = &g_skins[gp->skinIdx];
+glUseProgram(g_pbrSkinnedProg.program);
+glUniformMatrix4fv(g_u_jointMatrices_sk, gs->jointCount, GL_FALSE, gs->jointMatrices);
+glUniform4fv(g_u_baseColorFactor_sk,   1, gp->baseColorFactor);
+glUniform1f(g_u_metallicFactor_sk,        gp->metallicFactor);
+glUniform1f(g_u_roughnessFactor_sk,       gp->roughnessFactor);
+glUniform3fv(g_u_emissiveFactor_sk,    1, gp->emissiveFactor);
+glUniform1f(g_u_occlusionStrength_sk,     gp->occlusionStrength);
+glUniform1f(g_u_alphaCutoff_sk,           gp->alphaCutoff);
+glUniform1i(g_u_alphaMode_sk,             gp->alphaMode);
+glUniform1i(g_u_hasNormalMap_sk,          gp->hasNormalMap);
+}
+else
+{
+glUseProgram(g_pbrProg.program);
 glUniformMatrix4fv(g_u_modelMatrix,  1, GL_FALSE, gp->modelMatrix);
 glUniformMatrix3fv(g_u_normalMatrix, 1, GL_FALSE, gp->normalMatrix);
-glUniform4fv(g_u_baseColorFactor, 1, gp->baseColorFactor);
-glUniform1f(g_u_metallicFactor,    gp->metallicFactor);
-glUniform1f(g_u_roughnessFactor,   gp->roughnessFactor);
-glUniform3fv(g_u_emissiveFactor, 1, gp->emissiveFactor);
-glUniform1f(g_u_occlusionStrength, gp->occlusionStrength);
-glUniform1f(g_u_alphaCutoff,       gp->alphaCutoff);
-glUniform1i(g_u_alphaMode,         gp->alphaMode);
-glUniform1i(g_u_hasNormalMap,      gp->hasNormalMap);
+glUniform4fv(g_u_baseColorFactor,    1, gp->baseColorFactor);
+glUniform1f(g_u_metallicFactor,         gp->metallicFactor);
+glUniform1f(g_u_roughnessFactor,        gp->roughnessFactor);
+glUniform3fv(g_u_emissiveFactor,     1, gp->emissiveFactor);
+glUniform1f(g_u_occlusionStrength,      gp->occlusionStrength);
+glUniform1f(g_u_alphaCutoff,            gp->alphaCutoff);
+glUniform1i(g_u_alphaMode,              gp->alphaMode);
+glUniform1i(g_u_hasNormalMap,           gp->hasNormalMap);
+}
 }
 
 static void drawPrimitive(const GltfPrimitive* gp)
@@ -1048,11 +1472,11 @@ GLfloat bgViewMatrix[16];
 GLfloat bgVPMatrix[16];
 GLint   i;
 
-if (!g_msaaFBO) return GLUS_TRUE;  // reshape not yet called
+if (!g_msaaFBO) return GLUS_TRUE;
 
 // --- Orbit camera ---
-g_orbitAngle += g_orbitSpeed * time;
-if (g_orbitAngle >= 360.0f) g_orbitAngle -= 360.0f;
+g_orbitAngle -= g_orbitSpeed * time;
+if (g_orbitAngle < 0.0f) g_orbitAngle += 360.0f;
 
 rad  = g_orbitAngle * CAMERA_DEG_TO_RAD;
 eyeX = g_sceneCenterX + g_orbitRadius * sinf(rad);
@@ -1073,12 +1497,63 @@ glusMatrix4x4Perspectivef(projMatrix, CAMERA_FOV_DEG,
                           nearPlane, farPlane);
 glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projMatrix, viewMatrix);
 
-// Rotation-only VP for background: strip camera translation so sphere is always centered on camera.
 memcpy(bgViewMatrix, viewMatrix, 16 * sizeof(GLfloat));
 bgViewMatrix[12] = 0.0f;
 bgViewMatrix[13] = 0.0f;
 bgViewMatrix[14] = 0.0f;
 glusMatrix4x4Multiplyf(bgVPMatrix, projMatrix, bgViewMatrix);
+
+// --- Animation update ---
+if (g_animDuration > 0.0f)
+{
+GLint ci;
+
+g_animTime += time;
+if (g_animTime > g_animDuration)
+g_animTime = fmodf(g_animTime, g_animDuration);
+
+for (ci = 0; ci < g_numAnimChannels; ci++)
+{
+AnimChannel* ac = &g_animChannels[ci];
+GltfNode*    gn = &g_nodes[ac->nodeIdx];
+
+switch (ac->path)
+{
+case ANIM_PATH_TRANSLATION:
+glusAnimationSampleVec3f(gn->translation, ac->times, ac->values,
+                         ac->count, ac->interpolation, g_animTime);
+break;
+case ANIM_PATH_ROTATION:
+glusAnimationSampleQuaternionf(gn->rotation, ac->times, ac->values,
+                               ac->count, ac->interpolation, g_animTime);
+break;
+case ANIM_PATH_SCALE:
+glusAnimationSampleVec3f(gn->scale, ac->times, ac->values,
+                         ac->count, ac->interpolation, g_animTime);
+break;
+default:
+break;
+}
+}
+
+computeAllWorldMatrices();
+computeJointMatrices();
+
+// Refresh model/normal matrices for non-skinned animated nodes.
+for (i = 0; i < g_numPrimitives; i++)
+{
+GltfPrimitive* gp = &g_primitives[i];
+GLfloat        tmpM[16];
+
+if (gp->skinIdx >= 0) continue;
+
+memcpy(gp->modelMatrix, g_nodes[gp->nodeIdx].worldMatrix, 64);
+memcpy(tmpM, gp->modelMatrix, 64);
+glusMatrix4x4Inversef(tmpM);
+glusMatrix4x4Transposef(tmpM);
+glusMatrix4x4ExtractMatrix3x3f(gp->normalMatrix, tmpM);
+}
+}
 
 // --- Render into MSAA FBO ---
 glBindFramebuffer(GL_FRAMEBUFFER, g_msaaFBO);
@@ -1089,7 +1564,7 @@ glDepthMask(GL_TRUE);
 glDisable(GL_BLEND);
 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-// --- Background sphere (inside-facing, no depth write) ---
+// --- Background sphere ---
 glFrontFace(GL_CW);
 glDisable(GL_CULL_FACE);
 glDepthMask(GL_FALSE);
@@ -1105,7 +1580,7 @@ glDepthFunc(GL_LESS);
 glFrontFace(GL_CCW);
 glDepthMask(GL_TRUE);
 
-// --- PBR IBL textures on units 5-7 (persistent per frame) ---
+// --- IBL textures on units 5-7 (persistent per frame) ---
 glActiveTexture(GL_TEXTURE5);
 glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_specularTexture);
 glActiveTexture(GL_TEXTURE6);
@@ -1113,16 +1588,21 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, g_diffuseTexture);
 glActiveTexture(GL_TEXTURE7);
 glBindTexture(GL_TEXTURE_2D, g_brdfLutTexture);
 
+// Set VP + eye on both PBR programs before the draw loop.
 glUseProgram(g_pbrProg.program);
 glUniformMatrix4fv(g_u_vpMatrix, 1, GL_FALSE, g_viewProjectionMatrix);
 glUniform4fv(g_u_eye_pbr, 1, g_eye);
+
+glUseProgram(g_pbrSkinnedProg.program);
+glUniformMatrix4fv(g_u_vpMatrix_sk, 1, GL_FALSE, g_viewProjectionMatrix);
+glUniform4fv(g_u_eye_sk, 1, g_eye);
 
 // --- Pass A: Opaque + Mask ---
 glEnable(GL_DEPTH_TEST);
 for (i = 0; i < g_numPrimitives; i++)
 {
 const GltfPrimitive* gp = &g_primitives[i];
-if (gp->alphaMode == 2) continue;  // skip blend
+if (gp->alphaMode == 2) continue;
 
 if (gp->doubleSided) glDisable(GL_CULL_FACE);
 else                 glEnable(GL_CULL_FACE);
@@ -1186,7 +1666,9 @@ glDeleteBuffers(1, &gp->vbo_pos);
 glDeleteBuffers(1, &gp->vbo_nor);
 glDeleteBuffers(1, &gp->vbo_tan);
 glDeleteBuffers(1, &gp->vbo_uv0);
-if (gp->ibo) glDeleteBuffers(1, &gp->ibo);
+if (gp->vbo_joints)  glDeleteBuffers(1, &gp->vbo_joints);
+if (gp->vbo_weights) glDeleteBuffers(1, &gp->vbo_weights);
+if (gp->ibo)         glDeleteBuffers(1, &gp->ibo);
 }
 
 // Textures
@@ -1217,10 +1699,18 @@ glDeleteTextures(1, &g_msaaColor);
 glDeleteRenderbuffers(1, &g_msaaDepth);
 }
 
+// Animation channel data
+for (i = 0; i < g_numAnimChannels; i++)
+{
+free(g_animChannels[i].times);
+free(g_animChannels[i].values);
+}
+
 // Programs
 glusProgramDestroy(&g_bgProg);
 glusProgramDestroy(&g_fullscreenProg);
 glusProgramDestroy(&g_pbrProg);
+glusProgramDestroy(&g_pbrSkinnedProg);
 }
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
@@ -1269,14 +1759,14 @@ EGL_NONE
 };
 
 EGLint eglContextAttributes[] = {
-EGL_CONTEXT_MAJOR_VERSION,            4,
-EGL_CONTEXT_MINOR_VERSION,            6,
+EGL_CONTEXT_MAJOR_VERSION,             4,
+EGL_CONTEXT_MINOR_VERSION,             6,
 EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-EGL_CONTEXT_OPENGL_PROFILE_MASK,      EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+EGL_CONTEXT_OPENGL_PROFILE_MASK,       EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
 EGL_NONE
 };
 
-g_gltfPath     = (argc > 1) ? argv[1] : "einstein/scene.gltf";
+g_gltfPath     = (argc > 1) ? argv[1] : "phoenix/scene.gltf";
 g_panoramaPath = (argc > 2) ? argv[2] : "sunny_rose_garden_4k.hdr";
 
 glusWindowSetInitFunc(init);
@@ -1285,7 +1775,7 @@ glusWindowSetUpdateFunc(update);
 glusWindowSetTerminateFunc(terminate);
 glusWindowSetKeyFunc(key);
 
-if (!glusWindowCreate("Example 49 - glTF 2.0 PBR + IBL",
+if (!glusWindowCreate("Example 50 - glTF 2.0 PBR + IBL + Animation",
                       SCREEN_WIDTH, SCREEN_HEIGHT,
                       GLUS_FALSE, GLUS_FALSE,
                       eglConfigAttributes, eglContextAttributes, 0))
