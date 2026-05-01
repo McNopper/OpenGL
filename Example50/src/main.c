@@ -1474,8 +1474,8 @@ GLint   i;
 if (!g_msaaFBO) return GLUS_TRUE;
 
 // --- Orbit camera ---
-g_orbitAngle += g_orbitSpeed * time;
-if (g_orbitAngle >= 360.0f) g_orbitAngle -= 360.0f;
+g_orbitAngle -= g_orbitSpeed * time;
+if (g_orbitAngle < 0.0f) g_orbitAngle += 360.0f;
 
 rad  = g_orbitAngle * CAMERA_DEG_TO_RAD;
 eyeX = g_sceneCenterX + g_orbitRadius * sinf(rad);
