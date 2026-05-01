@@ -23,6 +23,11 @@
 // Maximum length for shader path + filename.
 #define GLUS_IBL_MAX_PATH 512
 
+// Intermediate source cubemap size for the panorama-to-cubemap conversion step.
+// 512 provides a good quality/cost trade-off; the final filtered maps are
+// typically 256 (specular) and 64–128 (diffuse).
+#define IBL_SOURCE_CUBEMAP_SIZE 512
+
 // Default relative path to GLUS IBL shaders.
 static GLUSchar g_iblShaderPath[GLUS_IBL_MAX_PATH] = "../GLUS/shader/";
 
@@ -71,6 +76,87 @@ static GLUSboolean iblBuildProgram(GLUSprogram* program, const GLUSchar* vertFil
 	glusFileDestroyText(&fragSource);
 
 	return result;
+}
+
+// ---------------------------------------------------------------------------
+// Internal helper — count mip levels for a square texture of the given size.
+// ---------------------------------------------------------------------------
+static GLUSint iblMipLevels(GLUSint size)
+{
+	GLUSint levels = 1;
+	while (size > 1) { size >>= 1; ++levels; }
+	return levels;
+}
+
+// ---------------------------------------------------------------------------
+// Internal helper — convert the equirectangular panorama to a mipmapped
+// GL_TEXTURE_CUBE_MAP.  The caller must delete the returned texture when done.
+// ---------------------------------------------------------------------------
+static GLUSboolean buildSourceCubemap(GLUSuint *cubemapOut, GLUSuint panoramaTexture, GLUSint size)
+{
+	GLUSprogram program;
+	GLUSuint    fbo, vao, tex;
+	GLUSint     locPanorama, locFace;
+	GLUSint     face;
+	GLUSint     savedViewport[4];
+
+	if (!iblBuildProgram(&program, "glus_ibl.vert.glsl", "glus_ibl_background.frag.glsl"))
+	{
+		return GLUS_FALSE;
+	}
+
+	locPanorama = glGetUniformLocation(program.program, "u_panoramaTexture");
+	locFace     = glGetUniformLocation(program.program, "u_face");
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+	glTexStorage2D(GL_TEXTURE_CUBE_MAP, iblMipLevels(size), GL_RGB32F, size, size);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	glGenFramebuffers(1, &fbo);
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glUseProgram(program.program);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, panoramaTexture);
+	glUniform1i(locPanorama, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glGetIntegerv(GL_VIEWPORT, savedViewport);
+	glViewport(0, 0, size, size);
+
+	for (face = 0; face < 6; face++)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+		                       GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, tex, 0);
+		glUniform1i(locFace, face);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+
+	// Generate the full mip chain so specular/diffuse shaders can use textureLod.
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteVertexArrays(1, &vao);
+	glusProgramDestroy(&program);
+
+	glViewport(savedViewport[0], savedViewport[1], savedViewport[2], savedViewport[3]);
+
+	*cubemapOut = tex;
+	return GLUS_TRUE;
 }
 
 // ---------------------------------------------------------------------------
@@ -177,9 +263,11 @@ GLUSboolean GLUSAPIENTRY glusIblBuildSpecularEnvironmentMap(GLUSuint* specularTe
 	GLUSuint    fbo;
 	GLUSuint    vao;
 	GLUSuint    tex;
-	GLUSint     locPanorama;
+	GLUSuint    srcCubemap;
+	GLUSint     locCubemap;
 	GLUSint     locFace;
 	GLUSint     locRoughness;
+	GLUSint     locWidth;
 	GLUSint     level;
 	GLUSint     face;
 	GLUSfloat   roughness;
@@ -190,15 +278,22 @@ GLUSboolean GLUSAPIENTRY glusIblBuildSpecularEnvironmentMap(GLUSuint* specularTe
 		return GLUS_FALSE;
 	}
 
-	// Build shader program.
-	if (!iblBuildProgram(&program, "glus_ibl.vert.glsl", "glus_ibl_specular.frag.glsl"))
+	if (!buildSourceCubemap(&srcCubemap, panoramaTexture, IBL_SOURCE_CUBEMAP_SIZE))
 	{
 		return GLUS_FALSE;
 	}
 
-	locPanorama  = glGetUniformLocation(program.program, "u_panoramaTexture");
+	// Build shader program.
+	if (!iblBuildProgram(&program, "glus_ibl.vert.glsl", "glus_ibl_specular.frag.glsl"))
+	{
+		glDeleteTextures(1, &srcCubemap);
+		return GLUS_FALSE;
+	}
+
+	locCubemap   = glGetUniformLocation(program.program, "u_cubemapTexture");
 	locFace      = glGetUniformLocation(program.program, "u_face");
 	locRoughness = glGetUniformLocation(program.program, "u_roughness");
+	locWidth     = glGetUniformLocation(program.program, "u_width");
 
 	// GL_TEXTURE_CUBE_MAP_ARRAY: depth = numberRoughness * 6 layers.
 	glGenTextures(1, &tex);
@@ -217,9 +312,12 @@ GLUSboolean GLUSAPIENTRY glusIblBuildSpecularEnvironmentMap(GLUSuint* specularTe
 
 	glUseProgram(program.program);
 
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, panoramaTexture);
-	glUniform1i(locPanorama, 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubemap);
+	glUniform1i(locCubemap, 0);
+	glUniform1i(locWidth, IBL_SOURCE_CUBEMAP_SIZE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glGetIntegerv(GL_VIEWPORT, savedViewport);
@@ -247,6 +345,7 @@ GLUSboolean GLUSAPIENTRY glusIblBuildSpecularEnvironmentMap(GLUSuint* specularTe
 	glDeleteFramebuffers(1, &fbo);
 	glDeleteVertexArrays(1, &vao);
 	glusProgramDestroy(&program);
+	glDeleteTextures(1, &srcCubemap);
 
 	glViewport(savedViewport[0], savedViewport[1], savedViewport[2], savedViewport[3]);
 
@@ -264,8 +363,10 @@ GLUSboolean GLUSAPIENTRY glusIblBuildDiffuseEnvironmentMap(GLUSuint* diffuseText
 	GLUSuint    fbo;
 	GLUSuint    vao;
 	GLUSuint    tex;
-	GLUSint     locPanorama;
+	GLUSuint    srcCubemap;
+	GLUSint     locCubemap;
 	GLUSint     locFace;
+	GLUSint     locWidth;
 	GLUSint     face;
 	GLUSint     savedViewport[4];
 
@@ -274,13 +375,20 @@ GLUSboolean GLUSAPIENTRY glusIblBuildDiffuseEnvironmentMap(GLUSuint* diffuseText
 		return GLUS_FALSE;
 	}
 
-	if (!iblBuildProgram(&program, "glus_ibl.vert.glsl", "glus_ibl_diffuse.frag.glsl"))
+	if (!buildSourceCubemap(&srcCubemap, panoramaTexture, IBL_SOURCE_CUBEMAP_SIZE))
 	{
 		return GLUS_FALSE;
 	}
 
-	locPanorama = glGetUniformLocation(program.program, "u_panoramaTexture");
-	locFace     = glGetUniformLocation(program.program, "u_face");
+	if (!iblBuildProgram(&program, "glus_ibl.vert.glsl", "glus_ibl_diffuse.frag.glsl"))
+	{
+		glDeleteTextures(1, &srcCubemap);
+		return GLUS_FALSE;
+	}
+
+	locCubemap = glGetUniformLocation(program.program, "u_cubemapTexture");
+	locFace    = glGetUniformLocation(program.program, "u_face");
+	locWidth   = glGetUniformLocation(program.program, "u_width");
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
@@ -298,9 +406,12 @@ GLUSboolean GLUSAPIENTRY glusIblBuildDiffuseEnvironmentMap(GLUSuint* diffuseText
 
 	glUseProgram(program.program);
 
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, panoramaTexture);
-	glUniform1i(locPanorama, 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubemap);
+	glUniform1i(locCubemap, 0);
+	glUniform1i(locWidth, IBL_SOURCE_CUBEMAP_SIZE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glGetIntegerv(GL_VIEWPORT, savedViewport);
@@ -321,6 +432,7 @@ GLUSboolean GLUSAPIENTRY glusIblBuildDiffuseEnvironmentMap(GLUSuint* diffuseText
 	glDeleteFramebuffers(1, &fbo);
 	glDeleteVertexArrays(1, &vao);
 	glusProgramDestroy(&program);
+	glDeleteTextures(1, &srcCubemap);
 
 	glViewport(savedViewport[0], savedViewport[1], savedViewport[2], savedViewport[3]);
 

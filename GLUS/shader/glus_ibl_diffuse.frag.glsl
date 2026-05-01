@@ -21,24 +21,21 @@
 // cubemap.  Uses cosine-weighted hemisphere sampling; because PDF = NdotL/PI and
 // BRDF_Lambert = albedo/PI, both factors cancel and the estimator reduces to simply
 // summing the incoming radiance and dividing by the sample count.
+// Samples from a mipmapped cubemap (not directly from the equirectangular panorama)
+// to avoid distortion artefacts near the poles.
 //
 // see http://www.pbr-book.org/ Chapter 13 (Monte Carlo Integration)
+// see https://github.com/KhronosGroup/glTF-Sample-Renderer
 
 #define GLUS_PI     3.1415926535897932384626433832795
 #define NUM_SAMPLES 512
 
-uniform sampler2D u_panoramaTexture;
-uniform int       u_face;
+uniform samplerCube u_cubemapTexture;
+uniform int         u_face;
+uniform int         u_width;
 
 in  vec2 v_texCoord;
 out vec4 fragColor;
-
-// see http://gl.ict.usc.edu/Data/HighResProbes/
-vec2 panorama(vec3 ray)
-{
-	return vec2(0.5 + 0.5 * atan(ray.x, -ray.z) / GLUS_PI,
-	            1.0 - acos(clamp(ray.y, -1.0, 1.0)) / GLUS_PI);
-}
 
 // Same face mapping as glus_ibl_background.frag.glsl (OpenGL Table 8.19).
 vec3 cubemapDirection(int face, vec2 uv)
@@ -95,7 +92,13 @@ void main(void)
 		vec2 xi    = hammersley(i, uint(NUM_SAMPLES));
 		vec3 L_tan = cosineWeightedSample(xi);
 		vec3 L     = normalize(tangent * L_tan.x + bitangent * L_tan.y + N * L_tan.z);
-		irradiance += texture(u_panoramaTexture, panorama(L)).rgb;
+
+		// Cosine-weighted PDF = cosTheta / PI; bias factor matches glTF Sample Viewer.
+		float cosTheta = max(L_tan.z, 0.0001);
+		float pdf      = cosTheta / float(GLUS_PI);
+		float mipLevel = max(0.5 * log2(6.0 * float(u_width) * float(u_width) / (float(NUM_SAMPLES) * (pdf + 0.0001))), 0.0);
+
+		irradiance += textureLod(u_cubemapTexture, L, mipLevel).rgb;
 	}
 
 	fragColor = vec4(irradiance / float(NUM_SAMPLES), 1.0);

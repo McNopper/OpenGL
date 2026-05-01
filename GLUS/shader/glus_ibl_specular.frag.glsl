@@ -19,25 +19,22 @@
 
 // Pre-filter the environment map for a given roughness level using GGX importance
 // sampling with the N=V=R split-sum approximation (Karis / Epic 2013).
+// Samples from a mipmapped cubemap (not directly from the equirectangular panorama)
+// to avoid distortion artefacts near the poles.
 //
 // see http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+// see https://github.com/KhronosGroup/glTF-Sample-Renderer
 
 #define GLUS_PI     3.1415926535897932384626433832795
-#define NUM_SAMPLES 512
+#define NUM_SAMPLES 1024
 
-uniform sampler2D u_panoramaTexture;
-uniform int       u_face;
-uniform float     u_roughness;
+uniform samplerCube u_cubemapTexture;
+uniform int         u_face;
+uniform float       u_roughness;
+uniform int         u_width;
 
 in  vec2 v_texCoord;
 out vec4 fragColor;
-
-// see http://gl.ict.usc.edu/Data/HighResProbes/
-vec2 panorama(vec3 ray)
-{
-	return vec2(0.5 + 0.5 * atan(ray.x, -ray.z) / GLUS_PI,
-	            1.0 - acos(clamp(ray.y, -1.0, 1.0)) / GLUS_PI);
-}
 
 // Same face mapping as glus_ibl_background.frag.glsl (OpenGL Table 8.19).
 vec3 cubemapDirection(int face, vec2 uv)
@@ -107,7 +104,18 @@ void main(void)
 
 		if (NdotL > 0.0)
 		{
-			color       += texture(u_panoramaTexture, panorama(L)).rgb * NdotL;
+			float NdotH = max(dot(N, H), 0.0);
+			float HdotV = max(dot(H, V), 0.0);
+
+			// GGX PDF.
+			float alpha  = u_roughness * u_roughness;
+			float D      = alpha * alpha / (float(GLUS_PI) * pow(NdotH * NdotH * (alpha * alpha - 1.0) + 1.0, 2.0));
+			float pdf    = D * NdotH / (4.0 * HdotV + 0.0001);
+			// Mipmap Filtered Samples (GPU Gems 3, 20.4); bias factor matches glTF Sample Viewer.
+			// see https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-20-gpu-based-importance-sampling
+			float mipLevel = u_roughness == 0.0 ? 0.0 : max(0.5 * log2(6.0 * float(u_width) * float(u_width) / (float(NUM_SAMPLES) * (pdf + 0.0001))), 0.0);
+
+			color       += textureLod(u_cubemapTexture, L, mipLevel).rgb * NdotL;
 			totalWeight += NdotL;
 		}
 	}
