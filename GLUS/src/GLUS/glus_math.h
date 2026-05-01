@@ -89,4 +89,24 @@ GLUSAPI GLUSfloat GLUSAPIENTRY glusMathClampf(const GLUSfloat value, const GLUSf
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusMathLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z);
 
+/**
+ * Cubic Hermite spline interpolation for a single float value.
+ *
+ * Given two endpoints p0 and p1 and their associated tangent vectors m0 and m1
+ * (each pre-scaled by the interval length delta = t1 - t0), evaluates the
+ * Hermite basis at parameter t in [0, 1]:
+ *
+ *   p(t) = (2t^3 - 3t^2 + 1)*p0  +  (t^3 - 2t^2 + t)*m0
+ *        + (-2t^3 + 3t^2)*p1      +  (t^3 - t^2)*m1
+ *
+ * @param p0 The value at the start of the interval.
+ * @param m0 The outgoing tangent at p0, scaled by the interval length.
+ * @param p1 The value at the end of the interval.
+ * @param m1 The incoming tangent at p1, scaled by the interval length.
+ * @param t  The interpolation parameter in [0, 1].
+ *
+ * @return The interpolated value.
+ */
+GLUSAPI GLUSfloat GLUSAPIENTRY glusMathCubicHermitef(const GLUSfloat p0, const GLUSfloat m0, const GLUSfloat p1, const GLUSfloat m1, const GLUSfloat t);
+
 #endif /* GLUS_MATH_H_ */

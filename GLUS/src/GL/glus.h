@@ -236,6 +236,12 @@ typedef int EGLint;
 #include "../GLUS/glus_quaternion.h"
 
 //
+// Animation functions.
+//
+
+#include "../GLUS/glus_animation.h"
+
+//
 // Complex numbers and vector functions.
 //
 
@@ -327,6 +333,12 @@ typedef int EGLint;
 
 #include "../GLUS/glus_file_text.h"
 #include "../GLUS/glus_file_binary.h"
+
+//
+// IBL (Image-Based Lighting)
+//
+
+#include "../GLUS/glus_ibl.h"
 
 //
 // Padding

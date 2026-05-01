@@ -59,3 +59,14 @@ GLUSfloat GLUSAPIENTRY glusMathLengthf(const GLUSfloat x, const GLUSfloat y, con
 {
 	return sqrtf(x*x + y*y + z*z);
 }
+
+GLUSfloat GLUSAPIENTRY glusMathCubicHermitef(const GLUSfloat p0, const GLUSfloat m0, const GLUSfloat p1, const GLUSfloat m1, const GLUSfloat t)
+{
+	GLUSfloat t2 = t * t;
+	GLUSfloat t3 = t2 * t;
+
+	return (2.0f * t3 - 3.0f * t2 + 1.0f) * p0
+	     + (       t3 - 2.0f * t2 + t    ) * m0
+	     + (-2.0f * t3 + 3.0f * t2       ) * p1
+	     + (       t3 -        t2         ) * m1;
+}

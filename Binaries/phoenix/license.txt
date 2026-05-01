@@ -1,0 +1,11 @@
+Model Information:
+* title:	phoenix bird
+* source:	https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042
+* author:	NORBERTO-3D (https://sketchfab.com/norberto3d)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "phoenix bird" (https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by NORBERTO-3D (https://sketchfab.com/norberto3d) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

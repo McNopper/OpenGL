@@ -107,6 +107,8 @@ All 47 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example45 - GPU voxelization (OpenGL 4.4)](#example45---gpu-voxelization-opengl-44)
 - [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)](#example46---voxel-cone-tracing---global-illumination-opengl-46)
 - [Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)](#example47---3d-spatial-colour-sort--rgb-cube-opengl-46)
+- [Example49 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL 4.6)](#example49---gltf-20-pbr-renderer-with-image-based-lighting-opengl-46)
+- [Example50 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)](#example50---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -353,3 +355,39 @@ write phase).  At startup `GL_MAX_COMPUTE_WORK_GROUP_SIZE` and
 to start, +/- to adjust step delay, R to reshuffle.
 
 ![Example47](screenshots/Example47.png)
+
+### Example49 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL 4.6)
+
+![Example49](screenshots/Example49.png)
+
+Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness shading and Image-Based Lighting (IBL). The IBL precomputation pipeline is provided by the GLUS library (`glusIblBuild*`).
+
+**Usage:**
+```
+Example49 [model.gltf] [panorama.hdr]
+```
+Defaults to `scene.gltf` and `doge2.hdr` in the working directory.
+
+**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom · Q/Esc quit.
+
+**Third-party licenses:**
+- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
+- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+
+### Example50 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)
+
+![Example50](screenshots/Example50.png)
+
+Extends Example49 with TRS node animation and skeletal skinning. Animation interpolation (STEP, LINEAR, CUBICSPLINE) for vec3 and quaternion tracks is provided by the GLUS library (`glusAnimationSample*`).
+
+**Usage:**
+```
+Example50 [model.gltf] [panorama.hdr]
+```
+Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
+
+**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom · E/R exposure · Q/Esc quit.
+
+**Third-party licenses:**
+- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
+- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain

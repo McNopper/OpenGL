@@ -178,6 +178,26 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3GetPoint4f(GLUSfloat result[4], const G
 GLUSAPI GLUSvoid GLUSAPIENTRY glusVector2GetPoint3f(GLUSfloat result[3], const GLUSfloat vector[2]);
 
 /**
+ * Linear interpolation of two 3D vectors.
+ *
+ * @param result  The interpolated vector.
+ * @param vector0 The start vector (returned when t = 0).
+ * @param vector1 The end vector (returned when t = 1).
+ * @param t       The interpolation factor.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector3Mixf(GLUSfloat result[3], const GLUSfloat vector0[3], const GLUSfloat vector1[3], const GLUSfloat t);
+
+/**
+ * Linear interpolation of two 4-component vectors.
+ *
+ * @param result  The interpolated vector.
+ * @param vector0 The start vector (returned when t = 0).
+ * @param vector1 The end vector (returned when t = 1).
+ * @param t       The interpolation factor.
+ */
+GLUSAPI GLUSvoid GLUSAPIENTRY glusVector4Mixf(GLUSfloat result[4], const GLUSfloat vector0[4], const GLUSfloat vector1[4], const GLUSfloat t);
+
+/**
  * Creates a 3D vector orthogonal to u on the u/v plane.
  *
  * @param result The resulting vector.

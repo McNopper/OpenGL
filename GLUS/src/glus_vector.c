@@ -69,6 +69,21 @@ GLUSvoid GLUSAPIENTRY glusVector2MultiplyScalarf(GLUSfloat result[2], const GLUS
 	result[1] = vector[1] * scalar;
 }
 
+GLUSvoid GLUSAPIENTRY glusVector3Mixf(GLUSfloat result[3], const GLUSfloat vector0[3], const GLUSfloat vector1[3], const GLUSfloat t)
+{
+	result[0] = glusMathMixf(vector0[0], vector1[0], t);
+	result[1] = glusMathMixf(vector0[1], vector1[1], t);
+	result[2] = glusMathMixf(vector0[2], vector1[2], t);
+}
+
+GLUSvoid GLUSAPIENTRY glusVector4Mixf(GLUSfloat result[4], const GLUSfloat vector0[4], const GLUSfloat vector1[4], const GLUSfloat t)
+{
+	result[0] = glusMathMixf(vector0[0], vector1[0], t);
+	result[1] = glusMathMixf(vector0[1], vector1[1], t);
+	result[2] = glusMathMixf(vector0[2], vector1[2], t);
+	result[3] = glusMathMixf(vector0[3], vector1[3], t);
+}
+
 GLUSfloat GLUSAPIENTRY glusVector3Lengthf(const GLUSfloat vector[3])
 {
 	return sqrtf(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
