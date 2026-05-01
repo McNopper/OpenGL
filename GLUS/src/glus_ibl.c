@@ -370,7 +370,7 @@ GLUSboolean GLUSAPIENTRY glusIblBuildDiffuseEnvironmentMap(GLUSuint* diffuseText
 	GLUSint     face;
 	GLUSint     savedViewport[4];
 
-	if (!diffuseTexture|| !panoramaTexture || size <= 0)
+	if (!diffuseTexture || !panoramaTexture || size <= 0)
 	{
 		return GLUS_FALSE;
 	}
