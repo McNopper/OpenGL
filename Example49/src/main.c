@@ -10,7 +10,7 @@
  * glTF 2.0 PBR renderer with Image-Based Lighting.
  *
  * Usage:  Example49 [path/to/model.glb]  [path/to/panorama.hdr]
- * Defaults: einstein/scene.gltf / doge2.hdr next to the binary.
+ * Defaults: einstein/scene.gltf / sunny_rose_garden_4k.hdr next to the binary.
  *
  * IBL pipeline (uses GLUS IBL API):
  *   Pass 1 — Pre-filtered specular cubemap array (GGX importance sampling)
@@ -767,8 +767,9 @@ glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F,
              panoramaImage.width, panoramaImage.height,
              0, GL_RGB, GL_FLOAT, panoramaImage.data);
 glusImageDestroyHdr(&panoramaImage);
+glGenerateMipmap(GL_TEXTURE_2D);
 
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -1276,7 +1277,7 @@ EGL_NONE
 };
 
 g_gltfPath     = (argc > 1) ? argv[1] : "einstein/scene.gltf";
-g_panoramaPath = (argc > 2) ? argv[2] : "doge2.hdr";
+g_panoramaPath = (argc > 2) ? argv[2] : "sunny_rose_garden_4k.hdr";
 
 glusWindowSetInitFunc(init);
 glusWindowSetReshapeFunc(reshape);

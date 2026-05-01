@@ -366,7 +366,7 @@ Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness s
 ```
 Example49 [model.gltf] [panorama.hdr]
 ```
-Defaults to `scene.gltf` and `doge2.hdr` in the working directory.
+Defaults to `einstein/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
 
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 

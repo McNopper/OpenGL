@@ -1,6 +1,7 @@
 param(
     [int[]]$ExampleNumbers,
-    [switch]$All
+    [switch]$All,
+    [int]$WaitSeconds = 3
 )
 
 # Screenshot capture script for OpenGL examples with DPI awareness
@@ -184,7 +185,7 @@ for ($position = 0; $position -lt $selectedExamples.Count; $position++)
     $process = Start-Process -FilePath $exe.FullName -WorkingDirectory $binariesPath -PassThru
     
     # Wait for the window to appear and render content
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds $WaitSeconds
     
     # Capture screenshot
     $outputFile = Join-Path $imagesPath "$exeName.png"
