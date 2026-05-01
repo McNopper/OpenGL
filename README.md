@@ -368,11 +368,14 @@ Example49 [model.gltf] [panorama.hdr]
 ```
 Defaults to `scene.gltf` and `doge2.hdr` in the working directory.
 
-**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom · Q/Esc quit.
+**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
 - [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
 - [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+
+**Model:**
+This work is based on ["Albert Einstein"](https://sketchfab.com/3d-models/albert-einstein-33ba1b5ba92744ec90b032b82d47befb) by [pattarrian](https://sketchfab.com/pattarrian) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
 ### Example50 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)
 
@@ -386,8 +389,11 @@ Example50 [model.gltf] [panorama.hdr]
 ```
 Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
 
-**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom · E/R exposure · Q/Esc quit.
+**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
 - [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
 - [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+
+**Model:**
+This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)

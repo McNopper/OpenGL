@@ -2,7 +2,6 @@
 
 uniform sampler2DMS u_framebufferTexture;
 uniform int         u_msaaSamples;
-uniform float       u_exposure;
 uniform float       u_gamma;
 
 in  vec2 v_texCoord;
@@ -18,7 +17,7 @@ void main(void)
 	hdrColor /= float(u_msaaSamples);
 
 	// Exposure tone-mapping then gamma correction
-	vec3 mapped = 1.0 - exp2(-hdrColor.rgb * u_exposure);
+	vec3 mapped = 1.0 - exp2(-hdrColor.rgb);
 	mapped = pow(mapped, vec3(1.0 / u_gamma));
 
 	fragColor = vec4(mapped, 1.0);

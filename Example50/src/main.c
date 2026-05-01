@@ -67,6 +67,23 @@
 #define MAX_JOINTS         128
 #define MAX_ANIM_CHANNELS 1024
 
+// Camera and rendering constants
+#define CAMERA_ORBIT_RADIUS_FACTOR  1.8f
+#define CAMERA_ORBIT_RADIUS_MIN     0.5f
+#define CAMERA_HEIGHT_OFFSET        0.4f
+#define CAMERA_HEIGHT_STEP          0.1f
+#define CAMERA_ORBIT_SPEED_STEP     5.0f
+#define CAMERA_ZOOM_IN_FACTOR       0.9f
+#define CAMERA_ZOOM_OUT_FACTOR      1.1f
+#define CAMERA_ZOOM_MIN_FACTOR      0.2f
+#define CAMERA_FOV_DEG              45.0f
+#define CAMERA_NEAR_FACTOR          0.005f
+#define CAMERA_NEAR_MIN             0.001f
+#define CAMERA_FAR_RADIUS_FACTOR    3.0f
+#define CAMERA_FAR_EXTRA            600.0f
+#define SCENE_RADIUS_MIN            0.01f
+#define CAMERA_DEG_TO_RAD           (GLUS_PI / 180.0f)
+
 #define ANIM_PATH_TRANSLATION 0
 #define ANIM_PATH_ROTATION    1
 #define ANIM_PATH_SCALE       2
@@ -197,9 +214,7 @@ static GLfloat g_viewProjectionMatrix[16];
 static GLfloat g_eye[4];
 
 // Render settings
-static GLfloat g_exposure = 1.0f;
 static GLfloat g_gamma    = 2.2f;
-static GLint   g_quit     = 0;
 
 // IBL textures
 static GLuint g_specularTexture  = 0;
@@ -260,7 +275,6 @@ static GLint g_u_hasNormalMap_sk;
 static GLint g_u_vpMatrix_bg;
 
 // Uniform locations — fullscreen
-static GLint g_u_exposure;
 static GLint g_u_gamma;
 static GLint g_u_msaaSamples;
 
@@ -1260,7 +1274,6 @@ g_u_hasNormalMap_sk      = glGetUniformLocation(g_pbrSkinnedProg.program, "u_has
 
 g_u_vpMatrix_bg = glGetUniformLocation(g_bgProg.program, "u_viewProjectionMatrix");
 
-g_u_exposure    = glGetUniformLocation(g_fullscreenProg.program, "u_exposure");
 g_u_gamma       = glGetUniformLocation(g_fullscreenProg.program, "u_gamma");
 g_u_msaaSamples = glGetUniformLocation(g_fullscreenProg.program, "u_msaaSamples");
 
@@ -1338,11 +1351,11 @@ dx = g_sceneMax[0] - g_sceneMin[0];
 dy = g_sceneMax[1] - g_sceneMin[1];
 dz = g_sceneMax[2] - g_sceneMin[2];
 g_sceneRadius = sqrtf(dx*dx + dy*dy + dz*dz) * 0.5f;
-if (g_sceneRadius < 0.01f) g_sceneRadius = 1.0f;
+if (g_sceneRadius < SCENE_RADIUS_MIN) g_sceneRadius = 1.0f;
 }
-g_orbitRadius = g_sceneRadius * 2.8f;
-if (g_orbitRadius < 0.5f) g_orbitRadius = 0.5f;
-g_cameraY = g_sceneCenterY + g_sceneRadius * 0.4f;
+g_orbitRadius = g_sceneRadius * CAMERA_ORBIT_RADIUS_FACTOR;
+if (g_orbitRadius < CAMERA_ORBIT_RADIUS_MIN) g_orbitRadius = CAMERA_ORBIT_RADIUS_MIN;
+g_cameraY = g_sceneCenterY + g_sceneRadius * CAMERA_HEIGHT_OFFSET;
 
 // ----------------------------------------------------------------
 // General GL state.
@@ -1458,28 +1471,27 @@ GLfloat bgViewMatrix[16];
 GLfloat bgVPMatrix[16];
 GLint   i;
 
-if (g_quit) return GLUS_FALSE;
 if (!g_msaaFBO) return GLUS_TRUE;
 
 // --- Orbit camera ---
 g_orbitAngle += g_orbitSpeed * time;
 if (g_orbitAngle >= 360.0f) g_orbitAngle -= 360.0f;
 
-rad  = g_orbitAngle * 3.14159265f / 180.0f;
+rad  = g_orbitAngle * CAMERA_DEG_TO_RAD;
 eyeX = g_sceneCenterX + g_orbitRadius * sinf(rad);
 eyeY = g_cameraY;
 eyeZ = g_sceneCenterZ + g_orbitRadius * cosf(rad);
 
 g_eye[0] = eyeX; g_eye[1] = eyeY; g_eye[2] = eyeZ; g_eye[3] = 1.0f;
 
-nearPlane = g_sceneRadius * 0.005f;
-farPlane  = g_orbitRadius + g_sceneRadius * 3.0f + 600.0f;
-if (nearPlane < 0.001f) nearPlane = 0.001f;
+nearPlane = g_sceneRadius * CAMERA_NEAR_FACTOR;
+farPlane  = g_orbitRadius + g_sceneRadius * CAMERA_FAR_RADIUS_FACTOR + CAMERA_FAR_EXTRA;
+if (nearPlane < CAMERA_NEAR_MIN) nearPlane = CAMERA_NEAR_MIN;
 
 glusMatrix4x4LookAtf(viewMatrix, eyeX, eyeY, eyeZ,
                      g_sceneCenterX, g_sceneCenterY, g_sceneCenterZ,
                      0.0f, 1.0f, 0.0f);
-glusMatrix4x4Perspectivef(projMatrix, 45.0f,
+glusMatrix4x4Perspectivef(projMatrix, CAMERA_FOV_DEG,
                           (GLfloat)g_windowWidth / (GLfloat)g_windowHeight,
                           nearPlane, farPlane);
 glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projMatrix, viewMatrix);
@@ -1627,7 +1639,6 @@ glDisable(GL_MULTISAMPLE);
 glClear(GL_COLOR_BUFFER_BIT);
 
 glUseProgram(g_fullscreenProg.program);
-glUniform1f(g_u_exposure,    g_exposure);
 glUniform1f(g_u_gamma,       g_gamma);
 glUniform1i(g_u_msaaSamples, MSAA_SAMPLES);
 glActiveTexture(GL_TEXTURE0);
@@ -1707,39 +1718,27 @@ if (!pressed) return;
 
 switch (key)
 {
-case 256:  // Escape
-case 'Q':
-g_quit = 1;
-break;
 case 265:  // Arrow up   — camera higher
-g_cameraY += g_sceneRadius * 0.1f;
+g_cameraY += g_sceneRadius * CAMERA_HEIGHT_STEP;
 break;
 case 264:  // Arrow down — camera lower
-g_cameraY -= g_sceneRadius * 0.1f;
+g_cameraY -= g_sceneRadius * CAMERA_HEIGHT_STEP;
 break;
 case 262:  // Arrow right — orbit faster
-g_orbitSpeed += 5.0f;
+g_orbitSpeed += CAMERA_ORBIT_SPEED_STEP;
 break;
 case 263:  // Arrow left  — orbit slower
-g_orbitSpeed -= 5.0f;
+g_orbitSpeed -= CAMERA_ORBIT_SPEED_STEP;
 if (g_orbitSpeed < 0.0f) g_orbitSpeed = 0.0f;
 break;
 case '+':
 case '=':
-g_orbitRadius *= 0.9f;
-if (g_orbitRadius < g_sceneRadius * 0.2f)
-g_orbitRadius = g_sceneRadius * 0.2f;
+g_orbitRadius *= CAMERA_ZOOM_IN_FACTOR;
+if (g_orbitRadius < g_sceneRadius * CAMERA_ZOOM_MIN_FACTOR)
+g_orbitRadius = g_sceneRadius * CAMERA_ZOOM_MIN_FACTOR;
 break;
 case '-':
-g_orbitRadius *= 1.1f;
-break;
-case 'E':
-g_exposure *= 1.25f;
-printf("Exposure: %.2f\n", g_exposure);
-break;
-case 'R':
-g_exposure /= 1.25f;
-printf("Exposure: %.2f\n", g_exposure);
+g_orbitRadius *= CAMERA_ZOOM_OUT_FACTOR;
 break;
 default:
 break;
