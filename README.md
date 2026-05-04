@@ -109,6 +109,7 @@ All 47 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)](#example47---3d-spatial-colour-sort--rgb-cube-opengl-46)
 - [Example48 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL 4.6)](#example48---gltf-20-pbr-renderer-with-image-based-lighting-opengl-46)
 - [Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)](#example49---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
+- [Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)](#example50---rec2020-hdr-via-egl-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -392,6 +393,38 @@ Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working d
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
+- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
+- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+
+**Model:**
+This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+### Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)
+
+![Example50](screenshots/Example50.png)
+
+Extends Example49. New in this example:
+
+- **Rec.2020 (BT.2020) scene-referred working space** instead of sRGB/Rec.709.
+- **HDR display output via [McNopper/EGL](https://github.com/McNopper/EGL).** The renderer prefers `EGL_GL_COLORSPACE_BT2020_PQ_EXT` (HDR10) and falls back through scRGB linear / BT.2020 linear / Display-P3 / sRGB depending on what the driver and surface advertise.
+- **SMPTE 2086 / CTA-861.3 mastering metadata** attached to the surface when an HDR colorspace is chosen.
+- **Reversed camera orbit direction.**
+- **Diagnostic log** `Example50.log` written next to the executable, listing EGL vendor / version, all advertised colorspace extensions, and which candidate was used to create the surface.
+
+**Usage:**
+```
+Example50 [model.gltf] [panorama.hdr]
+```
+Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
+
+**Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
+
+**Requires:** an HDR-capable display with HDR enabled in Windows. On systems without HDR the app transparently falls back to sRGB output.
+
+**Additional third-party license:**
+- [McNopper/EGL](https://github.com/McNopper/EGL) by Norbert Nopper — MIT License
+
+**Inherited third-party licenses (from Example49):**
 - [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
 - [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
 

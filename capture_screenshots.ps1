@@ -88,33 +88,31 @@ function Capture-Window {
         $rect = New-Object RECT
         [Win32]::GetClientRect($handle, [ref]$rect) | Out-Null
         
-        $width = $rect.Right - $rect.Left
+        $width  = $rect.Right  - $rect.Left
         $height = $rect.Bottom - $rect.Top
         
         if ($width -gt 0 -and $height -gt 0) {
-            # Get DC from window
-            $hdcSrc = [Win32]::GetDC($handle)
+            # Translate client (0,0) to screen coordinates so we can grab from
+            # the desktop DC.  Capturing via the window's own HDC (BitBlt of
+            # GetDC(hwnd)) does not work for windows that present through
+            # Vulkan/EGL/D3D WSI - the window HDC has no GPU-rendered content,
+            # so the grab comes back black.  Reading from the screen DC at the
+            # window's client rect captures what DWM is actually compositing,
+            # which is correct for both GDI and GPU-accelerated backends.
+            $clientOrigin = New-Object POINT
+            $clientOrigin.X = 0
+            $clientOrigin.Y = 0
+            [Win32]::ClientToScreen($handle, [ref]$clientOrigin) | Out-Null
             
-            # Create compatible DC and bitmap
-            $hdcDest = [Win32]::CreateCompatibleDC($hdcSrc)
-            $hBitmap = [Win32]::CreateCompatibleBitmap($hdcSrc, $width, $height)
-            $hOld = [Win32]::SelectObject($hdcDest, $hBitmap)
+            $bitmap = New-Object System.Drawing.Bitmap($width, $height)
+            $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+            $graphics.CopyFromScreen($clientOrigin.X, $clientOrigin.Y, 0, 0,
+                (New-Object System.Drawing.Size($width, $height)))
             
-            # Copy window content
-            [Win32]::BitBlt($hdcDest, 0, 0, $width, $height, $hdcSrc, 0, 0, [Win32]::SRCCOPY) | Out-Null
-            
-            # Convert to .NET bitmap
-            [Win32]::SelectObject($hdcDest, $hOld) | Out-Null
-            $bitmap = [System.Drawing.Image]::FromHbitmap($hBitmap)
-            
-            # Save
             $bitmap.Save($OutputPath, [System.Drawing.Imaging.ImageFormat]::Png)
             
-            # Cleanup
+            $graphics.Dispose()
             $bitmap.Dispose()
-            [Win32]::DeleteObject($hBitmap) | Out-Null
-            [Win32]::DeleteDC($hdcDest) | Out-Null
-            [Win32]::ReleaseDC($handle, $hdcSrc) | Out-Null
             
             return $true
         }
