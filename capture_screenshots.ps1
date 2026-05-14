@@ -27,6 +27,12 @@ Add-Type @"
         public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
         
         [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hWnd);
         
         [DllImport("user32.dll")]
@@ -92,6 +98,11 @@ function Capture-Window {
         $height = $rect.Bottom - $rect.Top
         
         if ($width -gt 0 -and $height -gt 0) {
+            # Bring window to foreground before screen capture
+            [Win32]::ShowWindow($handle, 9) | Out-Null   # SW_RESTORE
+            [Win32]::SetForegroundWindow($handle) | Out-Null
+            Start-Sleep -Milliseconds 500
+
             # Translate client (0,0) to screen coordinates so we can grab from
             # the desktop DC.  Capturing via the window's own HDC (BitBlt of
             # GetDC(hwnd)) does not work for windows that present through

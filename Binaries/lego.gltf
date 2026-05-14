@@ -1,0 +1,247 @@
+{
+   "accessors": [
+      {
+         "bufferView": 0,
+         "byteOffset": 0,
+         "componentType": 5126,
+         "count": 242002,
+         "max": [
+            0.6669655442237854,
+            1.0356016159057617,
+            1.1733514070510864
+         ],
+         "min": [
+            -0.6790528893470764,
+            -0.4975554347038269,
+            -1.1743496656417847
+         ],
+         "name": "POSITION",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 12,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "ROTATION",
+         "type": "VEC4"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 28,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SCALE",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 40,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "OPACITY",
+         "type": "SCALAR"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 44,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_0_COEF_0",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 56,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_1_COEF_0",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 68,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_1_COEF_1",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 80,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_1_COEF_2",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 92,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_2_COEF_0",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 104,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_2_COEF_1",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 116,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_2_COEF_2",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 128,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_2_COEF_3",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 140,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_2_COEF_4",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 152,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_0",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 164,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_1",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 176,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_2",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 188,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_3",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 200,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_4",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 212,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_5",
+         "type": "VEC3"
+      },
+      {
+         "bufferView": 0,
+         "byteOffset": 224,
+         "componentType": 5126,
+         "count": 242002,
+         "name": "SH_DEGREE_3_COEF_6",
+         "type": "VEC3"
+      }
+   ],
+   "asset": {
+      "version": "2.0"
+   },
+   "bufferViews": [
+      {
+         "buffer": 0,
+         "byteLength": 57112472,
+         "byteStride": 236,
+         "target": 34962
+      }
+   ],
+   "buffers": [
+      {
+         "byteLength": 57112472,
+         "uri": "lego.bin"
+      }
+   ],
+   "extensionsRequired": [
+      "KHR_gaussian_splatting"
+   ],
+   "extensionsUsed": [
+      "KHR_gaussian_splatting"
+   ],
+   "meshes": [
+      {
+         "primitives": [
+            {
+               "attributes": {
+                  "KHR_gaussian_splatting:OPACITY": 3,
+                  "KHR_gaussian_splatting:ROTATION": 1,
+                  "KHR_gaussian_splatting:SCALE": 2,
+                  "KHR_gaussian_splatting:SH_DEGREE_0_COEF_0": 4,
+                  "KHR_gaussian_splatting:SH_DEGREE_1_COEF_0": 5,
+                  "KHR_gaussian_splatting:SH_DEGREE_1_COEF_1": 6,
+                  "KHR_gaussian_splatting:SH_DEGREE_1_COEF_2": 7,
+                  "KHR_gaussian_splatting:SH_DEGREE_2_COEF_0": 8,
+                  "KHR_gaussian_splatting:SH_DEGREE_2_COEF_1": 9,
+                  "KHR_gaussian_splatting:SH_DEGREE_2_COEF_2": 10,
+                  "KHR_gaussian_splatting:SH_DEGREE_2_COEF_3": 11,
+                  "KHR_gaussian_splatting:SH_DEGREE_2_COEF_4": 12,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_0": 13,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_1": 14,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_2": 15,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_3": 16,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_4": 17,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_5": 18,
+                  "KHR_gaussian_splatting:SH_DEGREE_3_COEF_6": 19,
+                  "POSITION": 0
+               },
+               "extensions": {
+                  "KHR_gaussian_splatting": {
+                     "colorSpace": "srgb_rec709_display",
+                     "kernel": "ellipse"
+                  }
+               },
+               "mode": 0
+            }
+         ]
+      }
+   ],
+   "nodes": [
+      {
+         "mesh": 0
+      }
+   ],
+   "scene": 0,
+   "scenes": [
+      {
+         "nodes": [
+            0
+         ]
+      }
+   ]
+}

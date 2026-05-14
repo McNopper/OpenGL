@@ -341,6 +341,12 @@ typedef int EGLint;
 #include "../GLUS/glus_ibl.h"
 
 //
+// Spherical harmonics rotation
+//
+
+#include "../GLUS/glus_sh.h"
+
+//
 // Padding
 //
 

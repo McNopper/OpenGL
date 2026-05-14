@@ -110,6 +110,7 @@ All 47 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shader
 - [Example48 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL 4.6)](#example48---gltf-20-pbr-renderer-with-image-based-lighting-opengl-46)
 - [Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)](#example49---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
 - [Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)](#example50---rec2020-hdr-via-egl-opengl-46)
+- [Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL 4.6)](#example51---3d-gaussian-splatting-via-khr_gaussian_splatting-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -430,3 +431,27 @@ Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working d
 
 **Model:**
 This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+### Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL 4.6)
+
+![Example51](screenshots/Example51.png)
+
+Implements the [KHR_gaussian_splatting](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting) glTF 2.0 extension. Loads a `.gltf` file containing 3D Gaussian splats and renders them in real time using OpenGL 4.6 compute shaders and instanced rendering.
+
+- **GPU bitonic sort** (adapted from Example 47) orders splats back-to-front by view-space depth each frame.
+- **Spherical harmonics** evaluated up to band 3 (degree 3). Wigner-D rotation matrices (bands 1–3) rotate SH coefficients for nodes with a non-identity transform; helpers live in GLUS (`glusSHBuildRotation1f/2f/3f`).
+- **EWA covariance projection** from the 3D Gaussian paper maps each splat to a screen-space ellipse quad.
+- **Premultiplied alpha compositing** with large-splat culling to avoid degenerate full-screen artefacts.
+- **Dynamic configuration**: SH degree and per-splat stride are detected automatically from the glTF primitive attributes.
+
+**Usage:**
+```
+Example51 [path/to/model.gltf]
+```
+Defaults to `../Binaries/lego.gltf`.
+
+**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · auto-orbits at 0.5 rad/s
+
+**References:**
+- [3D Gaussian Splatting for Real-Time Radiance Field Rendering](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) (Kerbl et al., SIGGRAPH 2023)
+- [KHR_gaussian_splatting extension specification](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting)
