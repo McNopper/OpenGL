@@ -17,17 +17,22 @@
 
 #include "GL/glus.h"
 
-GLUSvoid GLUSAPIENTRY glusSphereCopyf(GLUSfloat resultCenter[4], GLUSfloat resultRadius, const GLUSfloat center[4], const GLUSfloat radius)
+GLUSvoid GLUSAPIENTRY glusSphereCopyf(GLUSfloat resultCenter[4], GLUSfloat* resultRadius, const GLUSfloat center[4], const GLUSfloat radius)
 {
-	resultCenter[0] = center[0];
-	resultCenter[1] = center[1];
-	resultCenter[2] = center[2];
-	resultCenter[3] = center[3];
+    if (!resultCenter || !resultRadius || !center)
+    {
+        return;
+    }
 
-	resultRadius = radius;
+    resultCenter[0] = center[0];
+    resultCenter[1] = center[1];
+    resultCenter[2] = center[2];
+    resultCenter[3] = center[3];
+
+    *resultRadius = radius;
 }
 
 GLUSfloat GLUSAPIENTRY glusSphereDistancePoint4f(const GLUSfloat center[4], const GLUSfloat radius, const GLUSfloat point[4])
 {
-	return glusPoint4Distancef(point, center) - radius;
+    return glusPoint4Distancef(point, center) - radius;
 }

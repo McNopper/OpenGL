@@ -21,5 +21,5 @@ extern GLUSboolean _glusWavefrontParse(const GLUSchar* filename, GLUSshape* shap
 
 GLUSboolean GLUSAPIENTRY glusShapeLoadWavefront(const GLUSchar* filename, GLUSshape* shape)
 {
-	return _glusWavefrontParse(filename, shape, 0, 0);
+    return _glusWavefrontParse(filename, shape, 0, 0);
 }

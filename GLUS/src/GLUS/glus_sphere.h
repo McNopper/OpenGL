@@ -26,7 +26,7 @@
  * @param center	   Source center.
  * @param radius	   Source radius.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusSphereCopyf(GLUSfloat resultCenter[4], GLUSfloat resultRadius, const GLUSfloat center[4], const GLUSfloat radius);
+GLUSAPI GLUSvoid GLUSAPIENTRY glusSphereCopyf(GLUSfloat resultCenter[4], GLUSfloat* resultRadius, const GLUSfloat center[4], const GLUSfloat radius);
 
 /**
  * Calculates the signed distance from a sphere to a point. If the value is negative, the point is inside the sphere.

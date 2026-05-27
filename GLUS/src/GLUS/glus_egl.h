@@ -30,7 +30,7 @@
  *
  * @return EGL_TRUE, when creation of context succeeded.
  */
-GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint configAttribList[], const EGLint contextAttribList[]);
+GLUSAPI EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, const EGLint configAttribList[], const EGLint contextAttribList[]);
 
 /**
  * Creates a window surface and sets it as current.

@@ -13,7 +13,7 @@
 #include "GL/glus.h"
 
 #define ERODE_START 0.7f
-#define ERODE_END 	-0.1f
+#define ERODE_END -0.1f
 
 /**
  * Properties of the light.
@@ -116,10 +116,10 @@ static GLuint g_texture;
 GLUSboolean init(GLUSvoid)
 {
     // This is a white light.
-    struct LightProperties light = { { 1.0f, 1.0f, 1.0f }, { 0.3f, 0.3f, 0.3f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } };
+    struct LightProperties light = {{1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
 
     // Silver color material with white specular color.
-    struct MaterialProperties material = { { 0.75f, 0.75f, 0.75f, 1.0f }, { 0.75f, 0.75f, 0.75f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 20.0f };
+    struct MaterialProperties material = {{0.75f, 0.75f, 0.75f, 1.0f}, {0.75f, 0.75f, 0.75f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 20.0f};
 
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
@@ -131,7 +131,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example24/shader/erode.vert.glsl", &vertexSource);
     glusFileLoadText("../Example24/shader/erode.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -160,17 +160,17 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_modelViewMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_modelViewMatrixLocation  = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
 
-    g_light.directionLocation = glGetUniformLocation(g_program.program, "u_light.direction");
-    g_light.ambientColorLocation = glGetUniformLocation(g_program.program, "u_light.ambientColor");
-    g_light.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_light.diffuseColor");
+    g_light.directionLocation     = glGetUniformLocation(g_program.program, "u_light.direction");
+    g_light.ambientColorLocation  = glGetUniformLocation(g_program.program, "u_light.ambientColor");
+    g_light.diffuseColorLocation  = glGetUniformLocation(g_program.program, "u_light.diffuseColor");
     g_light.specularColorLocation = glGetUniformLocation(g_program.program, "u_light.specularColor");
 
-    g_material.ambientColorLocation = glGetUniformLocation(g_program.program, "u_material.ambientColor");
-    g_material.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_material.diffuseColor");
-    g_material.specularColorLocation = glGetUniformLocation(g_program.program, "u_material.specularColor");
+    g_material.ambientColorLocation     = glGetUniformLocation(g_program.program, "u_material.ambientColor");
+    g_material.diffuseColorLocation     = glGetUniformLocation(g_program.program, "u_material.diffuseColor");
+    g_material.specularColorLocation    = glGetUniformLocation(g_program.program, "u_material.specularColor");
     g_material.specularExponentLocation = glGetUniformLocation(g_program.program, "u_material.specularExponent");
 
     g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
@@ -189,17 +189,17 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) sphere.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)sphere.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) sphere.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)sphere.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.numberIndices * sizeof(GLuint), (GLuint*) sphere.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.numberIndices * sizeof(GLuint), (GLuint*)sphere.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -266,7 +266,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     // Just pass the projection matrix. The final matrix is calculated in the shader.
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
@@ -274,11 +274,11 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	static GLfloat angle = 0.0f;
+    static GLfloat angle = 0.0f;
 
-	static GLfloat erode = ERODE_START;
+    static GLfloat erode = ERODE_START;
 
-	GLfloat modelMatrix[16];
+    GLfloat modelMatrix[16];
     GLfloat modelViewMatrix[16];
     GLfloat normalMatrix[9];
 
@@ -300,7 +300,7 @@ GLUSboolean update(GLUSfloat time)
     // Loop eroding
     if (erode < ERODE_END)
     {
-    	erode = ERODE_START;
+        erode = ERODE_START;
     }
 
     //
@@ -370,23 +370,21 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

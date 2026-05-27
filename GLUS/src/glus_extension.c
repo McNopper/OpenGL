@@ -19,51 +19,51 @@
 
 GLUSboolean GLUSAPIENTRY glusExtensionIsSupported(const GLUSchar* extension)
 {
-	const GLUSubyte* allExtensions;
-	const GLUSubyte* startExtension;
-	GLUSubyte* walkerExtension;
-	GLUSubyte* terminatorExtension;
+    const GLUSubyte* allExtensions;
+    const GLUSubyte* startExtension;
+    GLUSubyte*       walkerExtension;
+    GLUSubyte*       terminatorExtension;
 
-	if (!extension)
-	{
-		return GLUS_FALSE;
-	}
+    if (!extension)
+    {
+        return GLUS_FALSE;
+    }
 
-	walkerExtension = (GLUSubyte*)strchr(extension, ' ');
-	if (walkerExtension || *extension == '\0')
-	{
-		return GLUS_FALSE;
-	}
+    walkerExtension = (GLUSubyte*)strchr(extension, ' ');
+    if (walkerExtension || *extension == '\0')
+    {
+        return GLUS_FALSE;
+    }
 
-	allExtensions = glGetString(GLUS_EXTENSIONS);
+    allExtensions = glGetString(GLUS_EXTENSIONS);
 
-	startExtension = allExtensions;
-	while (startExtension)
-	{
-		walkerExtension = (GLUSubyte*)strstr((const GLUSchar*)startExtension, extension);
+    startExtension = allExtensions;
+    while (startExtension)
+    {
+        walkerExtension = (GLUSubyte*)strstr((const GLUSchar*)startExtension, extension);
 
-		if (!walkerExtension)
-		{
-			return GLUS_FALSE;
-		}
+        if (!walkerExtension)
+        {
+            return GLUS_FALSE;
+        }
 
-		terminatorExtension = walkerExtension + strlen(extension);
+        terminatorExtension = walkerExtension + strlen(extension);
 
-		if (!terminatorExtension)
-		{
-			return GLUS_FALSE;
-		}
+        if (!terminatorExtension)
+        {
+            return GLUS_FALSE;
+        }
 
-		if (walkerExtension == startExtension || *(walkerExtension - 1) == ' ')
-		{
-			if (*terminatorExtension == ' ' || *terminatorExtension == '\0')
-			{
-				return GLUS_TRUE;
-			}
-		}
+        if (walkerExtension == startExtension || *(walkerExtension - 1) == ' ')
+        {
+            if (*terminatorExtension == ' ' || *terminatorExtension == '\0')
+            {
+                return GLUS_TRUE;
+            }
+        }
 
-		startExtension = (const GLUSubyte*)terminatorExtension;
-	}
+        startExtension = (const GLUSubyte*)terminatorExtension;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }

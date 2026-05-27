@@ -14,17 +14,17 @@ out vec3 v_eye;
 
 void main()
 {
-	vec4 vertex = u_modelMatrix * a_vertex;
+    vec4 vertex = u_modelMatrix * a_vertex;
 
-	// Calculate the distance from the point to the plane - done in world space.
-	gl_ClipDistance[0] = dot(u_plane, vertex);
-		
-	// Now sitch to camera / view space.
-	vertex = u_viewMatrix * vertex;
+    // Calculate the distance from the point to the plane - done in world space.
+    gl_ClipDistance[0] = dot(u_plane, vertex);
 
-	v_eye = -vec3(vertex);
+    // Now sitch to camera / view space.
+    vertex = u_viewMatrix * vertex;
 
-	v_normal = u_normalMatrix * a_normal;
-		
-	gl_Position = u_projectionMatrix * vertex;
-}    
+    v_eye = -vec3(vertex);
+
+    v_normal = u_normalMatrix * a_normal;
+
+    gl_Position = u_projectionMatrix * vertex;
+}

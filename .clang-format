@@ -1,0 +1,49 @@
+---
+Language:        Cpp
+BasedOnStyle:    LLVM
+
+# Indentation
+IndentWidth:             4
+TabWidth:                4
+UseTab:                  Never
+ContinuationIndentWidth: 4
+IndentCaseLabels:        false
+
+# Braces - Allman style (opening brace on its own line)
+BreakBeforeBraces: Allman
+
+# Pointers / references attached to type: int* p
+PointerAlignment:   Left
+ReferenceAlignment: Left
+
+# Spaces
+SpaceBeforeParens:     ControlStatements
+SpacesInParentheses:   false
+SpaceAfterCStyleCast:  false
+
+# Alignment - align consecutive declarations and assignments in a block
+AlignConsecutiveDeclarations:
+  Enabled:          true
+  AcrossEmptyLines: false
+  AcrossComments:   false
+AlignConsecutiveAssignments:
+  Enabled:          true
+  AcrossEmptyLines: false
+  AcrossComments:   false
+AlignTrailingComments:
+  Kind:            Always
+  OverEmptyLines:  0
+
+# Do not reformat/re-wrap long lines - preserve original line breaks
+ColumnLimit: 0
+
+# Short constructs: always require braces (matching repo style)
+AllowShortFunctionsOnASingleLine:    None
+AllowShortBlocksOnASingleLine:       Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine:        false
+AllowShortCaseLabelsOnASingleLine:   true
+
+# Includes: do not reorder
+SortIncludes:  Never
+IncludeBlocks: Preserve

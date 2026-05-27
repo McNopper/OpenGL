@@ -72,294 +72,294 @@ static char g_keys[GLFW_KEY_LAST + 1];
 
 GLUSvoid _glusOsInputMouseClick(GLUSint button, GLUSint action)
 {
-	if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
-	{
-		_glusWindowInternalMouse(button, action);
-	}
+    if (button >= 0 && button <= GLFW_MOUSE_BUTTON_LAST)
+    {
+        _glusWindowInternalMouse(button, action);
+    }
 }
 
 GLUSvoid _glusOsInputKey(GLUSint key, GLUSint action)
 {
-	if (key < 0 || key > GLFW_KEY_LAST)
-	{
-		return;
-	}
+    if (key < 0 || key > GLFW_KEY_LAST)
+    {
+        return;
+    }
 
-	// Are we trying to release an already released key?
-	if (action == GLFW_RELEASE && g_keys[key] != GLFW_PRESS)
-	{
-		return;
-	}
+    // Are we trying to release an already released key?
+    if (action == GLFW_RELEASE && g_keys[key] != GLFW_PRESS)
+    {
+        return;
+    }
 
-	g_keys[key] = (char)action;
+    g_keys[key] = (char)action;
 
-	_glusWindowInternalKey(key, action);
+    _glusWindowInternalKey(key, action);
 }
 
 GLUSint _glusTranslateKey(WPARAM wParam, LPARAM lParam)
 {
-	MSG next_msg;
-	DWORD msg_time;
-	DWORD scan_code;
+    MSG   next_msg;
+    DWORD msg_time;
+    DWORD scan_code;
 
-	// Check for numeric keypad keys
-	// Note: This way we always force "NumLock = ON", which at least
-	// enables GLFW users to detect numeric keypad keys
-	int hiFlags = HIWORD(lParam);
+    // Check for numeric keypad keys
+    // Note: This way we always force "NumLock = ON", which at least
+    // enables GLFW users to detect numeric keypad keys
+    int hiFlags = HIWORD(lParam);
 
-	if (!(hiFlags & 0x100))
-	{
-		switch (MapVirtualKey(hiFlags & 0xFF, 1))
-		{
-			case VK_INSERT:
-				return GLFW_KEY_KP_0;
-			case VK_END:
-				return GLFW_KEY_KP_1;
-			case VK_DOWN:
-				return GLFW_KEY_KP_2;
-			case VK_NEXT:
-				return GLFW_KEY_KP_3;
-			case VK_LEFT:
-				return GLFW_KEY_KP_4;
-			case VK_CLEAR:
-				return GLFW_KEY_KP_5;
-			case VK_RIGHT:
-				return GLFW_KEY_KP_6;
-			case VK_HOME:
-				return GLFW_KEY_KP_7;
-			case VK_UP:
-				return GLFW_KEY_KP_8;
-			case VK_PRIOR:
-				return GLFW_KEY_KP_9;
-			case VK_DIVIDE:
-				return GLFW_KEY_KP_DIVIDE;
-			case VK_MULTIPLY:
-				return GLFW_KEY_KP_MULTIPLY;
-			case VK_SUBTRACT:
-				return GLFW_KEY_KP_SUBTRACT;
-			case VK_ADD:
-				return GLFW_KEY_KP_ADD;
-			case VK_DELETE:
-				return GLFW_KEY_KP_DECIMAL;
-		}
-	}
+    if (!(hiFlags & 0x100))
+    {
+        switch (MapVirtualKey(hiFlags & 0xFF, 1))
+        {
+        case VK_INSERT:
+            return GLFW_KEY_KP_0;
+        case VK_END:
+            return GLFW_KEY_KP_1;
+        case VK_DOWN:
+            return GLFW_KEY_KP_2;
+        case VK_NEXT:
+            return GLFW_KEY_KP_3;
+        case VK_LEFT:
+            return GLFW_KEY_KP_4;
+        case VK_CLEAR:
+            return GLFW_KEY_KP_5;
+        case VK_RIGHT:
+            return GLFW_KEY_KP_6;
+        case VK_HOME:
+            return GLFW_KEY_KP_7;
+        case VK_UP:
+            return GLFW_KEY_KP_8;
+        case VK_PRIOR:
+            return GLFW_KEY_KP_9;
+        case VK_DIVIDE:
+            return GLFW_KEY_KP_DIVIDE;
+        case VK_MULTIPLY:
+            return GLFW_KEY_KP_MULTIPLY;
+        case VK_SUBTRACT:
+            return GLFW_KEY_KP_SUBTRACT;
+        case VK_ADD:
+            return GLFW_KEY_KP_ADD;
+        case VK_DELETE:
+            return GLFW_KEY_KP_DECIMAL;
+        }
+    }
 
-	// Check which key was pressed or released
-	switch (wParam)
-	{
-		// The SHIFT keys require special handling
-		case VK_SHIFT:
-		{
-			// Compare scan code for this key with that of VK_RSHIFT in
-			// order to determine which shift key was pressed (left or
-			// right)
-			scan_code = MapVirtualKey(VK_RSHIFT, 0);
-			if (((lParam & 0x01ff0000) >> 16) == scan_code)
-			{
-				return GLFW_KEY_RIGHT_SHIFT;
-			}
+    // Check which key was pressed or released
+    switch (wParam)
+    {
+    // The SHIFT keys require special handling
+    case VK_SHIFT:
+    {
+        // Compare scan code for this key with that of VK_RSHIFT in
+        // order to determine which shift key was pressed (left or
+        // right)
+        scan_code = MapVirtualKey(VK_RSHIFT, 0);
+        if (((lParam & 0x01ff0000) >> 16) == scan_code)
+        {
+            return GLFW_KEY_RIGHT_SHIFT;
+        }
 
-			return GLFW_KEY_LEFT_SHIFT;
-		}
+        return GLFW_KEY_LEFT_SHIFT;
+    }
 
-			// The CTRL keys require special handling
-		case VK_CONTROL:
-		{
-			// Is this an extended key (i.e. right key)?
-			if (lParam & 0x01000000)
-			{
-				return GLFW_KEY_RIGHT_CONTROL;
-			}
+        // The CTRL keys require special handling
+    case VK_CONTROL:
+    {
+        // Is this an extended key (i.e. right key)?
+        if (lParam & 0x01000000)
+        {
+            return GLFW_KEY_RIGHT_CONTROL;
+        }
 
-			// Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only
-			// want the RALT message, so we try to see if the next message
-			// is a RALT message. In that case, this is a false LCTRL!
-			msg_time = GetMessageTime();
-			if (PeekMessage(&next_msg, NULL, 0, 0, PM_NOREMOVE))
-			{
-				if (next_msg.message == WM_KEYDOWN || next_msg.message == WM_SYSKEYDOWN)
-				{
-					if (next_msg.wParam == VK_MENU && (next_msg.lParam & 0x01000000) && next_msg.time == msg_time)
-					{
-						// Next message is a RALT down message, which
-						// means that this is NOT a proper LCTRL message!
-						return GLFW_KEY_UNKNOWN;
-					}
-				}
-			}
+        // Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only
+        // want the RALT message, so we try to see if the next message
+        // is a RALT message. In that case, this is a false LCTRL!
+        msg_time = GetMessageTime();
+        if (PeekMessage(&next_msg, NULL, 0, 0, PM_NOREMOVE))
+        {
+            if (next_msg.message == WM_KEYDOWN || next_msg.message == WM_SYSKEYDOWN)
+            {
+                if (next_msg.wParam == VK_MENU && (next_msg.lParam & 0x01000000) && next_msg.time == msg_time)
+                {
+                    // Next message is a RALT down message, which
+                    // means that this is NOT a proper LCTRL message!
+                    return GLFW_KEY_UNKNOWN;
+                }
+            }
+        }
 
-			return GLFW_KEY_LEFT_CONTROL;
-		}
+        return GLFW_KEY_LEFT_CONTROL;
+    }
 
-			// The ALT keys require special handling
-		case VK_MENU:
-		{
-			// Is this an extended key (i.e. right key)?
-			if (lParam & 0x01000000)
-			{
-				return GLFW_KEY_RIGHT_ALT;
-			}
+        // The ALT keys require special handling
+    case VK_MENU:
+    {
+        // Is this an extended key (i.e. right key)?
+        if (lParam & 0x01000000)
+        {
+            return GLFW_KEY_RIGHT_ALT;
+        }
 
-			return GLFW_KEY_LEFT_ALT;
-		}
+        return GLFW_KEY_LEFT_ALT;
+    }
 
-			// The ENTER keys require special handling
-		case VK_RETURN:
-		{
-			// Is this an extended key (i.e. right key)?
-			if (lParam & 0x01000000)
-			{
-				return GLFW_KEY_KP_ENTER;
-			}
+        // The ENTER keys require special handling
+    case VK_RETURN:
+    {
+        // Is this an extended key (i.e. right key)?
+        if (lParam & 0x01000000)
+        {
+            return GLFW_KEY_KP_ENTER;
+        }
 
-			return GLFW_KEY_ENTER;
-		}
+        return GLFW_KEY_ENTER;
+    }
 
-			// Special keys (non character keys)
-		case VK_ESCAPE:
-			return GLFW_KEY_ESCAPE;
-		case VK_TAB:
-			return GLFW_KEY_TAB;
-		case VK_BACK:
-			return GLFW_KEY_BACKSPACE;
-		case VK_HOME:
-			return GLFW_KEY_HOME;
-		case VK_END:
-			return GLFW_KEY_END;
-		case VK_PRIOR:
-			return GLFW_KEY_PAGE_UP;
-		case VK_NEXT:
-			return GLFW_KEY_PAGE_DOWN;
-		case VK_INSERT:
-			return GLFW_KEY_INSERT;
-		case VK_DELETE:
-			return GLFW_KEY_DELETE;
-		case VK_LEFT:
-			return GLFW_KEY_LEFT;
-		case VK_UP:
-			return GLFW_KEY_UP;
-		case VK_RIGHT:
-			return GLFW_KEY_RIGHT;
-		case VK_DOWN:
-			return GLFW_KEY_DOWN;
-		case VK_F1:
-			return GLFW_KEY_F1;
-		case VK_F2:
-			return GLFW_KEY_F2;
-		case VK_F3:
-			return GLFW_KEY_F3;
-		case VK_F4:
-			return GLFW_KEY_F4;
-		case VK_F5:
-			return GLFW_KEY_F5;
-		case VK_F6:
-			return GLFW_KEY_F6;
-		case VK_F7:
-			return GLFW_KEY_F7;
-		case VK_F8:
-			return GLFW_KEY_F8;
-		case VK_F9:
-			return GLFW_KEY_F9;
-		case VK_F10:
-			return GLFW_KEY_F10;
-		case VK_F11:
-			return GLFW_KEY_F11;
-		case VK_F12:
-			return GLFW_KEY_F12;
-		case VK_F13:
-			return GLFW_KEY_F13;
-		case VK_F14:
-			return GLFW_KEY_F14;
-		case VK_F15:
-			return GLFW_KEY_F15;
-		case VK_F16:
-			return GLFW_KEY_F16;
-		case VK_F17:
-			return GLFW_KEY_F17;
-		case VK_F18:
-			return GLFW_KEY_F18;
-		case VK_F19:
-			return GLFW_KEY_F19;
-		case VK_F20:
-			return GLFW_KEY_F20;
-		case VK_F21:
-			return GLFW_KEY_F21;
-		case VK_F22:
-			return GLFW_KEY_F22;
-		case VK_F23:
-			return GLFW_KEY_F23;
-		case VK_F24:
-			return GLFW_KEY_F24;
-		case VK_SPACE:
-			return GLFW_KEY_SPACE;
+        // Special keys (non character keys)
+    case VK_ESCAPE:
+        return GLFW_KEY_ESCAPE;
+    case VK_TAB:
+        return GLFW_KEY_TAB;
+    case VK_BACK:
+        return GLFW_KEY_BACKSPACE;
+    case VK_HOME:
+        return GLFW_KEY_HOME;
+    case VK_END:
+        return GLFW_KEY_END;
+    case VK_PRIOR:
+        return GLFW_KEY_PAGE_UP;
+    case VK_NEXT:
+        return GLFW_KEY_PAGE_DOWN;
+    case VK_INSERT:
+        return GLFW_KEY_INSERT;
+    case VK_DELETE:
+        return GLFW_KEY_DELETE;
+    case VK_LEFT:
+        return GLFW_KEY_LEFT;
+    case VK_UP:
+        return GLFW_KEY_UP;
+    case VK_RIGHT:
+        return GLFW_KEY_RIGHT;
+    case VK_DOWN:
+        return GLFW_KEY_DOWN;
+    case VK_F1:
+        return GLFW_KEY_F1;
+    case VK_F2:
+        return GLFW_KEY_F2;
+    case VK_F3:
+        return GLFW_KEY_F3;
+    case VK_F4:
+        return GLFW_KEY_F4;
+    case VK_F5:
+        return GLFW_KEY_F5;
+    case VK_F6:
+        return GLFW_KEY_F6;
+    case VK_F7:
+        return GLFW_KEY_F7;
+    case VK_F8:
+        return GLFW_KEY_F8;
+    case VK_F9:
+        return GLFW_KEY_F9;
+    case VK_F10:
+        return GLFW_KEY_F10;
+    case VK_F11:
+        return GLFW_KEY_F11;
+    case VK_F12:
+        return GLFW_KEY_F12;
+    case VK_F13:
+        return GLFW_KEY_F13;
+    case VK_F14:
+        return GLFW_KEY_F14;
+    case VK_F15:
+        return GLFW_KEY_F15;
+    case VK_F16:
+        return GLFW_KEY_F16;
+    case VK_F17:
+        return GLFW_KEY_F17;
+    case VK_F18:
+        return GLFW_KEY_F18;
+    case VK_F19:
+        return GLFW_KEY_F19;
+    case VK_F20:
+        return GLFW_KEY_F20;
+    case VK_F21:
+        return GLFW_KEY_F21;
+    case VK_F22:
+        return GLFW_KEY_F22;
+    case VK_F23:
+        return GLFW_KEY_F23;
+    case VK_F24:
+        return GLFW_KEY_F24;
+    case VK_SPACE:
+        return GLFW_KEY_SPACE;
 
-			// Numeric keypad
-		case VK_NUMPAD0:
-			return GLFW_KEY_KP_0;
-		case VK_NUMPAD1:
-			return GLFW_KEY_KP_1;
-		case VK_NUMPAD2:
-			return GLFW_KEY_KP_2;
-		case VK_NUMPAD3:
-			return GLFW_KEY_KP_3;
-		case VK_NUMPAD4:
-			return GLFW_KEY_KP_4;
-		case VK_NUMPAD5:
-			return GLFW_KEY_KP_5;
-		case VK_NUMPAD6:
-			return GLFW_KEY_KP_6;
-		case VK_NUMPAD7:
-			return GLFW_KEY_KP_7;
-		case VK_NUMPAD8:
-			return GLFW_KEY_KP_8;
-		case VK_NUMPAD9:
-			return GLFW_KEY_KP_9;
-		case VK_DIVIDE:
-			return GLFW_KEY_KP_DIVIDE;
-		case VK_MULTIPLY:
-			return GLFW_KEY_KP_MULTIPLY;
-		case VK_SUBTRACT:
-			return GLFW_KEY_KP_SUBTRACT;
-		case VK_ADD:
-			return GLFW_KEY_KP_ADD;
-		case VK_DECIMAL:
-			return GLFW_KEY_KP_DECIMAL;
-		case VK_NUMLOCK:
-			return GLFW_KEY_NUM_LOCK;
+        // Numeric keypad
+    case VK_NUMPAD0:
+        return GLFW_KEY_KP_0;
+    case VK_NUMPAD1:
+        return GLFW_KEY_KP_1;
+    case VK_NUMPAD2:
+        return GLFW_KEY_KP_2;
+    case VK_NUMPAD3:
+        return GLFW_KEY_KP_3;
+    case VK_NUMPAD4:
+        return GLFW_KEY_KP_4;
+    case VK_NUMPAD5:
+        return GLFW_KEY_KP_5;
+    case VK_NUMPAD6:
+        return GLFW_KEY_KP_6;
+    case VK_NUMPAD7:
+        return GLFW_KEY_KP_7;
+    case VK_NUMPAD8:
+        return GLFW_KEY_KP_8;
+    case VK_NUMPAD9:
+        return GLFW_KEY_KP_9;
+    case VK_DIVIDE:
+        return GLFW_KEY_KP_DIVIDE;
+    case VK_MULTIPLY:
+        return GLFW_KEY_KP_MULTIPLY;
+    case VK_SUBTRACT:
+        return GLFW_KEY_KP_SUBTRACT;
+    case VK_ADD:
+        return GLFW_KEY_KP_ADD;
+    case VK_DECIMAL:
+        return GLFW_KEY_KP_DECIMAL;
+    case VK_NUMLOCK:
+        return GLFW_KEY_NUM_LOCK;
 
-		case VK_CAPITAL:
-			return GLFW_KEY_CAPS_LOCK;
-		case VK_SCROLL:
-			return GLFW_KEY_SCROLL_LOCK;
-		case VK_PAUSE:
-			return GLFW_KEY_PAUSE;
+    case VK_CAPITAL:
+        return GLFW_KEY_CAPS_LOCK;
+    case VK_SCROLL:
+        return GLFW_KEY_SCROLL_LOCK;
+    case VK_PAUSE:
+        return GLFW_KEY_PAUSE;
 
-		case VK_LWIN:
-			return GLFW_KEY_LEFT_SUPER;
-		case VK_RWIN:
-			return GLFW_KEY_RIGHT_SUPER;
-		case VK_APPS:
-			return GLFW_KEY_MENU;
+    case VK_LWIN:
+        return GLFW_KEY_LEFT_SUPER;
+    case VK_RWIN:
+        return GLFW_KEY_RIGHT_SUPER;
+    case VK_APPS:
+        return GLFW_KEY_MENU;
 
-			// The rest (should be printable keys)
-		default:
-		{
-			// Convert to printable character (ISO-8859-1 or Unicode)
-			wParam = MapVirtualKey((UINT)wParam, 2) & 0x0000FFFF;
+        // The rest (should be printable keys)
+    default:
+    {
+        // Convert to printable character (ISO-8859-1 or Unicode)
+        wParam = MapVirtualKey((UINT)wParam, 2) & 0x0000FFFF;
 
-			// Make sure that the character is uppercase
-			// Note: Old Windows versions are not supported
-			wParam = (WPARAM)CharUpperW((LPWSTR)wParam);
+        // Make sure that the character is uppercase
+        // Note: Old Windows versions are not supported
+        wParam = (WPARAM)CharUpperW((LPWSTR)wParam);
 
-			// Valid ISO-8859-1 character?
-			if ((wParam >= 32 && wParam <= 126) || (wParam >= 160 && wParam <= 255))
-			{
-				return (int)wParam;
-			}
+        // Valid ISO-8859-1 character?
+        if ((wParam >= 32 && wParam <= 126) || (wParam >= 160 && wParam <= 255))
+        {
+            return (int)wParam;
+        }
 
-			return GLFW_KEY_UNKNOWN;
-		}
-	}
+        return GLFW_KEY_UNKNOWN;
+    }
+    }
 }
 
 //
@@ -380,269 +380,269 @@ static GLUSboolean g_fullscreen = GLUS_FALSE;
 
 LRESULT CALLBACK _glusOsProcessWindow(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uiMsg)
-	{
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);
+    switch (uiMsg)
+    {
+    case WM_CLOSE:
+    {
+        PostQuitMessage(0);
 
-			return 0;
-		}
-		case WM_SIZE:
-		{
-			g_width = LOWORD(lParam);
-			g_height = HIWORD(lParam);
+        return 0;
+    }
+    case WM_SIZE:
+    {
+        g_width  = LOWORD(lParam);
+        g_height = HIWORD(lParam);
 
-			_glusWindowInternalReshape(g_width, g_height);
+        _glusWindowInternalReshape(g_width, g_height);
 
-			return 0;
-		}
-		case WM_MOUSEMOVE:
-		{
-			GLUSint mouseX, mouseY;
+        return 0;
+    }
+    case WM_MOUSEMOVE:
+    {
+        GLUSint mouseX, mouseY;
 
-			mouseX = (GLUSint)((short)LOWORD(lParam));
-			mouseY = (GLUSint)((short)HIWORD(lParam));
+        mouseX = (GLUSint)((short)LOWORD(lParam));
+        mouseY = (GLUSint)((short)HIWORD(lParam));
 
-			_glusWindowInternalMouseMove(mouseX, mouseY);
+        _glusWindowInternalMouseMove(mouseX, mouseY);
 
-			return 0;
-		}
-		case WM_MOUSEWHEEL:
-		{
-			GLUSint wheelDelta = (((int)wParam) >> 16) / WHEEL_DELTA;
+        return 0;
+    }
+    case WM_MOUSEWHEEL:
+    {
+        GLUSint wheelDelta = (((int)wParam) >> 16) / WHEEL_DELTA;
 
-			g_wheelPos += wheelDelta;
+        g_wheelPos += wheelDelta;
 
-			_glusWindowInternalMouseWheel(g_wheelPos);
+        _glusWindowInternalMouseWheel(g_wheelPos);
 
-			return 0;
-		}
-		case WM_LBUTTONDOWN:
-		{
-			SetCapture(hWnd);
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+        return 0;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        SetCapture(hWnd);
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
 
-			return 0;
-		}
-		case WM_LBUTTONUP:
-		{
-			ReleaseCapture();
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+        return 0;
+    }
+    case WM_LBUTTONUP:
+    {
+        ReleaseCapture();
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
 
-			return 0;
-		}
-		case WM_MBUTTONDOWN:
-		{
-			SetCapture(hWnd);
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
+        return 0;
+    }
+    case WM_MBUTTONDOWN:
+    {
+        SetCapture(hWnd);
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
 
-			return 0;
-		}
-		case WM_MBUTTONUP:
-		{
-			ReleaseCapture();
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
+        return 0;
+    }
+    case WM_MBUTTONUP:
+    {
+        ReleaseCapture();
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
 
-			return 0;
-		}
-			return 0;
-		case WM_RBUTTONDOWN:
-		{
-			SetCapture(hWnd);
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
+        return 0;
+    }
+        return 0;
+    case WM_RBUTTONDOWN:
+    {
+        SetCapture(hWnd);
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
 
-			return 0;
-		}
-		case WM_RBUTTONUP:
-		{
-			ReleaseCapture();
-			_glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
+        return 0;
+    }
+    case WM_RBUTTONUP:
+    {
+        ReleaseCapture();
+        _glusOsInputMouseClick(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
 
-			return 0;
-		}
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-		{
-			_glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_PRESS);
+        return 0;
+    }
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    {
+        _glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_PRESS);
 
-			break;
-		}
-		case WM_KEYUP:
-		case WM_SYSKEYUP:
-		{
-			_glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_RELEASE);
+        break;
+    }
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+    {
+        _glusOsInputKey(_glusTranslateKey(wParam, lParam), GLFW_RELEASE);
 
-			break;
-		}
-	}
+        break;
+    }
+    }
 
-	return DefWindowProc(hWnd, uiMsg, wParam, lParam);
+    return DefWindowProc(hWnd, uiMsg, wParam, lParam);
 }
 
 GLUSvoid _glusOsPollEvents()
 {
-	MSG msg;
+    MSG msg;
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		if (msg.message == WM_QUIT)
-		{
-			_glusWindowInternalClose();
-		}
-		else
-		{
-			DispatchMessage(&msg);
-		}
-	}
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+        if (msg.message == WM_QUIT)
+        {
+            _glusWindowInternalClose();
+        }
+        else
+        {
+            DispatchMessage(&msg);
+        }
+    }
 }
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
-	return g_nativeDisplay;
+    return g_nativeDisplay;
 }
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, const GLUSint nativeVisualID)
 {
-	WNDCLASS wc;
-	RECT wRect;
-	HINSTANCE hInstance;
+    WNDCLASS  wc;
+    RECT      wRect;
+    HINSTANCE hInstance;
 
-	DWORD dwStyle, dwExStyle;
+    DWORD dwStyle, dwExStyle;
 
-	GLUSint fullWidth, fullHeight;
+    GLUSint fullWidth, fullHeight;
 
-	dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE;
-	dwExStyle = WS_EX_APPWINDOW;
+    dwStyle   = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE;
+    dwExStyle = WS_EX_APPWINDOW;
 
-	if (fullscreen)
-	{
-		DEVMODE dm;
+    if (fullscreen)
+    {
+        DEVMODE dm;
 
-		dm.dmSize = sizeof(DEVMODE);
-		if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm))
-		{
-			glusLogPrint(GLUS_LOG_ERROR, "Could not enumerate display settings");
+        dm.dmSize = sizeof(DEVMODE);
+        if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm))
+        {
+            glusLogPrint(GLUS_LOG_ERROR, "Could not enumerate display settings");
 
-			return 0;
-		}
-		dm.dmPelsWidth = width;
-		dm.dmPelsHeight = height;
-		dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+            return 0;
+        }
+        dm.dmPelsWidth  = width;
+        dm.dmPelsHeight = height;
+        dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
 
-		if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-		{
-			glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: %dx%d", width, height);
+        if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+        {
+            glusLogPrint(GLUS_LOG_ERROR, "Could not switch to full screen: %dx%d", width, height);
 
-			return 0;
-		}
+            return 0;
+        }
 
-		dwStyle |= WS_POPUP;
-	}
-	else
-	{
-		dwStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+        dwStyle |= WS_POPUP;
+    }
+    else
+    {
+        dwStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
-		if (!noResize)
-		{
-			dwStyle |= WS_MAXIMIZEBOX | WS_SIZEBOX;
-			dwExStyle |= WS_EX_WINDOWEDGE;
-		}
-	}
+        if (!noResize)
+        {
+            dwStyle |= WS_MAXIMIZEBOX | WS_SIZEBOX;
+            dwExStyle |= WS_EX_WINDOWEDGE;
+        }
+    }
 
-	hInstance = GetModuleHandle(NULL);
+    hInstance = GetModuleHandle(NULL);
 
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = (WNDPROC)_glusOsProcessWindow;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = NULL;
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "GLES3";
+    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wc.lpfnWndProc   = (WNDPROC)_glusOsProcessWindow;
+    wc.cbClsExtra    = 0;
+    wc.cbWndExtra    = 0;
+    wc.hInstance     = hInstance;
+    wc.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = NULL;
+    wc.lpszMenuName  = NULL;
+    wc.lpszClassName = "GLES3";
 
-	RegisterClass(&wc);
+    RegisterClass(&wc);
 
-	//
+    //
 
-	wRect.left = 0L;
-	wRect.right = (long)width - 1;
-	wRect.top = 0L;
-	wRect.bottom = (long)height - 1;
+    wRect.left   = 0L;
+    wRect.right  = (long)width - 1;
+    wRect.top    = 0L;
+    wRect.bottom = (long)height - 1;
 
-	AdjustWindowRectEx(&wRect, dwStyle, FALSE, dwExStyle);
+    AdjustWindowRectEx(&wRect, dwStyle, FALSE, dwExStyle);
 
-	fullWidth = wRect.right - wRect.left + 1;
-	fullHeight = wRect.bottom - wRect.top + 1;
+    fullWidth  = wRect.right - wRect.left + 1;
+    fullHeight = wRect.bottom - wRect.top + 1;
 
-	if (fullscreen)
-	{
-		wRect.left = wRect.top = 0;
-	}
-	else
-	{
-		SystemParametersInfo(SPI_GETWORKAREA, 0, &wRect, 0);
-	}
-	//
+    if (fullscreen)
+    {
+        wRect.left = wRect.top = 0;
+    }
+    else
+    {
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &wRect, 0);
+    }
+    //
 
-	g_nativeWindow = CreateWindowEx(dwExStyle, "GLES3", title, dwStyle, wRect.left, wRect.top, fullWidth, fullHeight, NULL, NULL, hInstance, NULL);
+    g_nativeWindow = CreateWindowEx(dwExStyle, "GLES3", title, dwStyle, wRect.left, wRect.top, fullWidth, fullHeight, NULL, NULL, hInstance, NULL);
 
-	ShowWindow(g_nativeWindow, SW_SHOW);
-	SetForegroundWindow(g_nativeWindow);
-	SetFocus(g_nativeWindow);
+    ShowWindow(g_nativeWindow, SW_SHOW);
+    SetForegroundWindow(g_nativeWindow);
+    SetFocus(g_nativeWindow);
 
-	g_fullscreen = fullscreen;
+    g_fullscreen = fullscreen;
 
-	g_width = width;
-	g_height = height;
+    g_width  = width;
+    g_height = height;
 
-	return g_nativeWindow;
+    return g_nativeWindow;
 }
 
 GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
-	if (g_nativeWindow)
-	{
-		DestroyWindow(g_nativeWindow);
+    if (g_nativeWindow)
+    {
+        DestroyWindow(g_nativeWindow);
 
-		g_nativeWindow = 0;
-	}
+        g_nativeWindow = 0;
+    }
 
-	if (g_fullscreen)
-	{
-		ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
+    if (g_fullscreen)
+    {
+        ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
 
-		g_fullscreen = GLUS_FALSE;
-	}
+        g_fullscreen = GLUS_FALSE;
+    }
 }
 
 double _glusOsGetRawTime()
 {
-	static LONGLONG perfromanceFrequency = 0;
+    static LONGLONG perfromanceFrequency = 0;
 
-	LONGLONG currentPerformanceCounter;
+    LONGLONG currentPerformanceCounter;
 
-	if (perfromanceFrequency == 0)
-	{
-		QueryPerformanceFrequency((LARGE_INTEGER*)&perfromanceFrequency);
-	}
+    if (perfromanceFrequency == 0)
+    {
+        QueryPerformanceFrequency((LARGE_INTEGER*)&perfromanceFrequency);
+    }
 
-	QueryPerformanceCounter((LARGE_INTEGER*)&currentPerformanceCounter);
+    QueryPerformanceCounter((LARGE_INTEGER*)&currentPerformanceCounter);
 
-	return (double)currentPerformanceCounter / (double)perfromanceFrequency;
+    return (double)currentPerformanceCounter / (double)perfromanceFrequency;
 }
 
 GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
-	if (width)
-	{
-		*width = g_width;
-	}
+    if (width)
+    {
+        *width = g_width;
+    }
 
-	if (height)
-	{
-		*height = g_height;
-	}
+    if (height)
+    {
+        *height = g_height;
+    }
 }

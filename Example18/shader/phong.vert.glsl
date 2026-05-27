@@ -14,15 +14,15 @@ out vec3 v_eye;
 
 void main()
 {
-	vec4 vertex = u_modelMatrix * a_vertex;
+    vec4 vertex = u_modelMatrix * a_vertex;
 
-	gl_ClipDistance[0] = dot(u_plane, vertex);
+    gl_ClipDistance[0] = dot(u_plane, vertex);
 
-	vertex = u_viewMatrix * vertex;
+    vertex = u_viewMatrix * vertex;
 
-	v_eye = -vec3(vertex);
+    v_eye = -vec3(vertex);
 
-	v_normal = u_normalMatrix * a_normal;
-		
-	gl_Position = u_projectionMatrix * vertex;
-}    
+    v_normal = u_normalMatrix * a_normal;
+
+    gl_Position = u_projectionMatrix * vertex;
+}

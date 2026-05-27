@@ -23,9 +23,9 @@
  */
 typedef struct _GLUSprogrampipeline
 {
-	/**
-	 * The created pipeline.
-	 */
+    /**
+     * The created pipeline.
+     */
     GLUSuint pipeline;
 
     /**

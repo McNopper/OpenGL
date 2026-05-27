@@ -24,36 +24,36 @@ GLUSboolean GLUSAPIENTRY glusProgramPipelineBuild(GLUSprogrampipeline* programPi
         return GLUS_FALSE;
     }
 
-	programPipeline->computeProgram = 0;
-    programPipeline->vertexProgram = vertexProgram;
-    programPipeline->controlProgram = controlProgram;
+    programPipeline->computeProgram    = 0;
+    programPipeline->vertexProgram     = vertexProgram;
+    programPipeline->controlProgram    = controlProgram;
     programPipeline->evaluationProgram = evaluationProgram;
-    programPipeline->geometryProgram = geometryProgram;
-    programPipeline->fragmentProgram = fragmentProgram;
+    programPipeline->geometryProgram   = geometryProgram;
+    programPipeline->fragmentProgram   = fragmentProgram;
 
-	glGenProgramPipelines(1, &programPipeline->pipeline);
-	if (vertexProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_VERTEX_SHADER_BIT, vertexProgram);
-	}
-	if (controlProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_TESS_CONTROL_SHADER_BIT, controlProgram);
-	}
-	if (evaluationProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_TESS_EVALUATION_SHADER_BIT, evaluationProgram);
-	}
-	if (geometryProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_GEOMETRY_SHADER_BIT, geometryProgram);
-	}
-	if (fragmentProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_FRAGMENT_SHADER_BIT, fragmentProgram);
-	}
+    glGenProgramPipelines(1, &programPipeline->pipeline);
+    if (vertexProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_VERTEX_SHADER_BIT, vertexProgram);
+    }
+    if (controlProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_TESS_CONTROL_SHADER_BIT, controlProgram);
+    }
+    if (evaluationProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_TESS_EVALUATION_SHADER_BIT, evaluationProgram);
+    }
+    if (geometryProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_GEOMETRY_SHADER_BIT, geometryProgram);
+    }
+    if (fragmentProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_FRAGMENT_SHADER_BIT, fragmentProgram);
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusProgramPipelineBuildCompute(GLUSprogrampipeline* programPipeline, GLUSuint computeProgram)
@@ -63,20 +63,20 @@ GLUSboolean GLUSAPIENTRY glusProgramPipelineBuildCompute(GLUSprogrampipeline* pr
         return GLUS_FALSE;
     }
 
-	programPipeline->computeProgram = computeProgram;
-    programPipeline->vertexProgram = 0;
-    programPipeline->controlProgram = 0;
+    programPipeline->computeProgram    = computeProgram;
+    programPipeline->vertexProgram     = 0;
+    programPipeline->controlProgram    = 0;
     programPipeline->evaluationProgram = 0;
-    programPipeline->geometryProgram = 0;
-    programPipeline->fragmentProgram = 0;
+    programPipeline->geometryProgram   = 0;
+    programPipeline->fragmentProgram   = 0;
 
-	glGenProgramPipelines(1, &programPipeline->pipeline);
-	if (computeProgram)
-	{
-		glUseProgramStages(programPipeline->pipeline, GLUS_COMPUTE_SHADER_BIT, computeProgram);
-	}
+    glGenProgramPipelines(1, &programPipeline->pipeline);
+    if (computeProgram)
+    {
+        glUseProgramStages(programPipeline->pipeline, GLUS_COMPUTE_SHADER_BIT, computeProgram);
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid GLUSAPIENTRY glusProgramPipelineDestroy(GLUSprogrampipeline* programPipeline)
@@ -100,9 +100,9 @@ GLUSvoid GLUSAPIENTRY glusProgramPipelineDestroy(GLUSprogrampipeline* programPip
         programPipeline->pipeline = 0;
     }
 
-    programPipeline->computeProgram = 0;
-    programPipeline->fragmentProgram = 0;
+    programPipeline->computeProgram    = 0;
+    programPipeline->fragmentProgram   = 0;
     programPipeline->evaluationProgram = 0;
-    programPipeline->controlProgram = 0;
-    programPipeline->vertexProgram = 0;
+    programPipeline->controlProgram    = 0;
+    programPipeline->vertexProgram     = 0;
 }

@@ -17,13 +17,13 @@
 
 #include "GL/glus.h"
 
-EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext *eglContext, const EGLint configAttribList[], const EGLint contextAttribList[])
+EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDisplayType, EGLDisplay* eglDisplay, EGLConfig* eglConfig, EGLContext* eglContext, const EGLint configAttribList[], const EGLint contextAttribList[])
 {
-    EGLint numConfigs;
-    EGLint majorVersion;
-    EGLint minorVersion;
+    EGLint     numConfigs;
+    EGLint     majorVersion;
+    EGLint     minorVersion;
     EGLDisplay display = EGL_NO_DISPLAY;
-    EGLConfig config = 0;
+    EGLConfig  config  = 0;
     EGLContext context = EGL_NO_CONTEXT;
 
     if (!eglDisplay || !eglConfig || !eglContext)
@@ -34,7 +34,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     }
 
     // Get Display
-    display = eglGetDisplay((EGLNativeDisplayType) eglNativeDisplayType);
+    display = eglGetDisplay((EGLNativeDisplayType)eglNativeDisplayType);
     if (display == EGL_NO_DISPLAY)
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not get EGL display");
@@ -94,7 +94,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateContext(EGLNativeDisplayType eglNativeDispl
     }
 
     *eglDisplay = display;
-    *eglConfig = config;
+    *eglConfig  = config;
     *eglContext = context;
 
     return EGL_TRUE;
@@ -112,7 +112,7 @@ EGLBoolean GLUSAPIENTRY glusEGLCreateWindowSurfaceMakeCurrent(EGLNativeWindowTyp
     }
 
     // Create a surface
-    surface = eglCreateWindowSurface(*eglDisplay, *eglConfig, (EGLNativeWindowType) eglNativeWindowType, surfaceAttribList);
+    surface = eglCreateWindowSurface(*eglDisplay, *eglConfig, (EGLNativeWindowType)eglNativeWindowType, surfaceAttribList);
     if (surface == EGL_NO_SURFACE)
     {
         glusLogPrint(GLUS_LOG_ERROR, "Could not create EGL window surface");
@@ -141,7 +141,7 @@ GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglCo
 {
     if (!eglDisplay)
     {
-    	glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay passed");
+        glusLogPrint(GLUS_LOG_ERROR, "No eglDisplay passed");
 
         return;
     }
@@ -169,4 +169,3 @@ GLUSvoid GLUSAPIENTRY glusEGLTerminate(EGLDisplay* eglDisplay, EGLContext* eglCo
         *eglDisplay = EGL_NO_DISPLAY;
     }
 }
-

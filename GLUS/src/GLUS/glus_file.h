@@ -23,9 +23,9 @@
  */
 typedef struct _GLUStextfile
 {
-	/**
-	 * Contains the data of the text file.
-	 */
+    /**
+     * Contains the data of the text file.
+     */
     GLUSchar* text;
 
     /**
@@ -62,8 +62,7 @@ typedef struct _GLUSbinaryfile
  * @return If the file is successfully opened, the function returns a pointer to a FILE object that can be used to identify the stream on future operations.
  *		   Otherwise, a null pointer is returned.
  */
-GLUSAPI FILE* GLUSAPIENTRY glusFileOpen(const char * filename, const char * mode);
-
+GLUSAPI FILE* GLUSAPIENTRY glusFileOpen(const char* filename, const char* mode);
 
 /**
  * Closes the file associated with the stream and disassociates it.

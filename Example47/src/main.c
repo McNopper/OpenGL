@@ -39,19 +39,19 @@
 
 #include "GL/glus.h"
 
-#define WINDOW_WIDTH  1024
+#define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
 
 // Grid dimension — queried from hardware limits at startup.
 // Injected into the sort shader as #define GRID_N <n> before compilation.
-static GLint g_gridN = 32;   // default; overwritten in init()
+static GLint g_gridN = 32; // default; overwritten in init()
 
 // Sort dispatches per rendered frame.  3 = one full X->Y->Z cycle per frame,
 // which makes the crystallisation animation smooth without being too fast.
-#define STEPS_PER_FRAME   3
+#define STEPS_PER_FRAME 3
 
 // Camera orbit speed (degrees per second).
-#define ORBIT_SPEED  18.0f
+#define ORBIT_SPEED 18.0f
 
 //
 // Sort compute program.
@@ -86,11 +86,11 @@ static GLuint g_vao = 0;
 // Sort animation state.
 //
 
-static GLint     g_sortStep     = 0;
+static GLint     g_sortStep    = 0;
 static GLboolean g_sorting     = GLUS_FALSE;
 static GLboolean g_sorted      = GLUS_FALSE;
-static GLint     g_stepDelayMs = 100;        // ms between steps; 0 = STEPS_PER_FRAME/frame
-static GLfloat   g_accumTime   = 0.0f;       // accumulated time for delay mode (seconds)
+static GLint     g_stepDelayMs = 100;  // ms between steps; 0 = STEPS_PER_FRAME/frame
+static GLfloat   g_accumTime   = 0.0f; // accumulated time for delay mode (seconds)
 
 //
 // Camera.
@@ -108,9 +108,9 @@ static GLint g_windowHeight = WINDOW_HEIGHT;
 static void swapTexel(GLubyte* data, GLuint i, GLuint j)
 {
     GLubyte tmp[4];
-    memcpy(tmp,          data + i * 4, 4);
+    memcpy(tmp, data + i * 4, 4);
     memcpy(data + i * 4, data + j * 4, 4);
-    memcpy(data + j * 4, tmp,          4);
+    memcpy(data + j * 4, tmp, 4);
 }
 
 // Fill data with all N^3 unique RGB8 lattice colours then Fisher-Yates shuffle.
@@ -118,16 +118,21 @@ static void generateShuffledColors(GLubyte* data, GLuint n)
 {
     GLuint x, y, z, i, j;
 
+    if (n < 2)
+    {
+        return;
+    }
+
     for (z = 0; z < n; z++)
     {
         for (y = 0; y < n; y++)
         {
             for (x = 0; x < n; x++)
             {
-                i = z * n * n + y * n + x;
-                data[i * 4 + 0] = (GLubyte)(x * 255 / (n - 1));   // R -> X
-                data[i * 4 + 1] = (GLubyte)(y * 255 / (n - 1));   // G -> Y
-                data[i * 4 + 2] = (GLubyte)(z * 255 / (n - 1));   // B -> Z
+                i               = z * n * n + y * n + x;
+                data[i * 4 + 0] = (GLubyte)(x * 255 / (n - 1)); // R -> X
+                data[i * 4 + 1] = (GLubyte)(y * 255 / (n - 1)); // G -> Y
+                data[i * 4 + 2] = (GLubyte)(z * 255 / (n - 1)); // B -> Z
                 data[i * 4 + 3] = 255;
             }
         }
@@ -136,7 +141,10 @@ static void generateShuffledColors(GLubyte* data, GLuint n)
     for (i = n * n * n - 1; i > 0; i--)
     {
         j = (GLuint)((GLfloat)(i + 1) * glusRandomUniformf(0.0f, 1.0f));
-        if (j > i) j = i;
+        if (j > i)
+        {
+            j = i;
+        }
         swapTexel(data, i, j);
     }
 }
@@ -153,12 +161,21 @@ static GLint queryIdealGridN(void)
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxInvocations);
 
     n = 32;
-    if (n > maxLocalX)      n = maxLocalX;
-    if (n > maxInvocations) n = maxInvocations;
+    if (n > maxLocalX)
+    {
+        n = maxLocalX;
+    }
+    if (n > maxInvocations)
+    {
+        n = maxInvocations;
+    }
 
     // Round down to nearest power of two (required for odd-even pairing).
     p = 1;
-    while (p * 2 <= n) p *= 2;
+    while (p * 2 <= n)
+    {
+        p *= 2;
+    }
     n = p;
 
     printf("maxLocalX=%d  maxInvocations=%d  -> g_gridN=%d\n",
@@ -184,21 +201,24 @@ static GLUSchar* injectDefine(const GLUSchar* source, GLint gridN)
     restLen      = strlen(source + prefixLen);
 
     patched = (GLUSchar*)malloc(prefixLen + defineLen + restLen + 1);
-    if (!patched) return NULL;
+    if (!patched)
+    {
+        return NULL;
+    }
 
-    memcpy(patched,                          source,             prefixLen);
-    memcpy(patched + prefixLen,              define,             defineLen);
-    memcpy(patched + prefixLen + defineLen,  source + prefixLen, restLen + 1);
+    memcpy(patched, source, prefixLen);
+    memcpy(patched + prefixLen, define, defineLen);
+    memcpy(patched + prefixLen + defineLen, source + prefixLen, restLen + 1);
 
     return patched;
 }
 
 static void resetSortState(void)
 {
-    g_sortStep   = 0;
-    g_sorting    = GLUS_FALSE;
-    g_sorted     = GLUS_FALSE;
-    g_accumTime  = 0.0f;
+    g_sortStep  = 0;
+    g_sorting   = GLUS_FALSE;
+    g_sorted    = GLUS_FALSE;
+    g_accumTime = 0.0f;
 }
 
 // -----------------------------------------------------------------------
@@ -219,7 +239,10 @@ static GLUSvoid charInput(GLFWwindow* window, GLUSuint codepoint)
     if (codepoint == '-' && g_stepDelayMs > 0)
     {
         g_stepDelayMs -= 50;
-        if (g_stepDelayMs < 0) g_stepDelayMs = 0;
+        if (g_stepDelayMs < 0)
+        {
+            g_stepDelayMs = 0;
+        }
         glusLogPrint(GLUS_LOG_INFO, "Step delay: %d ms%s",
                      g_stepDelayMs, g_stepDelayMs == 0 ? " (smooth)" : "");
     }
@@ -232,14 +255,16 @@ static GLUSvoid charInput(GLFWwindow* window, GLUSuint codepoint)
 GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 {
     if (!pressed)
+    {
         return;
+    }
 
     // Space: start sort if idle, or restart once finished.
     if (k == 32 && !g_sorting)
     {
-        g_sorting = GLUS_TRUE;
-        g_sorted  = GLUS_FALSE;
-        g_sortStep = 0;
+        g_sorting   = GLUS_TRUE;
+        g_sorted    = GLUS_FALSE;
+        g_sortStep  = 0;
         g_accumTime = 0.0f;
     }
 
@@ -291,7 +316,7 @@ GLUSboolean init(GLUSvoid)
 
     {
         GLUSchar* patchedSource = injectDefine(sortSource.text, g_gridN);
-        glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**) &patchedSource);
+        glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&patchedSource);
         free(patchedSource);
     }
 
@@ -312,9 +337,9 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example47/shader/render.frag.glsl", &fragmentSource);
 
     glusProgramBuildFromSource(&g_renderProgram,
-                               (const GLUSchar**) &vertexSource.text,
+                               (const GLUSchar**)&vertexSource.text,
                                0, 0, 0,
-                               (const GLUSchar**) &fragmentSource.text);
+                               (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -326,9 +351,9 @@ GLUSboolean init(GLUSvoid)
     g_render_pointSizeLoc    = glGetUniformLocation(g_renderProgram.program, "u_pointSize");
     g_render_colorTextureLoc = glGetUniformLocation(g_renderProgram.program, "u_colorTexture");
 
-    glUniform1ui(g_render_gridNLoc,        (GLuint) g_gridN);
-    glUniform1f (g_render_pointSizeLoc,    8.0f);
-    glUniform1i (g_render_colorTextureLoc, 0);
+    glUniform1ui(g_render_gridNLoc, (GLuint)g_gridN);
+    glUniform1f(g_render_pointSizeLoc, 8.0f);
+    glUniform1i(g_render_colorTextureLoc, 0);
 
     glUseProgram(0);
 
@@ -412,7 +437,10 @@ GLUSboolean update(GLUSfloat time)
     GLfloat eyeX, eyeZ;
 
     g_orbitAngle += ORBIT_SPEED * time;
-    if (g_orbitAngle >= 360.0f) g_orbitAngle -= 360.0f;
+    if (g_orbitAngle >= 360.0f)
+    {
+        g_orbitAngle -= 360.0f;
+    }
 
     //
     // Sort pass: advance sort by the number of steps determined by the current mode.
@@ -497,8 +525,8 @@ GLUSboolean update(GLUSfloat time)
 
     {
         GLfloat rad = g_orbitAngle * GLUS_PI / 180.0f;
-        eyeX = 3.5f * sinf(rad);
-        eyeZ = 3.5f * cosf(rad);
+        eyeX        = 3.5f * sinf(rad);
+        eyeZ        = 3.5f * cosf(rad);
     }
 
     glusMatrix4x4LookAtf(viewMatrix,
@@ -508,7 +536,7 @@ GLUSboolean update(GLUSfloat time)
 
     glusMatrix4x4Perspectivef(projectionMatrix,
                               60.0f,
-                              (GLfloat) g_windowWidth / (GLfloat) g_windowHeight,
+                              (GLfloat)g_windowWidth / (GLfloat)g_windowHeight,
                               0.1f, 100.0f);
 
     glusMatrix4x4Multiplyf(mvpMatrix, projectionMatrix, viewMatrix);
@@ -567,23 +595,21 @@ GLUSvoid terminate(GLUSvoid)
 int main(int argc, char* argv[])
 {
     EGLint eglConfigAttributes[] = {
-            EGL_RED_SIZE,        8,
-            EGL_GREEN_SIZE,      8,
-            EGL_BLUE_SIZE,       8,
-            EGL_DEPTH_SIZE,      24,
-            EGL_STENCIL_SIZE,    0,
-            EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-            EGL_NONE
-    };
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-            EGL_CONTEXT_MAJOR_VERSION,             4,
-            EGL_CONTEXT_MINOR_VERSION,             6,
-            EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-            EGL_CONTEXT_OPENGL_PROFILE_MASK,       EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-            EGL_CONTEXT_OPENGL_DEBUG,              EGL_TRUE,
-            EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 6,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     // Show GL driver debug messages (shader errors, invalid operations, etc.).
     glusLogSetLevel(GLUS_LOG_DEBUG);

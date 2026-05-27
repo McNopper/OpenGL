@@ -12,9 +12,9 @@
 
 #include "GL/glus.h"
 
-static GLUSfloat g_cameraPosition[3] = { -5.0f, 5.0f, 10.0f };
+static GLUSfloat g_cameraPosition[3] = {-5.0f, 5.0f, 10.0f};
 
-static GLUSfloat g_lightDirection[3] = { 0.0f, 0.0f, 10.0f };
+static GLUSfloat g_lightDirection[3] = {0.0f, 0.0f, 10.0f};
 
 static GLUSprogram g_program;
 
@@ -92,7 +92,7 @@ static GLuint g_numberIndicesShadowPlane;
 
 GLUSboolean init(GLUSvoid)
 {
-	GLUSshape shadowPlane;
+    GLUSshape shadowPlane;
 
     GLUSshape plane;
 
@@ -117,7 +117,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example22/shader/color.vert.glsl", &vertexSource);
     glusFileLoadText("../Example22/shader/color.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -125,11 +125,11 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
-    g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_colorLocation = glGetUniformLocation(g_program.program, "u_shapeColor");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_viewMatrixLocation       = glGetUniformLocation(g_program.program, "u_viewMatrix");
+    g_modelMatrixLocation      = glGetUniformLocation(g_program.program, "u_modelMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_colorLocation            = glGetUniformLocation(g_program.program, "u_shapeColor");
+    g_lightDirectionLocation   = glGetUniformLocation(g_program.program, "u_lightDirection");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
@@ -140,7 +140,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example22/shader/shadowvolume.geom.glsl", &geometrySource);
     glusFileLoadText("../Example22/shader/shadowvolume.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_programShadowVolume, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programShadowVolume, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -149,9 +149,9 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixShadowVolumeLocation = glGetUniformLocation(g_programShadowVolume.program, "u_projectionMatrix");
-    g_viewMatrixShadowVolumeLocation = glGetUniformLocation(g_programShadowVolume.program, "u_viewMatrix");
-    g_modelMatrixShadowVolumeLocation = glGetUniformLocation(g_programShadowVolume.program, "u_modelMatrix");
-    g_lightDirectionShadowVolumeLocation = glGetUniformLocation(g_programShadowVolume.program, "u_lightDirection");
+    g_viewMatrixShadowVolumeLocation       = glGetUniformLocation(g_programShadowVolume.program, "u_viewMatrix");
+    g_modelMatrixShadowVolumeLocation      = glGetUniformLocation(g_programShadowVolume.program, "u_modelMatrix");
+    g_lightDirectionShadowVolumeLocation   = glGetUniformLocation(g_programShadowVolume.program, "u_lightDirection");
 
     g_vertexShadowVolumeLocation = glGetAttribLocation(g_programShadowVolume.program, "a_vertex");
 
@@ -160,7 +160,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example22/shader/shadow.vert.glsl", &vertexSource);
     glusFileLoadText("../Example22/shader/shadow.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_programShadowPlane, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programShadowPlane, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -179,17 +179,17 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) torusWithAdjacency.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) torusWithAdjacency.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, torusWithAdjacency.numberIndices * sizeof(GLuint), (GLuint*) torusWithAdjacency.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, torusWithAdjacency.numberIndices * sizeof(GLuint), (GLuint*)torusWithAdjacency.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -202,17 +202,17 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesPlaneVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesPlaneVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*) plane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -226,20 +226,19 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesShadowPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesShadowPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, shadowPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) shadowPlane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, shadowPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)shadowPlane.vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesShadowPlaneVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesShadowPlaneVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shadowPlane.numberIndices * sizeof(GLuint), (GLuint*) shadowPlane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shadowPlane.numberIndices * sizeof(GLuint), (GLuint*)shadowPlane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glusShapeDestroyf(&shadowPlane);
 
     //
-
 
     glusMatrix4x4LookAtf(viewMatrix, g_cameraPosition[0], g_cameraPosition[1], g_cameraPosition[2], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -318,7 +317,7 @@ GLUSboolean init(GLUSvoid)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glPolygonOffset(0.0f, 100.0f);
+    glPolygonOffset(0.0f, 100.0f);
 
     return GLUS_TRUE;
 }
@@ -331,8 +330,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     //
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
-
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glUseProgram(g_program.program);
 
@@ -409,29 +407,29 @@ GLUSboolean update(GLUSfloat time)
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_FALSE);
     // Avoid ugly artifacts
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	// Needed, as vertices in the back are extruded to infinity
-	glEnable(GL_DEPTH_CLAMP);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    // Needed, as vertices in the back are extruded to infinity
+    glEnable(GL_DEPTH_CLAMP);
 
     glBindVertexArray(g_vaoShadowVolume);
 
     // Render the back faces ...
-	glCullFace(GL_FRONT);
-	glStencilFunc(GL_ALWAYS, 0x0, 0xff);
-	glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+    glCullFace(GL_FRONT);
+    glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+    glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
     glDrawElements(GL_TRIANGLES_ADJACENCY, g_numberIndices, GL_UNSIGNED_INT, 0);
 
     // ... and then the front faces
     glCullFace(GL_BACK);
-	glStencilFunc(GL_ALWAYS, 0x0, 0xff);
-	glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+    glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+    glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
     glDrawElements(GL_TRIANGLES_ADJACENCY, g_numberIndices, GL_UNSIGNED_INT, 0);
 
     // Reset
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_TRUE);
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glDisable(GL_DEPTH_CLAMP);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_DEPTH_CLAMP);
 
     // Draw shadow by blending a black, half transparent plane
     glUseProgram(g_programShadowPlane.program);
@@ -556,23 +554,21 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 8,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 8,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

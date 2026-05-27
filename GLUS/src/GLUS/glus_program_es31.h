@@ -23,9 +23,9 @@
  */
 typedef struct _GLUSprogram
 {
-	/**
-	 * The created program.
-	 */
+    /**
+     * The created program.
+     */
     GLUSuint program;
 
     /**

@@ -14,11 +14,11 @@ out vec3 v_normal;
 
 void main(void)
 {
-	v_normal = u_normalMatrix * a_normal;
-	
-	vec4 vertex = u_modelMatrix * a_vertex;
-	
-	v_eye = (u_eye - vertex).xyz; 
+    v_normal = u_normalMatrix * a_normal;
 
-	gl_Position = u_viewProjectionMatrix * vertex;
+    vec4 vertex = u_modelMatrix * a_vertex;
+
+    v_eye = (u_eye - vertex).xyz;
+
+    gl_Position = u_viewProjectionMatrix * vertex;
 }

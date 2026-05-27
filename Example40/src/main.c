@@ -20,7 +20,7 @@
 #define BINDING_BUFFER_COMP_NORMALS_OUT 4
 
 // Row is between two vertices, so 31 rows generates 32 vertices per side.
-#define ROWS	31
+#define ROWS 31
 
 static GLUSprogram g_computeProgram;
 
@@ -68,8 +68,8 @@ static GLUSshape g_gridPlane;
 
 GLUSboolean init(GLUSvoid)
 {
-    GLfloat lightDirection[3] = { 1.0f, 1.0f, 1.0f };
-    GLfloat color[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat lightDirection[3] = {1.0f, 1.0f, 1.0f};
+    GLfloat color[4]          = {0.0f, 1.0f, 1.0f, 1.0f};
 
     GLUStextfile computeSource;
 
@@ -77,7 +77,7 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile fragmentSource;
 
     GLUSuint i;
-    GLfloat matrix[16];
+    GLfloat  matrix[16];
 
     GLfloat* normals;
 
@@ -85,40 +85,38 @@ GLUSboolean init(GLUSvoid)
     GLfloat distanceDiagonalRest;
 
     GLfloat sphereCenter[4] = {0.0f, 0.0f, -0.01f, 1.0f};
-    GLfloat sphereRadius = 1.0f;
+    GLfloat sphereRadius    = 1.0f;
 
     glusFileLoadText("../Example40/shader/cloth.comp.glsl", &computeSource);
 
-    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
 
     glusFileDestroyText(&computeSource);
-
 
     glusFileLoadText("../Example40/shader/cloth.vert.glsl", &vertexSource);
     glusFileLoadText("../Example40/shader/cloth.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    g_verticesPerRowLocation = glGetUniformLocation(g_computeProgram.program, "u_verticesPerRow");
-    g_deltaTimeLocation = glGetUniformLocation(g_computeProgram.program, "u_deltaTime");
-    g_distanceRestLocation = glGetUniformLocation(g_computeProgram.program, "u_distanceRest");
+    g_verticesPerRowLocation       = glGetUniformLocation(g_computeProgram.program, "u_verticesPerRow");
+    g_deltaTimeLocation            = glGetUniformLocation(g_computeProgram.program, "u_deltaTime");
+    g_distanceRestLocation         = glGetUniformLocation(g_computeProgram.program, "u_distanceRest");
     g_distanceDiagonalRestLocation = glGetUniformLocation(g_computeProgram.program, "u_distanceDiagonalRest");
-    g_sphereCenterLocation = glGetUniformLocation(g_computeProgram.program, "u_sphereCenter");
-    g_sphereRadiusLocation = glGetUniformLocation(g_computeProgram.program, "u_sphereRadius");
-
+    g_sphereCenterLocation         = glGetUniformLocation(g_computeProgram.program, "u_sphereCenter");
+    g_sphereRadiusLocation         = glGetUniformLocation(g_computeProgram.program, "u_sphereRadius");
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
-    g_colorLocation = glGetUniformLocation(g_program.program, "u_color");
+    g_normalMatrixLocation              = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_lightDirectionLocation            = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_colorLocation                     = glGetUniformLocation(g_program.program, "u_color");
 
-	g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
-	g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
+    g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
+    g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
 
     //
 
@@ -126,7 +124,7 @@ GLUSboolean init(GLUSvoid)
     glusShapeCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE);
 
     // Use x, as only horizontal and vertical springs are used. Adapt this, if diagonal or a non square grid is used.
-    distanceRest = g_gridPlane.vertices[4] - g_gridPlane.vertices[0];
+    distanceRest         = g_gridPlane.vertices[4] - g_gridPlane.vertices[0];
     distanceDiagonalRest = sqrtf(2.0f * distanceRest * distanceRest);
 
     // Rotate by 90 degrees, that the grid is in the x-z-plane.
@@ -135,14 +133,14 @@ GLUSboolean init(GLUSvoid)
     glusMatrix4x4RotateRxf(matrix, -90.0f);
     for (i = 0; i < g_gridPlane.numberVertices; i++)
     {
-    	glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[4 * i], matrix, &g_gridPlane.vertices[4 * i]);
+        glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[4 * i], matrix, &g_gridPlane.vertices[4 * i]);
     }
 
     g_numberIndicesPlane = g_gridPlane.numberIndices;
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_gridPlane.numberIndices * sizeof(GLuint), (GLuint*) g_gridPlane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_gridPlane.numberIndices * sizeof(GLuint), (GLuint*)g_gridPlane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -158,21 +156,21 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-	glGenBuffers(3, g_verticesBuffer);
+    glGenBuffers(3, g_verticesBuffer);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[0]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[1]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[2]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &g_normalsBuffer);
+    glGenBuffers(1, &g_normalsBuffer);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_normalsBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.normals, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_normalsBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.normals, GL_DYNAMIC_DRAW);
 
     //
 
@@ -181,13 +179,13 @@ GLUSboolean init(GLUSvoid)
     glGenVertexArrays(1, &g_vao);
     glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsBuffer);
-	glVertexAttribPointer(g_normalLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_normalLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsBuffer);
+    glVertexAttribPointer(g_normalLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_normalLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBuffer[2]);
-	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_vertexLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesBuffer[2]);
+    glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
 
@@ -228,7 +226,7 @@ GLUSboolean init(GLUSvoid)
 
     if (!initSphere(sphereCenter, sphereRadius, lightDirection))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     return GLUS_TRUE;
@@ -253,7 +251,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     // This model matrix is a rigid body transform. So no need for the inverse, transposed matrix.
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glusMatrix4x4LookAtf(viewMatrix, 0.0f, 4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -270,11 +268,11 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	static GLfloat totalTime = 0.0f;
+    static GLfloat totalTime = 0.0f;
 
-	static GLint previousInput = 0;
-	static GLint currentInput = 1;
-	static GLint currentOutput = 2;
+    static GLint previousInput = 0;
+    static GLint currentInput  = 1;
+    static GLint currentOutput = 2;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -282,7 +280,7 @@ GLUSboolean update(GLUSfloat time)
 
     if (!updateSphere(time))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     glDisable(GL_CULL_FACE);
@@ -319,8 +317,8 @@ GLUSboolean update(GLUSfloat time)
 
     glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBuffer[currentOutput]);
-	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesBuffer[currentOutput]);
+    glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     glDrawElements(GL_TRIANGLES, g_numberIndicesPlane, GL_UNSIGNED_INT, 0);
 
@@ -329,7 +327,7 @@ GLUSboolean update(GLUSfloat time)
     // Output is next time input etc.
 
     previousInput = (previousInput + 1) % 3;
-    currentInput = (currentInput + 1) % 3;
+    currentInput  = (currentInput + 1) % 3;
     currentOutput = (currentOutput + 1) % 3;
 
     // Update the total passed time.
@@ -340,18 +338,18 @@ GLUSboolean update(GLUSfloat time)
     if (totalTime >= 10.0f)
     {
         previousInput = 0;
-        currentInput = 1;
+        currentInput  = 1;
         currentOutput = 2;
 
-    	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[previousInput]);
-    	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[previousInput]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
 
-    	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[currentInput]);
-    	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[currentInput]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
 
-    	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    	totalTime = 0.0f;
+        totalTime = 0.0f;
     }
 
     return GLUS_TRUE;
@@ -359,9 +357,9 @@ GLUSboolean update(GLUSfloat time)
 
 GLUSvoid terminate(GLUSvoid)
 {
-	terminateSphere();
+    terminateSphere();
 
-	//
+    //
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -383,35 +381,35 @@ GLUSvoid terminate(GLUSvoid)
 
     //
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	if (g_verticesBuffer[0])
-	{
-		glDeleteBuffers(1, &g_verticesBuffer[0]);
+    if (g_verticesBuffer[0])
+    {
+        glDeleteBuffers(1, &g_verticesBuffer[0]);
 
-		g_verticesBuffer[0] = 0;
-	}
+        g_verticesBuffer[0] = 0;
+    }
 
-	if (g_verticesBuffer[1])
-	{
-		glDeleteBuffers(1, &g_verticesBuffer[1]);
+    if (g_verticesBuffer[1])
+    {
+        glDeleteBuffers(1, &g_verticesBuffer[1]);
 
-		g_verticesBuffer[1] = 0;
-	}
+        g_verticesBuffer[1] = 0;
+    }
 
-	if (g_verticesBuffer[2])
-	{
-		glDeleteBuffers(1, &g_verticesBuffer[2]);
+    if (g_verticesBuffer[2])
+    {
+        glDeleteBuffers(1, &g_verticesBuffer[2]);
 
-		g_verticesBuffer[2] = 0;
-	}
+        g_verticesBuffer[2] = 0;
+    }
 
-	if (g_normalsBuffer)
-	{
-		glDeleteBuffers(1, &g_normalsBuffer);
+    if (g_normalsBuffer)
+    {
+        glDeleteBuffers(1, &g_normalsBuffer);
 
-		g_normalsBuffer = 0;
-	}
+        g_normalsBuffer = 0;
+    }
 
     //
 
@@ -428,26 +426,24 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_SAMPLE_BUFFERS, 1,
-	        EGL_SAMPLES, 4,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_SAMPLE_BUFFERS, 1,
+        EGL_SAMPLES, 4,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 3,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 3,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

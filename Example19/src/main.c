@@ -88,9 +88,9 @@ static GLuint g_height;
 
 //
 
-static struct LightProperties g_light = { { 1.0f, 1.0f, 1.0f }, { 0.3f, 0.3f, 0.3f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } };
+static struct LightProperties g_light = {{1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
 
-static struct CameraProperties g_camera = { {0.0f, 1.0f, 7.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
+static struct CameraProperties g_camera = {{0.0f, 1.0f, 7.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
 
 GLUSboolean init(GLUSvoid)
 {
@@ -109,7 +109,7 @@ GLUSboolean init(GLUSvoid)
 
     if (!initWavefront(g_viewMatrix, &g_light))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     //
@@ -117,7 +117,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example19/shader/basic_proj.vert.glsl", &vertexSource);
     glusFileLoadText("../Example19/shader/texture_multi_proj.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -125,18 +125,18 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Retrieve the uniform locations in the program.
-    g_viewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_viewProjectionMatrix");
+    g_viewProjectionMatrixLocation            = glGetUniformLocation(g_program.program, "u_viewProjectionMatrix");
     g_viewProjectionBiasTextureMatrixLocation = glGetUniformLocation(g_program.program, "u_viewProjectionBiasTextureMatrix");
-    g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
-    g_repeatLocation =  glGetUniformLocation(g_program.program, "u_repeat");
-    g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
-    g_mirrorTextureLocation = glGetUniformLocation(g_program.program, "u_mirrorTexture");
+    g_modelMatrixLocation                     = glGetUniformLocation(g_program.program, "u_modelMatrix");
+    g_normalMatrixLocation                    = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_lightDirectionLocation                  = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_repeatLocation                          = glGetUniformLocation(g_program.program, "u_repeat");
+    g_textureLocation                         = glGetUniformLocation(g_program.program, "u_texture");
+    g_mirrorTextureLocation                   = glGetUniformLocation(g_program.program, "u_mirrorTexture");
 
     // Retrieve the attribute locations in the program.
-    g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
-    g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
+    g_vertexLocation   = glGetAttribLocation(g_program.program, "a_vertex");
+    g_normalLocation   = glGetAttribLocation(g_program.program, "a_normal");
     g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
 
     //
@@ -149,6 +149,8 @@ GLUSboolean init(GLUSvoid)
     glBindTexture(GL_TEXTURE_2D, g_texture);
 
     glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
+
+    glusImageDestroyTga(&image);
 
     // Mipmap generation is now included in OpenGL 3 and above
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -216,21 +218,21 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*) plane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*) plane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -290,7 +292,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     GLfloat normalMatrix[9];
     GLfloat lightDirection[3];
 
-    g_width = width;
+    g_width  = width;
     g_height = height;
 
     reshapeWavefront(width, height);
@@ -299,7 +301,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(g_viewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(g_viewProjectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glusMatrix4x4Multiplyf(g_viewProjectionMatrix, g_viewProjectionMatrix, g_viewMatrix);
 
@@ -324,27 +326,27 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	// Bias needed to convert the from [-1;1] to [0;1]
-	GLfloat biasMatrix[16] = {0.5f, 0.0f, 0.0f, 0.0f,
-								0.0f, 0.5f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.5f, 0.0f,
-								0.5f, 0.5f, 0.5f, 1.0f};
-	// Frame buffer has another view port and so perspective projection. Needed for projected texturing of the mirror texture.
-	GLfloat viewProjectionBiasTextureMatrix[16];
+    // Bias needed to convert the from [-1;1] to [0;1]
+    GLfloat biasMatrix[16] = {0.5f, 0.0f, 0.0f, 0.0f,
+                              0.0f, 0.5f, 0.0f, 0.0f,
+                              0.0f, 0.0f, 0.5f, 0.0f,
+                              0.5f, 0.5f, 0.5f, 1.0f};
+    // Frame buffer has another view port and so perspective projection. Needed for projected texturing of the mirror texture.
+    GLfloat viewProjectionBiasTextureMatrix[16];
 
-	// This matrix is used to flip the rendered object upside down.
-	GLfloat scaleMatrix[16];
+    // This matrix is used to flip the rendered object upside down.
+    GLfloat scaleMatrix[16];
 
-	// Store current width and height for later reseting.
-	GLuint width = g_width;
-	GLuint height = g_height;
+    // Store current width and height for later reseting.
+    GLuint width  = g_width;
+    GLuint height = g_height;
 
-	//
+    //
     // Upside down rendering to frame buffer.
-	//
+    //
     glBindFramebuffer(GL_FRAMEBUFFER, g_fboMirrorTexture);
 
-	reshape(TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    reshape(TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -356,7 +358,7 @@ GLUSboolean update(GLUSfloat time)
 
     if (!updateWavefront(time, scaleMatrix))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -383,7 +385,7 @@ GLUSboolean update(GLUSfloat time)
 
     if (!updateWavefront(time, scaleMatrix))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     glUseProgram(g_program.program);
@@ -435,7 +437,7 @@ GLUSvoid terminate(GLUSvoid)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (g_texture)
+    if (g_texture)
     {
         glDeleteTextures(1, &g_texture);
 
@@ -478,35 +480,33 @@ GLUSvoid terminate(GLUSvoid)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	if (g_fboMirrorTexture)
-	{
-		glDeleteFramebuffers(1, &g_fboMirrorTexture);
+    if (g_fboMirrorTexture)
+    {
+        glDeleteFramebuffers(1, &g_fboMirrorTexture);
 
-		g_fboMirrorTexture = 0;
-	}
+        g_fboMirrorTexture = 0;
+    }
 
     terminateWavefront();
 }
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

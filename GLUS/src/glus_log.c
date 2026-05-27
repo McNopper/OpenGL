@@ -20,13 +20,12 @@
 #define GLUS_MAX_CHARS_LOGGING 2047
 
 static const char* GLUS_LOG_STRINGS[] = {
-		"",
-		"ERROR",
-		"WARNING",
-		"INFO",
-		"DEBUG",
-		"SEVERE"
-};
+    "",
+    "ERROR",
+    "WARNING",
+    "INFO",
+    "DEBUG",
+    "SEVERE"};
 
 static GLUSuint g_verbosity = GLUS_LOG_INFO;
 
@@ -42,69 +41,69 @@ GLUSuint GLUSAPIENTRY glusLogGetLevel()
 
 GLUSvoid GLUSAPIENTRY glusLogPrint(GLUSuint verbosity, const char* format, ...)
 {
-	if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
-	{
-		return;
-	}
+    if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
+    {
+        return;
+    }
 
-	if (g_verbosity >= verbosity)
-	{
-		const char* logString = "UNKNOWN";
-		char buffer[GLUS_MAX_CHARS_LOGGING + 1];
-		va_list argList;
+    if (g_verbosity >= verbosity)
+    {
+        const char* logString = "UNKNOWN";
+        char        buffer[GLUS_MAX_CHARS_LOGGING + 1];
+        va_list     argList;
 
-		if (verbosity > GLUS_LOG_NOTHING && verbosity <= GLUS_LOG_SEVERE)
-		{
-			logString = GLUS_LOG_STRINGS[verbosity];
-		}
+        if (verbosity > GLUS_LOG_NOTHING && verbosity <= GLUS_LOG_SEVERE)
+        {
+            logString = GLUS_LOG_STRINGS[verbosity];
+        }
 
-		buffer[GLUS_MAX_CHARS_LOGGING] = '\0';
+        buffer[GLUS_MAX_CHARS_LOGGING] = '\0';
 
-		va_start(argList, format);
+        va_start(argList, format);
 
-		vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
+        vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
 
-		printf("LOG [%s]: %s\n", logString, buffer);
+        printf("LOG [%s]: %s\n", logString, buffer);
 
-		va_end(argList);
-	}
+        va_end(argList);
+    }
 }
 
 GLUSvoid GLUSAPIENTRY glusLogPrintError(GLUSuint verbosity, const char* format, ...)
 {
-	GLUSenum error;
+    GLUSenum error;
 
-	error = glGetError();
+    error = glGetError();
 
-	if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
-	{
-		return;
-	}
+    if (g_verbosity == GLUS_LOG_NOTHING || verbosity == GLUS_LOG_NOTHING)
+    {
+        return;
+    }
 
-	if (verbosity < GLUS_LOG_DEBUG && error == GLUS_NO_ERROR)
-	{
-		return;
-	}
+    if (verbosity < GLUS_LOG_DEBUG && error == GLUS_NO_ERROR)
+    {
+        return;
+    }
 
-	if (g_verbosity >= verbosity)
-	{
-		const char* logString = "UNKNOWN";
-		char buffer[GLUS_MAX_CHARS_LOGGING + 1];
-		va_list argList;
+    if (g_verbosity >= verbosity)
+    {
+        const char* logString = "UNKNOWN";
+        char        buffer[GLUS_MAX_CHARS_LOGGING + 1];
+        va_list     argList;
 
-		if (verbosity > GLUS_LOG_NOTHING && verbosity <= GLUS_LOG_SEVERE)
-		{
-			logString = GLUS_LOG_STRINGS[verbosity];
-		}
+        if (verbosity > GLUS_LOG_NOTHING && verbosity <= GLUS_LOG_SEVERE)
+        {
+            logString = GLUS_LOG_STRINGS[verbosity];
+        }
 
-		buffer[GLUS_MAX_CHARS_LOGGING] = '\0';
+        buffer[GLUS_MAX_CHARS_LOGGING] = '\0';
 
-		va_start(argList, format);
+        va_start(argList, format);
 
-		vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
+        vsnprintf(buffer, GLUS_MAX_CHARS_LOGGING, format, argList);
 
-		printf("LOG [%s]: glGetError() = 0x%x %s\n", logString, error, buffer);
+        printf("LOG [%s]: glGetError() = 0x%x %s\n", logString, error, buffer);
 
-		va_end(argList);
-	}
+        va_end(argList);
+    }
 }

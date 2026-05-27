@@ -6,5 +6,5 @@ out vec4 fragParticle;
 
 void main(void)
 {
-	fragParticle = v_particle;
+    fragParticle = v_particle;
 }

@@ -26,7 +26,7 @@ out vec2 v_texCoord;
 
 void main(void)
 {
-	vec2 pos = vec2((gl_VertexID & 1) * 2 - 1, (gl_VertexID >> 1) * 2 - 1);
-	v_texCoord  = pos;
-	gl_Position = vec4(pos, 0.0, 1.0);
+    vec2 pos    = vec2((gl_VertexID & 1) * 2 - 1, (gl_VertexID >> 1) * 2 - 1);
+    v_texCoord  = pos;
+    gl_Position = vec4(pos, 0.0, 1.0);
 }

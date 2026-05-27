@@ -50,7 +50,7 @@ static GLfloat g_sphereCenter[4];
 
 GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfloat lightDirection[3])
 {
-    GLfloat color[4] = { 1.0f, 1.0f, 0.0f, 1.0f };
+    GLfloat color[4] = {1.0f, 1.0f, 0.0f, 1.0f};
 
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
@@ -60,7 +60,7 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
     glusFileLoadText("../Example40/shader/sphere.vert.glsl", &vertexSource);
     glusFileLoadText("../Example40/shader/sphere.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -69,9 +69,9 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     // Retrieve the uniform locations in the program.
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
-    g_colorLocation = glGetUniformLocation(g_program.program, "u_color");
+    g_normalMatrixLocation              = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_lightDirectionLocation            = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_colorLocation                     = glGetUniformLocation(g_program.program, "u_color");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
@@ -84,17 +84,17 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) sphere.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)sphere.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) sphere.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)sphere.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.numberIndices * sizeof(GLuint), (GLuint*) sphere.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.numberIndices * sizeof(GLuint), (GLuint*)sphere.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -166,9 +166,9 @@ GLUSvoid reshapeSphere(GLUSfloat viewProjectionMatrix[16])
 
 GLUSboolean updateSphere(GLUSfloat time)
 {
-	glUseProgram(g_program.program);
+    glUseProgram(g_program.program);
 
-	glBindVertexArray(g_vao);
+    glBindVertexArray(g_vao);
 
     glDrawElements(GL_TRIANGLES, g_numberIndicesSphere, GL_UNSIGNED_INT, 0);
 

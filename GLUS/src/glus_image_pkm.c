@@ -19,124 +19,124 @@
 
 GLUSboolean GLUSAPIENTRY glusImageLoadPkm(const GLUSchar* filename, GLUSpkmimage* pkmimage)
 {
-	GLUSbinaryfile binaryfile;
+    GLUSbinaryfile binaryfile;
 
-	GLUSubyte* buffer;
+    GLUSubyte* buffer;
 
-	GLUSubyte type;
+    GLUSubyte type;
 
-	// check, if we have a valid pointer
-	if (!filename || !pkmimage)
-	{
-		return GLUS_FALSE;
-	}
+    // check, if we have a valid pointer
+    if (!filename || !pkmimage)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (!glusFileLoadBinary(filename, &binaryfile))
-	{
-		return GLUS_FALSE;
-	}
+    if (!glusFileLoadBinary(filename, &binaryfile))
+    {
+        return GLUS_FALSE;
+    }
 
-	buffer = binaryfile.binary;
-	if (!(buffer[0] == 'P' && buffer[1] == 'K' && buffer[2] == 'M' && buffer[3] == ' '))
-	{
-		glusFileDestroyBinary(&binaryfile);
+    buffer = binaryfile.binary;
+    if (!(buffer[0] == 'P' && buffer[1] == 'K' && buffer[2] == 'M' && buffer[3] == ' '))
+    {
+        glusFileDestroyBinary(&binaryfile);
 
-		return GLUS_FALSE;
-	}
-	buffer += 7;
+        return GLUS_FALSE;
+    }
+    buffer += 7;
 
-	pkmimage->depth = 1;
+    pkmimage->depth = 1;
 
-	pkmimage->imageSize = binaryfile.length - 16;
-	if (pkmimage->imageSize <= 0)
-	{
-		glusFileDestroyBinary(&binaryfile);
+    pkmimage->imageSize = binaryfile.length - 16;
+    if (pkmimage->imageSize <= 0)
+    {
+        glusFileDestroyBinary(&binaryfile);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	pkmimage->data = (GLUSubyte*)glusMemoryMalloc(pkmimage->imageSize * sizeof(GLUSubyte));
-	if (!pkmimage->data)
-	{
-		glusFileDestroyBinary(&binaryfile);
+    pkmimage->data = (GLUSubyte*)glusMemoryMalloc(pkmimage->imageSize * sizeof(GLUSubyte));
+    if (!pkmimage->data)
+    {
+        glusFileDestroyBinary(&binaryfile);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	type = *buffer;
-	switch (type)
-	{
-		case 1:
-			pkmimage->internalformat = GLUS_COMPRESSED_RGB8_ETC2;
-		break;
-		case 3:
-			pkmimage->internalformat = GLUS_COMPRESSED_RGBA8_ETC2_EAC;
-		break;
-		case 4:
-			pkmimage->internalformat = GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-		break;
-		case 5:
-			pkmimage->internalformat = GLUS_COMPRESSED_R11_EAC;
-		break;
-		case 6:
-			pkmimage->internalformat = GLUS_COMPRESSED_RG11_EAC;
-		break;
-		case 7:
-			pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_R11_EAC;
-		break;
-		case 8:
-			pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_RG11_EAC;
-		break;
-		default:
-		{
-			glusImageDestroyPkm(pkmimage);
+    type = *buffer;
+    switch (type)
+    {
+    case 1:
+        pkmimage->internalformat = GLUS_COMPRESSED_RGB8_ETC2;
+        break;
+    case 3:
+        pkmimage->internalformat = GLUS_COMPRESSED_RGBA8_ETC2_EAC;
+        break;
+    case 4:
+        pkmimage->internalformat = GLUS_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        break;
+    case 5:
+        pkmimage->internalformat = GLUS_COMPRESSED_R11_EAC;
+        break;
+    case 6:
+        pkmimage->internalformat = GLUS_COMPRESSED_RG11_EAC;
+        break;
+    case 7:
+        pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_R11_EAC;
+        break;
+    case 8:
+        pkmimage->internalformat = GLUS_COMPRESSED_SIGNED_RG11_EAC;
+        break;
+    default:
+    {
+        glusImageDestroyPkm(pkmimage);
 
-			glusFileDestroyBinary(&binaryfile);
+        glusFileDestroyBinary(&binaryfile);
 
-			return GLUS_FALSE;
-		}
-		break;
-	}
-	buffer += 5;
+        return GLUS_FALSE;
+    }
+    break;
+    }
+    buffer += 5;
 
-	pkmimage->width = (GLUSushort)(*buffer) * 256;
-	buffer += 1;
-	pkmimage->width += (GLUSushort)(*buffer);
-	buffer += 1;
+    pkmimage->width = (GLUSushort)(*buffer) * 256;
+    buffer += 1;
+    pkmimage->width += (GLUSushort)(*buffer);
+    buffer += 1;
 
-	pkmimage->height = (GLUSushort)(*buffer) * 256;
-	buffer += 1;
-	pkmimage->height += (GLUSushort)(*buffer);
-	buffer += 1;
+    pkmimage->height = (GLUSushort)(*buffer) * 256;
+    buffer += 1;
+    pkmimage->height += (GLUSushort)(*buffer);
+    buffer += 1;
 
-	memcpy(pkmimage->data, buffer, pkmimage->imageSize);
+    memcpy(pkmimage->data, buffer, pkmimage->imageSize);
 
-	glusFileDestroyBinary(&binaryfile);
+    glusFileDestroyBinary(&binaryfile);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid GLUSAPIENTRY glusImageDestroyPkm(GLUSpkmimage* pkmimage)
 {
-	if (!pkmimage)
-	{
-		return;
-	}
+    if (!pkmimage)
+    {
+        return;
+    }
 
-	if (pkmimage->data)
-	{
-		glusMemoryFree(pkmimage->data);
+    if (pkmimage->data)
+    {
+        glusMemoryFree(pkmimage->data);
 
-		pkmimage->data = 0;
-	}
+        pkmimage->data = 0;
+    }
 
-	pkmimage->width = 0;
+    pkmimage->width = 0;
 
-	pkmimage->height = 0;
+    pkmimage->height = 0;
 
-	pkmimage->depth = 0;
+    pkmimage->depth = 0;
 
-	pkmimage->internalformat = 0;
+    pkmimage->internalformat = 0;
 
-	pkmimage->imageSize = 0;
+    pkmimage->imageSize = 0;
 }

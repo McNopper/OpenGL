@@ -23,19 +23,19 @@
  */
 typedef struct _GLUStgaimage
 {
-	/**
-	 * Width of the TGA image.
-	 */
+    /**
+     * Width of the TGA image.
+     */
     GLUSushort width;
 
-	/**
-	 * Height of the TGA image.
-	 */
+    /**
+     * Height of the TGA image.
+     */
     GLUSushort height;
 
-	/**
-	 * Depth of the image.
-	 */
+    /**
+     * Depth of the image.
+     */
     GLUSushort depth;
 
     /**
@@ -46,7 +46,7 @@ typedef struct _GLUStgaimage
     /**
      * Format of the TGA image. Can be:
      *
-	 * GLUS_RGB
+     * GLUS_RGB
      * GLUS_RGBA
      * GLUS_LUMINANCE
      *
@@ -61,25 +61,25 @@ typedef struct _GLUStgaimage
  */
 typedef struct _GLUShdrimage
 {
-	/**
-	 * Width of the HDR image.
-	 */
-	GLUSushort width;
+    /**
+     * Width of the HDR image.
+     */
+    GLUSushort width;
 
-	/**
-	 * Height of the HDR image.
-	 */
-	GLUSushort height;
+    /**
+     * Height of the HDR image.
+     */
+    GLUSushort height;
 
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
+    /**
+     * Depth of the image.
+     */
+    GLUSushort depth;
 
-	/**
-	 * Pixel data.
-	 */
-	GLUSfloat* data;
+    /**
+     * Pixel data.
+     */
+    GLUSfloat* data;
 
     /**
      * Format of the HDR image.
@@ -93,25 +93,25 @@ typedef struct _GLUShdrimage
  */
 typedef struct _GLUSpkmimage
 {
-	/**
-	 * Width of the PKM image.
-	 */
-	GLUSushort width;
+    /**
+     * Width of the PKM image.
+     */
+    GLUSushort width;
 
-	/**
-	 * Height of the PKM image.
-	 */
-	GLUSushort height;
+    /**
+     * Height of the PKM image.
+     */
+    GLUSushort height;
 
-	/**
-	 * Depth of the image.
-	 */
-	GLUSushort depth;
+    /**
+     * Depth of the image.
+     */
+    GLUSushort depth;
 
-	/**
-	 * Pixel data.
-	 */
-	GLUSubyte* data;
+    /**
+     * Pixel data.
+     */
+    GLUSubyte* data;
 
     /**
      * The image size in bytes.

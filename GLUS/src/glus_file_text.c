@@ -24,114 +24,114 @@ extern GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expec
 
 GLUSboolean GLUSAPIENTRY glusFileLoadText(const GLUSchar* filename, GLUStextfile* textfile)
 {
-	FILE* f;
-	size_t elementsRead;
+    FILE*  f;
+    size_t elementsRead;
 
-	if (!filename || !textfile)
-	{
-		return GLUS_FALSE;
-	}
+    if (!filename || !textfile)
+    {
+        return GLUS_FALSE;
+    }
 
-	textfile->text = 0;
+    textfile->text = 0;
 
-	textfile->length = 0;
+    textfile->length = 0;
 
-	f = glusFileOpen(filename, "rb");
+    f = glusFileOpen(filename, "rb");
 
-	if (!f)
-	{
-		return GLUS_FALSE;
-	}
+    if (!f)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (fseek(f, 0, SEEK_END))
-	{
-		glusFileClose(f);
+    if (fseek(f, 0, SEEK_END))
+    {
+        glusFileClose(f);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	textfile->length = ftell(f);
+    textfile->length = ftell(f);
 
-	if (textfile->length < 0 || textfile->length == GLUS_MAX_TEXTFILE_LENGTH)
-	{
-		glusFileClose(f);
+    if (textfile->length < 0 || textfile->length == GLUS_MAX_TEXTFILE_LENGTH)
+    {
+        glusFileClose(f);
 
-		textfile->length = 0;
+        textfile->length = 0;
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	textfile->text = (GLUSchar*)glusMemoryMalloc((size_t)textfile->length + 1);
+    textfile->text = (GLUSchar*)glusMemoryMalloc((size_t)textfile->length + 1);
 
-	if (!textfile->text)
-	{
-		glusFileClose(f);
+    if (!textfile->text)
+    {
+        glusFileClose(f);
 
-		textfile->length = 0;
+        textfile->length = 0;
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	memset(textfile->text, 0, (size_t)textfile->length + 1);
+    memset(textfile->text, 0, (size_t)textfile->length + 1);
 
-	rewind(f);
+    rewind(f);
 
-	elementsRead = fread(textfile->text, 1, (size_t)textfile->length, f);
+    elementsRead = fread(textfile->text, 1, (size_t)textfile->length, f);
 
-	if (!_glusFileCheckRead(f, elementsRead, (size_t)textfile->length))
-	{
-		glusFileDestroyText(textfile);
+    if (!_glusFileCheckRead(f, elementsRead, (size_t)textfile->length))
+    {
+        glusFileDestroyText(textfile);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	glusFileClose(f);
+    glusFileClose(f);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusFileSaveText(const GLUSchar* filename, const GLUStextfile* textfile)
 {
-	FILE* file;
-	size_t elementsWritten;
+    FILE*  file;
+    size_t elementsWritten;
 
-	if (!filename || !textfile)
-	{
-		return GLUS_FALSE;
-	}
+    if (!filename || !textfile)
+    {
+        return GLUS_FALSE;
+    }
 
-	file = glusFileOpen(filename, "w");
+    file = glusFileOpen(filename, "w");
 
-	if (!file)
-	{
-		return GLUS_FALSE;
-	}
+    if (!file)
+    {
+        return GLUS_FALSE;
+    }
 
-	elementsWritten = fwrite(textfile->text, 1, textfile->length * sizeof(GLUSchar), file);
+    elementsWritten = fwrite(textfile->text, 1, textfile->length * sizeof(GLUSchar), file);
 
-	if (!_glusFileCheckWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
-	{
-		return GLUS_FALSE;
-	}
+    if (!_glusFileCheckWrite(file, elementsWritten, textfile->length * sizeof(GLUSchar)))
+    {
+        return GLUS_FALSE;
+    }
 
-	glusFileClose(file);
+    glusFileClose(file);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid GLUSAPIENTRY glusFileDestroyText(GLUStextfile* textfile)
 {
-	if (!textfile)
-	{
-		return;
-	}
+    if (!textfile)
+    {
+        return;
+    }
 
-	if (textfile->text)
-	{
-		glusMemoryFree(textfile->text);
+    if (textfile->text)
+    {
+        glusMemoryFree(textfile->text);
 
-		textfile->text = 0;
-	}
+        textfile->text = 0;
+    }
 
-	textfile->length = 0;
+    textfile->length = 0;
 }

@@ -4,10 +4,10 @@ in vec4 a_vertex;
 
 out gl_PerVertex
 {
-	vec4 gl_Position;
+    vec4 gl_Position;
 };
 
 void main(void)
 {
-	gl_Position = a_vertex;
+    gl_Position = a_vertex;
 }

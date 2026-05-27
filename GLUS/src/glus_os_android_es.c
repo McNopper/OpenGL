@@ -44,246 +44,246 @@ extern int main(int argc, char* argv[]);
 
 struct android_app* g_app = 0;
 
-static void onConfigurationChanged(ANativeActivity *ac)
+static void onConfigurationChanged(ANativeActivity* ac)
 {
-	// Do nothing, but the callback has to be called.
+    // Do nothing, but the callback has to be called.
 }
 
 static void onAppCmd(struct android_app* app, int32_t cmd)
 {
-	if (!app)
-	{
-		return;
-	}
+    if (!app)
+    {
+        return;
+    }
 
-	switch(cmd)
-	{
-		case APP_CMD_INIT_WINDOW:
-			{
-				int32_t orientation = AConfiguration_getOrientation(g_app->config);
+    switch (cmd)
+    {
+    case APP_CMD_INIT_WINDOW:
+    {
+        int32_t orientation = AConfiguration_getOrientation(g_app->config);
 
-				g_width = ANativeWindow_getWidth(g_app->window);
-				g_height = ANativeWindow_getHeight(g_app->window);
+        g_width  = ANativeWindow_getWidth(g_app->window);
+        g_height = ANativeWindow_getHeight(g_app->window);
 
-				if (orientation != ACONFIGURATION_ORIENTATION_PORT)
-				{
-					int32_t  temp = g_width;
+        if (orientation != ACONFIGURATION_ORIENTATION_PORT)
+        {
+            int32_t temp = g_width;
 
-					g_width = g_height;
-					g_height = temp;
-				}
+            g_width  = g_height;
+            g_height = temp;
+        }
 
-				g_nativeWindow = app->window;
-			}
-	        break;
+        g_nativeWindow = app->window;
+    }
+    break;
 
-	    case APP_CMD_TERM_WINDOW:
-	    case APP_CMD_DESTROY:
+    case APP_CMD_TERM_WINDOW:
+    case APP_CMD_DESTROY:
 
-	    	if (g_nativeWindow)
-	    	{
-		    	_glusWindowInternalClose();
+        if (g_nativeWindow)
+        {
+            _glusWindowInternalClose();
 
-		    	g_nativeWindow = 0;
-	    	}
+            g_nativeWindow = 0;
+        }
 
-			g_width = -1;
-			g_height = -1;
+        g_width  = -1;
+        g_height = -1;
 
-	    	app->destroyRequested = 1;
+        app->destroyRequested = 1;
 
-	    	break;
-	}
+        break;
+    }
 }
 
 static int32_t onInputEvent(struct android_app* app, AInputEvent* event)
 {
-	if (!event)
-	{
-		return 0;
-	}
+    if (!event)
+    {
+        return 0;
+    }
 
-	int32_t type = AInputEvent_getType(event);
+    int32_t type = AInputEvent_getType(event);
 
-	if (AINPUT_EVENT_TYPE_MOTION == type)
-	{
-		static float lastX = -1.0f;
-		static float lastY = -1.0f;
+    if (AINPUT_EVENT_TYPE_MOTION == type)
+    {
+        static float lastX = -1.0f;
+        static float lastY = -1.0f;
 
-		static GLUSboolean pressed = GLUS_FALSE;
+        static GLUSboolean pressed = GLUS_FALSE;
 
-		//
+        //
 
-		float x = AMotionEvent_getX(event, 0);
-		float y = AMotionEvent_getY(event, 0);
+        float x = AMotionEvent_getX(event, 0);
+        float y = AMotionEvent_getY(event, 0);
 
-		if (x != lastX || y != lastY)
-		{
-			lastX = x;
-			lastY = y;
+        if (x != lastX || y != lastY)
+        {
+            lastX = x;
+            lastY = y;
 
-			_glusWindowInternalMouseMove(x, y);
-		}
+            _glusWindowInternalMouseMove(x, y);
+        }
 
-		//
+        //
 
-		float pressure = AMotionEvent_getPressure(event, 0);
+        float pressure = AMotionEvent_getPressure(event, 0);
 
-		if (pressure == 0.0f && pressed)
-		{
-			pressed = GLUS_FALSE;
+        if (pressure == 0.0f && pressed)
+        {
+            pressed = GLUS_FALSE;
 
-			_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
-		}
-		else if (pressure >= 1.0f && !pressed)
-		{
-			pressed = GLUS_TRUE;
+            _glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
+        }
+        else if (pressure >= 1.0f && !pressed)
+        {
+            pressed = GLUS_TRUE;
 
-			_glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
-		}
-	}
+            _glusWindowInternalMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 void android_main(struct android_app* app)
 {
-	// Make sure glue isn't stripped.
-	app_dummy();
+    // Make sure glue isn't stripped.
+    app_dummy();
 
-	if (!app)
-	{
-		return;
-	}
+    if (!app)
+    {
+        return;
+    }
 
-	g_app = app;
+    g_app = app;
 
-	g_app->onAppCmd = onAppCmd;
-	g_app->onInputEvent = onInputEvent;
+    g_app->onAppCmd     = onAppCmd;
+    g_app->onInputEvent = onInputEvent;
 
-	g_app->activity->callbacks->onConfigurationChanged = onConfigurationChanged;
+    g_app->activity->callbacks->onConfigurationChanged = onConfigurationChanged;
 
-	//
+    //
 
-	GLUSboolean doInit = GLUS_TRUE;
+    GLUSboolean doInit = GLUS_TRUE;
 
-	while(doInit)
-	{
-		int ident;
-	    int events;
-	    struct android_poll_source* androidPollSource;
+    while (doInit)
+    {
+        int                         ident;
+        int                         events;
+        struct android_poll_source* androidPollSource;
 
-	    while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&androidPollSource)) >= 0)
-	    {
-	    	if (androidPollSource != NULL)
-	        {
-	    		androidPollSource->process(g_app, androidPollSource);
-	        }
-	    }
+        while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&androidPollSource)) >= 0)
+        {
+            if (androidPollSource != NULL)
+            {
+                androidPollSource->process(g_app, androidPollSource);
+            }
+        }
 
-	    if (g_app->destroyRequested != 0)
-	    {
-	    	exit(0);
-	    }
+        if (g_app->destroyRequested != 0)
+        {
+            exit(0);
+        }
 
-	    if (g_nativeWindow != 0)
-	    {
-	    	doInit = GLUS_FALSE;
-	    }
-	}
+        if (g_nativeWindow != 0)
+        {
+            doInit = GLUS_FALSE;
+        }
+    }
 
-	//
+    //
 
-	main(0, 0);
+    main(0, 0);
 
-	//
+    //
 
-	exit(0);
+    exit(0);
 }
 
 //
 
 GLUSvoid _glusOsPollEvents()
 {
-	int ident;
-    int events;
+    int                         ident;
+    int                         events;
     struct android_poll_source* androidPollSource;
 
     while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&androidPollSource)) >= 0)
     {
-         if (androidPollSource != NULL)
-         {
-        	 androidPollSource->process(g_app, androidPollSource);
-         }
+        if (androidPollSource != NULL)
+        {
+            androidPollSource->process(g_app, androidPollSource);
+        }
     }
 
-	int32_t orientation = AConfiguration_getOrientation (g_app->config);
+    int32_t orientation = AConfiguration_getOrientation(g_app->config);
 
-	int32_t width = ANativeWindow_getWidth(g_app->window);
-	int32_t height = ANativeWindow_getHeight(g_app->window);
+    int32_t width  = ANativeWindow_getWidth(g_app->window);
+    int32_t height = ANativeWindow_getHeight(g_app->window);
 
-	if (orientation != ACONFIGURATION_ORIENTATION_PORT)
-	{
-		int32_t temp = width;
-
-		width = height;
-		height = temp;
-	}
-
-	if (width != g_width || height != g_height)
-	{
-		g_width = width;
-		g_height = height;
-
-		_glusWindowInternalReshape(g_width, g_height);
-	}
-
-    if (g_app->destroyRequested != 0 )
+    if (orientation != ACONFIGURATION_ORIENTATION_PORT)
     {
-    	_glusWindowInternalClose();
+        int32_t temp = width;
+
+        width  = height;
+        height = temp;
+    }
+
+    if (width != g_width || height != g_height)
+    {
+        g_width  = width;
+        g_height = height;
+
+        _glusWindowInternalReshape(g_width, g_height);
+    }
+
+    if (g_app->destroyRequested != 0)
+    {
+        _glusWindowInternalClose();
     }
 }
 
 EGLNativeDisplayType _glusOsGetNativeDisplayType()
 {
-	return g_nativeDisplay;
+    return g_nativeDisplay;
 }
 
 EGLNativeWindowType _glusOsCreateNativeWindowType(const char* title, const GLUSint width, const GLUSint height, const GLUSboolean fullscreen, const GLUSboolean noResize, EGLint eglNativeVisualID)
 {
-	glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'width', 'height', 'fullscreen' and 'noResize' are not used");
-	glusLogPrint(GLUS_LOG_INFO, "Key and mouse events are not supported");
+    glusLogPrint(GLUS_LOG_INFO, "Parameters 'title', 'width', 'height', 'fullscreen' and 'noResize' are not used");
+    glusLogPrint(GLUS_LOG_INFO, "Key and mouse events are not supported");
 
-	// Width and height already set.
+    // Width and height already set.
 
-	return g_nativeWindow;
+    return g_nativeWindow;
 }
 
 GLUSvoid _glusOsDestroyNativeWindowDisplay()
 {
-	g_nativeWindow = 0;
+    g_nativeWindow = 0;
 
-	g_nativeDisplay = 0;
+    g_nativeDisplay = 0;
 }
 
 double _glusOsGetRawTime()
 {
-	struct timespec currentTime;
+    struct timespec currentTime;
 
-	clock_gettime(CLOCK_MONOTONIC, &currentTime);
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
 
-	return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
+    return (double)currentTime.tv_sec + (double)currentTime.tv_nsec / 1000000000.0;
 }
 
 GLUSvoid _glusOsGetWindowSize(GLUSint* width, GLUSint* height)
 {
-	if (width)
-	{
-		*width = g_width;
-	}
+    if (width)
+    {
+        *width = g_width;
+    }
 
-	if (height)
-	{
-		*height = g_height;
-	}
+    if (height)
+    {
+        *height = g_height;
+    }
 }

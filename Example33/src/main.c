@@ -14,19 +14,19 @@
 #include "GL/glus.h"
 
 // Number of roughness layers per specular cube map side
-#define NUMBER_ROUGHNESS	6
+#define NUMBER_ROUGHNESS 6
 
-#define SCREEN_WIDTH	1024
-#define SCREEN_HEIGHT	768
-#define MSAA_SAMPLES	4
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 768
+#define MSAA_SAMPLES 4
 
-#define BACKGROUND_CUBEMAP_SIZE	512
-#define SPECULAR_CUBEMAP_SIZE	512
-#define DIFFUSE_CUBEMAP_SIZE	128
-#define BRDF_LUT_SIZE		512
+#define BACKGROUND_CUBEMAP_SIZE 512
+#define SPECULAR_CUBEMAP_SIZE 512
+#define DIFFUSE_CUBEMAP_SIZE 128
+#define BRDF_LUT_SIZE 512
 
 static GLfloat g_exposure = 3.0f;
-static GLfloat g_gamma = 2.2f;
+static GLfloat g_gamma    = 2.2f;
 
 // Roughness of the material.
 static GLfloat g_roughness = 0.1f;
@@ -35,11 +35,11 @@ static GLfloat g_roughness = 0.1f;
 static GLfloat g_R0 = 0.2f;
 
 // Base color.
-static GLfloat g_colorMaterial[3] = { 0.8f, 0.8f, 0.8f };
+static GLfloat g_colorMaterial[3] = {0.8f, 0.8f, 0.8f};
 
 //
 
-static GLfloat g_eye[4] = { 0.0f, 2.5f, 6.0f, 1.0f };
+static GLfloat g_eye[4] = {0.0f, 2.5f, 6.0f, 1.0f};
 
 //
 
@@ -137,802 +137,804 @@ static GLuint g_numberIndicesBackground;
 
 GLUSboolean init(GLUSvoid)
 {
-	GLUSshape backgroundSphere;
+    GLUSshape backgroundSphere;
 
-	GLUSshape wavefront;
+    GLUSshape wavefront;
 
-	// 6 sides of diffuse and specular; all roughness levels of specular.
-	// These are no longer loaded from disk; kept for potential future use.
+    // 6 sides of diffuse and specular; all roughness levels of specular.
+    // These are no longer loaded from disk; kept for potential future use.
 
-	// The BRDF integration LUT is generated on the GPU at startup (brdf_lut.frag.glsl).
+    // The BRDF integration LUT is generated on the GPU at startup (brdf_lut.frag.glsl).
 
-	GLUStextfile vertexSource;
-	GLUStextfile fragmentSource;
+    GLUStextfile vertexSource;
+    GLUStextfile fragmentSource;
 
-	GLint k, m;
+    GLint k, m;
 
-	// IBL prefilter programs and their uniforms (temporary, used only during init).
-	GLUSprogram specularPrefilterProgram;
-	GLint panoramaTexSPLoc, faceSPLoc, roughnessSPLoc;
+    // IBL prefilter programs and their uniforms (temporary, used only during init).
+    GLUSprogram specularPrefilterProgram;
+    GLint       panoramaTexSPLoc, faceSPLoc, roughnessSPLoc;
 
-	GLUSprogram diffusePrefilterProgram;
-	GLint panoramaTexDPLoc, faceDPLoc;
+    GLUSprogram diffusePrefilterProgram;
+    GLint       panoramaTexDPLoc, faceDPLoc;
 
-	GLUSprogram brdfLutProgram;
+    GLUSprogram brdfLutProgram;
 
-	// Panorama-to-cubemap program for the visible background sphere.
-	GLUSprogram panoramaToCubemapProgram;
-	GLint panoramaTexBGLoc, faceBGLoc;
+    // Panorama-to-cubemap program for the visible background sphere.
+    GLUSprogram panoramaToCubemapProgram;
+    GLint       panoramaTexBGLoc, faceBGLoc;
 
-	// Shared GPU resources for all prefilter passes.
-	GLuint panoramaGLTexture;
-	GLuint prefilterFBO;
-	GLuint quadVBO;
-	GLuint quadVAO;
-	GLUShdrimage panoramaImage;
-	GLfloat quadVertices[8];
+    // Shared GPU resources for all prefilter passes.
+    GLuint       panoramaGLTexture;
+    GLuint       prefilterFBO;
+    GLuint       quadVBO;
+    GLuint       quadVAO;
+    GLUShdrimage panoramaImage;
+    GLfloat      quadVertices[8];
 
-	//
+    //
 
-	glusFileLoadText("../Example33/shader/brdf.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/brdf.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example33/shader/brdf.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/brdf.frag.glsl", &fragmentSource);
 
-	glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
-	g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
-	g_modelMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
-	g_normalMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
-	g_eyeModelLocation = glGetUniformLocation(g_modelProgram.program, "u_eye");
-	g_textureSpecularModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureSpecular");
-	g_textureDiffuseModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureDiffuse");
-	g_textureLUTModelLocation = glGetUniformLocation(g_modelProgram.program, "u_textureLUT");
-	g_colorMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
-	g_roughnessMaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
-	g_roughnessScaleModelLocation = glGetUniformLocation(g_modelProgram.program, "u_roughnessScale");
-	g_R0MaterialModelLocation = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
+    g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
+    g_modelMatrixModelLocation          = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
+    g_normalMatrixModelLocation         = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
+    g_eyeModelLocation                  = glGetUniformLocation(g_modelProgram.program, "u_eye");
+    g_textureSpecularModelLocation      = glGetUniformLocation(g_modelProgram.program, "u_textureSpecular");
+    g_textureDiffuseModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_textureDiffuse");
+    g_textureLUTModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_textureLUT");
+    g_colorMaterialModelLocation        = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
+    g_roughnessMaterialModelLocation    = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
+    g_roughnessScaleModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_roughnessScale");
+    g_R0MaterialModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
 
-	g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
-	g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
+    g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
+    g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
 
-	//
+    //
 
-	glusFileLoadText("../Example33/shader/fullscreen.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/fullscreen.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example33/shader/fullscreen.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/fullscreen.frag.glsl", &fragmentSource);
 
-	glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
-	//
+    //
 
-	g_framebufferTextureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_framebufferTexture");
+    g_framebufferTextureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_framebufferTexture");
 
-	g_msaaSamplesFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
-	g_exposureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
-	g_gammaFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
+    g_msaaSamplesFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
+    g_exposureFullscreenLocation    = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
+    g_gammaFullscreenLocation       = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
 
-	//
-	//
+    //
+    //
 
-	glusFileLoadText("../Example33/shader/background.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/background.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example33/shader/background.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/background.frag.glsl", &fragmentSource);
 
-	glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+    glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
-	//
+    //
 
-	g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_viewProjectionMatrix");
-	g_textureBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_texture");
+    g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_viewProjectionMatrix");
+    g_textureBackgroundLocation              = glGetUniformLocation(g_backgroundProgram.program, "u_texture");
 
-	g_vertexBackgroundLocation = glGetAttribLocation(g_backgroundProgram.program, "a_vertex");
+    g_vertexBackgroundLocation = glGetAttribLocation(g_backgroundProgram.program, "a_vertex");
 
-	//
-	// Setting up the full screen frame buffer.
-	//
+    //
+    // Setting up the full screen frame buffer.
+    //
 
-	glGenTextures(1, &g_fullscreenTexture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
-
-	// Create MSAA texture.
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLES, GL_RGB32F, SCREEN_WIDTH, SCREEN_HEIGHT, GL_TRUE);
-
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
-	// No need to access the depth buffer, so a render buffer is sufficient.
-
-	glGenRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLES, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	//
-
-	glGenFramebuffers(1, &g_fullscreenFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
-
-	// Attach the color buffer ...
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture, 0);
-
-	// ... and the depth buffer.
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-		return GLUS_FALSE;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//
-	//
-	//
-
-	//
-	// ---- GPU IBL prefilter ----
-	// Load the HDR panorama once, then generate all IBL textures on the GPU.
-	//
-
-	printf("Loading panorama 'doge2.hdr' ... ");
-	if (!glusImageLoadHdr("doge2.hdr", &panoramaImage))
-	{
-		printf("failed!\n");
-		return GLUS_FALSE;
-	}
-	printf("done.\n");
-
-	glGenTextures(1, &panoramaGLTexture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F,
-			panoramaImage.width, panoramaImage.height,
-			0, GL_RGB, GL_FLOAT, panoramaImage.data);
-	glusImageDestroyHdr(&panoramaImage);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// Shared FBO and fullscreen quad for all prefilter passes.
-	glGenFramebuffers(1, &prefilterFBO);
-
-	quadVertices[0] = -1.0f; quadVertices[1] = -1.0f;
-	quadVertices[2] =  1.0f; quadVertices[3] = -1.0f;
-	quadVertices[4] = -1.0f; quadVertices[5] =  1.0f;
-	quadVertices[6] =  1.0f; quadVertices[7] =  1.0f;
-
-	glGenBuffers(1, &quadVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-	// location=0 is set in the vertex shader with layout(location=0).
-	glGenVertexArrays(1, &quadVAO);
-	glBindVertexArray(quadVAO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glDisable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, prefilterFBO);
-
-	// ------------------------------------------------------------------
-	// Pass 1: specular pre-filtered cubemap array (g_texture[0])
-	//   Layout: 6 * NUMBER_ROUGHNESS layers.
-	//   Layer index = roughness_level * 6 + face.
-	//   Roughness range 0..1 mapped to levels 0..NUMBER_ROUGHNESS-1.
-	// ------------------------------------------------------------------
-
-	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/prefilter_specular.frag.glsl", &fragmentSource);
-	glusProgramBuildFromSource(&specularPrefilterProgram,
-			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
-
-	panoramaTexSPLoc = glGetUniformLocation(specularPrefilterProgram.program, "u_panoramaTexture");
-	faceSPLoc        = glGetUniformLocation(specularPrefilterProgram.program, "u_face");
-	roughnessSPLoc   = glGetUniformLocation(specularPrefilterProgram.program, "u_roughness");
-
-	glGenTextures(1, &g_texture[0]);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
-	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F,
-			SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, 6 * NUMBER_ROUGHNESS,
-			0, GL_RGB, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
-
-	glUseProgram(specularPrefilterProgram.program);
-	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
-	glUniform1i(panoramaTexSPLoc, 0);
-	glViewport(0, 0, SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE);
-
-	printf("Generating specular cubemap array (%dx%d, %d roughness levels) ...\n",
-			SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, NUMBER_ROUGHNESS);
-
-	for (k = 0; k < NUMBER_ROUGHNESS; k++)
-	{
-		GLfloat roughness = (NUMBER_ROUGHNESS > 1) ? (GLfloat)k / (GLfloat)(NUMBER_ROUGHNESS - 1) : 0.0f;
-		glUniform1f(roughnessSPLoc, roughness);
-
-		for (m = 0; m < 6; m++)
-		{
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-					g_texture[0], 0, k * 6 + m);
-			glUniform1i(faceSPLoc, m);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		}
-		printf("  roughness level %d (%.2f) done.\n", k, roughness);
-	}
-
-	glusProgramDestroy(&specularPrefilterProgram);
-
-	// ------------------------------------------------------------------
-	// Pass 2: diffuse irradiance cubemap (g_texture[1])
-	// ------------------------------------------------------------------
-
-	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/prefilter_diffuse.frag.glsl", &fragmentSource);
-	glusProgramBuildFromSource(&diffusePrefilterProgram,
-			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
-
-	panoramaTexDPLoc = glGetUniformLocation(diffusePrefilterProgram.program, "u_panoramaTexture");
-	faceDPLoc        = glGetUniformLocation(diffusePrefilterProgram.program, "u_face");
-
-	glGenTextures(1, &g_texture[1]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
-	for (m = 0; m < 6; m++)
-	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
-				DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-	glUseProgram(diffusePrefilterProgram.program);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
-	glUniform1i(panoramaTexDPLoc, 0);
-	glViewport(0, 0, DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
-
-	printf("Generating diffuse irradiance cubemap (%dx%d) ...\n",
-			DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
-
-	for (m = 0; m < 6; m++)
-	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_texture[1], 0);
-		glUniform1i(faceDPLoc, m);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	}
-	printf("  diffuse irradiance done.\n");
-
-	glusProgramDestroy(&diffusePrefilterProgram);
-
-	// ------------------------------------------------------------------
-	// Pass 3: BRDF integration LUT (g_texture[2])
-	//   UV layout: x = NdotV, y = roughness (both in [0,1]).
-	//   Output: RG32F (scale, bias) as in Karis 2013.
-	// ------------------------------------------------------------------
-
-	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/brdf_lut.frag.glsl", &fragmentSource);
-	glusProgramBuildFromSource(&brdfLutProgram,
-			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
-
-	glGenTextures(1, &g_texture[2]);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, g_texture[2]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F,
-			BRDF_LUT_SIZE, BRDF_LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glUseProgram(brdfLutProgram.program);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_texture[2], 0);
-	glViewport(0, 0, BRDF_LUT_SIZE, BRDF_LUT_SIZE);
-
-	printf("Generating BRDF LUT (%dx%d) ...\n", BRDF_LUT_SIZE, BRDF_LUT_SIZE);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	printf("  BRDF LUT done.\n");
-
-	glusProgramDestroy(&brdfLutProgram);
-
-	// ------------------------------------------------------------------
-	// Pass 4: sharp background cubemap from the same panorama (g_backgroundCubemapTexture)
-	// ------------------------------------------------------------------
-
-	glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example33/shader/panorama_to_cubemap.frag.glsl", &fragmentSource);
-	glusProgramBuildFromSource(&panoramaToCubemapProgram,
-			(const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
-
-	panoramaTexBGLoc = glGetUniformLocation(panoramaToCubemapProgram.program, "u_panoramaTexture");
-	faceBGLoc        = glGetUniformLocation(panoramaToCubemapProgram.program, "u_face");
-
-	glGenTextures(1, &g_backgroundCubemapTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
-	for (m = 0; m < 6; m++)
-	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
-				BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-	glUseProgram(panoramaToCubemapProgram.program);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
-	glUniform1i(panoramaTexBGLoc, 0);
-	glViewport(0, 0, BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE);
-
-	for (m = 0; m < 6; m++)
-	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_backgroundCubemapTexture, 0);
-		glUniform1i(faceBGLoc, m);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	}
-
-	glusProgramDestroy(&panoramaToCubemapProgram);
-
-	// ------------------------------------------------------------------
-	// Clean up all shared prefilter resources (textures live in g_texture[]).
-	// ------------------------------------------------------------------
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &quadVAO);
-	glDeleteBuffers(1, &quadVBO);
-	glDeleteFramebuffers(1, &prefilterFBO);
-	glDeleteTextures(1, &panoramaGLTexture);
-
-	printf("IBL prefilter complete.\n");
-
-	//
-
-	glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32);
-	g_numberIndicesBackground = backgroundSphere.numberIndices;
-
-	glGenBuffers(1, &g_verticesBackgroundVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-	glBufferData(GL_ARRAY_BUFFER, backgroundSphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)backgroundSphere.vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glGenBuffers(1, &g_indicesBackgroundVBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, backgroundSphere.numberIndices * sizeof(GLuint), (GLuint*)backgroundSphere.indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glusShapeDestroyf(&backgroundSphere);
-
-	//
-	//
-
-	// Use a helper function to load an wavefront object file.
-	glusShapeLoadWavefront("venusm.obj", &wavefront);
-
-	g_numberVerticesModel = wavefront.numberVertices;
-
-	glGenBuffers(1, &g_verticesModelVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
-	glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefront.vertices, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &g_normalsModelVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
-	glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefront.normals, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glusShapeDestroyf(&wavefront);
-
-	//
-
-	glUseProgram(g_modelProgram.program);
-
-	glUniform4fv(g_eyeModelLocation, 1, g_eye);
-	glUniform1i(g_textureSpecularModelLocation, 0);
-	glUniform1i(g_textureDiffuseModelLocation, 1);
-	glUniform1i(g_textureLUTModelLocation, 2);
-	glUniform1f(g_roughnessScaleModelLocation, (GLfloat)(NUMBER_ROUGHNESS - 1));
-
-	glGenVertexArrays(1, &g_modelVAO);
-	glBindVertexArray(g_modelVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
-	glVertexAttribPointer(g_vertexModelLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_vertexModelLocation);
-
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
-	glVertexAttribPointer(g_normalModelLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_normalModelLocation);
-
-	//
-
-	glUseProgram(g_fullscreenProgram.program);
-
-	glUniform1i(g_framebufferTextureFullscreenLocation, 0);
-	glUniform1i(g_msaaSamplesFullscreenLocation, MSAA_SAMPLES);
-
-	glGenVertexArrays(1, &g_fullscreenVAO);
-	glBindVertexArray(g_fullscreenVAO);
-
-	//
-
-	glUseProgram(g_backgroundProgram.program);
-
-	// Background cubemap is on texture unit 3.
-	glUniform1i(g_textureBackgroundLocation, 3);
-
-	glGenVertexArrays(1, &g_backgroundVAO);
-	glBindVertexArray(g_backgroundVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-	glVertexAttribPointer(g_vertexBackgroundLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_vertexBackgroundLocation);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
-
-	// Bind background cubemap to unit 3 (persistent; not rebound elsewhere).
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
-	glActiveTexture(GL_TEXTURE0);
-
-	//
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-	glClearDepth(1.0f);
-
-	glEnable(GL_CULL_FACE);
-
-	return GLUS_TRUE;
+    glGenTextures(1, &g_fullscreenTexture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
+
+    // Create MSAA texture.
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLES, GL_RGB32F, SCREEN_WIDTH, SCREEN_HEIGHT, GL_TRUE);
+
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+    // No need to access the depth buffer, so a render buffer is sufficient.
+
+    glGenRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLES, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    //
+
+    glGenFramebuffers(1, &g_fullscreenFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
+
+    // Attach the color buffer ...
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture, 0);
+
+    // ... and the depth buffer.
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_fullscreenDepthRenderbuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+        return GLUS_FALSE;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //
+    //
+    //
+
+    //
+    // ---- GPU IBL prefilter ----
+    // Load the HDR panorama once, then generate all IBL textures on the GPU.
+    //
+
+    printf("Loading panorama 'doge2.hdr' ... ");
+    if (!glusImageLoadHdr("doge2.hdr", &panoramaImage))
+    {
+        printf("failed!\n");
+        return GLUS_FALSE;
+    }
+    printf("done.\n");
+
+    glGenTextures(1, &panoramaGLTexture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F,
+                 panoramaImage.width, panoramaImage.height,
+                 0, GL_RGB, GL_FLOAT, panoramaImage.data);
+    glusImageDestroyHdr(&panoramaImage);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // Shared FBO and fullscreen quad for all prefilter passes.
+    glGenFramebuffers(1, &prefilterFBO);
+
+    quadVertices[0] = -1.0f;
+    quadVertices[1] = -1.0f;
+    quadVertices[2] = 1.0f;
+    quadVertices[3] = -1.0f;
+    quadVertices[4] = -1.0f;
+    quadVertices[5] = 1.0f;
+    quadVertices[6] = 1.0f;
+    quadVertices[7] = 1.0f;
+
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    // location=0 is set in the vertex shader with layout(location=0).
+    glGenVertexArrays(1, &quadVAO);
+    glBindVertexArray(quadVAO);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glDisable(GL_CULL_FACE);
+    glBindFramebuffer(GL_FRAMEBUFFER, prefilterFBO);
+
+    // ------------------------------------------------------------------
+    // Pass 1: specular pre-filtered cubemap array (g_texture[0])
+    //   Layout: 6 * NUMBER_ROUGHNESS layers.
+    //   Layer index = roughness_level * 6 + face.
+    //   Roughness range 0..1 mapped to levels 0..NUMBER_ROUGHNESS-1.
+    // ------------------------------------------------------------------
+
+    glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/prefilter_specular.frag.glsl", &fragmentSource);
+    glusProgramBuildFromSource(&specularPrefilterProgram,
+                               (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
+
+    panoramaTexSPLoc = glGetUniformLocation(specularPrefilterProgram.program, "u_panoramaTexture");
+    faceSPLoc        = glGetUniformLocation(specularPrefilterProgram.program, "u_face");
+    roughnessSPLoc   = glGetUniformLocation(specularPrefilterProgram.program, "u_roughness");
+
+    glGenTextures(1, &g_texture[0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB32F,
+                 SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, 6 * NUMBER_ROUGHNESS,
+                 0, GL_RGB, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+
+    glUseProgram(specularPrefilterProgram.program);
+    glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+    glUniform1i(panoramaTexSPLoc, 0);
+    glViewport(0, 0, SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE);
+
+    printf("Generating specular cubemap array (%dx%d, %d roughness levels) ...\n",
+           SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, NUMBER_ROUGHNESS);
+
+    for (k = 0; k < NUMBER_ROUGHNESS; k++)
+    {
+        GLfloat roughness = (NUMBER_ROUGHNESS > 1) ? (GLfloat)k / (GLfloat)(NUMBER_ROUGHNESS - 1) : 0.0f;
+        glUniform1f(roughnessSPLoc, roughness);
+
+        for (m = 0; m < 6; m++)
+        {
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                      g_texture[0], 0, k * 6 + m);
+            glUniform1i(faceSPLoc, m);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+        printf("  roughness level %d (%.2f) done.\n", k, roughness);
+    }
+
+    glusProgramDestroy(&specularPrefilterProgram);
+
+    // ------------------------------------------------------------------
+    // Pass 2: diffuse irradiance cubemap (g_texture[1])
+    // ------------------------------------------------------------------
+
+    glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/prefilter_diffuse.frag.glsl", &fragmentSource);
+    glusProgramBuildFromSource(&diffusePrefilterProgram,
+                               (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
+
+    panoramaTexDPLoc = glGetUniformLocation(diffusePrefilterProgram.program, "u_panoramaTexture");
+    faceDPLoc        = glGetUniformLocation(diffusePrefilterProgram.program, "u_face");
+
+    glGenTextures(1, &g_texture[1]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
+    for (m = 0; m < 6; m++)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
+                     DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    glUseProgram(diffusePrefilterProgram.program);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+    glUniform1i(panoramaTexDPLoc, 0);
+    glViewport(0, 0, DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
+
+    printf("Generating diffuse irradiance cubemap (%dx%d) ...\n",
+           DIFFUSE_CUBEMAP_SIZE, DIFFUSE_CUBEMAP_SIZE);
+
+    for (m = 0; m < 6; m++)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_texture[1], 0);
+        glUniform1i(faceDPLoc, m);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+    printf("  diffuse irradiance done.\n");
+
+    glusProgramDestroy(&diffusePrefilterProgram);
+
+    // ------------------------------------------------------------------
+    // Pass 3: BRDF integration LUT (g_texture[2])
+    //   UV layout: x = NdotV, y = roughness (both in [0,1]).
+    //   Output: RG32F (scale, bias) as in Karis 2013.
+    // ------------------------------------------------------------------
+
+    glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/brdf_lut.frag.glsl", &fragmentSource);
+    glusProgramBuildFromSource(&brdfLutProgram,
+                               (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
+
+    glGenTextures(1, &g_texture[2]);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, g_texture[2]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F,
+                 BRDF_LUT_SIZE, BRDF_LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glUseProgram(brdfLutProgram.program);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_texture[2], 0);
+    glViewport(0, 0, BRDF_LUT_SIZE, BRDF_LUT_SIZE);
+
+    printf("Generating BRDF LUT (%dx%d) ...\n", BRDF_LUT_SIZE, BRDF_LUT_SIZE);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    printf("  BRDF LUT done.\n");
+
+    glusProgramDestroy(&brdfLutProgram);
+
+    // ------------------------------------------------------------------
+    // Pass 4: sharp background cubemap from the same panorama (g_backgroundCubemapTexture)
+    // ------------------------------------------------------------------
+
+    glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example33/shader/panorama_to_cubemap.frag.glsl", &fragmentSource);
+    glusProgramBuildFromSource(&panoramaToCubemapProgram,
+                               (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
+
+    panoramaTexBGLoc = glGetUniformLocation(panoramaToCubemapProgram.program, "u_panoramaTexture");
+    faceBGLoc        = glGetUniformLocation(panoramaToCubemapProgram.program, "u_face");
+
+    glGenTextures(1, &g_backgroundCubemapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
+    for (m = 0; m < 6; m++)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, 0, GL_RGB32F,
+                     BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE, 0, GL_RGB, GL_FLOAT, 0);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    glUseProgram(panoramaToCubemapProgram.program);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+    glUniform1i(panoramaTexBGLoc, 0);
+    glViewport(0, 0, BACKGROUND_CUBEMAP_SIZE, BACKGROUND_CUBEMAP_SIZE);
+
+    for (m = 0; m < 6; m++)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + m, g_backgroundCubemapTexture, 0);
+        glUniform1i(faceBGLoc, m);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    glusProgramDestroy(&panoramaToCubemapProgram);
+
+    // ------------------------------------------------------------------
+    // Clean up all shared prefilter resources (textures live in g_texture[]).
+    // ------------------------------------------------------------------
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &quadVAO);
+    glDeleteBuffers(1, &quadVBO);
+    glDeleteFramebuffers(1, &prefilterFBO);
+    glDeleteTextures(1, &panoramaGLTexture);
+
+    printf("IBL prefilter complete.\n");
+
+    //
+
+    glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32);
+    g_numberIndicesBackground = backgroundSphere.numberIndices;
+
+    glGenBuffers(1, &g_verticesBackgroundVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
+    glBufferData(GL_ARRAY_BUFFER, backgroundSphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)backgroundSphere.vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, &g_indicesBackgroundVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, backgroundSphere.numberIndices * sizeof(GLuint), (GLuint*)backgroundSphere.indices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glusShapeDestroyf(&backgroundSphere);
+
+    //
+    //
+
+    // Use a helper function to load an wavefront object file.
+    glusShapeLoadWavefront("venusm.obj", &wavefront);
+
+    g_numberVerticesModel = wavefront.numberVertices;
+
+    glGenBuffers(1, &g_verticesModelVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
+    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefront.vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_normalsModelVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
+    glBufferData(GL_ARRAY_BUFFER, wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefront.normals, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glusShapeDestroyf(&wavefront);
+
+    //
+
+    glUseProgram(g_modelProgram.program);
+
+    glUniform4fv(g_eyeModelLocation, 1, g_eye);
+    glUniform1i(g_textureSpecularModelLocation, 0);
+    glUniform1i(g_textureDiffuseModelLocation, 1);
+    glUniform1i(g_textureLUTModelLocation, 2);
+    glUniform1f(g_roughnessScaleModelLocation, (GLfloat)(NUMBER_ROUGHNESS - 1));
+
+    glGenVertexArrays(1, &g_modelVAO);
+    glBindVertexArray(g_modelVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesModelVBO);
+    glVertexAttribPointer(g_vertexModelLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexModelLocation);
+
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsModelVBO);
+    glVertexAttribPointer(g_normalModelLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_normalModelLocation);
+
+    //
+
+    glUseProgram(g_fullscreenProgram.program);
+
+    glUniform1i(g_framebufferTextureFullscreenLocation, 0);
+    glUniform1i(g_msaaSamplesFullscreenLocation, MSAA_SAMPLES);
+
+    glGenVertexArrays(1, &g_fullscreenVAO);
+    glBindVertexArray(g_fullscreenVAO);
+
+    //
+
+    glUseProgram(g_backgroundProgram.program);
+
+    // Background cubemap is on texture unit 3.
+    glUniform1i(g_textureBackgroundLocation, 3);
+
+    glGenVertexArrays(1, &g_backgroundVAO);
+    glBindVertexArray(g_backgroundVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
+    glVertexAttribPointer(g_vertexBackgroundLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexBackgroundLocation);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
+
+    // Bind background cubemap to unit 3 (persistent; not rebound elsewhere).
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_backgroundCubemapTexture);
+    glActiveTexture(GL_TEXTURE0);
+
+    //
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+    glClearDepth(1.0f);
+
+    glEnable(GL_CULL_FACE);
+
+    return GLUS_TRUE;
 }
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-	GLfloat projectionMatrix[16];
-	GLfloat viewMatrix[16];
+    GLfloat projectionMatrix[16];
+    GLfloat viewMatrix[16];
 
-	glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 
-	glusMatrix4x4Perspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 60.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
-	glusMatrix4x4LookAtf(viewMatrix, g_eye[0], g_eye[1], g_eye[2], 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(viewMatrix, g_eye[0], g_eye[1], g_eye[2], 0.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-	glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
+    glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projectionMatrix, viewMatrix);
 }
 
 GLUSboolean update(GLUSfloat time)
 {
-	GLfloat modelMatrix[16];
-	GLfloat normalMatrix[9];
+    GLfloat modelMatrix[16];
+    GLfloat normalMatrix[9];
 
-	//
-	// Render to FBO.
-	//
+    //
+    // Render to FBO.
+    //
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, g_texture[0]);
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_texture[1]);
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, g_texture[2]);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, g_texture[2]);
 
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_fullscreenFBO);
 
-	glEnable(GL_MULTISAMPLE);
+    glEnable(GL_MULTISAMPLE);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Render the background.
+    // Render the background.
 
-	// Rendering the sphere from inside, so change front facing.
-	glFrontFace(GL_CW);
+    // Rendering the sphere from inside, so change front facing.
+    glFrontFace(GL_CW);
 
-	glUseProgram(g_backgroundProgram.program);
+    glUseProgram(g_backgroundProgram.program);
 
-	glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, g_viewProjectionMatrix);
+    glUniformMatrix4fv(g_viewProjectionMatrixBackgroundLocation, 1, GL_FALSE, g_viewProjectionMatrix);
 
-	glBindVertexArray(g_backgroundVAO);
+    glBindVertexArray(g_backgroundVAO);
 
-	glDrawElements(GL_TRIANGLES, g_numberIndicesBackground, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, g_numberIndicesBackground, GL_UNSIGNED_INT, 0);
 
-	glFrontFace(GL_CCW);
+    glFrontFace(GL_CCW);
 
-	// Render model using BRDF and IBL.
+    // Render model using BRDF and IBL.
 
-	glusMatrix4x4Identityf(modelMatrix);
-	glusMatrix4x4Scalef(modelMatrix, 0.001f, 0.001f, 0.001f);
+    glusMatrix4x4Identityf(modelMatrix);
+    glusMatrix4x4Scalef(modelMatrix, 0.001f, 0.001f, 0.001f);
 
-	glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
+    glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-	glUseProgram(g_modelProgram.program);
+    glUseProgram(g_modelProgram.program);
 
-	glBindVertexArray(g_modelVAO);
+    glBindVertexArray(g_modelVAO);
 
-	// Roughness of material.
-	glUniform1f(g_roughnessMaterialModelLocation, g_roughness);
-	glUniform1f(g_R0MaterialModelLocation, g_R0);
-	glUniform3fv(g_colorMaterialModelLocation, 1, g_colorMaterial);
+    // Roughness of material.
+    glUniform1f(g_roughnessMaterialModelLocation, g_roughness);
+    glUniform1f(g_R0MaterialModelLocation, g_R0);
+    glUniform3fv(g_colorMaterialModelLocation, 1, g_colorMaterial);
 
-	glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
-	glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
-	glUniformMatrix3fv(g_normalMatrixModelLocation, 1, GL_FALSE, normalMatrix);
+    glUniformMatrix4fv(g_viewProjectionMatrixModelLocation, 1, GL_FALSE, g_viewProjectionMatrix);
+    glUniformMatrix4fv(g_modelMatrixModelLocation, 1, GL_FALSE, modelMatrix);
+    glUniformMatrix3fv(g_normalMatrixModelLocation, 1, GL_FALSE, normalMatrix);
 
-	glDrawArrays(GL_TRIANGLES, 0, g_numberVerticesModel);
+    glDrawArrays(GL_TRIANGLES, 0, g_numberVerticesModel);
 
-	//
-	// Render full screen to resolve the buffer: MSAA, tone mapping and gamma correction.
-	//
+    //
+    // Render full screen to resolve the buffer: MSAA, tone mapping and gamma correction.
+    //
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glDisable(GL_MULTISAMPLE);
+    glDisable(GL_MULTISAMPLE);
 
-	// No clear needed, as we just draw over the last content.
-	glDisable(GL_DEPTH_TEST);
+    // No clear needed, as we just draw over the last content.
+    glDisable(GL_DEPTH_TEST);
 
-	glUseProgram(g_fullscreenProgram.program);
+    glUseProgram(g_fullscreenProgram.program);
 
-	glUniform1f(g_exposureFullscreenLocation, g_exposure);
-	glUniform1f(g_gammaFullscreenLocation, g_gamma);
+    glUniform1f(g_exposureFullscreenLocation, g_exposure);
+    glUniform1f(g_gammaFullscreenLocation, g_gamma);
 
-	glBindVertexArray(g_fullscreenVAO);
+    glBindVertexArray(g_fullscreenVAO);
 
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid terminate(GLUSvoid)
 {
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
-	if (g_texture[0])
-	{
-		glDeleteTextures(1, &g_texture[0]);
+    if (g_texture[0])
+    {
+        glDeleteTextures(1, &g_texture[0]);
 
-		g_texture[0] = 0;
-	}
+        g_texture[0] = 0;
+    }
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-	if (g_texture[1])
-	{
-		glDeleteTextures(1, &g_texture[1]);
+    if (g_texture[1])
+    {
+        glDeleteTextures(1, &g_texture[1]);
 
-		g_texture[1] = 0;
-	}
+        g_texture[1] = 0;
+    }
 
-	if (g_backgroundCubemapTexture)
-	{
-		glDeleteTextures(1, &g_backgroundCubemapTexture);
+    if (g_backgroundCubemapTexture)
+    {
+        glDeleteTextures(1, &g_backgroundCubemapTexture);
 
-		g_backgroundCubemapTexture = 0;
-	}
+        g_backgroundCubemapTexture = 0;
+    }
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (g_texture[2])
-	{
-		glDeleteTextures(1, &g_texture[2]);
+    if (g_texture[2])
+    {
+        glDeleteTextures(1, &g_texture[2]);
 
-		g_texture[2] = 0;
-	}
+        g_texture[2] = 0;
+    }
 
-	//
+    //
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	if (g_verticesModelVBO)
-	{
-		glDeleteBuffers(1, &g_verticesModelVBO);
+    if (g_verticesModelVBO)
+    {
+        glDeleteBuffers(1, &g_verticesModelVBO);
 
-		g_verticesModelVBO = 0;
-	}
+        g_verticesModelVBO = 0;
+    }
 
-	if (g_normalsModelVBO)
-	{
-		glDeleteBuffers(1, &g_normalsModelVBO);
+    if (g_normalsModelVBO)
+    {
+        glDeleteBuffers(1, &g_normalsModelVBO);
 
-		g_normalsModelVBO = 0;
-	}
+        g_normalsModelVBO = 0;
+    }
 
-	if (g_verticesBackgroundVBO)
-	{
-		glDeleteBuffers(1, &g_verticesBackgroundVBO);
+    if (g_verticesBackgroundVBO)
+    {
+        glDeleteBuffers(1, &g_verticesBackgroundVBO);
 
-		g_verticesBackgroundVBO = 0;
-	}
+        g_verticesBackgroundVBO = 0;
+    }
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	if (g_indicesBackgroundVBO)
-	{
-		glDeleteBuffers(1, &g_indicesBackgroundVBO);
+    if (g_indicesBackgroundVBO)
+    {
+        glDeleteBuffers(1, &g_indicesBackgroundVBO);
 
-		g_indicesBackgroundVBO = 0;
-	}
+        g_indicesBackgroundVBO = 0;
+    }
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	if (g_modelVAO)
-	{
-		glDeleteVertexArrays(1, &g_modelVAO);
+    if (g_modelVAO)
+    {
+        glDeleteVertexArrays(1, &g_modelVAO);
 
-		g_modelVAO = 0;
-	}
+        g_modelVAO = 0;
+    }
 
-	if (g_backgroundVAO)
-	{
-		glDeleteVertexArrays(1, &g_backgroundVAO);
+    if (g_backgroundVAO)
+    {
+        glDeleteVertexArrays(1, &g_backgroundVAO);
 
-		g_backgroundVAO = 0;
-	}
+        g_backgroundVAO = 0;
+    }
 
-	if (g_fullscreenVAO)
-	{
-		glDeleteVertexArrays(1, &g_fullscreenVAO);
+    if (g_fullscreenVAO)
+    {
+        glDeleteVertexArrays(1, &g_fullscreenVAO);
 
-		g_fullscreenVAO = 0;
-	}
+        g_fullscreenVAO = 0;
+    }
 
-	glUseProgram(0);
+    glUseProgram(0);
 
-	glusProgramDestroy(&g_modelProgram);
+    glusProgramDestroy(&g_modelProgram);
 
-	glusProgramDestroy(&g_backgroundProgram);
+    glusProgramDestroy(&g_backgroundProgram);
 
-	glusProgramDestroy(&g_fullscreenProgram);
+    glusProgramDestroy(&g_fullscreenProgram);
 
-	//
+    //
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (g_fullscreenTexture)
-	{
-		glDeleteTextures(1, &g_fullscreenTexture);
+    if (g_fullscreenTexture)
+    {
+        glDeleteTextures(1, &g_fullscreenTexture);
 
-		g_fullscreenTexture = 0;
-	}
+        g_fullscreenTexture = 0;
+    }
 
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	if (g_fullscreenDepthRenderbuffer)
-	{
-		glDeleteRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
+    if (g_fullscreenDepthRenderbuffer)
+    {
+        glDeleteRenderbuffers(1, &g_fullscreenDepthRenderbuffer);
 
-		g_fullscreenDepthRenderbuffer = 0;
-	}
+        g_fullscreenDepthRenderbuffer = 0;
+    }
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	if (g_fullscreenFBO)
-	{
-		glDeleteFramebuffers(1, &g_fullscreenFBO);
+    if (g_fullscreenFBO)
+    {
+        glDeleteFramebuffers(1, &g_fullscreenFBO);
 
-		g_fullscreenFBO = 0;
-	}
+        g_fullscreenFBO = 0;
+    }
 }
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 {
-	if (pressed)
-	{
-		if (key == '1')
-		{
-			g_roughness -= 0.1f;
-		}
-		else if (key == '2')
-		{
-			g_roughness += 0.1f;
-		}
-		else if (key == '3')
-		{
-			g_R0 -= 0.1f;
-		}
-		else if (key == '4')
-		{
-			g_R0 += 0.1f;
-		}
-		else if (key == '5')
-		{
-			g_colorMaterial[0] -= 0.1f;
-		}
-		else if (key == '6')
-		{
-			g_colorMaterial[0] += 0.1f;
-		}
-		else if (key == '7')
-		{
-			g_colorMaterial[1] -= 0.1f;
-		}
-		else if (key == '8')
-		{
-			g_colorMaterial[1] += 0.1f;
-		}
-		else if (key == '9')
-		{
-			g_colorMaterial[2] -= 0.1f;
-		}
-		else if (key == '0')
-		{
-			g_colorMaterial[2] += 0.1f;
-		}
-	}
+    if (pressed)
+    {
+        if (key == '1')
+        {
+            g_roughness -= 0.1f;
+        }
+        else if (key == '2')
+        {
+            g_roughness += 0.1f;
+        }
+        else if (key == '3')
+        {
+            g_R0 -= 0.1f;
+        }
+        else if (key == '4')
+        {
+            g_R0 += 0.1f;
+        }
+        else if (key == '5')
+        {
+            g_colorMaterial[0] -= 0.1f;
+        }
+        else if (key == '6')
+        {
+            g_colorMaterial[0] += 0.1f;
+        }
+        else if (key == '7')
+        {
+            g_colorMaterial[1] -= 0.1f;
+        }
+        else if (key == '8')
+        {
+            g_colorMaterial[1] += 0.1f;
+        }
+        else if (key == '9')
+        {
+            g_colorMaterial[2] -= 0.1f;
+        }
+        else if (key == '0')
+        {
+            g_colorMaterial[2] += 0.1f;
+        }
+    }
 
-	g_roughness = glusMathClampf(g_roughness, 0.0f, 1.0f);
-	g_R0 = glusMathClampf(g_R0, 0.0f, 1.0f);
+    g_roughness = glusMathClampf(g_roughness, 0.0f, 1.0f);
+    g_R0        = glusMathClampf(g_R0, 0.0f, 1.0f);
 
-	g_colorMaterial[0] = glusMathClampf(g_colorMaterial[0], 0.0f, 1.0f);
-	g_colorMaterial[1] = glusMathClampf(g_colorMaterial[1], 0.0f, 1.0f);
-	g_colorMaterial[2] = glusMathClampf(g_colorMaterial[2], 0.0f, 1.0f);
+    g_colorMaterial[0] = glusMathClampf(g_colorMaterial[0], 0.0f, 1.0f);
+    g_colorMaterial[1] = glusMathClampf(g_colorMaterial[1], 0.0f, 1.0f);
+    g_colorMaterial[2] = glusMathClampf(g_colorMaterial[2], 0.0f, 1.0f);
 }
 
 int main(int argc, char* argv[])
 {
-	// No MSAA here, as we render to an off screen MSAA buffer.
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    // No MSAA here, as we render to an off screen MSAA buffer.
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 1,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 1,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 
@@ -944,7 +946,7 @@ int main(int argc, char* argv[])
 
     glusWindowSetTerminateFunc(terminate);
 
-	// No resize, as it makes code simpler.
+    // No resize, as it makes code simpler.
     if (!glusWindowCreate("GLUS Example Window", SCREEN_WIDTH, SCREEN_HEIGHT, GLUS_FALSE, GLUS_TRUE, eglConfigAttributes, eglContextAttributes, 0))
     {
         printf("Could not create window!\n");

@@ -91,7 +91,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSwapInterval(GLUSint interval);
  *
  * The function must return GLUS_TRUE, if the initialization succeeded. If not, the program terminates.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean(*glusNewInit)(GLUSvoid));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean (*glusNewInit)(GLUSvoid));
 
 /**
  * Sets the users reshape function. Called after the initialization and before the update function.
@@ -99,7 +99,7 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetInitFunc(GLUSboolean(*glusNewInit)(GL
  *
  * The function receives the current width and height of the resized window.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid(*glusNewReshape)(const GLUSint width, const GLUSint height));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid (*glusNewReshape)(const GLUSint width, const GLUSint height));
 
 /**
  * Sets the users update function, which is called every frame.
@@ -108,19 +108,19 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetReshapeFunc(GLUSvoid(*glusNewReshape)
  *
  * If the function does not return GLUS_TRUE, the application is terminated.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetUpdateFunc(GLUSboolean(*glusNewUpdate)(const GLUSfloat time));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetUpdateFunc(GLUSboolean (*glusNewUpdate)(const GLUSfloat time));
 
 /**
  * Sets the users terminate function, which is called in any case. It can be used to clean up resources.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetTerminateFunc(GLUSvoid(*glusNewTerminate)(GLUSvoid));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetTerminateFunc(GLUSvoid (*glusNewTerminate)(GLUSvoid));
 
 /**
  * Sets the users key handler.
  *
  * The function receives the values, if a key was pressed or released.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid(*glusNewKey)(const GLUSboolean pressed, const GLUSint key));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid (*glusNewKey)(const GLUSboolean pressed, const GLUSint key));
 
 /**
  * Sets the users mouse handler.
@@ -132,21 +132,21 @@ GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetKeyFunc(GLUSvoid(*glusNewKey)(const G
  * 2 Middle mouse button.
  * 4 Right mouse button.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseFunc(GLUSvoid(*glusNewMouse)(const GLUSboolean pressed, const GLUSint button, const GLUSint xPos, const GLUSint yPos));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseFunc(GLUSvoid (*glusNewMouse)(const GLUSboolean pressed, const GLUSint button, const GLUSint xPos, const GLUSint yPos));
 
 /**
  * Sets the users mouse wheel function.
  *
  * The function receives the states of all buttons, the direction of the wheel in ticks and the current x and y position.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid(*glusNewMouseWheel)(const GLUSint buttons, const GLUSint ticks, const GLUSint xPos, const GLUSint yPos));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseWheelFunc(GLUSvoid (*glusNewMouseWheel)(const GLUSint buttons, const GLUSint ticks, const GLUSint xPos, const GLUSint yPos));
 
 /**
  * Sets the users mouse move function.
  *
  * The function receives the states of all buttons and the current x and y position.
  */
-GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid(*glusNewMouseMove)(const GLUSint buttons, const GLUSint xPos, const GLUSint yPos));
+GLUSAPI GLUSvoid GLUSAPIENTRY glusWindowSetMouseMoveFunc(GLUSvoid (*glusNewMouseMove)(const GLUSint buttons, const GLUSint xPos, const GLUSint yPos));
 
 /**
  * Starts recording image clips, by making screenshots of the window.

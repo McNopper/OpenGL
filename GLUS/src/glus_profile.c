@@ -17,36 +17,35 @@
 
 #include "GL/glus.h"
 
-static GLUSfloat passedTime = 0.0f;
-static GLUSint passedFrames = 0;
+static GLUSfloat passedTime   = 0.0f;
+static GLUSint   passedFrames = 0;
 
 GLUSvoid GLUSAPIENTRY glusProfileResetFPSf()
 {
-	passedTime = 0.0f;
-	passedFrames = 0;
+    passedTime   = 0.0f;
+    passedFrames = 0;
 }
 
 GLUSboolean GLUSAPIENTRY glusProfileUpdateFPSf(GLUSfloat time, GLUSuint* frames)
 {
-	passedTime += time;
-	passedFrames++;
+    passedTime += time;
+    passedFrames++;
 
-	if (passedTime >= 1.0f)
-	{
-		if (frames)
-		{
-			*frames = passedFrames;
-		}
-		else
-		{
-			glusLogPrint(GLUS_LOG_INFO, "FPS: %d", passedFrames);
-		}
+    if (passedTime >= 1.0f)
+    {
+        if (frames)
+        {
+            *frames = passedFrames;
+        }
+        else
+        {
+            glusLogPrint(GLUS_LOG_INFO, "FPS: %d", passedFrames);
+        }
 
-		glusProfileResetFPSf();
+        glusProfileResetFPSf();
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
-

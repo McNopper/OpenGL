@@ -20,68 +20,68 @@
 #define GLUS_MAX_FRAMES 10000
 #define GLUS_MAX_FRAMES_PER_SECOND 120
 
-static GLUSint g_currentFrame = 0;
-static GLUSint g_numberFrames = 0;
+static GLUSint   g_currentFrame  = 0;
+static GLUSint   g_numberFrames  = 0;
 static GLUSfloat g_recordingTime = 0.0f;
 
 static GLUStgaimage g_tgaimage = {0, 0, 0, 0, 0};
 
 GLUSint _glusWindowGetCurrentRecordingFrame(GLUSvoid)
 {
-	return g_currentFrame;
+    return g_currentFrame;
 }
 
 GLUSint _glusWindowGetCurrentAndIncreaseRecordingFrame(GLUSvoid)
 {
-	return g_currentFrame++;
+    return g_currentFrame++;
 }
 
 GLUSint _glusWindowGetRecordingFrames(GLUSvoid)
 {
-	return g_numberFrames;
+    return g_numberFrames;
 }
 
 GLUSfloat _glusWindowGetRecordingTime(GLUSvoid)
 {
-	return g_recordingTime;
+    return g_recordingTime;
 }
 
 const GLUStgaimage* _glusWindowGetRecordingImageTga(GLUSvoid)
 {
-	return &g_tgaimage;
+    return &g_tgaimage;
 }
 
 GLUSboolean GLUSAPIENTRY glusWindowStartRecording(GLUSint numberFrames, GLUSint framesPerSecond)
 {
-	glusWindowStopRecording();
+    glusWindowStopRecording();
 
-	if (numberFrames < 1 || numberFrames > GLUS_MAX_FRAMES || framesPerSecond < 1 || framesPerSecond > GLUS_MAX_FRAMES_PER_SECOND)
-	{
-		return GLUS_FALSE;
-	}
+    if (numberFrames < 1 || numberFrames > GLUS_MAX_FRAMES || framesPerSecond < 1 || framesPerSecond > GLUS_MAX_FRAMES_PER_SECOND)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (!glusImageCreateTga(&g_tgaimage, glusWindowGetWidth(), glusWindowGetHeight(), 1, GLUS_RGBA))
-	{
-		return GLUS_FALSE;
-	}
+    if (!glusImageCreateTga(&g_tgaimage, glusWindowGetWidth(), glusWindowGetHeight(), 1, GLUS_RGBA))
+    {
+        return GLUS_FALSE;
+    }
 
-	g_numberFrames = numberFrames;
+    g_numberFrames = numberFrames;
 
-	g_recordingTime = 1.0f / (GLUSfloat)framesPerSecond;
+    g_recordingTime = 1.0f / (GLUSfloat)framesPerSecond;
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusWindowIsRecording(GLUSvoid)
 {
-	return g_tgaimage.data != 0;
+    return g_tgaimage.data != 0;
 }
 
 GLUSvoid GLUSAPIENTRY glusWindowStopRecording(GLUSvoid)
 {
-	g_currentFrame = 0;
-	g_numberFrames = 0;
-	g_recordingTime = 0.0f;
+    g_currentFrame  = 0;
+    g_numberFrames  = 0;
+    g_recordingTime = 0.0f;
 
-	glusImageDestroyTga(&g_tgaimage);
+    glusImageDestroyTga(&g_tgaimage);
 }

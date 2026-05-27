@@ -19,32 +19,32 @@
 
 GLUSboolean GLUSAPIENTRY glusPaddingConvertf(GLUSfloat* target, const GLUSfloat* source, const GLUSint channels, const GLUSint padding, const GLUSint numberElements)
 {
-	GLUSint currentElement, currentChannel;
+    GLUSint currentElement, currentChannel;
 
-	if (!target || !source)
-	{
-		return GLUS_FALSE;
-	}
+    if (!target || !source)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (channels < 1 || padding < 0 || numberElements < 1)
-	{
-		return GLUS_FALSE;
-	}
+    if (channels < 1 || padding < 0 || numberElements < 1)
+    {
+        return GLUS_FALSE;
+    }
 
-	for (currentElement = 0; currentElement < numberElements; currentElement++)
-	{
-		for (currentChannel = 0; currentChannel < channels + padding; currentChannel++)
-		{
-			if (currentChannel < channels)
-			{
-				target[currentElement * (channels + padding) + currentChannel] = source[currentElement * channels + currentChannel];
-			}
-			else
-			{
-				target[currentElement * (channels + padding) + currentChannel] = 0.0f;
-			}
-		}
-	}
+    for (currentElement = 0; currentElement < numberElements; currentElement++)
+    {
+        for (currentChannel = 0; currentChannel < channels + padding; currentChannel++)
+        {
+            if (currentChannel < channels)
+            {
+                target[currentElement * (channels + padding) + currentChannel] = source[currentElement * channels + currentChannel];
+            }
+            else
+            {
+                target[currentElement * (channels + padding) + currentChannel] = 0.0f;
+            }
+        }
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }

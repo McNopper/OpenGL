@@ -37,7 +37,7 @@ FetchContent_MakeAvailable(stb)
 FetchContent_Declare(
     mcnopper_egl
     GIT_REPOSITORY https://github.com/McNopper/EGL.git
-    GIT_TAG        master
+    GIT_TAG        main
 )
 
 FetchContent_GetProperties(mcnopper_egl)

@@ -40,8 +40,8 @@ uniform vec3 u_lightColor;
 uniform vec3 u_cameraPos;
 
 // Voxel grid parameters.
-uniform float u_voxelGridWorldSize;  // World-space extent of the grid (2.0 for [-1,1]^3).
-uniform int   u_voxelDimensions;     // Number of voxels per axis.
+uniform float u_voxelGridWorldSize; // World-space extent of the grid (2.0 for [-1,1]^3).
+uniform int   u_voxelDimensions;    // Number of voxels per axis.
 
 // Front-to-back alpha at which cone marching terminates early.
 const float ALPHA_THRESH = 0.95;
@@ -95,13 +95,12 @@ const float SURFACE_ALPHA_THRESH = 0.1;
 const int NUM_CONES = 6;
 
 vec3 coneDirections[6] = vec3[](
-    vec3( 0.000000,  1.000000,  0.000000),
-    vec3( 0.000000,  0.500000,  0.866025),
-    vec3( 0.823639,  0.500000,  0.267617),
-    vec3( 0.509037,  0.500000, -0.700629),
-    vec3(-0.509037,  0.500000, -0.700629),
-    vec3(-0.823639,  0.500000,  0.267617)
-);
+    vec3(0.000000, 1.000000, 0.000000),
+    vec3(0.000000, 0.500000, 0.866025),
+    vec3(0.823639, 0.500000, 0.267617),
+    vec3(0.509037, 0.500000, -0.700629),
+    vec3(-0.509037, 0.500000, -0.700629),
+    vec3(-0.823639, 0.500000, 0.267617));
 
 float coneWeights[6] = float[](0.25, 0.15, 0.15, 0.15, 0.15, 0.15);
 
@@ -146,9 +145,9 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion)
     float dist     = 0.0;
     float maxDist  = u_voxelGridWorldSize;
 
-    vec3  color   = vec3(0.0);
-    float alpha   = 0.0;
-    occlusion     = 0.0;
+    vec3  color = vec3(0.0);
+    float alpha = 0.0;
+    occlusion   = 0.0;
 
     while (dist < maxDist && alpha < ALPHA_THRESH)
     {
@@ -159,9 +158,9 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion)
         vec4 voxelColor = sampleVoxels(startPos + dist * direction, lod);
 
         // Front-to-back compositing (Porter-Duff over operator).
-        float a  = 1.0 - alpha;
-        color   += a * voxelColor.rgb;
-        alpha   += a * voxelColor.a;
+        float a = 1.0 - alpha;
+        color += a * voxelColor.rgb;
+        alpha += a * voxelColor.a;
 
         // Occlusion attenuated by cone diameter so distant blockers contribute
         // less (reduces over-darkening of large open areas).
@@ -178,23 +177,24 @@ vec4 coneTrace(vec3 direction, float tanHalfAngle, out float occlusion)
 // returning total indirect irradiance and the derived ambient occlusion.
 vec4 indirectLight(out float occlusion_out)
 {
-    vec4 color  = vec4(0.0);
+    vec4 color    = vec4(0.0);
     occlusion_out = 0.0;
 
     // Build an orthonormal tangent frame with the Y axis along the surface
     // normal so the cone directions (defined in tangent space) map to world
     // space correctly.
-    vec3 N = normalize(v_normal);
-    vec3 T = normalize(cross(abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0)
-                                               : vec3(1.0, 0.0, 0.0), N));
-    vec3 B = cross(N, T);
+    vec3 N              = normalize(v_normal);
+    vec3 T              = normalize(cross(abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0)
+                                                           : vec3(1.0, 0.0, 0.0),
+                                          N));
+    vec3 B              = cross(N, T);
     mat3 tangentToWorld = mat3(T, N, B);
 
     for (int i = 0; i < NUM_CONES; i++)
     {
         float occlusion = 0.0;
         // 60-degree aperture per cone → tanHalfAngle = tan(30°) ≈ 0.5774.
-        color         += coneWeights[i] * coneTrace(tangentToWorld * coneDirections[i], TAN_30_DEG, occlusion);
+        color += coneWeights[i] * coneTrace(tangentToWorld * coneDirections[i], TAN_30_DEG, occlusion);
         occlusion_out += coneWeights[i] * occlusion;
     }
 
@@ -233,16 +233,16 @@ void main()
     vec3 H = normalize(L + V);
 
     // Direct diffuse (Lambertian).
-    float NdotL       = max(dot(N, L), 0.0);
-    vec3  directDiff  = u_lightColor * NdotL;
+    float NdotL      = max(dot(N, L), 0.0);
+    vec3  directDiff = u_lightColor * NdotL;
 
     // Direct specular (Blinn-Phong).
-    float NdotH       = max(dot(N, H), 0.0);
-    vec3  directSpec  = u_lightColor * pow(NdotH, max(u_shininess, 1.0)) * u_specularColor.rgb;
+    float NdotH      = max(dot(N, H), 0.0);
+    vec3  directSpec = u_lightColor * pow(NdotH, max(u_shininess, 1.0)) * u_specularColor.rgb;
 
     // Indirect diffuse via hemisphere cone tracing.
-    float occlusion   = 0.0;
-    vec3  indirDiff   = INDIRECT_DIFFUSE_SCALE * indirectLight(occlusion).rgb;
+    float occlusion = 0.0;
+    vec3  indirDiff = INDIRECT_DIFFUSE_SCALE * indirectLight(occlusion).rgb;
 
     // Ambient occlusion derived from cone alpha accumulation.
     // Blend towards 1.0 to soften the darkening effect.
@@ -255,11 +255,11 @@ void main()
     vec3  R                = reflect(-V, N);
     float specTanHalfAngle = clamp(sqrt(2.0 / max(u_shininess + 2.0, 1.0)), SPEC_CONE_MIN, TAN_30_DEG);
     float specOcc;
-    vec3  indirSpec        = INDIRECT_SPECULAR_SCALE * u_specularColor.rgb * coneTrace(R, specTanHalfAngle, specOcc).rgb;
+    vec3  indirSpec = INDIRECT_SPECULAR_SCALE * u_specularColor.rgb * coneTrace(R, specTanHalfAngle, specOcc).rgb;
 
     // Combine direct and indirect contributions modulated by AO.
     vec3 finalColor =
-        albedo   * occlusion * (directDiff + indirDiff) +
+        albedo * occlusion * (directDiff + indirDiff) +
         occlusion * (directSpec + indirSpec);
 
     fragColor = vec4(finalColor, alpha);

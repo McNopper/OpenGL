@@ -19,64 +19,64 @@
 
 GLUSboolean GLUSAPIENTRY glusShapeTexGenByAxesf(GLUSshape* shape, const GLUSfloat sSizeX, const GLUSfloat sSizeZ, const GLUSfloat tSizeY, const GLUSfloat tSizeZ, const GLUSfloat sOffset, const GLUSfloat tOffset)
 {
-	GLUSuint i;
+    GLUSuint i;
 
-	if (!shape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!shape)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (shape->texCoords)
-	{
-		glusMemoryFree(shape->texCoords);
+    if (shape->texCoords)
+    {
+        glusMemoryFree(shape->texCoords);
 
-		shape->texCoords = 0;
-	}
+        shape->texCoords = 0;
+    }
 
-	shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
-	if (!shape->texCoords)
-	{
-		return GLUS_FALSE;
-	}
+    if (!shape->texCoords)
+    {
+        return GLUS_FALSE;
+    }
 
-	for (i = 0; i < shape->numberVertices; i++)
-	{
-		shape->texCoords[2 * i + 0] = shape->vertices[4 * i + 0] * sSizeX + shape->vertices[4 * i + 2] * sSizeZ + sOffset;
-		shape->texCoords[2 * i + 1] = shape->vertices[4 * i + 1] * tSizeY + shape->vertices[4 * i + 2] * tSizeZ + tOffset;
-	}
+    for (i = 0; i < shape->numberVertices; i++)
+    {
+        shape->texCoords[2 * i + 0] = shape->vertices[4 * i + 0] * sSizeX + shape->vertices[4 * i + 2] * sSizeZ + sOffset;
+        shape->texCoords[2 * i + 1] = shape->vertices[4 * i + 1] * tSizeY + shape->vertices[4 * i + 2] * tSizeZ + tOffset;
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusShapeTexGenByPlanesf(GLUSshape* shape, const GLUSfloat sPlane[4], const GLUSfloat tPlane[4], const float sSize, const float tSize, const float sOffset, const float tOffset)
 {
-	GLUSuint i;
+    GLUSuint i;
 
-	if (!shape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!shape)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (shape->texCoords)
-	{
-		glusMemoryFree(shape->texCoords);
+    if (shape->texCoords)
+    {
+        glusMemoryFree(shape->texCoords);
 
-		shape->texCoords = 0;
-	}
+        shape->texCoords = 0;
+    }
 
-	shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
+    shape->texCoords = (GLUSfloat*)glusMemoryMalloc(2 * shape->numberVertices * sizeof(GLUSfloat));
 
-	if (!shape->texCoords)
-	{
-		return GLUS_FALSE;
-	}
+    if (!shape->texCoords)
+    {
+        return GLUS_FALSE;
+    }
 
-	for (i = 0; i < shape->numberVertices; i++)
-	{
-		shape->texCoords[2 * i + 0] = glusPlaneDistancePoint4f(sPlane, &shape->vertices[4 * i]) * sSize + sOffset;
-		shape->texCoords[2 * i + 1] = glusPlaneDistancePoint4f(tPlane, &shape->vertices[4 * i]) * tSize + tOffset;
-	}
+    for (i = 0; i < shape->numberVertices; i++)
+    {
+        shape->texCoords[2 * i + 0] = glusPlaneDistancePoint4f(sPlane, &shape->vertices[4 * i]) * sSize + sOffset;
+        shape->texCoords[2 * i + 1] = glusPlaneDistancePoint4f(tPlane, &shape->vertices[4 * i]) * tSize + tOffset;
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }

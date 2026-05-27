@@ -84,36 +84,36 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape plane;
 
-	GLUStextfile vertexSource;
-	GLUStextfile controlSource;
-	GLUStextfile evaluationSource;
-	GLUStextfile geometrySource;
-	GLUStextfile fragmentSource;
+    GLUStextfile vertexSource;
+    GLUStextfile controlSource;
+    GLUStextfile evaluationSource;
+    GLUStextfile geometrySource;
+    GLUStextfile fragmentSource;
 
-	GLUStgaimage image;
+    GLUStgaimage image;
 
-	glusFileLoadText("../Example23/shader/tessellation.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example23/shader/tessellation.cont.glsl", &controlSource);
-	glusFileLoadText("../Example23/shader/tessellation.eval.glsl", &evaluationSource);
-	glusFileLoadText("../Example23/shader/tessellation.geom.glsl", &geometrySource);
-	glusFileLoadText("../Example23/shader/tessellation.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example23/shader/tessellation.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example23/shader/tessellation.cont.glsl", &controlSource);
+    glusFileLoadText("../Example23/shader/tessellation.eval.glsl", &evaluationSource);
+    glusFileLoadText("../Example23/shader/tessellation.geom.glsl", &geometrySource);
+    glusFileLoadText("../Example23/shader/tessellation.frag.glsl", &fragmentSource);
 
-	glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
 
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&controlSource);
-	glusFileDestroyText(&evaluationSource);
-	glusFileDestroyText(&geometrySource);
-	glusFileDestroyText(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&controlSource);
+    glusFileDestroyText(&evaluationSource);
+    glusFileDestroyText(&geometrySource);
+    glusFileDestroyText(&fragmentSource);
 
-	//
+    //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
-    g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_viewMatrixLocation       = glGetUniformLocation(g_program.program, "u_viewMatrix");
+    g_modelMatrixLocation      = glGetUniformLocation(g_program.program, "u_modelMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
 
-    g_colorTextureLocation = glGetUniformLocation(g_program.program, "u_colorTexture");
+    g_colorTextureLocation  = glGetUniformLocation(g_program.program, "u_colorTexture");
     g_normalTextureLocation = glGetUniformLocation(g_program.program, "u_normalTexture");
 
     g_displacementScaleLocation = glGetUniformLocation(g_program.program, "u_displacementScale");
@@ -122,14 +122,14 @@ GLUSboolean init(GLUSvoid)
 
     g_doTessellateLocation = glGetUniformLocation(g_program.program, "u_doTessellate");
 
-    g_widthLocation = glGetUniformLocation(g_program.program, "u_width");
+    g_widthLocation  = glGetUniformLocation(g_program.program, "u_width");
     g_heightLocation = glGetUniformLocation(g_program.program, "u_height");
 
-    g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
-    g_tangentLocation = glGetAttribLocation(g_program.program, "a_tangent");
+    g_vertexLocation    = glGetAttribLocation(g_program.program, "a_vertex");
+    g_tangentLocation   = glGetAttribLocation(g_program.program, "a_tangent");
     g_bitangentLocation = glGetAttribLocation(g_program.program, "a_bitangent");
-    g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
-    g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
+    g_normalLocation    = glGetAttribLocation(g_program.program, "a_normal");
+    g_texCoordLocation  = glGetAttribLocation(g_program.program, "a_texCoord");
 
     //
 
@@ -179,7 +179,7 @@ GLUSboolean init(GLUSvoid)
 
     glActiveTexture(GL_TEXTURE0);
 
-	//
+    //
 
     // Core grid
     glusShapeCreateRectangularGridPlanef(&plane, 3.0f, 3.0f, 16, 16, GLUS_FALSE);
@@ -188,29 +188,29 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_tangentsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_tangentsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.tangents, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.tangents, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_bitangentsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_bitangentsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.bitangents, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.bitangents, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*) plane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_numberIndicesPlane * sizeof(GLuint), (GLuint*) plane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_numberIndicesPlane * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -242,115 +242,114 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-	glGenVertexArrays(1, &g_vao);
-	glBindVertexArray(g_vao);
+    glGenVertexArrays(1, &g_vao);
+    glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_vertexLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
+    glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_tangentsVBO);
-	glVertexAttribPointer(g_tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_tangentLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_tangentsVBO);
+    glVertexAttribPointer(g_tangentLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_tangentLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_bitangentsVBO);
-	glVertexAttribPointer(g_bitangentLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_bitangentLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_bitangentsVBO);
+    glVertexAttribPointer(g_bitangentLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_bitangentLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-	glVertexAttribPointer(g_normalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_normalLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
+    glVertexAttribPointer(g_normalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_normalLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-	glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_texCoordLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
+    glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_texCoordLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
 
-	//
+    //
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
-	// We process triangle patches
-	glPatchParameteri(GL_PATCH_VERTICES, 3);
+    // We process triangle patches
+    glPatchParameteri(GL_PATCH_VERTICES, 3);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
     GLfloat projectionMatrix[16];
 
-	glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 
-	// Needed for screen space dependent tessellation
-	glUniform1f(g_widthLocation, (GLfloat) width);
-	glUniform1f(g_heightLocation, (GLfloat) height);
+    // Needed for screen space dependent tessellation
+    glUniform1f(g_widthLocation, (GLfloat)width);
+    glUniform1f(g_heightLocation, (GLfloat)height);
 
-	glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
 
-	glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
+    glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
 
 GLUSvoid key(GLUSboolean pressed, GLUSint key)
 {
-	static GLboolean displacement = GL_TRUE;
+    static GLboolean displacement = GL_TRUE;
 
-	static GLboolean tessellation = GL_TRUE;
+    static GLboolean tessellation = GL_TRUE;
 
-	static GLboolean wireframe = GL_FALSE;
+    static GLboolean wireframe = GL_FALSE;
 
-	if (pressed && key == 'd')
-	{
-		displacement = !displacement;
+    if (pressed && key == 'd')
+    {
+        displacement = !displacement;
 
-		if (displacement)
-		{
-			glUniform1f(g_displacementScaleLocation, g_displacementScale);
-		}
-		else
-		{
-			glUniform1f(g_displacementScaleLocation, 0.0f);
-		}
-	}
+        if (displacement)
+        {
+            glUniform1f(g_displacementScaleLocation, g_displacementScale);
+        }
+        else
+        {
+            glUniform1f(g_displacementScaleLocation, 0.0f);
+        }
+    }
 
-	if (pressed && key == 't')
-	{
-		tessellation = !tessellation;
+    if (pressed && key == 't')
+    {
+        tessellation = !tessellation;
 
-		if (tessellation)
-		{
-			glUniform1i(g_doTessellateLocation, 1);
-		}
-		else
-		{
-			glUniform1i(g_doTessellateLocation, 0);
-		}
-	}
+        if (tessellation)
+        {
+            glUniform1i(g_doTessellateLocation, 1);
+        }
+        else
+        {
+            glUniform1i(g_doTessellateLocation, 0);
+        }
+    }
 
+    if (pressed && key == 'w')
+    {
+        wireframe = !wireframe;
 
-	if (pressed && key == 'w')
-	{
-		wireframe = !wireframe;
-
-		if (wireframe)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-	}
+        if (wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+    }
 }
 
 GLUSboolean update(GLUSfloat time)
 {
-	static GLfloat angle = 0.0f;
+    static GLfloat angle = 0.0f;
 
     GLfloat modelMatrix[16];
     GLfloat normalMatrix[9];
@@ -367,15 +366,15 @@ GLUSboolean update(GLUSfloat time)
 
     //
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glDrawElements(GL_PATCHES, g_numberIndicesPlane, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_PATCHES, g_numberIndicesPlane, GL_UNSIGNED_INT, 0);
 
-	//
+    //
 
-	angle += time * 45.0f;
+    angle += time * 45.0f;
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid terminate(GLUSvoid)
@@ -400,49 +399,49 @@ GLUSvoid terminate(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	if (g_verticesVBO)
-	{
-		glDeleteBuffers(1, &g_verticesVBO);
+    if (g_verticesVBO)
+    {
+        glDeleteBuffers(1, &g_verticesVBO);
 
-		g_verticesVBO = 0;
-	}
+        g_verticesVBO = 0;
+    }
 
-	if (g_tangentsVBO)
-	{
-		glDeleteBuffers(1, &g_tangentsVBO);
+    if (g_tangentsVBO)
+    {
+        glDeleteBuffers(1, &g_tangentsVBO);
 
-		g_tangentsVBO = 0;
-	}
+        g_tangentsVBO = 0;
+    }
 
-	if (g_bitangentsVBO)
-	{
-		glDeleteBuffers(1, &g_bitangentsVBO);
+    if (g_bitangentsVBO)
+    {
+        glDeleteBuffers(1, &g_bitangentsVBO);
 
-		g_bitangentsVBO = 0;
-	}
+        g_bitangentsVBO = 0;
+    }
 
-	if (g_normalsVBO)
-	{
-		glDeleteBuffers(1, &g_normalsVBO);
+    if (g_normalsVBO)
+    {
+        glDeleteBuffers(1, &g_normalsVBO);
 
-		g_normalsVBO = 0;
-	}
+        g_normalsVBO = 0;
+    }
 
-	if (g_texCoordsVBO)
-	{
-		glDeleteBuffers(1, &g_texCoordsVBO);
+    if (g_texCoordsVBO)
+    {
+        glDeleteBuffers(1, &g_texCoordsVBO);
 
-		g_texCoordsVBO = 0;
-	}
+        g_texCoordsVBO = 0;
+    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	if (g_indicesVBO)
-	{
-		glDeleteBuffers(1, &g_indicesVBO);
+    if (g_indicesVBO)
+    {
+        glDeleteBuffers(1, &g_indicesVBO);
 
-		g_indicesVBO = 0;
-	}
+        g_indicesVBO = 0;
+    }
 
     glBindVertexArray(0);
 
@@ -453,36 +452,34 @@ GLUSvoid terminate(GLUSvoid)
         g_vao = 0;
     }
 
-	glUseProgram(0);
+    glUseProgram(0);
 
-	glusProgramDestroy(&g_program);
+    glusProgramDestroy(&g_program);
 }
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 1,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 1,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 
     glusWindowSetReshapeFunc(reshape);
 
-	glusWindowSetKeyFunc(key);
+    glusWindowSetKeyFunc(key);
 
     glusWindowSetUpdateFunc(update);
 

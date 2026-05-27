@@ -23,21 +23,18 @@ out vec2 v_texCoord0;
 
 mat4 getSkinMatrix()
 {
-	return a_weights0.x * u_jointMatrices[int(a_joints0.x)]
-	     + a_weights0.y * u_jointMatrices[int(a_joints0.y)]
-	     + a_weights0.z * u_jointMatrices[int(a_joints0.z)]
-	     + a_weights0.w * u_jointMatrices[int(a_joints0.w)];
+    return a_weights0.x * u_jointMatrices[int(a_joints0.x)] + a_weights0.y * u_jointMatrices[int(a_joints0.y)] + a_weights0.z * u_jointMatrices[int(a_joints0.z)] + a_weights0.w * u_jointMatrices[int(a_joints0.w)];
 }
 
 void main(void)
 {
-	mat4 skinMatrix   = getSkinMatrix();
-	mat3 normalMatrix = mat3(transpose(inverse(skinMatrix)));
+    mat4 skinMatrix   = getSkinMatrix();
+    mat3 normalMatrix = mat3(transpose(inverse(skinMatrix)));
 
-	vec4 worldPos = skinMatrix * vec4(a_position, 1.0);
-	v_worldPos    = worldPos.xyz;
-	v_normal      = normalize(normalMatrix * a_normal);
-	v_tangent     = vec4(normalize(normalMatrix * a_tangent.xyz), a_tangent.w);
-	v_texCoord0   = a_texCoord0;
-	gl_Position   = u_viewProjectionMatrix * worldPos;
+    vec4 worldPos = skinMatrix * vec4(a_position, 1.0);
+    v_worldPos    = worldPos.xyz;
+    v_normal      = normalize(normalMatrix * a_normal);
+    v_tangent     = vec4(normalize(normalMatrix * a_tangent.xyz), a_tangent.w);
+    v_texCoord0   = a_texCoord0;
+    gl_Position   = u_viewProjectionMatrix * worldPos;
 }

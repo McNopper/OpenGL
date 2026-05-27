@@ -89,7 +89,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example07/shader/normmap.vert.glsl", &vertexSource);
     glusFileLoadText("../Example07/shader/normmap.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -97,19 +97,19 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_modelViewMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_modelViewMatrixLocation  = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_lightDirectionLocation   = glGetUniformLocation(g_program.program, "u_lightDirection");
 
     // One texture for the color and one for the normals.
-    g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
+    g_textureLocation   = glGetUniformLocation(g_program.program, "u_texture");
     g_normalMapLocation = glGetUniformLocation(g_program.program, "u_normalMap");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     // The tangent, bitangent and normal do define the tangent space. They are defined in object space, the inverse brings coordinates back to this tangent space.
-    g_tangentLocation = glGetAttribLocation(g_program.program, "a_tangent");
+    g_tangentLocation   = glGetAttribLocation(g_program.program, "a_tangent");
     g_bitangentLocation = glGetAttribLocation(g_program.program, "a_bitangent");
-    g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
+    g_normalLocation    = glGetAttribLocation(g_program.program, "a_normal");
 
     g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
 
@@ -129,7 +129,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-
 
     glusImageLoadTga("rock_normal.tga", &image);
 
@@ -154,29 +153,29 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_tangentsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_tangentsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.tangents, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.tangents, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_bitangentsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_bitangentsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.bitangents, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.bitangents, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*) plane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_numberIndicesPlane * sizeof(GLuint), (GLuint*) plane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_numberIndicesPlane * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -244,7 +243,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -254,7 +253,7 @@ GLUSboolean update(GLUSfloat time)
     static GLfloat angle = 0.0;
 
     // Light start direction, which will be animated for seeing the effect.
-    GLfloat lightDirection[3] = { 1.0, 1.0f, 1.0f };
+    GLfloat lightDirection[3] = {1.0, 1.0f, 1.0f};
 
     // Increase the angle depending on the time.
     angle += time;
@@ -267,7 +266,7 @@ GLUSboolean update(GLUSfloat time)
     // Bring the light to camera space.
     glusMatrix4x4MultiplyVector3f(lightDirection, g_viewMatrix, lightDirection);
 
-    glUniform3fv(g_lightDirectionLocation, 1, (GLfloat*) lightDirection);
+    glUniform3fv(g_lightDirectionLocation, 1, (GLfloat*)lightDirection);
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -362,23 +361,21 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 0,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

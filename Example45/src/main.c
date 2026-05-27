@@ -63,18 +63,18 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile geometrySource;
     GLUStextfile fragmentSource;
 
-	GLUStgaimage image;
+    GLUStgaimage image;
 
-	GLUSgroupList* groupWalker;
-	GLUSmaterialList* materialWalker;
+    GLUSgroupList*    groupWalker;
+    GLUSmaterialList* materialWalker;
 
-	GLfloat halfPixelSize[2];
+    GLfloat halfPixelSize[2];
 
     glusFileLoadText("../Example45/shader/voxelize.vert.glsl", &vertexSource);
     glusFileLoadText("../Example45/shader/voxelize.geom.glsl", &geometrySource);
     glusFileLoadText("../Example45/shader/voxelize.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -83,8 +83,8 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
-    g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
+    g_viewMatrixLocation       = glGetUniformLocation(g_program.program, "u_viewMatrix");
+    g_modelMatrixLocation      = glGetUniformLocation(g_program.program, "u_modelMatrix");
 
     g_halfPixelSizeLocation = glGetUniformLocation(g_program.program, "u_halfPixelSize");
 
@@ -92,92 +92,92 @@ GLUSboolean init(GLUSvoid)
     // 3D model
     //
 
-	glusWavefrontLoad("ChessKing.obj", &g_wavefront);
+    glusWavefrontLoad("ChessKing.obj", &g_wavefront);
 
-	glGenBuffers(1, &g_wavefront.verticesVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
-	glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)g_wavefront.vertices, GL_STATIC_DRAW);
+    glGenBuffers(1, &g_wavefront.verticesVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+    glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)g_wavefront.vertices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &g_wavefront.texCoordsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
-	glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)g_wavefront.texCoords, GL_STATIC_DRAW);
+    glGenBuffers(1, &g_wavefront.texCoordsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+    glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)g_wavefront.texCoords, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//
-	// Set up indices and the VAOs for each group
-	//
+    //
+    // Set up indices and the VAOs for each group
+    //
 
-	glUseProgram(g_program.program);
+    glUseProgram(g_program.program);
 
-	groupWalker = g_wavefront.groups;
-	while (groupWalker)
-	{
-		glGenBuffers(1, &groupWalker->group.indicesVBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.numberIndices * sizeof(GLuint), (GLuint*)groupWalker->group.indices, GL_STATIC_DRAW);
+    groupWalker = g_wavefront.groups;
+    while (groupWalker)
+    {
+        glGenBuffers(1, &groupWalker->group.indicesVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.numberIndices * sizeof(GLuint), (GLuint*)groupWalker->group.indices, GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		//
+        //
 
-		glGenVertexArrays(1, &groupWalker->group.vao);
-		glBindVertexArray(groupWalker->group.vao);
+        glGenVertexArrays(1, &groupWalker->group.vao);
+        glBindVertexArray(groupWalker->group.vao);
 
-		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
-		glVertexAttribPointer(LOCATION_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(LOCATION_VERTEX);
+        glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
+        glVertexAttribPointer(LOCATION_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(LOCATION_VERTEX);
 
-		glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
-		glVertexAttribPointer(LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(LOCATION_TEXCOORD);
+        glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
+        glVertexAttribPointer(LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(LOCATION_TEXCOORD);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groupWalker->group.indicesVBO);
 
-		glBindVertexArray(0);
+        glBindVertexArray(0);
 
-		groupWalker = groupWalker->next;
-	}
+        groupWalker = groupWalker->next;
+    }
 
-	//
-	// Load the textures, if there are available
-	//
+    //
+    // Load the textures, if there are available
+    //
 
-	glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE1);
 
-	materialWalker = g_wavefront.materials;
-	while (materialWalker)
-	{
-		if (materialWalker->material.diffuseTextureFilename[0] != '\0')
-		{
-			// Load the image.
-			if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
-			{
-				return GLUS_FALSE;
-			}
+    materialWalker = g_wavefront.materials;
+    while (materialWalker)
+    {
+        if (materialWalker->material.diffuseTextureFilename[0] != '\0')
+        {
+            // Load the image.
+            if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
+            {
+                return GLUS_FALSE;
+            }
 
-			// Generate and bind a texture.
-			glGenTextures(1, &materialWalker->material.diffuseTextureName);
-			glBindTexture(GL_TEXTURE_2D, materialWalker->material.diffuseTextureName);
+            // Generate and bind a texture.
+            glGenTextures(1, &materialWalker->material.diffuseTextureName);
+            glBindTexture(GL_TEXTURE_2D, materialWalker->material.diffuseTextureName);
 
-			// Transfer the image data from the CPU to the GPU.
-			glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
+            // Transfer the image data from the CPU to the GPU.
+            glTexImage2D(GL_TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
 
-			// Setting the texture parameters.
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            // Setting the texture parameters.
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
 
-			glusImageDestroyTga(&image);
-		}
+            glusImageDestroyTga(&image);
+        }
 
-		materialWalker = materialWalker->next;
-	}
+        materialWalker = materialWalker->next;
+    }
 
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 
     //
     // Matrix setup.
@@ -210,18 +210,18 @@ GLUSboolean init(GLUSvoid)
     // Voxel grid setup.
     //
 
-	glGenTextures(1, &g_voxelGrid);
-	glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
+    glGenTextures(1, &g_voxelGrid);
+    glBindTexture(GL_TEXTURE_3D, g_voxelGrid);
 
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32UI, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32UI, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
 
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
-	glBindTexture(GL_TEXTURE_3D, 0);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
     //
     // Full screen rendering.
@@ -230,7 +230,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example45/shader/fullscreen.vert.glsl", &vertexSource);
     glusFileLoadText("../Example45/shader/draw_voxels.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_fullscreenProgram, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_fullscreenProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -261,36 +261,36 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-	// Do nothing, as all initialization is done in the init() function.
+    // Do nothing, as all initialization is done in the init() function.
 }
 
 GLUSboolean update(GLUSfloat time)
 {
-	// Reset color and counter value.
-	static GLuint clearValue = {0x00000000};
+    // Reset color and counter value.
+    static GLuint clearValue = {0x00000000};
 
-	static GLfloat angle = 0.0f;
+    static GLfloat angle = 0.0f;
 
-	GLUSgroupList* groupWalker;
+    GLUSgroupList* groupWalker;
 
-	// Clear voxel grid.
-	glClearTexImage(g_voxelGrid, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &clearValue);
+    // Clear voxel grid.
+    glClearTexImage(g_voxelGrid, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &clearValue);
 
-	// Clear background.
+    // Clear background.
     glClear(GL_COLOR_BUFFER_BIT);
 
     //
     // Voxelize model.
     //
 
-	// Disable color writing, as voxels are written into image.
+    // Disable color writing, as voxels are written into image.
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-	glUseProgram(g_program.program);
+    glUseProgram(g_program.program);
 
-	//
-	// Rotate the model.
-	//
+    //
+    // Rotate the model.
+    //
 
     glusMatrix4x4Identityf(g_modelMatrix);
 
@@ -304,43 +304,43 @@ GLUSboolean update(GLUSfloat time)
 
     angle += 10.0f * time;
 
-	//
+    //
 
-	glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI);
+    glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI);
 
     glViewport(0, 0, VOXEL_GRID_SIZE, VOXEL_GRID_SIZE);
 
-	//
-	// Render model.
-	//
+    //
+    // Render model.
+    //
 
-	glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE1);
 
-	groupWalker = g_wavefront.groups;
-	while (groupWalker)
-	{
-		// Enable only texturing, if the material has a texture
-		if (groupWalker->group.material->diffuseTextureName)
-		{
-			glBindTexture(GL_TEXTURE_2D, groupWalker->group.material->diffuseTextureName);
-		}
-		else
-		{
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
+    groupWalker = g_wavefront.groups;
+    while (groupWalker)
+    {
+        // Enable only texturing, if the material has a texture
+        if (groupWalker->group.material->diffuseTextureName)
+        {
+            glBindTexture(GL_TEXTURE_2D, groupWalker->group.material->diffuseTextureName);
+        }
+        else
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
-		glBindVertexArray(groupWalker->group.vao);
+        glBindVertexArray(groupWalker->group.vao);
 
-		glDrawElements(GL_TRIANGLES, groupWalker->group.numberIndices, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, groupWalker->group.numberIndices, GL_UNSIGNED_INT, 0);
 
-		groupWalker = groupWalker->next;
-	}
+        groupWalker = groupWalker->next;
+    }
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 
-	//
+    //
 
     glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI);
 
@@ -350,91 +350,91 @@ GLUSboolean update(GLUSfloat time)
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	glUseProgram(g_fullscreenProgram.program);
+    glUseProgram(g_fullscreenProgram.program);
 
-	glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);
+    glBindImageTexture(BINDING_VOXEL_GRID, g_voxelGrid, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);
 
     glViewport(0, 0, WINDOW_SIZE, WINDOW_SIZE);
 
-	glBindVertexArray(g_fullscreenVao);
+    glBindVertexArray(g_fullscreenVao);
 
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);
+    glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);
 
     return GLUS_TRUE;
 }
 
 GLUSvoid terminate(GLUSvoid)
 {
-	GLUSgroupList* groupWalker;
-	GLUSmaterialList* materialWalker;
+    GLUSgroupList*    groupWalker;
+    GLUSmaterialList* materialWalker;
 
-	glBindTexture(GL_TEXTURE_3D, 0);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
-	if (g_voxelGrid)
-	{
-		glDeleteTextures(1, &g_voxelGrid);
+    if (g_voxelGrid)
+    {
+        glDeleteTextures(1, &g_voxelGrid);
 
-		g_voxelGrid = 0;
-	}
+        g_voxelGrid = 0;
+    }
 
-	//
+    //
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	if (g_wavefront.verticesVBO)
-	{
-		glDeleteBuffers(1, &g_wavefront.verticesVBO);
+    if (g_wavefront.verticesVBO)
+    {
+        glDeleteBuffers(1, &g_wavefront.verticesVBO);
 
-		g_wavefront.verticesVBO = 0;
-	}
+        g_wavefront.verticesVBO = 0;
+    }
 
-	if (g_wavefront.texCoordsVBO)
-	{
-		glDeleteBuffers(1, &g_wavefront.texCoordsVBO);
+    if (g_wavefront.texCoordsVBO)
+    {
+        glDeleteBuffers(1, &g_wavefront.texCoordsVBO);
 
-		g_wavefront.texCoordsVBO = 0;
-	}
+        g_wavefront.texCoordsVBO = 0;
+    }
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	groupWalker = g_wavefront.groups;
-	while (groupWalker)
-	{
-	    if (groupWalker->group.indicesVBO)
-	    {
-	        glDeleteBuffers(1, &groupWalker->group.indicesVBO);
+    groupWalker = g_wavefront.groups;
+    while (groupWalker)
+    {
+        if (groupWalker->group.indicesVBO)
+        {
+            glDeleteBuffers(1, &groupWalker->group.indicesVBO);
 
-	        groupWalker->group.indicesVBO = 0;
-	    }
+            groupWalker->group.indicesVBO = 0;
+        }
 
-		if (groupWalker->group.vao)
-		{
-			glDeleteVertexArrays(1, &groupWalker->group.vao);
+        if (groupWalker->group.vao)
+        {
+            glDeleteVertexArrays(1, &groupWalker->group.vao);
 
-			groupWalker->group.vao = 0;
-		}
+            groupWalker->group.vao = 0;
+        }
 
-		groupWalker = groupWalker->next;
-	}
+        groupWalker = groupWalker->next;
+    }
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	materialWalker = g_wavefront.materials;
-	while (materialWalker)
-	{
-		if (materialWalker->material.diffuseTextureName)
-		{
-			glDeleteTextures(1, &materialWalker->material.diffuseTextureName);
+    materialWalker = g_wavefront.materials;
+    while (materialWalker)
+    {
+        if (materialWalker->material.diffuseTextureName)
+        {
+            glDeleteTextures(1, &materialWalker->material.diffuseTextureName);
 
-			materialWalker->material.diffuseTextureName = 0;
-		}
+            materialWalker->material.diffuseTextureName = 0;
+        }
 
-		materialWalker = materialWalker->next;
-	}
+        materialWalker = materialWalker->next;
+    }
 
-	//
+    //
 
     glUseProgram(0);
 
@@ -456,24 +456,22 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 0,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 4,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-			EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 4,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

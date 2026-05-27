@@ -44,7 +44,6 @@ static struct LightLocations g_lightLocations;
  */
 static struct MaterialLocations g_material;
 
-
 static GLuint g_verticesVBO;
 
 static GLuint g_normalsVBO;
@@ -59,7 +58,7 @@ static struct LightProperties* g_light;
 GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* light)
 {
     // Color material with white specular color.
-    struct MaterialProperties material = { { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 20.0f };
+    struct MaterialProperties material = {{0.8f, 0.8f, 0.8f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 20.0f};
 
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
@@ -76,7 +75,7 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
     glusFileLoadText("../Example42/shader/phong.vert.glsl", &vertexSource);
     glusFileLoadText("../Example42/shader/phong.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -84,17 +83,17 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_modelViewMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_modelViewMatrixLocation  = glGetUniformLocation(g_program.program, "u_modelViewMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
 
-    g_lightLocations.directionLocation = glGetUniformLocation(g_program.program, "u_light.direction");
-    g_lightLocations.ambientColorLocation = glGetUniformLocation(g_program.program, "u_light.ambientColor");
-    g_lightLocations.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_light.diffuseColor");
+    g_lightLocations.directionLocation     = glGetUniformLocation(g_program.program, "u_light.direction");
+    g_lightLocations.ambientColorLocation  = glGetUniformLocation(g_program.program, "u_light.ambientColor");
+    g_lightLocations.diffuseColorLocation  = glGetUniformLocation(g_program.program, "u_light.diffuseColor");
     g_lightLocations.specularColorLocation = glGetUniformLocation(g_program.program, "u_light.specularColor");
 
-    g_material.ambientColorLocation = glGetUniformLocation(g_program.program, "u_material.ambientColor");
-    g_material.diffuseColorLocation = glGetUniformLocation(g_program.program, "u_material.diffuseColor");
-    g_material.specularColorLocation = glGetUniformLocation(g_program.program, "u_material.specularColor");
+    g_material.ambientColorLocation     = glGetUniformLocation(g_program.program, "u_material.ambientColor");
+    g_material.diffuseColorLocation     = glGetUniformLocation(g_program.program, "u_material.diffuseColor");
+    g_material.specularColorLocation    = glGetUniformLocation(g_program.program, "u_material.specularColor");
     g_material.specularExponentLocation = glGetUniformLocation(g_program.program, "u_material.specularExponent");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
@@ -109,11 +108,11 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) wavefrontObj.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefrontObj.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) wavefrontObj.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefrontObj.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

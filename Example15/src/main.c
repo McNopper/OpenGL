@@ -63,8 +63,8 @@ static GLuint g_cubemap;
 
 GLUSboolean init(GLUSvoid)
 {
-    GLfloat* points = (GLfloat*) malloc(WATER_PLANE_LENGTH * WATER_PLANE_LENGTH * 4 * sizeof(GLfloat));
-    GLuint* indices = (GLuint*) malloc(WATER_PLANE_LENGTH * (WATER_PLANE_LENGTH - 1) * 2 * sizeof(GLuint));
+    GLfloat* points  = (GLfloat*)malloc(WATER_PLANE_LENGTH * WATER_PLANE_LENGTH * 4 * sizeof(GLfloat));
+    GLuint*  indices = (GLuint*)malloc(WATER_PLANE_LENGTH * (WATER_PLANE_LENGTH - 1) * 2 * sizeof(GLuint));
 
     GLUStgaimage image;
 
@@ -79,9 +79,9 @@ GLUSboolean init(GLUSvoid)
     {
         for (x = 0; x < WATER_PLANE_LENGTH; x++)
         {
-            points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 0] = -(GLfloat) WATER_PLANE_LENGTH / 2 + 0.5f + (GLfloat) x;
+            points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 0] = -(GLfloat)WATER_PLANE_LENGTH / 2 + 0.5f + (GLfloat)x;
             points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 1] = 0.0f;
-            points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 2] = +(GLfloat) WATER_PLANE_LENGTH / 2 - 0.5f - (GLfloat) z;
+            points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 2] = +(GLfloat)WATER_PLANE_LENGTH / 2 - 0.5f - (GLfloat)z;
             points[(x + z * (WATER_PLANE_LENGTH)) * 4 + 3] = 1.0f;
         }
     }
@@ -108,15 +108,15 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example15/shader/Water.vert.glsl", &vertexSource);
     glusFileLoadText("../Example15/shader/Water.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
+    g_projectionMatrixLocation        = glGetUniformLocation(g_program.program, "u_projectionMatrix");
+    g_viewMatrixLocation              = glGetUniformLocation(g_program.program, "u_viewMatrix");
     g_inverseViewNormalMatrixLocation = glGetUniformLocation(g_program.program, "u_inverseViewNormalMatrix");
 
     g_waterPlaneLengthLocation = glGetUniformLocation(g_program.program, "u_waterPlaneLength");
@@ -136,13 +136,13 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, WATER_PLANE_LENGTH * WATER_PLANE_LENGTH * 4 * sizeof(GLfloat), (GLfloat*) points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, WATER_PLANE_LENGTH * WATER_PLANE_LENGTH * 4 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, WATER_PLANE_LENGTH * (WATER_PLANE_LENGTH - 1) * 2 * sizeof(GLuint), (GLuint*) indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, WATER_PLANE_LENGTH * (WATER_PLANE_LENGTH - 1) * 2 * sizeof(GLuint), (GLuint*)indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -189,11 +189,11 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    waterTexture = initWaterTexture((GLUSfloat) WATER_PLANE_LENGTH);
+    waterTexture = initWaterTexture((GLUSfloat)WATER_PLANE_LENGTH);
 
     glUseProgram(g_program.program);
 
-    glUniform1f(g_waterPlaneLengthLocation, (GLUSfloat) WATER_PLANE_LENGTH);
+    glUniform1f(g_waterPlaneLengthLocation, (GLUSfloat)WATER_PLANE_LENGTH);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemap);
@@ -233,7 +233,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 {
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(g_projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 1000.0f);
+    glusMatrix4x4Perspectivef(g_projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
     reshapeBackground(g_projectionMatrix);
 
@@ -257,36 +257,36 @@ GLUSvoid renderWater(GLUSfloat passedTime)
     // Waves can be faded in and out.
 
     // Wave One
-    waveParameters[0].speed = 1.0f;
-    waveParameters[0].amplitude = 0.01f;
+    waveParameters[0].speed      = 1.0f;
+    waveParameters[0].amplitude  = 0.01f;
     waveParameters[0].wavelength = 4.0f;
-    waveParameters[0].steepness = overallSteepness / (waveParameters[0].wavelength * waveParameters[0].amplitude * (GLfloat) NUMBERWAVES);
-    waveDirections[0].x = +1.0f;
-    waveDirections[0].z = +1.0f;
+    waveParameters[0].steepness  = overallSteepness / (waveParameters[0].wavelength * waveParameters[0].amplitude * (GLfloat)NUMBERWAVES);
+    waveDirections[0].x          = +1.0f;
+    waveDirections[0].z          = +1.0f;
 
     // Wave Two
-    waveParameters[1].speed = 0.5f;
-    waveParameters[1].amplitude = 0.02f;
+    waveParameters[1].speed      = 0.5f;
+    waveParameters[1].amplitude  = 0.02f;
     waveParameters[1].wavelength = 3.0f;
-    waveParameters[1].steepness = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat) NUMBERWAVES);
-    waveDirections[1].x = +1.0f;
-    waveDirections[1].z = +0.0f;
+    waveParameters[1].steepness  = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat)NUMBERWAVES);
+    waveDirections[1].x          = +1.0f;
+    waveDirections[1].z          = +0.0f;
 
     // Wave Three
-    waveParameters[2].speed = 0.1f;
-    waveParameters[2].amplitude = 0.015f;
+    waveParameters[2].speed      = 0.1f;
+    waveParameters[2].amplitude  = 0.015f;
     waveParameters[2].wavelength = 2.0f;
-    waveParameters[2].steepness = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat) NUMBERWAVES);
-    waveDirections[2].x = -0.1f;
-    waveDirections[2].z = -0.2f;
+    waveParameters[2].steepness  = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat)NUMBERWAVES);
+    waveDirections[2].x          = -0.1f;
+    waveDirections[2].z          = -0.2f;
 
     // Wave Four
-    waveParameters[3].speed = 1.1f;
-    waveParameters[3].amplitude = 0.008f;
+    waveParameters[3].speed      = 1.1f;
+    waveParameters[3].amplitude  = 0.008f;
     waveParameters[3].wavelength = 1.0f;
-    waveParameters[3].steepness = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat) NUMBERWAVES);
-    waveDirections[3].x = -0.2f;
-    waveDirections[3].z = -0.1f;
+    waveParameters[3].steepness  = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat)NUMBERWAVES);
+    waveDirections[3].x          = -0.2f;
+    waveDirections[3].z          = -0.1f;
 
     glUseProgram(g_program.program);
 
@@ -295,8 +295,8 @@ GLUSvoid renderWater(GLUSfloat passedTime)
 
     glUniform1f(g_passedTimeLocation, passedTime);
 
-    glUniform4fv(g_waveParametersLocation, 4 * NUMBERWAVES, (GLfloat*) waveParameters);
-    glUniform2fv(g_waveDirectionsLocation, 2 * NUMBERWAVES, (GLfloat*) waveDirections);
+    glUniform4fv(g_waveParametersLocation, 4 * NUMBERWAVES, (GLfloat*)waveParameters);
+    glUniform2fv(g_waveDirectionsLocation, 2 * NUMBERWAVES, (GLfloat*)waveDirections);
 
     glBindVertexArray(g_vao);
 
@@ -313,7 +313,7 @@ GLUSboolean update(GLUSfloat time)
 
     GLfloat inverseViewMatrix[16];
 
-    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 1.0f, 0.0f, (GLfloat) 0.5f * sinf(angle), 1.0f, -(GLfloat) 0.5f * cosf(angle), 0.0f, 1.0f, 0.0f);
+    glusMatrix4x4LookAtf(g_viewMatrix, 0.0f, 1.0f, 0.0f, (GLfloat)0.5f * sinf(angle), 1.0f, -(GLfloat)0.5f * cosf(angle), 0.0f, 1.0f, 0.0f);
 
     glusMatrix4x4Copyf(inverseViewMatrix, g_viewMatrix, GLUS_TRUE);
     glusMatrix4x4InverseRigidBodyf(inverseViewMatrix);
@@ -390,23 +390,21 @@ GLUSvoid terminate(GLUSvoid)
  */
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

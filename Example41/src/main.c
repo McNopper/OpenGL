@@ -34,7 +34,7 @@
 #define N 512
 
 // Length of the ocean grid.
-#define LENGTH	250.0f
+#define LENGTH 250.0f
 
 // Gravity.
 #define GRAVITY 9.81f
@@ -57,13 +57,11 @@ static GLUSprogram g_computeUpdateHtProgram;
 
 static GLint g_totalTimeUpdateHtLocation;
 
-
 static GLUSprogram g_computeFftProgram;
 
 static GLint g_processColumnFftLocation;
 
 static GLint g_stepsFftLocation;
-
 
 static GLUSprogram g_computeUpdateNormalProgram;
 
@@ -105,22 +103,22 @@ static GLuint g_numberIndices;
 
 static GLfloat phillipsSpectrum(GLfloat A, GLfloat L, GLfloat waveDirection[2], GLfloat windDirection[2])
 {
-	GLfloat k = glusVector2Lengthf(waveDirection);
-	GLfloat waveDotWind = glusVector2Dotf(waveDirection, windDirection);
+    GLfloat k           = glusVector2Lengthf(waveDirection);
+    GLfloat waveDotWind = glusVector2Dotf(waveDirection, windDirection);
 
-	// Avoid division by zero.
-	if (L == 0.0f || k == 0.0f)
-	{
-		return 0.0f;
-	}
+    // Avoid division by zero.
+    if (L == 0.0f || k == 0.0f)
+    {
+        return 0.0f;
+    }
 
-	return A * expf(-1.0f / (k * L * k * L)) / (k * k * k * k) * waveDotWind * waveDotWind;
+    return A * expf(-1.0f / (k * L * k * L)) / (k * k * k * k) * waveDotWind * waveDotWind;
 }
 
 GLUSboolean init(GLUSvoid)
 {
-    GLfloat lightDirection[3] = { 1.0f, 1.0f, 1.0f };
-    GLfloat color[4] = { 0.0f, 0.8f, 0.8f, 1.0f };
+    GLfloat lightDirection[3] = {1.0f, 1.0f, 1.0f};
+    GLfloat color[4]          = {0.0f, 0.8f, 0.8f, 1.0f};
 
     GLUStextfile computeSource;
 
@@ -130,11 +128,11 @@ GLUSboolean init(GLUSvoid)
     GLUSshape gridPlane;
 
     GLUSuint i, k;
-    GLfloat matrix[16];
+    GLfloat  matrix[16];
 
     GLfloat* h0Data;
 
-    GLint* butterflyIndices;
+    GLint*   butterflyIndices;
     GLfloat* butterflyIndicesAsFloat;
 
     GLfloat waveDirection[2];
@@ -143,42 +141,39 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-	GLint steps = 0;
-	GLint temp = N;
+    GLint steps = 0;
+    GLint temp  = N;
 
-	while (!(temp & 0x1))
-	{
-		temp = temp >> 1;
-		steps++;
-	}
+    while (!(temp & 0x1))
+    {
+        temp = temp >> 1;
+        steps++;
+    }
 
     //
 
     glusFileLoadText("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource);
 
-    glusProgramBuildComputeFromSource(&g_computeUpdateHtProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeUpdateHtProgram, (const GLchar**)&computeSource.text);
 
     glusFileDestroyText(&computeSource);
-
 
     glusFileLoadText("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
 
-    glusProgramBuildComputeFromSource(&g_computeFftProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeFftProgram, (const GLchar**)&computeSource.text);
 
     glusFileDestroyText(&computeSource);
-
 
     glusFileLoadText("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource);
 
-    glusProgramBuildComputeFromSource(&g_computeUpdateNormalProgram, (const GLchar**) &computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeUpdateNormalProgram, (const GLchar**)&computeSource.text);
 
     glusFileDestroyText(&computeSource);
-
 
     glusFileLoadText("../Example41/shader/ocean.vert.glsl", &vertexSource);
     glusFileLoadText("../Example41/shader/ocean.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -187,18 +182,16 @@ GLUSboolean init(GLUSvoid)
 
     g_totalTimeUpdateHtLocation = glGetUniformLocation(g_computeUpdateHtProgram.program, "u_totalTime");
 
-
     g_processColumnFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_processColumn");
-    g_stepsFftLocation = glGetUniformLocation(g_computeFftProgram.program, "u_steps");
-
+    g_stepsFftLocation         = glGetUniformLocation(g_computeFftProgram.program, "u_steps");
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
-    g_colorLocation = glGetUniformLocation(g_program.program, "u_color");
+    g_normalMatrixLocation              = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_lightDirectionLocation            = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_colorLocation                     = glGetUniformLocation(g_program.program, "u_color");
 
-	g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
-	g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
+    g_vertexLocation   = glGetAttribLocation(g_program.program, "a_vertex");
+    g_texCoordLocation = glGetAttribLocation(g_program.program, "a_texCoord");
 
     //
 
@@ -212,22 +205,22 @@ GLUSboolean init(GLUSvoid)
     glusMatrix4x4RotateRxf(matrix, -90.0f);
     for (i = 0; i < gridPlane.numberVertices; i++)
     {
-    	glusMatrix4x4MultiplyPoint4f(&gridPlane.vertices[4 * i], matrix, &gridPlane.vertices[4 * i]);
+        glusMatrix4x4MultiplyPoint4f(&gridPlane.vertices[4 * i], matrix, &gridPlane.vertices[4 * i]);
     }
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) gridPlane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)gridPlane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*) gridPlane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)gridPlane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridPlane.numberIndices * sizeof(GLuint), (GLuint*) gridPlane.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridPlane.numberIndices * sizeof(GLuint), (GLuint*)gridPlane.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -241,24 +234,24 @@ GLUSboolean init(GLUSvoid)
 
     if (!h0Data)
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     glusVector2Normalizef(windDirection);
 
     for (i = 0; i < N; i++)
     {
-    	// Positive N, that it matches with OpenGL z-axis.
-    	waveDirection[1] = ((GLfloat)N / 2.0f - (GLfloat)i) * (2.0f * GLUS_PI / LENGTH);
+        // Positive N, that it matches with OpenGL z-axis.
+        waveDirection[1] = ((GLfloat)N / 2.0f - (GLfloat)i) * (2.0f * GLUS_PI / LENGTH);
 
         for (k = 0; k < N; k++)
         {
-        	waveDirection[0] = ((GLfloat)-N / 2.0f + (GLfloat)k) * (2.0f * GLUS_PI / LENGTH);
+            waveDirection[0] = ((GLfloat)-N / 2.0f + (GLfloat)k) * (2.0f * GLUS_PI / LENGTH);
 
-        	phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, LPWA, waveDirection, windDirection);
+            phillipsSpectrumValue = phillipsSpectrum(AMPLITUDE, LPWA, waveDirection, windDirection);
 
-        	h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
-        	h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
+            h0Data[i * 2 * N + k * 2 + 0] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
+            h0Data[i * 2 * N + k * 2 + 1] = 1.0f / sqrtf(2.0f) * glusRandomNormalf(0.0f, 1.0f) * phillipsSpectrumValue;
         }
     }
 
@@ -276,7 +269,6 @@ GLUSboolean init(GLUSvoid)
 
     free(h0Data);
 
-
     glGenTextures(1, &g_textureHt);
     glBindTexture(GL_TEXTURE_2D, g_textureHt);
 
@@ -286,7 +278,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 
     glGenTextures(1, &g_textureDisplacement[0]);
     glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[0]);
@@ -298,7 +289,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
     glGenTextures(1, &g_textureDisplacement[1]);
     glBindTexture(GL_TEXTURE_2D, g_textureDisplacement[1]);
 
@@ -308,7 +298,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 
     glGenTextures(1, &g_textureNormal);
     glBindTexture(GL_TEXTURE_2D, g_textureNormal);
@@ -320,7 +309,6 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //
@@ -331,28 +319,28 @@ GLUSboolean init(GLUSvoid)
 
     if (!butterflyIndices)
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     butterflyIndicesAsFloat = (GLfloat*)malloc(N * sizeof(GLfloat));
 
     if (!butterflyIndicesAsFloat)
     {
-    	free(butterflyIndices);
+        free(butterflyIndices);
 
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     for (i = 0; i < N; i++)
     {
-    	butterflyIndices[i] = i;
+        butterflyIndices[i] = i;
     }
 
     glusFourierButterflyShuffleFFTi(butterflyIndices, butterflyIndices, N);
 
     for (i = 0; i < N; i++)
     {
-    	butterflyIndicesAsFloat[i] = (GLfloat)butterflyIndices[i];
+        butterflyIndicesAsFloat[i] = (GLfloat)butterflyIndices[i];
     }
 
     free(butterflyIndices);
@@ -385,13 +373,13 @@ GLUSboolean init(GLUSvoid)
     glGenVertexArrays(1, &g_vao);
     glBindVertexArray(g_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-	glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_vertexLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
+    glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexLocation);
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-	glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(g_texCoordLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
+    glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_texCoordLocation);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
 
@@ -436,7 +424,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glusMatrix4x4ExtractMatrix3x3f(normalMatrix, modelMatrix);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 2000.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 2000.0f);
 
     glusMatrix4x4LookAtf(viewMatrix, 0.0f, 5.0f, LENGTH / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -451,7 +439,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	static GLfloat totalTime = 0.0f;
+    static GLfloat totalTime = 0.0f;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -604,7 +592,7 @@ GLUSvoid terminate(GLUSvoid)
         g_textureNormal = 0;
     }
 
-	//
+    //
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -655,26 +643,24 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_SAMPLE_BUFFERS, 1,
-	        EGL_SAMPLES, 4,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_SAMPLE_BUFFERS, 1,
+        EGL_SAMPLES, 4,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 3,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 3,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

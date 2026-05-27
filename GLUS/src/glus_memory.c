@@ -19,10 +19,10 @@
 
 void* GLUSAPIENTRY glusMemoryMalloc(size_t size)
 {
-	return malloc(size);
+    return malloc(size);
 }
 
 void GLUSAPIENTRY glusMemoryFree(void* pointer)
 {
-	free(pointer);
+    free(pointer);
 }

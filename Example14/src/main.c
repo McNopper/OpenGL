@@ -244,33 +244,33 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile geometrySource;
     GLUStextfile fragmentSource;
 
-    GLfloat lightDirection[3] = { 1.0f, 1.0f, 1.0f };
+    GLfloat lightDirection[3] = {1.0f, 1.0f, 1.0f};
 
     glusVector3Normalizef(lightDirection);
 
-    g_topView.cameraPosition[0] = 0.0f;
-    g_topView.cameraPosition[1] = 30000.0f * METERS_TO_VIRTUAL_WORLD_SCALE;
-    g_topView.cameraPosition[2] = 0.0f;
-    g_topView.cameraPosition[3] = 1.0;
+    g_topView.cameraPosition[0]  = 0.0f;
+    g_topView.cameraPosition[1]  = 30000.0f * METERS_TO_VIRTUAL_WORLD_SCALE;
+    g_topView.cameraPosition[2]  = 0.0f;
+    g_topView.cameraPosition[3]  = 1.0;
     g_topView.cameraDirection[0] = 0.0f;
     g_topView.cameraDirection[1] = -1.0f;
     g_topView.cameraDirection[2] = 0.0f;
-    g_topView.cameraUp[0] = 0.0f;
-    g_topView.cameraUp[1] = 0.0f;
-    g_topView.cameraUp[2] = -1.0f;
-    g_topView.fov = 40.0f;
+    g_topView.cameraUp[0]        = 0.0f;
+    g_topView.cameraUp[1]        = 0.0f;
+    g_topView.cameraUp[2]        = -1.0f;
+    g_topView.fov                = 40.0f;
 
-    g_personView.cameraPosition[0] = 0.0f;
-    g_personView.cameraPosition[1] = 4700.0f * METERS_TO_VIRTUAL_WORLD_SCALE;
-    g_personView.cameraPosition[2] = 0.0f;
-    g_personView.cameraPosition[3] = 1.0;
+    g_personView.cameraPosition[0]  = 0.0f;
+    g_personView.cameraPosition[1]  = 4700.0f * METERS_TO_VIRTUAL_WORLD_SCALE;
+    g_personView.cameraPosition[2]  = 0.0f;
+    g_personView.cameraPosition[3]  = 1.0;
     g_personView.cameraDirection[0] = 0.0f;
     g_personView.cameraDirection[1] = 0.0f;
     g_personView.cameraDirection[2] = -1.0f;
-    g_personView.cameraUp[0] = 0.0f;
-    g_personView.cameraUp[1] = 1.0f;
-    g_personView.cameraUp[2] = 0.0f;
-    g_personView.fov = 60.0f;
+    g_personView.cameraUp[0]        = 0.0f;
+    g_personView.cameraUp[1]        = 1.0f;
+    g_personView.cameraUp[2]        = 0.0f;
+    g_personView.fov                = 60.0f;
 
     g_activeView = &g_personView;
 
@@ -314,17 +314,17 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    g_sMapExtend = (GLfloat) image.width;
+    g_sMapExtend = (GLfloat)image.width;
 
-    g_tMapExtend = (GLfloat) image.height;
+    g_tMapExtend = (GLfloat)image.height;
 
     glusImageDestroyTga(&image);
 
     // Calculate the detail level for the s and ...
-    sMaxDetailLevel = (GLuint) floorf(logf(g_sMapExtend) / logf(2.0f));
+    sMaxDetailLevel = (GLuint)floorf(logf(g_sMapExtend) / logf(2.0f));
 
     // ... t extend
-    tMaxDetailLevel = (GLuint) floorf(logf(g_tMapExtend) / logf(2.0f));
+    tMaxDetailLevel = (GLuint)floorf(logf(g_tMapExtend) / logf(2.0f));
 
     overallMaxDetailLevel = sMaxDetailLevel < tMaxDetailLevel ? sMaxDetailLevel : tMaxDetailLevel;
 
@@ -345,31 +345,31 @@ GLUSboolean init(GLUSvoid)
 
     if (powf(2.0f, (GLfloat)(overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS))) > 32.0f)
     {
-        printf("Tessellation level to high %d > 32\n", (GLint) powf(2.0f, (GLfloat)(overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS))));
+        printf("Tessellation level to high %d > 32\n", (GLint)powf(2.0f, (GLfloat)(overallMaxDetailLevel - (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS))));
 
         return GLUS_FALSE;
     }
 
     detailStep = powf(2.0f, (GLfloat)(overallMaxDetailLevel - MINIMUM_DETAIL_LEVEL));
 
-    g_sNumPoints = (GLuint) ceilf(g_sMapExtend / detailStep) - 1;
+    g_sNumPoints = (GLuint)ceilf(g_sMapExtend / detailStep) - 1;
 
-    g_tNumPoints = (GLuint) ceilf(g_tMapExtend / detailStep) - 1;
+    g_tNumPoints = (GLuint)ceilf(g_tMapExtend / detailStep) - 1;
 
     //
     // Generate the flat terrain mesh.
     //
 
-    map = (GLUSfloat*) malloc(g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat));
+    map = (GLUSfloat*)malloc(g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat));
 
-    indices = (GLuint*) malloc(g_sNumPoints * g_tNumPoints * sizeof(GLuint));
+    indices = (GLuint*)malloc(g_sNumPoints * g_tNumPoints * sizeof(GLuint));
 
     for (t = 0; t < g_tNumPoints; t++)
     {
         for (s = 0; s < g_sNumPoints; s++)
         {
-            map[t * g_sNumPoints * 2 + s * 2 + 0] = 0.5f + detailStep / 2.0f + (GLfloat) s * detailStep;
-            map[t * g_sNumPoints * 2 + s * 2 + 1] = 0.5f + detailStep / 2.0f + (GLfloat) t * detailStep;
+            map[t * g_sNumPoints * 2 + s * 2 + 0] = 0.5f + detailStep / 2.0f + (GLfloat)s * detailStep;
+            map[t * g_sNumPoints * 2 + s * 2 + 1] = 0.5f + detailStep / 2.0f + (GLfloat)t * detailStep;
 
             indices[t * g_sNumPoints + s + 0] = (t + 0) * g_sNumPoints + s + 0;
         }
@@ -398,7 +398,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_verticesPassTwoVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesPassTwoVBO);
     // Calculate enough space!
-    glBufferData(GL_ARRAY_BUFFER, g_sNumPoints * g_tNumPoints * (GLuint) pow(4, DETAIL_LEVEL_FIRST_PASS + 1) * 2 * sizeof(GLfloat), 0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, g_sNumPoints * g_tNumPoints * (GLuint)pow(4, DETAIL_LEVEL_FIRST_PASS + 1) * 2 * sizeof(GLfloat), 0, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -447,10 +447,10 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example14/shader/PassOne.frag.glsl", &fragmentSource);
 
     // Compile and ...
-    glusProgramCreateFromSource(&g_programPassOne, (const GLUSchar**) &vertexSource.text, 0, 0, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text);
+    glusProgramCreateFromSource(&g_programPassOne, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
 
     // ... add the transform variable ...
-    glTransformFeedbackVaryings(g_programPassOne.program, 1, (const GLchar**) &TRANSFORM_VARYING, GL_SEPARATE_ATTRIBS);
+    glTransformFeedbackVaryings(g_programPassOne.program, 1, (const GLchar**)&TRANSFORM_VARYING, GL_SEPARATE_ATTRIBS);
 
     // ... and link the program
     if (!glusProgramLink(&g_programPassOne))
@@ -471,10 +471,10 @@ GLUSboolean init(GLUSvoid)
 
     g_fovRadiusPassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_fovRadius");
 
-    g_positionTextureSpacePassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_positionTextureSpace");
-    g_leftNormalTextureSpacePassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_leftNormalTextureSpace");
+    g_positionTextureSpacePassOneLocation    = glGetUniformLocation(g_programPassOne.program, "u_positionTextureSpace");
+    g_leftNormalTextureSpacePassOneLocation  = glGetUniformLocation(g_programPassOne.program, "u_leftNormalTextureSpace");
     g_rightNormalTextureSpacePassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_rightNormalTextureSpace");
-    g_backNormalTextureSpacePassOneLocation = glGetUniformLocation(g_programPassOne.program, "u_backNormalTextureSpace");
+    g_backNormalTextureSpacePassOneLocation  = glGetUniformLocation(g_programPassOne.program, "u_backNormalTextureSpace");
 
     // Pass two.
 
@@ -484,7 +484,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example14/shader/PassTwo.geom.glsl", &geometrySource);
     glusFileLoadText("../Example14/shader/PassTwo.frag.glsl", &fragmentSource);
 
-    if (!glusProgramBuildFromSource(&g_shaderProgramPassTwo, (const GLUSchar**) &vertexSource.text, (const GLUSchar**) &controlSource.text, (const GLUSchar**) &evaluationSource.text, (const GLUSchar**) &geometrySource.text, (const GLUSchar**) &fragmentSource.text))
+    if (!glusProgramBuildFromSource(&g_shaderProgramPassTwo, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
     {
         printf("Could not build program two\n");
 
@@ -553,7 +553,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesPassOneVBO);
 
-   // Pass two
+    // Pass two
 
     glUseProgram(g_shaderProgramPassTwo.program);
 
@@ -601,12 +601,12 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-    g_width = (GLfloat) width;
-    g_height = (GLfloat) height;
+    g_width  = (GLfloat)width;
+    g_height = (GLfloat)height;
 
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(g_projectionMatrix, g_activeView->fov, (GLfloat) width / (GLfloat) height, 1.0f, 1000000.0f);
+    glusMatrix4x4Perspectivef(g_projectionMatrix, g_activeView->fov, (GLfloat)width / (GLfloat)height, 1.0f, 1000000.0f);
 }
 
 GLUSvoid key(GLUSboolean pressed, GLUSint key)
@@ -693,7 +693,7 @@ GLUSboolean update(GLUSfloat time)
     }
 
     glusMatrix4x4LookAtf(g_viewMatrix, g_activeView->cameraPosition[0], g_activeView->cameraPosition[1], g_activeView->cameraPosition[2], g_activeView->cameraPosition[0] + g_activeView->cameraDirection[0], g_activeView->cameraPosition[1] + g_activeView->cameraDirection[1],
-            g_activeView->cameraPosition[2] + g_activeView->cameraDirection[2], g_activeView->cameraUp[0], g_activeView->cameraUp[1], g_activeView->cameraUp[2]);
+                         g_activeView->cameraPosition[2] + g_activeView->cameraDirection[2], g_activeView->cameraUp[0], g_activeView->cameraUp[1], g_activeView->cameraUp[2]);
 
     glusMatrix4x4Identityf(tmvpMatrix);
     glusMatrix4x4Multiplyf(tmvpMatrix, tmvpMatrix, g_projectionMatrix);
@@ -891,23 +891,21 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 1,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 1,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

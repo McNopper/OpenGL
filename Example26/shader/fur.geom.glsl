@@ -22,33 +22,33 @@ out float v_furStrength;
 
 void main(void)
 {
-	vec3 normal;
+    vec3 normal;
 
-	const float FUR_DELTA = 1.0 / float(FUR_LAYERS);
-	
-	float d = 0.0;
+    const float FUR_DELTA = 1.0 / float(FUR_LAYERS);
 
-	for (int furLayer = 0; furLayer < FUR_LAYERS; furLayer++)
-	{
-		d += FUR_DELTA;
-		
-		for(int i = 0; i < gl_in.length(); i++)
-		{
-			normal = normalize(v_g_normal[i]);
+    float d = 0.0;
 
-			v_normal = u_normalMatrix * normal; 
+    for (int furLayer = 0; furLayer < FUR_LAYERS; furLayer++)
+    {
+        d += FUR_DELTA;
 
-			v_texCoord = v_g_texCoord[i];
-			
-			// If the distance of the layer is getting bigger to the original surface, the layer gets more transparent.   
-			v_furStrength = 1.0 - d;
-			
-			// Displace a layer along the surface normal.
-			gl_Position = u_projectionMatrix * u_modelViewMatrix * (gl_in[i].gl_Position + vec4(normal * d * FUR_LENGTH, 0.0));
-	
-			EmitVertex();
-		}
-		
-		EndPrimitive();
-	}
+        for (int i = 0; i < gl_in.length(); i++)
+        {
+            normal = normalize(v_g_normal[i]);
+
+            v_normal = u_normalMatrix * normal;
+
+            v_texCoord = v_g_texCoord[i];
+
+            // If the distance of the layer is getting bigger to the original surface, the layer gets more transparent.
+            v_furStrength = 1.0 - d;
+
+            // Displace a layer along the surface normal.
+            gl_Position = u_projectionMatrix * u_modelViewMatrix * (gl_in[i].gl_Position + vec4(normal * d * FUR_LENGTH, 0.0));
+
+            EmitVertex();
+        }
+
+        EndPrimitive();
+    }
 }

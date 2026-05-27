@@ -19,21 +19,21 @@
 
 GLUSboolean GLUSAPIENTRY glusMatrix4x4Orthof(GLUSfloat result[16], const GLUSfloat left, const GLUSfloat right, const GLUSfloat bottom, const GLUSfloat top, const GLUSfloat nearVal, const GLUSfloat farVal)
 {
-	if ((right - left) == 0.0f || (top - bottom) == 0.0f || (farVal - nearVal) == 0.0f)
-	{
-		return GLUS_FALSE;
-	}
+    if ((right - left) == 0.0f || (top - bottom) == 0.0f || (farVal - nearVal) == 0.0f)
+    {
+        return GLUS_FALSE;
+    }
 
-    result[0] = 2.0f / (right - left);
-    result[1] = 0.0f;
-    result[2] = 0.0f;
-    result[3] = 0.0f;
-    result[4] = 0.0f;
-    result[5] = 2.0f / (top - bottom);
-    result[6] = 0.0f;
-    result[7] = 0.0f;
-    result[8] = 0.0f;
-    result[9] = 0.0f;
+    result[0]  = 2.0f / (right - left);
+    result[1]  = 0.0f;
+    result[2]  = 0.0f;
+    result[3]  = 0.0f;
+    result[4]  = 0.0f;
+    result[5]  = 2.0f / (top - bottom);
+    result[6]  = 0.0f;
+    result[7]  = 0.0f;
+    result[8]  = 0.0f;
+    result[9]  = 0.0f;
     result[10] = -2.0f / (farVal - nearVal);
     result[11] = 0.0f;
     result[12] = -(right + left) / (right - left);
@@ -46,21 +46,21 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Orthof(GLUSfloat result[16], const GLUSflo
 
 GLUSboolean GLUSAPIENTRY glusMatrix4x4Frustumf(GLUSfloat result[16], const GLUSfloat left, const GLUSfloat right, const GLUSfloat bottom, const GLUSfloat top, const GLUSfloat nearVal, const GLUSfloat farVal)
 {
-	if ((right - left) == 0.0f || (top - bottom) == 0.0f || (farVal - nearVal) == 0.0f)
-	{
-		return GLUS_FALSE;
-	}
+    if ((right - left) == 0.0f || (top - bottom) == 0.0f || (farVal - nearVal) == 0.0f)
+    {
+        return GLUS_FALSE;
+    }
 
-	result[0] = 2.0f * nearVal / (right - left);
-    result[1] = 0.0f;
-    result[2] = 0.0f;
-    result[3] = 0.0f;
-    result[4] = 0.0f;
-    result[5] = 2.0f * nearVal / (top - bottom);
-    result[6] = 0.0f;
-    result[7] = 0.0f;
-    result[8] = (right + left) / (right - left);
-    result[9] = (top + bottom) / (top - bottom);
+    result[0]  = 2.0f * nearVal / (right - left);
+    result[1]  = 0.0f;
+    result[2]  = 0.0f;
+    result[3]  = 0.0f;
+    result[4]  = 0.0f;
+    result[5]  = 2.0f * nearVal / (top - bottom);
+    result[6]  = 0.0f;
+    result[7]  = 0.0f;
+    result[8]  = (right + left) / (right - left);
+    result[9]  = (top + bottom) / (top - bottom);
     result[10] = -(farVal + nearVal) / (farVal - nearVal);
     result[11] = -1.0f;
     result[12] = 0.0f;
@@ -77,7 +77,7 @@ GLUSboolean GLUSAPIENTRY glusMatrix4x4Perspectivef(GLUSfloat result[16], const G
 
     if (fovy <= 0.0f || fovy >= 180.0f)
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     ymax = zNear * tanf(fovy * GLUS_PI / 360.0f);
@@ -107,16 +107,16 @@ GLUSvoid GLUSAPIENTRY glusMatrix4x4LookAtf(GLUSfloat result[16], const GLUSfloat
 
     glusVector3Crossf(up, side, forward);
 
-    result[0] = side[0];
-    result[1] = up[0];
-    result[2] = -forward[0];
-    result[3] = 0.0f;
-    result[4] = side[1];
-    result[5] = up[1];
-    result[6] = -forward[1];
-    result[7] = 0.0f;
-    result[8] = side[2];
-    result[9] = up[2];
+    result[0]  = side[0];
+    result[1]  = up[0];
+    result[2]  = -forward[0];
+    result[3]  = 0.0f;
+    result[4]  = side[1];
+    result[5]  = up[1];
+    result[6]  = -forward[1];
+    result[7]  = 0.0f;
+    result[8]  = side[2];
+    result[9]  = up[2];
     result[10] = -forward[2];
     result[11] = 0.0f;
     result[12] = 0.0f;

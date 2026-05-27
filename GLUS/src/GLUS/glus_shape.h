@@ -23,9 +23,9 @@
  */
 typedef struct _GLUSshape
 {
-	/**
-	 * Vertices in homogeneous coordinates.
-	 */
+    /**
+     * Vertices in homogeneous coordinates.
+     */
     GLUSfloat* vertices;
 
     /**

@@ -19,6 +19,5 @@
 
 GLUSfloat GLUSAPIENTRY glusTimeGetTimestampf()
 {
-	return (GLUSfloat)glfwGetTime();
+    return (GLUSfloat)glfwGetTime();
 }
-

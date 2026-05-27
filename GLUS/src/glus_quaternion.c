@@ -134,7 +134,7 @@ GLUSvoid GLUSAPIENTRY glusQuaternionRotatef(GLUSfloat quaternion[4], const GLUSf
 
     GLUSfloat s = sinf(halfAngleRadian);
 
-    GLUSfloat normalized[3] = { x, y, z };
+    GLUSfloat normalized[3] = {x, y, z};
 
     glusVector3Normalizef(normalized);
 
@@ -176,30 +176,30 @@ GLUSvoid GLUSAPIENTRY glusQuaternionRotateRzf(GLUSfloat quaternion[4], const GLU
 
 GLUSvoid GLUSAPIENTRY glusQuaternionRotateRzRxRyf(GLUSfloat quaternion[4], const GLUSfloat anglez, const GLUSfloat anglex, const GLUSfloat angley)
 {
-	GLUSfloat rotZ[4];
-	GLUSfloat rotX[4];
-	GLUSfloat rotY[4];
+    GLUSfloat rotZ[4];
+    GLUSfloat rotX[4];
+    GLUSfloat rotY[4];
 
     glusQuaternionRotateRzf(rotZ, anglez);
     glusQuaternionRotateRxf(rotX, anglex);
-	glusQuaternionRotateRyf(rotY, angley);
+    glusQuaternionRotateRyf(rotY, angley);
 
-	glusQuaternionMultiplyQuaternionf(quaternion, rotZ, rotX);
-	glusQuaternionMultiplyQuaternionf(quaternion, quaternion, rotY);
+    glusQuaternionMultiplyQuaternionf(quaternion, rotZ, rotX);
+    glusQuaternionMultiplyQuaternionf(quaternion, quaternion, rotY);
 }
 
 GLUSAPI GLUSvoid GLUSAPIENTRY glusQuaternionRotateRzRyRxf(GLUSfloat quaternion[4], const GLUSfloat anglez, const GLUSfloat angley, const GLUSfloat anglex)
 {
-	GLUSfloat rotZ[4];
-	GLUSfloat rotY[4];
-	GLUSfloat rotX[4];
+    GLUSfloat rotZ[4];
+    GLUSfloat rotY[4];
+    GLUSfloat rotX[4];
 
     glusQuaternionRotateRzf(rotZ, anglez);
-	glusQuaternionRotateRyf(rotY, angley);
+    glusQuaternionRotateRyf(rotY, angley);
     glusQuaternionRotateRxf(rotX, anglex);
 
-	glusQuaternionMultiplyQuaternionf(quaternion, rotZ, rotY);
-	glusQuaternionMultiplyQuaternionf(quaternion, quaternion, rotX);
+    glusQuaternionMultiplyQuaternionf(quaternion, rotZ, rotY);
+    glusQuaternionMultiplyQuaternionf(quaternion, quaternion, rotX);
 }
 
 GLUSvoid GLUSAPIENTRY glusQuaternionGetMatrix4x4f(GLUSfloat matrix[16], const GLUSfloat quaternion[4])
@@ -219,8 +219,8 @@ GLUSvoid GLUSAPIENTRY glusQuaternionGetMatrix4x4f(GLUSfloat matrix[16], const GL
     matrix[6] = 2.0f * y * z + 2.0f * w * x;
     matrix[7] = 0.0f;
 
-    matrix[8] = 2.0f * x * z + 2.0f * w * y;
-    matrix[9] = 2.0f * y * z - 2.0f * w * x;
+    matrix[8]  = 2.0f * x * z + 2.0f * w * y;
+    matrix[9]  = 2.0f * y * z - 2.0f * w * x;
     matrix[10] = 1.0f - 2.0f * x * x - 2.0f * y * y;
     matrix[11] = 0.0f;
 
@@ -252,31 +252,31 @@ GLUSvoid GLUSAPIENTRY glusQuaternionGetMatrix3x3f(GLUSfloat matrix[9], const GLU
 
 GLUSboolean GLUSAPIENTRY glusQuaternionGetPoint4f(GLUSfloat point[4], const GLUSfloat quaternion[4])
 {
-	if (quaternion[3] != 0.0f)
-	{
-		return GLUS_FALSE;
-	}
+    if (quaternion[3] != 0.0f)
+    {
+        return GLUS_FALSE;
+    }
 
-	point[0] = quaternion[0];
-	point[1] = quaternion[1];
-	point[2] = quaternion[2];
-	point[3] = 1.0f;
+    point[0] = quaternion[0];
+    point[1] = quaternion[1];
+    point[2] = quaternion[2];
+    point[3] = 1.0f;
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusQuaternionGetVector3f(GLUSfloat vector[3], const GLUSfloat quaternion[4])
 {
-	if (quaternion[3] != 0.0f)
-	{
-		return GLUS_FALSE;
-	}
+    if (quaternion[3] != 0.0f)
+    {
+        return GLUS_FALSE;
+    }
 
-	vector[0] = quaternion[0];
-	vector[1] = quaternion[1];
-	vector[2] = quaternion[2];
+    vector[0] = quaternion[0];
+    vector[1] = quaternion[1];
+    vector[2] = quaternion[2];
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[3], const GLUSfloat quaternion[4])
@@ -310,13 +310,13 @@ GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRxRyf(GLUSfloat angles[3], cons
     }
     else
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     return GLUS_TRUE;
 }
 
-GLUSboolean GLUSAPIENTRY GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat quaternion[4])
+GLUSboolean GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat quaternion[4])
 {
     GLUSfloat x = quaternion[0];
     GLUSfloat y = quaternion[1];
@@ -324,30 +324,30 @@ GLUSboolean GLUSAPIENTRY GLUSAPIENTRY glusQuaternionGetEulerRzRyRxf(GLUSfloat an
     GLUSfloat w = quaternion[3];
 
     GLUSfloat f00 = 1.0f - 2.0f * y * y - 2.0f * z * z;
-	GLUSfloat f10 = 2.0f * x * y + 2.0f * w * z;
+    GLUSfloat f10 = 2.0f * x * y + 2.0f * w * z;
     GLUSfloat f20 = 2.0f * x * z - 2.0f * w * y;
 
-	GLUSfloat f01 = 2.0f * x * y - 2.0f * w * z;
-	GLUSfloat f11 = 1.0f - 2.0f * x * x - 2.0f * z * z;
-	GLUSfloat f21 = 2.0f * y * z + 2.0f * w * x;
+    GLUSfloat f01 = 2.0f * x * y - 2.0f * w * z;
+    GLUSfloat f11 = 1.0f - 2.0f * x * x - 2.0f * z * z;
+    GLUSfloat f21 = 2.0f * y * z + 2.0f * w * x;
 
-	GLUSfloat f22 = 1.0f - 2.0f * x * x - 2.0f * y * y;
+    GLUSfloat f22 = 1.0f - 2.0f * x * x - 2.0f * y * y;
 
     if (!(f21 == 0.0f && f22 == 0.0f) && !(f10 == 0.0f && f00 == 0.0f))
     {
         angles[0] = glusMathRadToDegf(atan2f(f21, f22));
-    	angles[1] = glusMathRadToDegf(asinf(-f20));
-    	angles[2] = glusMathRadToDegf(atan2f(f10, f00));
+        angles[1] = glusMathRadToDegf(asinf(-f20));
+        angles[2] = glusMathRadToDegf(atan2f(f10, f00));
     }
     else if (!(f01 == 0.0f && f11 == 0.0f))
     {
         angles[0] = glusMathRadToDegf(atan2f(f01, f11));
-    	angles[1] = glusMathRadToDegf(asinf(-f20));
-    	angles[2] = 0.0f;
+        angles[1] = glusMathRadToDegf(asinf(-f20));
+        angles[2] = 0.0f;
     }
     else
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     return GLUS_TRUE;
@@ -377,9 +377,9 @@ GLUSboolean GLUSAPIENTRY glusQuaternionSlerpf(GLUSfloat result[4], const GLUSflo
 
     if (sinAlpha == 0.0f)
     {
-    	glusQuaternionCopyf(result, quaternion0);
+        glusQuaternionCopyf(result, quaternion0);
 
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     a = sinf(alpha * (1.0f - t)) / sinAlpha;

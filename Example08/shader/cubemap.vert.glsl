@@ -12,19 +12,19 @@ out vec3 v_reflect;
 
 void main(void)
 {
-	// Calculate first in camera / view space.
+    // Calculate first in camera / view space.
 
-	vec4 vertex = u_modelViewMatrix * a_vertex;
-	
-	vec3 normal = u_normalMatrix * a_normal;
-	
-	vec3 incident = vec3(vertex); 
+    vec4 vertex = u_modelViewMatrix * a_vertex;
 
-	vec3 reflectView = reflect(incident, normal);
-	
-	// Now go back from view space, as the cube map is in world space.
-	
-	v_reflect = u_inverseViewMatrix * reflectView;
+    vec3 normal = u_normalMatrix * a_normal;
 
-	gl_Position = u_projectionMatrix * vertex;
+    vec3 incident = vec3(vertex);
+
+    vec3 reflectView = reflect(incident, normal);
+
+    // Now go back from view space, as the cube map is in world space.
+
+    v_reflect = u_inverseViewMatrix * reflectView;
+
+    gl_Position = u_projectionMatrix * vertex;
 }

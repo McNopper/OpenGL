@@ -19,20 +19,20 @@
 #define GLUS_FUNCTION_H_
 
 #ifdef _MSC_VER
-	#define GLUSINLINE static __forceinline
+#define GLUSINLINE static __forceinline
 #else
-	#define GLUSINLINE static inline
+#define GLUSINLINE static inline
 #endif
 
 #ifndef GLUSAPIENTRY
-	#ifdef GLAPIENTRY
-		#define GLUSAPIENTRY GLAPIENTRY
-	#else
-		#define GLUSAPIENTRY
-	#endif
+#ifdef GLAPIENTRY
+#define GLUSAPIENTRY GLAPIENTRY
+#else
+#define GLUSAPIENTRY
+#endif
 #endif
 #ifndef GLUSAPIENTRYP
-#define GLUSAPIENTRYP GLUSAPIENTRY *
+#define GLUSAPIENTRYP GLUSAPIENTRY*
 #endif
 #ifndef GLUSAPI
 #define GLUSAPI extern

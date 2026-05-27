@@ -42,10 +42,10 @@ static GLUSint animationFindSegment(const GLUSfloat* times, GLUSint count, GLUSf
 
 GLUSvoid GLUSAPIENTRY glusAnimationSampleVec3f(GLUSfloat result[3], const GLUSfloat* times, const GLUSfloat* values, GLUSint count, GLUSint interpolation, GLUSfloat t)
 {
-    GLUSint i, j;
-    GLUSfloat u, delta;
-    GLUSint stride;
-    GLUSint vertexOffset;
+    GLUSint          i, j;
+    GLUSfloat        u, delta;
+    GLUSint          stride;
+    GLUSint          vertexOffset;
     const GLUSfloat* v0;
     const GLUSfloat* v1;
     const GLUSfloat* m0;
@@ -95,8 +95,8 @@ GLUSvoid GLUSAPIENTRY glusAnimationSampleVec3f(GLUSfloat result[3], const GLUSfl
 
     /* CUBICSPLINE: cubic Hermite spline per component. */
     delta = times[i + 1] - times[i];
-    m0 = values + i * stride + 6;           /* outTangent of keyframe i   */
-    m1 = values + (i + 1) * stride;         /* inTangent of keyframe i+1  */
+    m0    = values + i * stride + 6;   /* outTangent of keyframe i   */
+    m1    = values + (i + 1) * stride; /* inTangent of keyframe i+1  */
 
     for (j = 0; j < 3; j++)
     {
@@ -106,16 +106,16 @@ GLUSvoid GLUSAPIENTRY glusAnimationSampleVec3f(GLUSfloat result[3], const GLUSfl
 
 GLUSvoid GLUSAPIENTRY glusAnimationSampleQuaternionf(GLUSfloat result[4], const GLUSfloat* times, const GLUSfloat* values, GLUSint count, GLUSint interpolation, GLUSfloat t)
 {
-    GLUSint i, j;
-    GLUSfloat u, delta;
-    GLUSfloat dot;
-    GLUSint stride;
-    GLUSint vertexOffset;
+    GLUSint          i, j;
+    GLUSfloat        u, delta;
+    GLUSfloat        dot;
+    GLUSint          stride;
+    GLUSint          vertexOffset;
     const GLUSfloat* v0;
     const GLUSfloat* v1;
     const GLUSfloat* m0;
     const GLUSfloat* m1;
-    GLUSfloat q1[4];
+    GLUSfloat        q1[4];
 
     if (count <= 0)
     {
@@ -124,7 +124,7 @@ GLUSvoid GLUSAPIENTRY glusAnimationSampleQuaternionf(GLUSfloat result[4], const 
     }
 
     stride       = (interpolation == GLUS_ANIMATION_CUBICSPLINE) ? 12 : 4;
-    vertexOffset = (interpolation == GLUS_ANIMATION_CUBICSPLINE) ?  4 : 0;
+    vertexOffset = (interpolation == GLUS_ANIMATION_CUBICSPLINE) ? 4 : 0;
 
     /* Clamp before first keyframe. */
     if (count == 1 || t <= times[0])
@@ -159,7 +159,10 @@ GLUSvoid GLUSAPIENTRY glusAnimationSampleQuaternionf(GLUSfloat result[4], const 
         dot = v0[0] * v1[0] + v0[1] * v1[1] + v0[2] * v1[2] + v0[3] * v1[3];
         if (dot < 0.0f)
         {
-            for (j = 0; j < 4; j++) q1[j] = -v1[j];
+            for (j = 0; j < 4; j++)
+            {
+                q1[j] = -v1[j];
+            }
         }
         else
         {
@@ -172,8 +175,8 @@ GLUSvoid GLUSAPIENTRY glusAnimationSampleQuaternionf(GLUSfloat result[4], const 
 
     /* CUBICSPLINE: cubic Hermite spline per component, then normalize. */
     delta = times[i + 1] - times[i];
-    m0 = values + i * stride + 8;           /* outTangent of keyframe i   */
-    m1 = values + (i + 1) * stride;         /* inTangent of keyframe i+1  */
+    m0    = values + i * stride + 8;   /* outTangent of keyframe i   */
+    m1    = values + (i + 1) * stride; /* inTangent of keyframe i+1  */
 
     for (j = 0; j < 4; j++)
     {

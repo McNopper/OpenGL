@@ -1,8 +1,8 @@
 #version 460 core
 
-in  vec3  v_color;
-in  float v_opacity;
-in  vec2  v_u;
+in vec3  v_color;
+in float v_opacity;
+in vec2  v_u;
 
 out vec4 fragColor;
 

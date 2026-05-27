@@ -19,39 +19,39 @@
 
 GLUSboolean GLUSAPIENTRY glusScreenshotUseTga(GLUSint x, GLUSint y, const GLUStgaimage* screenshot)
 {
-	if (!screenshot)
-	{
-		return GLUS_FALSE;
-	}
+    if (!screenshot)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (x < 0 || y < 0 || screenshot->width < 1 || screenshot->height < 1 || screenshot->depth != 1 || screenshot->format != GLUS_RGBA)
-	{
-		return GLUS_FALSE;
-	}
+    if (x < 0 || y < 0 || screenshot->width < 1 || screenshot->height < 1 || screenshot->depth != 1 || screenshot->format != GLUS_RGBA)
+    {
+        return GLUS_FALSE;
+    }
 
-	vgFlush();
+    vgFlush();
 
-	vgReadPixels(screenshot->data, screenshot->width * 4 * sizeof(GLUSubyte),  VG_sABGR_8888, x, y, screenshot->width, screenshot->height);
+    vgReadPixels(screenshot->data, screenshot->width * 4 * sizeof(GLUSubyte), VG_sABGR_8888, x, y, screenshot->width, screenshot->height);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean GLUSAPIENTRY glusScreenshotCreateTga(GLUSint x, GLUSint y, GLUSsizei width, GLUSsizei height, GLUStgaimage* screenshot)
 {
-	if (!screenshot)
-	{
-		return GLUS_FALSE;
-	}
+    if (!screenshot)
+    {
+        return GLUS_FALSE;
+    }
 
-	screenshot->data = (GLUSubyte*)glusMemoryMalloc(width * height * 4);
-	if (!screenshot->data)
-	{
-		return GLUS_FALSE;
-	}
-	screenshot->format= GLUS_RGBA;
-	screenshot->width = width;
-	screenshot->height = height;
-	screenshot->depth = 1;
+    screenshot->data = (GLUSubyte*)glusMemoryMalloc(width * height * 4);
+    if (!screenshot->data)
+    {
+        return GLUS_FALSE;
+    }
+    screenshot->format = GLUS_RGBA;
+    screenshot->width  = width;
+    screenshot->height = height;
+    screenshot->depth  = 1;
 
-	return glusScreenshotUseTga(x, y, screenshot);
+    return glusScreenshotUseTga(x, y, screenshot);
 }

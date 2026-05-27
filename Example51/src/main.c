@@ -38,15 +38,15 @@
 // Constants
 // -----------------------------------------------------------------------
 
-#define WINDOW_WIDTH   1280
-#define WINDOW_HEIGHT  720
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
-#define SORT_LOCAL_SIZE  256
+#define SORT_LOCAL_SIZE 256
 
-#define ORBIT_SPEED        0.5f
+#define ORBIT_SPEED 0.5f
 
-#define ORBIT_DELTA_THETA  0.05f
-#define ORBIT_DELTA_PHI    0.05f
+#define ORBIT_DELTA_THETA 0.05f
+#define ORBIT_DELTA_PHI 0.05f
 #define ORBIT_DELTA_RADIUS 0.5f
 
 // -----------------------------------------------------------------------
@@ -67,11 +67,11 @@ static GLint g_sort_jLoc;
 static GLint g_sort_kLoc;
 
 // GL buffer objects.
-static GLuint g_splatSSBO   = 0;   // binding 0: splat float data (read-only)
-static GLuint g_indexSSBO   = 0;   // binding 1: sorted indices
-static GLuint g_depthSSBO   = 0;   // binding 2: Euclidean distances
-static GLuint g_modelSSBO   = 0;   // binding 3: world matrix + Wigner-D matrices
-static GLuint g_worldUBO    = 0;   // UBO binding 0: projection, view, focal, viewport, camPos
+static GLuint g_splatSSBO = 0; // binding 0: splat float data (read-only)
+static GLuint g_indexSSBO = 0; // binding 1: sorted indices
+static GLuint g_depthSSBO = 0; // binding 2: Euclidean distances
+static GLuint g_modelSSBO = 0; // binding 3: world matrix + Wigner-D matrices
+static GLuint g_worldUBO  = 0; // UBO binding 0: projection, view, focal, viewport, camPos
 
 // Quad VAO for instanced splat rendering.
 static GLuint g_quadVAO = 0;
@@ -82,9 +82,9 @@ static GLuint g_quadVBO = 0;
 // -----------------------------------------------------------------------
 
 static GLuint g_numSplats       = 0;
-static GLuint g_numSplatsPadded = 0;  // next power of 2 >= g_numSplats
+static GLuint g_numSplatsPadded = 0; // next power of 2 >= g_numSplats
 static GLint  g_shDegree        = 0;
-static GLuint g_splatStride     = 0;  // floats per splat
+static GLuint g_splatStride     = 0; // floats per splat
 
 // World matrix for the node (used each frame by the depth compute pass).
 static GLfloat g_worldMatrix[16];
@@ -93,9 +93,9 @@ static GLfloat g_worldMatrix[16];
 // Camera orbit state
 // -----------------------------------------------------------------------
 
-static GLfloat g_theta  = 0.0f;          // azimuth (radians)
-static GLfloat g_phi    = 0.3f;          // elevation (radians)
-static GLfloat g_radius = 5.0f;          // distance from origin
+static GLfloat g_theta  = 0.0f; // azimuth (radians)
+static GLfloat g_phi    = 0.3f; // elevation (radians)
+static GLfloat g_radius = 5.0f; // distance from origin
 
 // glTF model path (may be overridden by argv[1]).
 static const char* g_gltfPath = "../Binaries/lego.gltf";
@@ -112,12 +112,12 @@ static GLfloat g_projMatrix[16];
 // -----------------------------------------------------------------------
 typedef struct
 {
-    GLfloat projMatrix[16];  // offset   0
-    GLfloat viewMatrix[16];  // offset  64
-    GLfloat focal[2];        // offset 128
-    GLfloat viewport[2];     // offset 136
-    GLfloat camPos[4];       // offset 144  (vec4; w unused)
-} WorldData;                 // total: 160 bytes
+    GLfloat projMatrix[16]; // offset   0
+    GLfloat viewMatrix[16]; // offset  64
+    GLfloat focal[2];       // offset 128
+    GLfloat viewport[2];    // offset 136
+    GLfloat camPos[4];      // offset 144  (vec4; w unused)
+} WorldData;                // total: 160 bytes
 
 // -----------------------------------------------------------------------
 // Helpers
@@ -127,7 +127,10 @@ typedef struct
 static GLuint nextPowerOfTwo(GLuint n)
 {
     GLuint p = 1;
-    while (p < n) p <<= 1;
+    while (p < n)
+    {
+        p <<= 1;
+    }
     return p;
 }
 
@@ -136,8 +139,11 @@ static GLuint strideForDegree(GLint degree)
 {
     // base: 3(pos) + 4(rot) + 3(scale) + 1(opacity) + 3(sh0) = 14
     // +degree1: 9, +degree2: 15, +degree3: 21
-    static const GLuint table[] = { 14, 23, 38, 59 };
-    if (degree < 0 || degree > 3) return 59;
+    static const GLuint table[] = {14, 23, 38, 59};
+    if (degree < 0 || degree > 3)
+    {
+        return 59;
+    }
     return table[degree];
 }
 
@@ -152,9 +158,13 @@ static GLUSchar* injectSplatDefines(const GLUSchar* source, GLuint stride, GLint
     GLUSchar*   patched;
 
     if (injectDegree)
+    {
         snprintf(define, sizeof(define), "#define SPLAT_STRIDE %uu\n#define SH_DEGREE %d\n", stride, (int)degree);
+    }
     else
+    {
         snprintf(define, sizeof(define), "#define SPLAT_STRIDE %uu\n", stride);
+    }
 
     firstNewline = strchr(source, '\n');
     prefixLen    = firstNewline ? (size_t)(firstNewline - source + 1) : 0;
@@ -162,10 +172,13 @@ static GLUSchar* injectSplatDefines(const GLUSchar* source, GLuint stride, GLint
     restLen      = strlen(source + prefixLen);
 
     patched = (GLUSchar*)malloc(prefixLen + defineLen + restLen + 1);
-    if (!patched) return NULL;
+    if (!patched)
+    {
+        return NULL;
+    }
 
-    memcpy(patched,                         source,             prefixLen);
-    memcpy(patched + prefixLen,             define,             defineLen);
+    memcpy(patched, source, prefixLen);
+    memcpy(patched + prefixLen, define, defineLen);
     memcpy(patched + prefixLen + defineLen, source + prefixLen, restLen + 1);
 
     return patched;
@@ -178,19 +191,48 @@ static GLUSchar* injectSplatDefines(const GLUSchar* source, GLuint stride, GLint
 GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 {
     if (!pressed)
+    {
         return;
+    }
 
-    if (k == GLFW_KEY_LEFT)       g_theta  -= ORBIT_DELTA_THETA;
-    if (k == GLFW_KEY_RIGHT)      g_theta  += ORBIT_DELTA_THETA;
-    if (k == GLFW_KEY_UP)         g_phi    += ORBIT_DELTA_PHI;
-    if (k == GLFW_KEY_DOWN)       g_phi    -= ORBIT_DELTA_PHI;
-    if (k == GLFW_KEY_PAGE_UP)    g_radius -= ORBIT_DELTA_RADIUS;
-    if (k == GLFW_KEY_PAGE_DOWN)  g_radius += ORBIT_DELTA_RADIUS;
+    if (k == GLFW_KEY_LEFT)
+    {
+        g_theta -= ORBIT_DELTA_THETA;
+    }
+    if (k == GLFW_KEY_RIGHT)
+    {
+        g_theta += ORBIT_DELTA_THETA;
+    }
+    if (k == GLFW_KEY_UP)
+    {
+        g_phi += ORBIT_DELTA_PHI;
+    }
+    if (k == GLFW_KEY_DOWN)
+    {
+        g_phi -= ORBIT_DELTA_PHI;
+    }
+    if (k == GLFW_KEY_PAGE_UP)
+    {
+        g_radius -= ORBIT_DELTA_RADIUS;
+    }
+    if (k == GLFW_KEY_PAGE_DOWN)
+    {
+        g_radius += ORBIT_DELTA_RADIUS;
+    }
 
     // Clamp elevation so the camera never flip past the poles.
-    if (g_phi >  1.5f) g_phi =  1.5f;
-    if (g_phi < -1.5f) g_phi = -1.5f;
-    if (g_radius < 0.5f) g_radius = 0.5f;
+    if (g_phi > 1.5f)
+    {
+        g_phi = 1.5f;
+    }
+    if (g_phi < -1.5f)
+    {
+        g_phi = -1.5f;
+    }
+    if (g_radius < 0.5f)
+    {
+        g_radius = 0.5f;
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -199,9 +241,9 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 
 GLUSboolean init(GLUSvoid)
 {
-    cgltf_options   cgltfOpts = {0};
-    cgltf_data*     gltfData  = NULL;
-    cgltf_result    cgltfRes;
+    cgltf_options    cgltfOpts = {0};
+    cgltf_data*      gltfData  = NULL;
+    cgltf_result     cgltfRes;
     cgltf_primitive* prim;
     cgltf_accessor*  posAcc;
     cgltf_node*      splatNode;
@@ -216,22 +258,21 @@ GLUSboolean init(GLUSvoid)
     GLfloat wigner2[25];
     GLfloat wigner3[49];
 
-    const char*  bvData;
-    size_t       bvSize;
-    GLuint       byteStride;
+    const char* bvData;
+    size_t      bvSize;
+    GLuint      byteStride;
 
     // Quad corners in NDC.
     static const GLfloat quadVerts[8] = {
         -1.0f, -1.0f,
-         1.0f, -1.0f,
-        -1.0f,  1.0f,
-         1.0f,  1.0f
-    };
+        1.0f, -1.0f,
+        -1.0f, 1.0f,
+        1.0f, 1.0f};
 
     //
     // Load the glTF model.
     //
-    cgltfRes= cgltf_parse_file(&cgltfOpts, g_gltfPath, &gltfData);
+    cgltfRes = cgltf_parse_file(&cgltfOpts, g_gltfPath, &gltfData);
     if (cgltfRes != cgltf_result_success)
     {
         glusLogPrint(GLUS_LOG_ERROR, "Failed to parse glTF: %s", g_gltfPath);
@@ -245,18 +286,34 @@ GLUSboolean init(GLUSvoid)
         return GLUS_FALSE;
     }
 
+    if (gltfData->meshes_count == 0 || gltfData->meshes[0].primitives_count == 0)
+    {
+        glusLogPrint(GLUS_LOG_ERROR, "glTF has no meshes or primitives: %s", g_gltfPath);
+        cgltf_free(gltfData);
+        return GLUS_FALSE;
+    }
     prim = &gltfData->meshes[0].primitives[0];
 
     //
     // Detect SH degree.
     //
-    g_shDegree= 0;
+    g_shDegree = 0;
     for (ai = 0; ai < prim->attributes_count; ai++)
     {
         const char* name = prim->attributes[ai].name;
-        if (strstr(name, "SH_DEGREE_3"))       { g_shDegree = 3; break; }
-        else if (strstr(name, "SH_DEGREE_2"))  { g_shDegree = 2; }
-        else if (strstr(name, "SH_DEGREE_1") && g_shDegree < 1) { g_shDegree = 1; }
+        if (strstr(name, "SH_DEGREE_3"))
+        {
+            g_shDegree = 3;
+            break;
+        }
+        else if (strstr(name, "SH_DEGREE_2"))
+        {
+            g_shDegree = 2;
+        }
+        else if (strstr(name, "SH_DEGREE_1") && g_shDegree < 1)
+        {
+            g_shDegree = 1;
+        }
     }
     g_splatStride = strideForDegree(g_shDegree);
 
@@ -265,7 +322,7 @@ GLUSboolean init(GLUSvoid)
     //
     // Find POSITION accessor and upload splat buffer.
     //
-    posAcc= NULL;
+    posAcc = NULL;
     for (ai = 0; ai < prim->attributes_count; ai++)
     {
         if (strcmp(prim->attributes[ai].name, "POSITION") == 0)
@@ -284,8 +341,19 @@ GLUSboolean init(GLUSvoid)
     g_numSplats       = (GLuint)posAcc->count;
     g_numSplatsPadded = nextPowerOfTwo(g_numSplats);
 
+    // Ensure the padded count is at least one full compute workgroup so the
+    // integer division in glDispatchCompute(padded / SORT_LOCAL_SIZE, ...)
+    // never produces zero work groups for small models.
+    if (g_numSplatsPadded < SORT_LOCAL_SIZE)
+    {
+        g_numSplatsPadded = SORT_LOCAL_SIZE;
+    }
+
     byteStride = (GLuint)(posAcc->buffer_view->stride);
-    if (byteStride == 0) byteStride = g_splatStride * sizeof(GLfloat);
+    if (byteStride == 0)
+    {
+        byteStride = g_splatStride * sizeof(GLfloat);
+    }
 
     bvData = (const char*)posAcc->buffer_view->buffer->data + posAcc->buffer_view->offset;
     bvSize = posAcc->buffer_view->size;
@@ -331,7 +399,9 @@ GLUSboolean init(GLUSvoid)
         }
     }
     if (splatNode)
+    {
         cgltf_node_transform_world(splatNode, g_worldMatrix);
+    }
 
     // Extract normalized rotation columns from the upper-left 3×3 of the
     // world matrix (column-major) for use with the Wigner-D recurrence.
@@ -339,11 +409,16 @@ GLUSboolean init(GLUSvoid)
         int col;
         for (col = 0; col < 3; col++)
         {
-            GLfloat cx = g_worldMatrix[col * 4 + 0];
-            GLfloat cy = g_worldMatrix[col * 4 + 1];
-            GLfloat cz = g_worldMatrix[col * 4 + 2];
-            GLfloat len = sqrtf(cx*cx + cy*cy + cz*cz);
-            if (len > 1e-6f) { cx /= len; cy /= len; cz /= len; }
+            GLfloat cx  = g_worldMatrix[col * 4 + 0];
+            GLfloat cy  = g_worldMatrix[col * 4 + 1];
+            GLfloat cz  = g_worldMatrix[col * 4 + 2];
+            GLfloat len = sqrtf(cx * cx + cy * cy + cz * cz);
+            if (len > 1e-6f)
+            {
+                cx /= len;
+                cy /= len;
+                cz /= len;
+            }
             rotation[col * 3 + 0] = cx;
             rotation[col * 3 + 1] = cy;
             rotation[col * 3 + 2] = cz;
@@ -358,16 +433,25 @@ GLUSboolean init(GLUSvoid)
     memset(wigner3, 0, sizeof(wigner3));
     wigner3[0] = wigner3[8] = wigner3[16] = wigner3[24] = wigner3[32] = wigner3[40] = wigner3[48] = 1.0f;
 
-    if (g_shDegree >= 1) glusSHBuildRotation1f(wigner1, rotation);
-    if (g_shDegree >= 2) glusSHBuildRotation2f(wigner2, wigner1);
-    if (g_shDegree >= 3) glusSHBuildRotation3f(wigner3, wigner1, wigner2);
+    if (g_shDegree >= 1)
+    {
+        glusSHBuildRotation1f(wigner1, rotation);
+    }
+    if (g_shDegree >= 2)
+    {
+        glusSHBuildRotation2f(wigner2, wigner1);
+    }
+    if (g_shDegree >= 3)
+    {
+        glusSHBuildRotation3f(wigner3, wigner1, wigner2);
+    }
 
     // Upload ModelData SSBO: worldMatrix(64B) | wigner1(36B) | wigner2(100B) | wigner3(196B).
     glGenBuffers(1, &g_modelSSBO);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_modelSSBO);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 396, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER,   0, 64,  g_worldMatrix);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER,  64, 36,  wigner1);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 64, g_worldMatrix);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 64, 36, wigner1);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 100, 100, wigner2);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 200, 196, wigner3);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_modelSSBO);
@@ -388,21 +472,21 @@ GLUSboolean init(GLUSvoid)
     //
     glusFileLoadText("../Example51/shader/depth.comp.glsl", &depthSource);
     patchedDepth = injectSplatDefines(depthSource.text, g_splatStride, g_shDegree, 0);
-    glusProgramBuildComputeFromSource(&g_depthProgram, (const GLUSchar**) &patchedDepth);
+    glusProgramBuildComputeFromSource(&g_depthProgram, (const GLUSchar**)&patchedDepth);
     free(patchedDepth);
     glusFileDestroyText(&depthSource);
 
     glUseProgram(g_depthProgram.program);
-    g_depth_worldMatrixLoc      = glGetUniformLocation(g_depthProgram.program, "u_worldMatrix");
-    g_depth_numSplatsLoc        = glGetUniformLocation(g_depthProgram.program, "u_numSplats");
-    g_depth_numSplatsPaddedLoc  = glGetUniformLocation(g_depthProgram.program, "u_numSplatsPadded");
+    g_depth_worldMatrixLoc     = glGetUniformLocation(g_depthProgram.program, "u_worldMatrix");
+    g_depth_numSplatsLoc       = glGetUniformLocation(g_depthProgram.program, "u_numSplats");
+    g_depth_numSplatsPaddedLoc = glGetUniformLocation(g_depthProgram.program, "u_numSplatsPadded");
     glUseProgram(0);
 
     //
     // Bitonic sort compute shader.
     //
     glusFileLoadText("../Example51/shader/sort.comp.glsl", &sortSource);
-    glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**) &sortSource.text);
+    glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&sortSource.text);
     glusFileDestroyText(&sortSource);
 
     glUseProgram(g_sortProgram.program);
@@ -418,9 +502,9 @@ GLUSboolean init(GLUSvoid)
 
     patchedVert = injectSplatDefines(vertSource.text, g_splatStride, g_shDegree, 1);
     glusProgramBuildFromSource(&g_splatProgram,
-                               (const GLUSchar**) &patchedVert,
+                               (const GLUSchar**)&patchedVert,
                                0, 0, 0,
-                               (const GLUSchar**) &fragSource.text);
+                               (const GLUSchar**)&fragSource.text);
     free(patchedVert);
     glusFileDestroyText(&vertSource);
     glusFileDestroyText(&fragSource);
@@ -446,7 +530,7 @@ GLUSboolean init(GLUSvoid)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  // premultiplied alpha
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // premultiplied alpha
 
     // Suppress driver notification messages; keep errors and warnings.
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
@@ -482,8 +566,6 @@ GLUSboolean update(GLUSfloat time)
     GLfloat   cx, cy, cz;
     GLuint    k, j;
 
-    (void)time;
-
     //
     // Auto-orbit: rotate around the scene.
     //
@@ -492,7 +574,7 @@ GLUSboolean update(GLUSfloat time)
     //
     // Camera orbit.
     //
-    cx = g_radius* cosf(g_phi) * sinf(g_theta);
+    cx = g_radius * cosf(g_phi) * sinf(g_theta);
     cy = g_radius * sinf(g_phi);
     cz = g_radius * cosf(g_phi) * cosf(g_theta);
 
@@ -505,8 +587,8 @@ GLUSboolean update(GLUSfloat time)
     memcpy(wd.projMatrix, g_projMatrix, 64);
     memcpy(wd.viewMatrix, viewMatrix, 64);
     // Focal lengths: projMatrix[0]*w/2 and projMatrix[5]*h/2.
-    wd.focal[0]    = g_projMatrix[0]  * g_windowWidth  * 0.5f;
-    wd.focal[1]    = g_projMatrix[5]  * g_windowHeight * 0.5f;
+    wd.focal[0]    = g_projMatrix[0] * g_windowWidth * 0.5f;
+    wd.focal[1]    = g_projMatrix[5] * g_windowHeight * 0.5f;
     wd.viewport[0] = (GLfloat)g_windowWidth;
     wd.viewport[1] = (GLfloat)g_windowHeight;
     wd.camPos[0]   = cx;
@@ -522,9 +604,9 @@ GLUSboolean update(GLUSfloat time)
     // Depth init compute pass.
     //
     glUseProgram(g_depthProgram.program);
-    glUniformMatrix4fv(g_depth_worldMatrixLoc,     1, GL_FALSE, g_worldMatrix);
-    glUniform1ui(g_depth_numSplatsLoc,             g_numSplats);
-    glUniform1ui(g_depth_numSplatsPaddedLoc,       g_numSplatsPadded);
+    glUniformMatrix4fv(g_depth_worldMatrixLoc, 1, GL_FALSE, g_worldMatrix);
+    glUniform1ui(g_depth_numSplatsLoc, g_numSplats);
+    glUniform1ui(g_depth_numSplatsPaddedLoc, g_numSplatsPadded);
     glDispatchCompute(g_numSplatsPadded / SORT_LOCAL_SIZE, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
@@ -621,26 +703,26 @@ GLUSvoid terminate(GLUSvoid)
 int main(int argc, char* argv[])
 {
     EGLint eglConfigAttributes[] = {
-            EGL_RED_SIZE,        8,
-            EGL_GREEN_SIZE,      8,
-            EGL_BLUE_SIZE,       8,
-            EGL_DEPTH_SIZE,      0,
-            EGL_STENCIL_SIZE,    0,
-            EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-            EGL_NONE
-    };
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-            EGL_CONTEXT_MAJOR_VERSION,             4,
-            EGL_CONTEXT_MINOR_VERSION,             6,
-            EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-            EGL_CONTEXT_OPENGL_PROFILE_MASK,       EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-            EGL_CONTEXT_OPENGL_DEBUG,              EGL_TRUE,
-            EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 6,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     if (argc >= 2)
+    {
         g_gltfPath = argv[1];
+    }
 
     glusLogSetLevel(GLUS_LOG_DEBUG);
 

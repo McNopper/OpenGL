@@ -17,32 +17,32 @@ out vec3 v_normal;
 
 void calculateBasis(out vec3 tangent, out vec3 bitangent, in vec3 normal)
 {
-	bitangent = vec3(0.0, 1.0, 0.0);
+    bitangent = vec3(0.0, 1.0, 0.0);
 
-	float normalDotUp = dot(normal, bitangent);
+    float normalDotUp = dot(normal, bitangent);
 
-	if (normalDotUp == 1.0)
-	{
-		bitangent = vec3(0.0, 0.0, -1.0);
-	}
-	else if (normalDotUp == -1.0)
-	{
-		bitangent = vec3(0.0, 0.0, 1.0);
-	}
-	
-	tangent = cross(bitangent, normal);	
-	bitangent = cross(normal, tangent);
-} 
+    if (normalDotUp == 1.0)
+    {
+        bitangent = vec3(0.0, 0.0, -1.0);
+    }
+    else if (normalDotUp == -1.0)
+    {
+        bitangent = vec3(0.0, 0.0, 1.0);
+    }
+
+    tangent   = cross(bitangent, normal);
+    bitangent = cross(normal, tangent);
+}
 
 void main(void)
 {
-	v_normal = u_normalMatrix * a_normal;
-	
-	calculateBasis(v_tangent, v_bitangent, v_normal);
-	
-	vec4 vertex = u_modelMatrix * a_vertex;
-	
-	v_eye = (u_eye - vertex).xyz; 
+    v_normal = u_normalMatrix * a_normal;
 
-	gl_Position = u_viewProjectionMatrix * vertex;
+    calculateBasis(v_tangent, v_bitangent, v_normal);
+
+    vec4 vertex = u_modelMatrix * a_vertex;
+
+    v_eye = (u_eye - vertex).xyz;
+
+    gl_Position = u_viewProjectionMatrix * vertex;
 }

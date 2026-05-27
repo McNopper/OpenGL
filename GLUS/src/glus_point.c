@@ -98,18 +98,18 @@ GLUSvoid GLUSAPIENTRY glusPoint3GetVector2f(GLUSfloat result[2], const GLUSfloat
 
 GLUSfloat GLUSAPIENTRY glusPoint4Distancef(const GLUSfloat point0[4], const GLUSfloat point1[4])
 {
-	GLUSfloat vector[3];
+    GLUSfloat vector[3];
 
-	glusPoint4SubtractPoint4f(vector, point0, point1);
+    glusPoint4SubtractPoint4f(vector, point0, point1);
 
-	return glusVector3Lengthf(vector);
+    return glusVector3Lengthf(vector);
 }
 
 GLUSfloat GLUSAPIENTRY glusPoint3Distancef(const GLUSfloat point0[3], const GLUSfloat point1[3])
 {
-	GLUSfloat vector[2];
+    GLUSfloat vector[2];
 
-	glusPoint3SubtractPoint3f(vector, point0, point1);
+    glusPoint3SubtractPoint3f(vector, point0, point1);
 
-	return glusVector2Lengthf(vector);
+    return glusVector2Lengthf(vector);
 }

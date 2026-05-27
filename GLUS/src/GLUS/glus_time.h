@@ -28,5 +28,4 @@
  */
 GLUSAPI GLUSfloat GLUSAPIENTRY glusTimeGetTimestampf();
 
-
 #endif /* GLUS_TIME_H_ */

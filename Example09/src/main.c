@@ -94,8 +94,8 @@ GLUSboolean init(GLUSvoid)
     {
         for (x = 0; x < PARTICLE_TEXTURE_WIDTH; x++)
         {
-            points[x * 2 + 0 + y * PARTICLE_TEXTURE_WIDTH * 2] = (GLfloat) x / (GLfloat) PARTICLE_TEXTURE_WIDTH;
-            points[x * 2 + 1 + y * PARTICLE_TEXTURE_WIDTH * 2] = (GLfloat) y / (GLfloat) PARTICLE_TEXTURE_WIDTH;
+            points[x * 2 + 0 + y * PARTICLE_TEXTURE_WIDTH * 2] = (GLfloat)x / (GLfloat)PARTICLE_TEXTURE_WIDTH;
+            points[x * 2 + 1 + y * PARTICLE_TEXTURE_WIDTH * 2] = (GLfloat)y / (GLfloat)PARTICLE_TEXTURE_WIDTH;
         }
     }
 
@@ -115,14 +115,14 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example09/shader/particle.vert.glsl", &vertexSource);
     glusFileLoadText("../Example09/shader/particle.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     g_modelViewProjectionMatrixLocation = glGetUniformLocation(g_program.program, "u_modelViewProjectionMatrix");
-    g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
-    g_positionTextureLocation = glGetUniformLocation(g_program.program, "u_positionTexture");
+    g_textureLocation                   = glGetUniformLocation(g_program.program, "u_texture");
+    g_positionTextureLocation           = glGetUniformLocation(g_program.program, "u_positionTexture");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
 
@@ -131,14 +131,14 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example09/shader/update_points.vert.glsl", &vertexSource);
     glusFileLoadText("../Example09/shader/update_points.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_programUpdatePoints, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programUpdatePoints, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     g_positionTextureUpdatePointsLocation = glGetUniformLocation(g_programUpdatePoints.program, "u_positionTexture");
-    g_positionTextureWidthLocation = glGetUniformLocation(g_programUpdatePoints.program, "u_positionTextureWidth");
-    g_timeLocation = glGetUniformLocation(g_programUpdatePoints.program, "u_time");
+    g_positionTextureWidthLocation        = glGetUniformLocation(g_programUpdatePoints.program, "u_positionTextureWidth");
+    g_timeLocation                        = glGetUniformLocation(g_programUpdatePoints.program, "u_time");
 
     g_vertexUpdatePointsLocation = glGetAttribLocation(g_programUpdatePoints.program, "a_vertex");
 
@@ -208,7 +208,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
 
-    glBufferData(GL_ARRAY_BUFFER, PARTICLE_TEXTURE_WIDTH * PARTICLE_TEXTURE_WIDTH * 2 * sizeof(GLfloat), (GLfloat*) points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, PARTICLE_TEXTURE_WIDTH * PARTICLE_TEXTURE_WIDTH * 2 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -238,7 +238,7 @@ GLUSboolean init(GLUSvoid)
     // We still work now on texture unit 1.
     glUniform1i(g_positionTextureUpdatePointsLocation, 1);
 
-    glUniform1f(g_positionTextureWidthLocation, (GLfloat) PARTICLE_TEXTURE_WIDTH);
+    glUniform1f(g_positionTextureWidthLocation, (GLfloat)PARTICLE_TEXTURE_WIDTH);
 
     // For each program, we do have a VAO.
     glGenVertexArrays(1, &g_vaoUpdatePoints);
@@ -265,14 +265,14 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 {
     GLfloat viewMatrix[16];
 
-    g_widthViewport = width;
+    g_widthViewport  = width;
     g_heightViewport = height;
 
     glViewport(0, 0, width, height);
 
     glusMatrix4x4LookAtf(viewMatrix, 0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    glusMatrix4x4Perspectivef(g_modelViewProjectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(g_modelViewProjectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glusMatrix4x4Multiplyf(g_modelViewProjectionMatrix, g_modelViewProjectionMatrix, viewMatrix);
 
@@ -294,7 +294,7 @@ GLUSboolean update(GLUSfloat time)
 
     glUniform1f(g_timeLocation, time);
 
-     // Bind to the writing buffer.
+    // Bind to the writing buffer.
     glBindFramebuffer(GL_FRAMEBUFFER, g_positionFramebuffer[(flip + 1) % 2]);
 
     // Set the viewport to the texture size.
@@ -415,23 +415,21 @@ GLUSvoid terminate(GLUSvoid)
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 0,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

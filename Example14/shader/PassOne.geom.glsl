@@ -18,87 +18,87 @@ out vec2 v_vertex;
 
 bool isOutside(vec4 point, vec4 viewPoint, float step)
 {
-	float bias = 0.1;
+    float bias = 0.1;
 
-	vec3 viewVector = vec3(point - viewPoint);
+    vec3 viewVector = vec3(point - viewPoint);
 
-	float boundingRadius = sqrt(step*step+step*step);
+    float boundingRadius = sqrt(step * step + step * step);
 
-	// Outside field of view
-	if (length(viewVector) - boundingRadius > u_fovRadius)
-	{
-		return true;
-	}
+    // Outside field of view
+    if (length(viewVector) - boundingRadius > u_fovRadius)
+    {
+        return true;
+    }
 
-	// Behind the viewer
-	if (dot(viewVector, u_backNormalTextureSpace) > boundingRadius + bias)
-	{
-		return true;
-	}
+    // Behind the viewer
+    if (dot(viewVector, u_backNormalTextureSpace) > boundingRadius + bias)
+    {
+        return true;
+    }
 
-	// Left side of field of view
-	if (dot(viewVector, u_leftNormalTextureSpace) > boundingRadius + bias)
-	{
-		return true;
-	}
+    // Left side of field of view
+    if (dot(viewVector, u_leftNormalTextureSpace) > boundingRadius + bias)
+    {
+        return true;
+    }
 
-	// Right side of field of view 
-	if (dot(viewVector, u_rightNormalTextureSpace) > boundingRadius + bias)
-	{
-		return true;
-	}
-	
-	return false;
+    // Right side of field of view
+    if (dot(viewVector, u_rightNormalTextureSpace) > boundingRadius + bias)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void main(void)
 {
-	if (isOutside(gl_in[0].gl_Position, u_positionTextureSpace, u_halfDetailStep))	
-	{
-		return;
-	}
+    if (isOutside(gl_in[0].gl_Position, u_positionTextureSpace, u_halfDetailStep))
+    {
+        return;
+    }
 
-	uint steps = uint(pow(2.0, float(u_detailLevel)));
+    uint steps = uint(pow(2.0, float(u_detailLevel)));
 
-	float finalDetailStep = u_halfDetailStep * 2.0 / float(steps);
-	
-	float halfFinalDetailStep = finalDetailStep / 2.0;
+    float finalDetailStep = u_halfDetailStep * 2.0 / float(steps);
 
-	vec4 centerPoint;
+    float halfFinalDetailStep = finalDetailStep / 2.0;
 
-	float xFloat;
-	float zFloat;
+    vec4 centerPoint;
 
-	for (uint z = 0; z < steps; z++)
-	{
-		zFloat = float(z);
-	
-		for (uint x = 0; x < steps; x++)
-		{	
-			xFloat = float(x);
-		
-			centerPoint = vec4(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep + halfFinalDetailStep, 0.0, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep + halfFinalDetailStep, 1.0);
-		
-			if (isOutside(centerPoint, u_positionTextureSpace, halfFinalDetailStep))
-			{
-				continue;
-			}
-		
-			v_vertex = vec2(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep);
-			EmitVertex();
-			EndPrimitive();
+    float xFloat;
+    float zFloat;
 
-			v_vertex = vec2(gl_in[0].gl_Position.x + (xFloat + 1.0) * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep);
-			EmitVertex();
-			EndPrimitive();
+    for (uint z = 0; z < steps; z++)
+    {
+        zFloat = float(z);
 
-			v_vertex = vec2(gl_in[0].gl_Position.x + (xFloat + 1.0) * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + (zFloat + 1.0) * finalDetailStep - u_halfDetailStep);
-			EmitVertex();
-			EndPrimitive();
+        for (uint x = 0; x < steps; x++)
+        {
+            xFloat = float(x);
 
-			v_vertex = vec2(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + (zFloat + 1.0) * finalDetailStep - u_halfDetailStep);
-			EmitVertex();
-			EndPrimitive();
-		}
-	}
+            centerPoint = vec4(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep + halfFinalDetailStep, 0.0, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep + halfFinalDetailStep, 1.0);
+
+            if (isOutside(centerPoint, u_positionTextureSpace, halfFinalDetailStep))
+            {
+                continue;
+            }
+
+            v_vertex = vec2(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep);
+            EmitVertex();
+            EndPrimitive();
+
+            v_vertex = vec2(gl_in[0].gl_Position.x + (xFloat + 1.0) * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + zFloat * finalDetailStep - u_halfDetailStep);
+            EmitVertex();
+            EndPrimitive();
+
+            v_vertex = vec2(gl_in[0].gl_Position.x + (xFloat + 1.0) * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + (zFloat + 1.0) * finalDetailStep - u_halfDetailStep);
+            EmitVertex();
+            EndPrimitive();
+
+            v_vertex = vec2(gl_in[0].gl_Position.x + xFloat * finalDetailStep - u_halfDetailStep, gl_in[0].gl_Position.z + (zFloat + 1.0) * finalDetailStep - u_halfDetailStep);
+            EmitVertex();
+            EndPrimitive();
+        }
+    }
 }

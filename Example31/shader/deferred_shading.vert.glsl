@@ -17,20 +17,20 @@ out vec2 v_texCoord;
 
 void main()
 {
-	mat4 offsetMatrix = mat4(1.0);
-	
-	float column = float(gl_InstanceID / OBJECTS_COLUMNS);
-	float row = float(gl_InstanceID % OBJECTS_COLUMNS);
-	
-	offsetMatrix[3][0] = column;
-	offsetMatrix[3][2] = -row;
+    mat4 offsetMatrix = mat4(1.0);
 
-	v_position = u_viewMatrix * offsetMatrix * u_modelMatrix * a_vertex;
+    float column = float(gl_InstanceID / OBJECTS_COLUMNS);
+    float row    = float(gl_InstanceID % OBJECTS_COLUMNS);
 
-	// Offset matrix has no rotations - so no need for the normal
-	v_normal = mat3(u_viewMatrix) * u_normalMatrix * a_normal;
-		
-	v_texCoord = a_texCoord;
-		
-	gl_Position = u_projectionMatrix * v_position;
-}    
+    offsetMatrix[3][0] = column;
+    offsetMatrix[3][2] = -row;
+
+    v_position = u_viewMatrix * offsetMatrix * u_modelMatrix * a_vertex;
+
+    // Offset matrix has no rotations - so no need for the normal
+    v_normal = mat3(u_viewMatrix) * u_normalMatrix * a_normal;
+
+    v_texCoord = a_texCoord;
+
+    gl_Position = u_projectionMatrix * v_position;
+}

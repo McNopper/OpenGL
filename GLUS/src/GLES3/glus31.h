@@ -23,36 +23,36 @@ extern "C"
 {
 #endif
 
-//
-// GLUS libraries.
-//
+    //
+    // GLUS libraries.
+    //
 
 #include "../GLUS/glus_clib.h"
 
-//
-// OpenGL ES 3.1 and EGL.
-//
+    //
+    // OpenGL ES 3.1 and EGL.
+    //
 
 #define GL_GLEXT_PROTOTYPES 1
 
 #include <GLES3/gl31.h>
 #include <EGL/egl.h>
 
-//
-// GLUS function call convention etc.
-//
+    //
+    // GLUS function call convention etc.
+    //
 
 #include "../GLUS/glus_function.h"
 
-//
-// GLUS types.
-//
+    //
+    // GLUS types.
+    //
 
 #include "../GLUS/glus_typedef.h"
 
-//
-// GLUS defines.
-//
+    //
+    // GLUS defines.
+    //
 
 #include "../GLUS/glus_define.h"
 
@@ -66,206 +66,206 @@ extern "C"
 
 #define GLUS_EGL_API EGL_OPENGL_ES_API
 
-//
-// Image and file structures.
-//
+    //
+    // Image and file structures.
+    //
 
 #include "../GLUS/glus_file.h"
 #include "../GLUS/glus_image.h"
 
-//
-// Memory manager.
-//
+    //
+    // Memory manager.
+    //
 
 #include "../GLUS/glus_memory.h"
 
-//
-// EGL helper functions.
-//
+    //
+    // EGL helper functions.
+    //
 
 #include "../GLUS/glus_egl.h"
 
-//
-// Window preparation and creation functions.
-//
+    //
+    // Window preparation and creation functions.
+    //
 
 #include "../GLUS/glus_window.h"
 
-//
-// Version check functions.
-//
+    //
+    // Version check functions.
+    //
 
 #include "../GLUS/glus_version.h"
 
-//
-// Extension functions.
-//
+    //
+    // Extension functions.
+    //
 
 #include "../GLUS/glus_extension.h"
 
-//
-// Screenshot functions
-//
+    //
+    // Screenshot functions
+    //
 
 #include "../GLUS/glus_screenshot.h"
 
-//
-// Perlin noise functions.
-//
+    //
+    // Perlin noise functions.
+    //
 
 #include "../GLUS/glus_perlin.h"
 
-//
-// Vector functions.
-//
+    //
+    // Vector functions.
+    //
 
 #include "../GLUS/glus_vector.h"
 
-//
-// Point functions.
-//
+    //
+    // Point functions.
+    //
 
 #include "../GLUS/glus_point.h"
 
-//
-// Plane functions.
-//
+    //
+    // Plane functions.
+    //
 
 #include "../GLUS/glus_plane.h"
 
-//
-// Sphere functions.
-//
+    //
+    // Sphere functions.
+    //
 
 #include "../GLUS/glus_sphere.h"
 
-//
-// Axis Aligned Box functions.
-//
+    //
+    // Axis Aligned Box functions.
+    //
 
 #include "../GLUS/glus_axisalignedbox.h"
 
-//
-// Oriented Box functions.
-//
+    //
+    // Oriented Box functions.
+    //
 
 #include "../GLUS/glus_orientedbox.h"
 
-//
-// Math functions
-//
+    //
+    // Math functions
+    //
 
 #include "../GLUS/glus_math.h"
 
-//
-// Random functions
-//
+    //
+    // Random functions
+    //
 
 #include "../GLUS/glus_random.h"
 
-//
-// View, projection etc. functions.
-//
+    //
+    // View, projection etc. functions.
+    //
 
 #include "../GLUS/glus_matrix_viewprojection.h"
 
-//
-// Functions, related to planar surfaces.
-//
+    //
+    // Functions, related to planar surfaces.
+    //
 
 #include "../GLUS/glus_matrix_planar.h"
 
-//
-// Matrix functions.
-//
+    //
+    // Matrix functions.
+    //
 
 #include "../GLUS/glus_matrix.h"
 
-//
-// Quaternion functions.
-//
+    //
+    // Quaternion functions.
+    //
 
 #include "../GLUS/glus_quaternion.h"
 
-//
-// Complex numbers and vector functions.
-//
+    //
+    // Complex numbers and vector functions.
+    //
 
 #include "../GLUS/glus_complex.h"
 
-//
-// Fourier functions.
-//
+    //
+    // Fourier functions.
+    //
 
 #include "../GLUS/glus_fourier.h"
 
-//
-// Shader creation function.
-//
+    //
+    // Shader creation function.
+    //
 
 #include "../GLUS/glus_program_es31.h"
 
 #include "../GLUS/glus_programpipeline_es31.h"
 
-//
-// Shape / geometry functions.
-//
+    //
+    // Shape / geometry functions.
+    //
 
 #include "../GLUS/glus_shape.h"
 
-//
-// Shape texture coordinate generation
-//
+    //
+    // Shape texture coordinate generation
+    //
 
 #include "../GLUS/glus_shape_texgen.h"
 
-//
-// Line / geometry functions.
-//
+    //
+    // Line / geometry functions.
+    //
 
 #include "../GLUS/glus_line.h"
 #include "../GLUS/glus_line_wavefront.h"
 
-//
-// Model loading functions.
-//
+    //
+    // Model loading functions.
+    //
 
 #include "../GLUS/glus_shape_wavefront.h"
 #include "../GLUS/glus_wavefront.h"
 
-//
-// Logging
-//
+    //
+    // Logging
+    //
 
 #include "../GLUS/glus_log.h"
 
-//
-// Profiling
-//
+    //
+    // Profiling
+    //
 
 #include "../GLUS/glus_profile.h"
 
-//
-// Time
-//
+    //
+    // Time
+    //
 
 #include "../GLUS/glus_time.h"
 
-//
-// Ray tracing
-//
+    //
+    // Ray tracing
+    //
 
 #include "../GLUS/glus_raytrace.h"
 
-//
-// Intersection testing
-//
+    //
+    // Intersection testing
+    //
 
 #include "../GLUS/glus_intersect.h"
 
-//
-// Textures and files
-//
+    //
+    // Textures and files
+    //
 
 #include "../GLUS/glus_image_tga.h"
 #include "../GLUS/glus_image_hdr.h"
@@ -274,15 +274,15 @@ extern "C"
 #include "../GLUS/glus_file_text.h"
 #include "../GLUS/glus_file_binary.h"
 
-//
-// Padding
-//
+    //
+    // Padding
+    //
 
 #include "../GLUS/glus_padding.h"
 
-//
-// Internally, some GLFW functions are used. See copyright informations in C file.
-//
+    //
+    // Internally, some GLFW functions are used. See copyright informations in C file.
+    //
 
 #include "../GLUS/glus_glfw_es.h"
 

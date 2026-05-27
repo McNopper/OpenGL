@@ -159,18 +159,18 @@ GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix4x4Multiplyf(GLUSfloat matrix[16], co
 
     GLUSint row;
     GLUSint column;
-	for (column = 0; column < 4; column++)
-	{
-		for (row = 0; row < 4; row++)
-		{
-			temp[column * 4 + row] = 0.0f;
+    for (column = 0; column < 4; column++)
+    {
+        for (row = 0; row < 4; row++)
+        {
+            temp[column * 4 + row] = 0.0f;
 
-			for (i = 0; i < 4; i++)
-			{
-				temp[column * 4 + row] += matrix0[i * 4 + row] * matrix1[column * 4 + i];
-			}
-		}
-	}
+            for (i = 0; i < 4; i++)
+            {
+                temp[column * 4 + row] += matrix0[i * 4 + row] * matrix1[column * 4 + i];
+            }
+        }
+    }
 
     for (i = 0; i < 16; i++)
     {
@@ -193,18 +193,18 @@ GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix3x3Multiplyf(GLUSfloat matrix[9], con
 
     GLUSint row;
     GLUSint column;
-	for (column = 0; column < 3; column++)
-	{
-		for (row = 0; row < 3; row++)
-		{
-			temp[column * 3 + row] = 0.0f;
+    for (column = 0; column < 3; column++)
+    {
+        for (row = 0; row < 3; row++)
+        {
+            temp[column * 3 + row] = 0.0f;
 
-			for (i = 0; i < 3; i++)
-			{
-				temp[column * 3 + row] += matrix0[i * 3 + row] * matrix1[column * 3 + i];
-			}
-		}
-	}
+            for (i = 0; i < 3; i++)
+            {
+                temp[column * 3 + row] += matrix0[i * 3 + row] * matrix1[column * 3 + i];
+            }
+        }
+    }
 
     for (i = 0; i < 9; i++)
     {
@@ -227,18 +227,18 @@ GLUSINLINE GLUSvoid GLUSAPIENTRY glusMatrix2x2Multiplyf(GLUSfloat matrix[4], con
 
     GLUSint row;
     GLUSint column;
-	for (column = 0; column < 2; column++)
-	{
-		for (row = 0; row < 2; row++)
-		{
-			temp[column * 2 + row] = 0.0f;
+    for (column = 0; column < 2; column++)
+    {
+        for (row = 0; row < 2; row++)
+        {
+            temp[column * 2 + row] = 0.0f;
 
-			for (i = 0; i < 2; i++)
-			{
-				temp[column * 2 + row] += matrix0[i * 2 + row] * matrix1[column * 2 + i];
-			}
-		}
-	}
+            for (i = 0; i < 2; i++)
+            {
+                temp[column * 2 + row] += matrix0[i * 2 + row] * matrix1[column * 2 + i];
+            }
+        }
+    }
 
     for (i = 0; i < 4; i++)
     {
@@ -705,7 +705,7 @@ GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix3x3GetEulerRzRxRyf(GLUSfloat angles[3
  *
  * @param angles Resulting anglex (Pitch), angley (Yaw) and anglez (Roll) in degrees.
  * @param matrix The used matrix.
-  *
+ *
  * @return GLUS_TRUE, if a extraction could be done.
  */
 GLUSAPI GLUSboolean GLUSAPIENTRY glusMatrix3x3GetEulerRzRyRxf(GLUSfloat angles[3], const GLUSfloat matrix[9]);

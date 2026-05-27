@@ -34,9 +34,9 @@ uniform vec2 u_halfPixelSize;
 void main()
 {
     // Compute the un-normalised face normal to identify the dominant axis.
-    vec3 p0 = gl_in[0].gl_Position.xyz;
-    vec3 p1 = gl_in[1].gl_Position.xyz;
-    vec3 p2 = gl_in[2].gl_Position.xyz;
+    vec3 p0         = gl_in[0].gl_Position.xyz;
+    vec3 p1         = gl_in[1].gl_Position.xyz;
+    vec3 p2         = gl_in[2].gl_Position.xyz;
     vec3 faceNormal = abs(cross(p1 - p0, p2 - p0));
 
     // Project all three vertices onto the dominant-axis plane.
@@ -46,11 +46,11 @@ void main()
     {
         vec3 wp = v_worldPosition[i];
         if (faceNormal.z >= faceNormal.x && faceNormal.z >= faceNormal.y)
-            pos[i] = wp.xy;   // project onto XY plane
+            pos[i] = wp.xy; // project onto XY plane
         else if (faceNormal.x >= faceNormal.y && faceNormal.x >= faceNormal.z)
-            pos[i] = wp.yz;   // project onto YZ plane
+            pos[i] = wp.yz; // project onto YZ plane
         else
-            pos[i] = wp.xz;   // project onto XZ plane
+            pos[i] = wp.xz; // project onto XZ plane
     }
 
     // Conservative expansion via edge-plane intersection (GPU Gems 2, Ch.42).
@@ -63,7 +63,7 @@ void main()
     vec3 plane[3];
     for (int i = 0; i < 3; i++)
     {
-        plane[i]   = cross(vec3(pos[i], 1.0), vec3(pos[(i + 2) % 3], 1.0));
+        plane[i] = cross(vec3(pos[i], 1.0), vec3(pos[(i + 2) % 3], 1.0));
         plane[i].z -= dot(u_halfPixelSize, abs(plane[i].xy));
     }
 

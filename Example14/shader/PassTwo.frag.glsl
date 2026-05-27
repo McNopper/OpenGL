@@ -10,5 +10,5 @@ in float v_intensity;
 
 void main(void)
 {
-	fragColor = texture(u_colorMapTexture, v_texCoord) * v_intensity;
+    fragColor = texture(u_colorMapTexture, v_texCoord) * v_intensity;
 }

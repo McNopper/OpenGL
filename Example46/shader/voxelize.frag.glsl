@@ -44,9 +44,9 @@ uniform vec3 u_lightColor;
 
 // When non-zero the fragment stores its diffuse colour directly as emissive
 // radiance, bypassing the Lambertian lighting calculation.
-uniform int  u_isEmissive;
+uniform int u_isEmissive;
 
-uniform int  u_voxelGridSize;
+uniform int u_voxelGridSize;
 
 void main()
 {
@@ -59,7 +59,7 @@ void main()
         return;
 
     // Resolve material diffuse colour.
-    vec3 albedo;
+    vec3  albedo;
     float alpha;
     if (u_hasDiffuseTexture != 0)
     {

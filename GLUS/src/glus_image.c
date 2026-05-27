@@ -19,83 +19,83 @@
 
 GLUSvoid _glusImageGatherSamplePoints(GLUSint sampleIndex[4], GLUSfloat sampleWeight[2], const GLUSfloat st[2], GLUSint width, GLUSint height, GLUSint stride)
 {
-	GLUSfloat pixelTexCoord[2];
-	GLUSfloat pixelTexCoordCenter[2];
+    GLUSfloat pixelTexCoord[2];
+    GLUSfloat pixelTexCoordCenter[2];
 
-	GLUSint	  samplePixel[2];
+    GLUSint samplePixel[2];
 
-	GLUSint i;
+    GLUSint i;
 
-	for (i = 0; i < 2; i++)
-	{
-		pixelTexCoord[i] = glusMathClampf(st[i], 0.0f, 1.0f);
-	}
+    for (i = 0; i < 2; i++)
+    {
+        pixelTexCoord[i] = glusMathClampf(st[i], 0.0f, 1.0f);
+    }
 
-	pixelTexCoord[0] = pixelTexCoord[0] * (GLUSfloat)width;
-	pixelTexCoord[1] = pixelTexCoord[1] * (GLUSfloat)height;
+    pixelTexCoord[0] = pixelTexCoord[0] * (GLUSfloat)width;
+    pixelTexCoord[1] = pixelTexCoord[1] * (GLUSfloat)height;
 
-	for (i = 0; i < 2; i++)
-	{
-		pixelTexCoordCenter[i] = floorf(pixelTexCoord[i]) + 0.5f;
-	}
+    for (i = 0; i < 2; i++)
+    {
+        pixelTexCoordCenter[i] = floorf(pixelTexCoord[i]) + 0.5f;
+    }
 
-	for (i = 0; i < 2; i++)
-	{
-		sampleWeight[i] = 1.0f - fabsf(pixelTexCoordCenter[i] - pixelTexCoord[i]);
-	}
+    for (i = 0; i < 2; i++)
+    {
+        sampleWeight[i] = 1.0f - fabsf(pixelTexCoordCenter[i] - pixelTexCoord[i]);
+    }
 
-	// Check, if in bounds.
+    // Check, if in bounds.
 
-	samplePixel[0] = (GLUSint)pixelTexCoord[0];
-	if (samplePixel[0] == width)
-	{
-		samplePixel[0]--;
-	}
+    samplePixel[0] = (GLUSint)pixelTexCoord[0];
+    if (samplePixel[0] == width)
+    {
+        samplePixel[0]--;
+    }
 
-	samplePixel[1] = (GLUSint)pixelTexCoord[1];
-	if (samplePixel[1] == height)
-	{
-		samplePixel[1]--;
-	}
+    samplePixel[1] = (GLUSint)pixelTexCoord[1];
+    if (samplePixel[1] == height)
+    {
+        samplePixel[1]--;
+    }
 
-	// Main sample point
+    // Main sample point
 
-	sampleIndex[0] = samplePixel[1] * width * stride + samplePixel[0] * stride;
+    sampleIndex[0] = samplePixel[1] * width * stride + samplePixel[0] * stride;
 
-	// s axis sample point
+    // s axis sample point
 
-	if (pixelTexCoordCenter[0] > 0.5f && pixelTexCoord[0] < pixelTexCoordCenter[0])
-	{
-		sampleIndex[1] = sampleIndex[0] - stride;
-		sampleIndex[3] = -stride;
-	}
-	else if (pixelTexCoordCenter[0] < (GLUSfloat)width - 0.5f && pixelTexCoord[0] > pixelTexCoordCenter[0])
-	{
-		sampleIndex[1] = sampleIndex[0] + stride;
-		sampleIndex[3] = stride;
-	}
-	else
-	{
-		sampleIndex[1] = sampleIndex[0];
-		sampleIndex[3] = 0;
-	}
+    if (pixelTexCoordCenter[0] > 0.5f && pixelTexCoord[0] < pixelTexCoordCenter[0])
+    {
+        sampleIndex[1] = sampleIndex[0] - stride;
+        sampleIndex[3] = -stride;
+    }
+    else if (pixelTexCoordCenter[0] < (GLUSfloat)width - 0.5f && pixelTexCoord[0] > pixelTexCoordCenter[0])
+    {
+        sampleIndex[1] = sampleIndex[0] + stride;
+        sampleIndex[3] = stride;
+    }
+    else
+    {
+        sampleIndex[1] = sampleIndex[0];
+        sampleIndex[3] = 0;
+    }
 
-	// t axis sample point
+    // t axis sample point
 
-	if (pixelTexCoordCenter[1] > 0.5f && pixelTexCoord[1] < pixelTexCoordCenter[1])
-	{
-		sampleIndex[2] = sampleIndex[0] - stride * width;
-	}
-	else if (pixelTexCoordCenter[1] < (GLUSfloat)height - 0.5f && pixelTexCoord[1] > pixelTexCoordCenter[1])
-	{
-		sampleIndex[2] = sampleIndex[0] + stride * width;
-	}
-	else
-	{
-		sampleIndex[2] = sampleIndex[0];
-	}
+    if (pixelTexCoordCenter[1] > 0.5f && pixelTexCoord[1] < pixelTexCoordCenter[1])
+    {
+        sampleIndex[2] = sampleIndex[0] - stride * width;
+    }
+    else if (pixelTexCoordCenter[1] < (GLUSfloat)height - 0.5f && pixelTexCoord[1] > pixelTexCoordCenter[1])
+    {
+        sampleIndex[2] = sampleIndex[0] + stride * width;
+    }
+    else
+    {
+        sampleIndex[2] = sampleIndex[0];
+    }
 
-	// diagonal sample point
+    // diagonal sample point
 
-	sampleIndex[3] += sampleIndex[2];
+    sampleIndex[3] += sampleIndex[2];
 }

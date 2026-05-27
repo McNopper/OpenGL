@@ -21,13 +21,13 @@
 /**
  * Keyframe interpolation: output equals the previous keyframe value (no blending).
  */
-#define GLUS_ANIMATION_STEP         0
+#define GLUS_ANIMATION_STEP 0
 
 /**
  * Keyframe interpolation: linear interpolation between adjacent keyframe values.
  * Quaternion tracks use normalized linear interpolation (nlerp).
  */
-#define GLUS_ANIMATION_LINEAR       1
+#define GLUS_ANIMATION_LINEAR 1
 
 /**
  * Keyframe interpolation: cubic Hermite spline.
@@ -35,7 +35,7 @@
  * The values array stride per keyframe is therefore 3 * components
  * (9 floats for vec3, 12 floats for quaternion).
  */
-#define GLUS_ANIMATION_CUBICSPLINE  2
+#define GLUS_ANIMATION_CUBICSPLINE 2
 
 /**
  * Sample a vec3 keyframe track at time t.

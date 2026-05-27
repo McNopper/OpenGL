@@ -10,7 +10,7 @@ out vec3 v_ray;
 
 void main(void)
 {
-	v_ray = normalize(a_vertex.xyz);
-	
-	gl_Position = u_projectionMatrix*u_modelViewMatrix*a_vertex;
+    v_ray = normalize(a_vertex.xyz);
+
+    gl_Position = u_projectionMatrix * u_modelViewMatrix * a_vertex;
 }

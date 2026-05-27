@@ -13,10 +13,10 @@ out vec2 v_c_texCoord;
 
 void main(void)
 {
-	v_c_tangent = a_tangent;
-	v_c_bitangent = a_bitangent;
-	v_c_normal = a_normal;
-	v_c_texCoord = a_texCoord; 
+    v_c_tangent   = a_tangent;
+    v_c_bitangent = a_bitangent;
+    v_c_normal    = a_normal;
+    v_c_texCoord  = a_texCoord;
 
-	gl_Position = a_vertex;
+    gl_Position = a_vertex;
 }

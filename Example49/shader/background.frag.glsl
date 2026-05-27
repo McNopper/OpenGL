@@ -8,5 +8,5 @@ out vec4 fragColor;
 
 void main(void)
 {
-	fragColor = texture(u_texture, normalize(v_ray));
+    fragColor = texture(u_texture, normalize(v_ray));
 }

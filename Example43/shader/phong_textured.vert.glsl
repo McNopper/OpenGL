@@ -14,13 +14,13 @@ out vec2 v_texCoord;
 
 void main()
 {
-	vec4 vertex = u_modelViewMatrix * a_vertex;
+    vec4 vertex = u_modelViewMatrix * a_vertex;
 
-	v_eye = -vec3(vertex);
+    v_eye = -vec3(vertex);
 
-	v_normal = u_normalMatrix * a_normal;
-		
-	v_texCoord = a_texCoord;
-		
-	gl_Position = u_projectionMatrix * vertex;
-}    
+    v_normal = u_normalMatrix * a_normal;
+
+    v_texCoord = a_texCoord;
+
+    gl_Position = u_projectionMatrix * vertex;
+}

@@ -21,231 +21,231 @@
 
 static GLUSboolean glusShapeCheckCompletef(GLUSshape* shape)
 {
-	if (!shape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!shape)
+    {
+        return GLUS_FALSE;
+    }
 
-	return shape->vertices && shape->normals && shape->tangents && shape->bitangents && shape->texCoords && shape->allAttributes && shape->indices;
+    return shape->vertices && shape->normals && shape->tangents && shape->bitangents && shape->texCoords && shape->allAttributes && shape->indices;
 }
 
 static GLUSboolean glusShapeFindIndexByIndicesf(GLUSuint* adjacentIndex, GLUSuint triangleFirstIndex, GLUSuint edge, const GLUSshape* shape)
 {
-	GLUSuint i, k, m;
+    GLUSuint i, k, m;
 
-	GLUSuint equalIndices;
+    GLUSuint equalIndices;
 
-	GLUSuint edgeIndices[2];
+    GLUSuint edgeIndices[2];
 
-	if (!adjacentIndex || !shape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!adjacentIndex || !shape)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (shape->mode != GLUS_TRIANGLES)
-	{
-		return GLUS_FALSE;
-	}
+    if (shape->mode != GLUS_TRIANGLES)
+    {
+        return GLUS_FALSE;
+    }
 
-	for (i = 0; i < shape->numberIndices / 3; i++)
-	{
-		// Skip same triangle
-		if (triangleFirstIndex == i * 3)
-		{
-			continue;
-		}
+    for (i = 0; i < shape->numberIndices / 3; i++)
+    {
+        // Skip same triangle
+        if (triangleFirstIndex == i * 3)
+        {
+            continue;
+        }
 
-		equalIndices = 0;
+        equalIndices = 0;
 
-		for (k = 0; k < 3; k++)
-		{
-			for (m = 0 + edge; m < 2 + edge; m++)
-			{
-				if (shape->indices[triangleFirstIndex + (m % 3)] == shape->indices[i * 3 + k])
-				{
-					equalIndices++;
+        for (k = 0; k < 3; k++)
+        {
+            for (m = 0 + edge; m < 2 + edge; m++)
+            {
+                if (shape->indices[triangleFirstIndex + (m % 3)] == shape->indices[i * 3 + k])
+                {
+                    equalIndices++;
 
-					edgeIndices[m - edge] = shape->indices[i * 3 + k];
+                    edgeIndices[m - edge] = shape->indices[i * 3 + k];
 
-					break;
-				}
-			}
-		}
+                    break;
+                }
+            }
+        }
 
-		if (equalIndices == 2)
-		{
-			for (k = 0; k < 3; k++)
-			{
-				if (shape->indices[i * 3 + k] != edgeIndices[0] && shape->indices[i * 3 + k] != edgeIndices[1])
-				{
-					*adjacentIndex = shape->indices[i * 3 + k];
+        if (equalIndices == 2)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                if (shape->indices[i * 3 + k] != edgeIndices[0] && shape->indices[i * 3 + k] != edgeIndices[1])
+                {
+                    *adjacentIndex = shape->indices[i * 3 + k];
 
-					break;
-				}
-			}
+                    break;
+                }
+            }
 
-			return GLUS_TRUE;
-		}
-	}
+            return GLUS_TRUE;
+        }
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 static GLUSboolean glusShapeFindIndexByVerticesf(GLUSuint* adjacentIndex, GLUSuint triangleIndex, GLUSuint edge, const GLUSshape* shape)
 {
-	GLUSuint i, k, m;
+    GLUSuint i, k, m;
 
-	GLUSuint equalVertices, walkerIndex, searchIndex;
+    GLUSuint equalVertices, walkerIndex, searchIndex;
 
-	GLUSuint edgeIndices[2];
+    GLUSuint edgeIndices[2];
 
-	if (!adjacentIndex || !shape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!adjacentIndex || !shape)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (shape->mode != GLUS_TRIANGLES)
-	{
-		return GLUS_FALSE;
-	}
+    if (shape->mode != GLUS_TRIANGLES)
+    {
+        return GLUS_FALSE;
+    }
 
-	for (i = 0; i < shape->numberIndices / 3; i++)
-	{
-		// Skip same triangle
-		if (triangleIndex == i * 3)
-		{
-			continue;
-		}
+    for (i = 0; i < shape->numberIndices / 3; i++)
+    {
+        // Skip same triangle
+        if (triangleIndex == i * 3)
+        {
+            continue;
+        }
 
-		equalVertices = 0;
+        equalVertices = 0;
 
-		for (k = 0; k < 3; k++)
-		{
-			walkerIndex = shape->indices[i * 3 + k];
+        for (k = 0; k < 3; k++)
+        {
+            walkerIndex = shape->indices[i * 3 + k];
 
-			for (m = 0 + edge; m < 2 + edge; m++)
-			{
-				searchIndex = shape->indices[triangleIndex + (m % 3)];
+            for (m = 0 + edge; m < 2 + edge; m++)
+            {
+                searchIndex = shape->indices[triangleIndex + (m % 3)];
 
-				if (shape->vertices[4 * searchIndex + 0] >= shape->vertices[4 * walkerIndex + 0] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 0] <= shape->vertices[4 * walkerIndex + 0] + GLUS_POINT_TOLERANCE &&
-						shape->vertices[4 * searchIndex + 1] >= shape->vertices[4 * walkerIndex + 1] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 1] <= shape->vertices[4 * walkerIndex + 1] + GLUS_POINT_TOLERANCE &&
-						shape->vertices[4 * searchIndex + 2] >= shape->vertices[4 * walkerIndex + 2] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 2] <= shape->vertices[4 * walkerIndex + 2] + GLUS_POINT_TOLERANCE)
-				{
-					equalVertices++;
+                if (shape->vertices[4 * searchIndex + 0] >= shape->vertices[4 * walkerIndex + 0] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 0] <= shape->vertices[4 * walkerIndex + 0] + GLUS_POINT_TOLERANCE &&
+                    shape->vertices[4 * searchIndex + 1] >= shape->vertices[4 * walkerIndex + 1] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 1] <= shape->vertices[4 * walkerIndex + 1] + GLUS_POINT_TOLERANCE &&
+                    shape->vertices[4 * searchIndex + 2] >= shape->vertices[4 * walkerIndex + 2] - GLUS_POINT_TOLERANCE && shape->vertices[4 * searchIndex + 2] <= shape->vertices[4 * walkerIndex + 2] + GLUS_POINT_TOLERANCE)
+                {
+                    equalVertices++;
 
-					edgeIndices[m - edge] = walkerIndex;
+                    edgeIndices[m - edge] = walkerIndex;
 
-					break;
-				}
-			}
-		}
+                    break;
+                }
+            }
+        }
 
-		if (equalVertices == 2)
-		{
-			for (k = 0; k < 3; k++)
-			{
-				if (shape->indices[i * 3 + k] != edgeIndices[0] && shape->indices[i * 3 + k] != edgeIndices[1])
-				{
-					*adjacentIndex = shape->indices[i * 3 + k];
+        if (equalVertices == 2)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                if (shape->indices[i * 3 + k] != edgeIndices[0] && shape->indices[i * 3 + k] != edgeIndices[1])
+                {
+                    *adjacentIndex = shape->indices[i * 3 + k];
 
-					break;
-				}
-			}
+                    break;
+                }
+            }
 
-			return GLUS_TRUE;
-		}
-	}
+            return GLUS_TRUE;
+        }
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 GLUSboolean GLUSAPIENTRY glusShapeCreateAdjacencyIndicesf(GLUSshape* adjacencyShape, const GLUSshape* sourceShape)
 {
-	GLUSuint i;
+    GLUSuint i;
 
-	GLUSuint numberIndices;
+    GLUSuint numberIndices;
 
-	GLUSuint adjacentIndex, edge;
+    GLUSuint adjacentIndex, edge;
 
-	if (!adjacencyShape || !sourceShape)
-	{
-		return GLUS_FALSE;
-	}
+    if (!adjacencyShape || !sourceShape)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (sourceShape->mode != GLUS_TRIANGLES)
-	{
-		return GLUS_FALSE;
-	}
+    if (sourceShape->mode != GLUS_TRIANGLES)
+    {
+        return GLUS_FALSE;
+    }
 
-	numberIndices = sourceShape->numberIndices * 2;
+    numberIndices = sourceShape->numberIndices * 2;
 
-	if (numberIndices > GLUS_MAX_INDICES)
-	{
-		return GLUS_FALSE;
-	}
+    if (numberIndices > GLUS_MAX_INDICES)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (!glusShapeCopyf(adjacencyShape, sourceShape))
-	{
-		glusShapeDestroyf(adjacencyShape);
+    if (!glusShapeCopyf(adjacencyShape, sourceShape))
+    {
+        glusShapeDestroyf(adjacencyShape);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	adjacencyShape->numberIndices = numberIndices;
+    adjacencyShape->numberIndices = numberIndices;
 
-	glusMemoryFree(adjacencyShape->indices);
-	adjacencyShape->indices = (GLUSuint*)glusMemoryMalloc(numberIndices * sizeof(GLUSuint));
+    glusMemoryFree(adjacencyShape->indices);
+    adjacencyShape->indices = (GLUSuint*)glusMemoryMalloc(numberIndices * sizeof(GLUSuint));
 
-	adjacencyShape->mode = GLUS_TRIANGLES_ADJACENCY;
+    adjacencyShape->mode = GLUS_TRIANGLES_ADJACENCY;
 
-	if (!glusShapeCheckCompletef(adjacencyShape))
-	{
-		glusShapeDestroyf(adjacencyShape);
+    if (!glusShapeCheckCompletef(adjacencyShape))
+    {
+        glusShapeDestroyf(adjacencyShape);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	// Process all triangles
-	for (i = 0; i < sourceShape->numberIndices / 3; i++)
-	{
-		// For now, all adjacent triangles are degenerated.
-		adjacencyShape->indices[6 * i + 0] = sourceShape->indices[3 * i + 0];
-		adjacencyShape->indices[6 * i + 1] = sourceShape->indices[3 * i + 0];
-		adjacencyShape->indices[6 * i + 2] = sourceShape->indices[3 * i + 1];
-		adjacencyShape->indices[6 * i + 3] = sourceShape->indices[3 * i + 1];
-		adjacencyShape->indices[6 * i + 4] = sourceShape->indices[3 * i + 2];
-		adjacencyShape->indices[6 * i + 5] = sourceShape->indices[3 * i + 2];
+    // Process all triangles
+    for (i = 0; i < sourceShape->numberIndices / 3; i++)
+    {
+        // For now, all adjacent triangles are degenerated.
+        adjacencyShape->indices[6 * i + 0] = sourceShape->indices[3 * i + 0];
+        adjacencyShape->indices[6 * i + 1] = sourceShape->indices[3 * i + 0];
+        adjacencyShape->indices[6 * i + 2] = sourceShape->indices[3 * i + 1];
+        adjacencyShape->indices[6 * i + 3] = sourceShape->indices[3 * i + 1];
+        adjacencyShape->indices[6 * i + 4] = sourceShape->indices[3 * i + 2];
+        adjacencyShape->indices[6 * i + 5] = sourceShape->indices[3 * i + 2];
 
-		// Skip degenerated triangles
-		if (sourceShape->indices[i * 3 + 0] == sourceShape->indices[i * 3 + 1] || sourceShape->indices[i * 3 + 0] == sourceShape->indices[i * 3 + 2] || sourceShape->indices[i * 3 + 1] == sourceShape->indices[i * 3 + 2])
-		{
-			continue;
-		}
+        // Skip degenerated triangles
+        if (sourceShape->indices[i * 3 + 0] == sourceShape->indices[i * 3 + 1] || sourceShape->indices[i * 3 + 0] == sourceShape->indices[i * 3 + 2] || sourceShape->indices[i * 3 + 1] == sourceShape->indices[i * 3 + 2])
+        {
+            continue;
+        }
 
-		// Find adjacent indices for each edge of the triangle ...
-		for (edge = 0; edge < 3; edge++)
-		{
-			adjacentIndex = 0;
+        // Find adjacent indices for each edge of the triangle ...
+        for (edge = 0; edge < 3; edge++)
+        {
+            adjacentIndex = 0;
 
-			// ... by scanning the indices ...
-			if (glusShapeFindIndexByIndicesf(&adjacentIndex, 3 * i, edge, sourceShape))
-			{
-				adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
+            // ... by scanning the indices ...
+            if (glusShapeFindIndexByIndicesf(&adjacentIndex, 3 * i, edge, sourceShape))
+            {
+                adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
 
-				continue;
-			}
+                continue;
+            }
 
-			// ... and if not found, compare the vertices.
-			if (glusShapeFindIndexByVerticesf(&adjacentIndex, 3 * i, edge, sourceShape))
-			{
-				adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
+            // ... and if not found, compare the vertices.
+            if (glusShapeFindIndexByVerticesf(&adjacentIndex, 3 * i, edge, sourceShape))
+            {
+                adjacencyShape->indices[6 * i + edge * 2 + 1] = adjacentIndex;
 
-				continue;
-			}
+                continue;
+            }
 
-			glusLogPrint(GLUS_LOG_WARNING, "Triangle %d with edge %d: No adjacent index found!", i, edge);
-		}
-	}
+            glusLogPrint(GLUS_LOG_WARNING, "Triangle %d with edge %d: No adjacent index found!", i, edge);
+        }
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }

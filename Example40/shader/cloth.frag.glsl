@@ -9,6 +9,6 @@ out vec4 fragColor;
 
 void main(void)
 {
-	// Two sided rendering, so use absolute value.
-	fragColor = u_color * abs(dot(normalize(v_normal), u_lightDirection));
+    // Two sided rendering, so use absolute value.
+    fragColor = u_color * abs(dot(normalize(v_normal), u_lightDirection));
 }

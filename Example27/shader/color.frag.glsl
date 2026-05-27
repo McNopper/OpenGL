@@ -10,24 +10,24 @@ out vec4 fragColor;
 
 void main(void)
 {
-	vec3 normal = normalize(v_normal);	
+    vec3 normal = normalize(v_normal);
 
-	float diffuseIntensity = max(dot(normal, u_lightDirection), 0.0);
+    float diffuseIntensity = max(dot(normal, u_lightDirection), 0.0);
 
-	vec4 color = u_shapeColor*0.3;
+    vec4 color = u_shapeColor * 0.3;
 
-	if (diffuseIntensity > 0.0)
-	{
-		color += u_shapeColor*diffuseIntensity;
-	
-		vec3 reflection = reflect(-u_lightDirection, normal);
+    if (diffuseIntensity > 0.0)
+    {
+        color += u_shapeColor * diffuseIntensity;
 
-		vec3 eye = normalize(v_eye);
+        vec3 reflection = reflect(-u_lightDirection, normal);
 
-		float specularItensity = pow(max(dot(reflection, eye), 0.0), 20.0);
-		
-		color += vec4(1.0, 1.0, 1.0, 1.0)*specularItensity;
-	}
+        vec3 eye = normalize(v_eye);
 
-	fragColor = color;
+        float specularItensity = pow(max(dot(reflection, eye), 0.0), 20.0);
+
+        color += vec4(1.0, 1.0, 1.0, 1.0) * specularItensity;
+    }
+
+    fragColor = color;
 }

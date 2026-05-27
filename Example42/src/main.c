@@ -47,21 +47,21 @@ static GLuint g_colorDepthFBO;
 
 //
 
-static struct LightProperties g_light = { { 1.0f, 1.0f, 1.0f }, { 0.2f, 0.2f, 0.2f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f } };
+static struct LightProperties g_light = {{1.0f, 1.0f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}};
 
-static struct CameraProperties g_camera = { {0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
+static struct CameraProperties g_camera = {{0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}};
 
 //
 
 static GLboolean g_animationOn = GL_FALSE;
 
 static GLint g_showEdges = 0;
-static GLint g_fxaaOn = 1;
+static GLint g_fxaaOn    = 1;
 
-static GLfloat g_lumaThreshold = 0.5f;
+static GLfloat g_lumaThreshold       = 0.5f;
 static GLfloat g_mulReduceReciprocal = 8.0f;
 static GLfloat g_minReduceReciprocal = 128.0f;
-static GLfloat g_maxSpan = 8.0f;
+static GLfloat g_maxSpan             = 8.0f;
 
 GLUSboolean init(GLUSvoid)
 {
@@ -76,7 +76,7 @@ GLUSboolean init(GLUSvoid)
 
     if (!initWavefront(g_viewMatrix, &g_light))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     //
@@ -84,19 +84,19 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example42/shader/fxaa.vert.glsl", &vertexSource);
     glusFileLoadText("../Example42/shader/fxaa.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     g_texelStepLocation = glGetUniformLocation(g_program.program, "u_texelStep");
     g_showEdgesLocation = glGetUniformLocation(g_program.program, "u_showEdges");
-    g_fxaaOnLocation = glGetUniformLocation(g_program.program, "u_fxaaOn");
+    g_fxaaOnLocation    = glGetUniformLocation(g_program.program, "u_fxaaOn");
 
     g_lumaThresholdLocation = glGetUniformLocation(g_program.program, "u_lumaThreshold");
-    g_mulReduceLocation = glGetUniformLocation(g_program.program, "u_mulReduce");
-    g_minReduceLocation = glGetUniformLocation(g_program.program, "u_minReduce");
-    g_maxSpanLocation = glGetUniformLocation(g_program.program, "u_maxSpan");
+    g_mulReduceLocation     = glGetUniformLocation(g_program.program, "u_mulReduce");
+    g_minReduceLocation     = glGetUniformLocation(g_program.program, "u_minReduce");
+    g_maxSpanLocation       = glGetUniformLocation(g_program.program, "u_maxSpan");
 
     //
     // Setting up the offscreen frame buffer.
@@ -172,11 +172,11 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-	GLfloat projectionMatrix[16];
+    GLfloat projectionMatrix[16];
 
     glViewport(0, 0, width, height);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 1000.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 1000.0f);
 
     glBindFramebuffer(GL_FRAMEBUFFER, g_colorDepthFBO);
 
@@ -189,14 +189,14 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
 GLUSboolean update(GLUSfloat time)
 {
-	if (!g_animationOn)
-	{
-		time = 0.0f;
-	}
+    if (!g_animationOn)
+    {
+        time = 0.0f;
+    }
 
-	//
+    //
     // Off screen rendering of the scene.
-	//
+    //
 
     glBindFramebuffer(GL_FRAMEBUFFER, g_colorDepthFBO);
 
@@ -204,7 +204,7 @@ GLUSboolean update(GLUSfloat time)
 
     if (!updateWavefront(time))
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -279,97 +279,95 @@ GLUSvoid terminate(GLUSvoid)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	if (g_colorDepthFBO)
-	{
-		glDeleteFramebuffers(1, &g_colorDepthFBO);
+    if (g_colorDepthFBO)
+    {
+        glDeleteFramebuffers(1, &g_colorDepthFBO);
 
-		g_colorDepthFBO = 0;
-	}
+        g_colorDepthFBO = 0;
+    }
 
     terminateWavefront();
 }
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 {
-	if (pressed)
-	{
-		if (key == '1')
-		{
-			g_lumaThreshold -= 0.05f;
-		}
-		else if (key == '2')
-		{
-			g_lumaThreshold += 0.05f;
-		}
-		else if (key == '3')
-		{
-			g_mulReduceReciprocal *= 2.0f;
-		}
-		else if (key == '4')
-		{
-			g_mulReduceReciprocal /= 2.0f;
-		}
-		else if (key == '5')
-		{
-			g_minReduceReciprocal *= 2.0f;
-		}
-		else if (key == '6')
-		{
-			g_minReduceReciprocal /= 2.0f;
-		}
-		else if (key == '7')
-		{
-			g_maxSpan -= 1.0f;
-		}
-		else if (key == '8')
-		{
-			g_maxSpan += 1.0f;
-		}
-		else if (key == 'a')
-		{
-			g_animationOn = !g_animationOn;
-		}
-		else if (key == 'e')
-		{
-			g_showEdges = !g_showEdges;
-		}
-		else if (key == ' ')
-		{
-			g_fxaaOn = !g_fxaaOn;
-		}
+    if (pressed)
+    {
+        if (key == '1')
+        {
+            g_lumaThreshold -= 0.05f;
+        }
+        else if (key == '2')
+        {
+            g_lumaThreshold += 0.05f;
+        }
+        else if (key == '3')
+        {
+            g_mulReduceReciprocal *= 2.0f;
+        }
+        else if (key == '4')
+        {
+            g_mulReduceReciprocal /= 2.0f;
+        }
+        else if (key == '5')
+        {
+            g_minReduceReciprocal *= 2.0f;
+        }
+        else if (key == '6')
+        {
+            g_minReduceReciprocal /= 2.0f;
+        }
+        else if (key == '7')
+        {
+            g_maxSpan -= 1.0f;
+        }
+        else if (key == '8')
+        {
+            g_maxSpan += 1.0f;
+        }
+        else if (key == 'a')
+        {
+            g_animationOn = !g_animationOn;
+        }
+        else if (key == 'e')
+        {
+            g_showEdges = !g_showEdges;
+        }
+        else if (key == ' ')
+        {
+            g_fxaaOn = !g_fxaaOn;
+        }
 
-		g_lumaThreshold = glusMathClampf(g_lumaThreshold, 0.0f, 1.0f);
+        g_lumaThreshold = glusMathClampf(g_lumaThreshold, 0.0f, 1.0f);
 
-		g_mulReduceReciprocal = glusMathClampf(g_mulReduceReciprocal, 1.0f, MAX_MUL_REDUCE_RECIPROCAL);
+        g_mulReduceReciprocal = glusMathClampf(g_mulReduceReciprocal, 1.0f, MAX_MUL_REDUCE_RECIPROCAL);
 
-		g_minReduceReciprocal = glusMathClampf(g_minReduceReciprocal, 1.0f, MAX_MIN_REDUCE_RECIPROCAL);
+        g_minReduceReciprocal = glusMathClampf(g_minReduceReciprocal, 1.0f, MAX_MIN_REDUCE_RECIPROCAL);
 
-		g_maxSpan = glusMathClampf(g_maxSpan, 1.0f, MAX_MAX_SPAN);
-	}
+        g_maxSpan = glusMathClampf(g_maxSpan, 1.0f, MAX_MAX_SPAN);
+    }
 }
 
 int main(int argc, char* argv[])
 {
-	// No depth buffer, as we finally render a full screen rectangle.
-	// No MSAA, as we use FXAA.
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 0,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    // No depth buffer, as we finally render a full screen rectangle.
+    // No MSAA, as we use FXAA.
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 3,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 3,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

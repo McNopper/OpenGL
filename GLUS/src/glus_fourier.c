@@ -19,402 +19,401 @@
 
 static GLUSboolean glusFourierIsPowerOfTwo(const GLUSint n)
 {
-	GLUSint test = n;
+    GLUSint test = n;
 
-	if (test < 1)
-	{
-		return GLUS_FALSE;
-	}
+    if (test < 1)
+    {
+        return GLUS_FALSE;
+    }
 
-	while (!(test & 0x1))
-	{
-		test = test >> 1;
-	}
+    while (!(test & 0x1))
+    {
+        test = test >> 1;
+    }
 
-	return test == 1;
+    return test == 1;
 }
 
 GLUSboolean glusFourierDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (n > 0)
-	{
-		GLUSboolean status;
+    if (n > 0)
+    {
+        GLUSboolean status;
 
-		GLUSint row, column;
+        GLUSint row, column;
 
-		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
+        GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
-		GLUScomplex* dftMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
+        GLUScomplex* dftMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
 
-		if (!dftMatrix)
-		{
-			return GLUS_FALSE;
-		}
+        if (!dftMatrix)
+        {
+            return GLUS_FALSE;
+        }
 
-		for (column = 0; column < n; column++)
-		{
-			for (row = 0; row < n; row++)
-			{
-				glusComplexRootOfUnityc(&dftMatrix[column * n + row], n, row * column, -1.0f);
-			}
-		}
+        for (column = 0; column < n; column++)
+        {
+            for (row = 0; row < n; row++)
+            {
+                glusComplexRootOfUnityc(&dftMatrix[column * n + row], n, row * column, -1.0f);
+            }
+        }
 
-		status = glusMatrixNxNMultiplyVectorNc(result, dftMatrix, vector, n);
+        status = glusMatrixNxNMultiplyVectorNc(result, dftMatrix, vector, n);
 
-		glusVectorNMultiplyScalarc(result, result, n, scalar);
+        glusVectorNMultiplyScalarc(result, result, n, scalar);
 
-		glusMemoryFree(dftMatrix);
+        glusMemoryFree(dftMatrix);
 
-		return status;
-	}
+        return status;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 GLUSboolean glusFourierInverseDFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (n > 0)
-	{
-		GLUSboolean status;
+    if (n > 0)
+    {
+        GLUSboolean status;
 
-		GLUSint row, column;
+        GLUSint row, column;
 
-		GLUScomplex* dftInverseMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
+        GLUScomplex* dftInverseMatrix = (GLUScomplex*)glusMemoryMalloc(n * n * sizeof(GLUScomplex));
 
-		if (!dftInverseMatrix)
-		{
-			return GLUS_FALSE;
-		}
+        if (!dftInverseMatrix)
+        {
+            return GLUS_FALSE;
+        }
 
-		for (column = 0; column < n; column++)
-		{
-			for (row = 0; row < n; row++)
-			{
-				glusComplexRootOfUnityc(&dftInverseMatrix[column * n + row], n, row * column, 1.0f);
-			}
-		}
+        for (column = 0; column < n; column++)
+        {
+            for (row = 0; row < n; row++)
+            {
+                glusComplexRootOfUnityc(&dftInverseMatrix[column * n + row], n, row * column, 1.0f);
+            }
+        }
 
-		status = glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
+        status = glusMatrixNxNMultiplyVectorNc(result, dftInverseMatrix, vector, n);
 
-		glusMemoryFree(dftInverseMatrix);
+        glusMemoryFree(dftInverseMatrix);
 
-		return status;
-	}
+        return status;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 static GLUSvoid glusFourierRecursiveFunctionFFTc(GLUScomplex* vector, const GLUSint n, GLUSint offset)
 {
-	if (n > 1)
-	{
-		GLUSint i, k;
+    if (n > 1)
+    {
+        GLUSint i, k;
 
-		GLUSint m = n / 2;
+        GLUSint m = n / 2;
 
-		GLUScomplex temp;
-		for (i = 1; i < m; i++)
-		{
-			for (k = 0; k < m - i; k++)
-			{
-				temp = vector[offset + 2 * k + i];
-				vector[offset + 2 * k + i] = vector[offset + 2 * k + 1 + i];
-				vector[offset + 2 * k + 1 + i] = temp;
-			}
-		}
+        GLUScomplex temp;
+        for (i = 1; i < m; i++)
+        {
+            for (k = 0; k < m - i; k++)
+            {
+                temp                           = vector[offset + 2 * k + i];
+                vector[offset + 2 * k + i]     = vector[offset + 2 * k + 1 + i];
+                vector[offset + 2 * k + 1 + i] = temp;
+            }
+        }
 
-		glusFourierRecursiveFunctionFFTc(vector, m, offset);
-		glusFourierRecursiveFunctionFFTc(vector, m, offset + m);
+        glusFourierRecursiveFunctionFFTc(vector, m, offset);
+        glusFourierRecursiveFunctionFFTc(vector, m, offset + m);
 
-		GLUScomplex currentW;
-		currentW.real = 1.0f;
-		currentW.imaginary = 0.0f;
+        GLUScomplex currentW;
+        currentW.real      = 1.0f;
+        currentW.imaginary = 0.0f;
 
-		GLUScomplex w;
-		glusComplexRootOfUnityc(&w, n, 1, 1.0f);
+        GLUScomplex w;
+        glusComplexRootOfUnityc(&w, n, 1, 1.0f);
 
-		for (i = 0; i < m; i++)
-		{
-			GLUScomplex multiply;
-			GLUScomplex addition;
-			GLUScomplex subtraction;
+        for (i = 0; i < m; i++)
+        {
+            GLUScomplex multiply;
+            GLUScomplex addition;
+            GLUScomplex subtraction;
 
-			glusComplexMultiplyComplexc(&multiply, &currentW, &vector[offset + i + m]);
+            glusComplexMultiplyComplexc(&multiply, &currentW, &vector[offset + i + m]);
 
-			glusComplexAddComplexc(&addition, &vector[offset + i], &multiply);
-			glusComplexSubtractComplexc(&subtraction, &vector[offset + i], &multiply);
+            glusComplexAddComplexc(&addition, &vector[offset + i], &multiply);
+            glusComplexSubtractComplexc(&subtraction, &vector[offset + i], &multiply);
 
-			vector[offset + i] = addition;
-			vector[offset + i + m] = subtraction;
+            vector[offset + i]     = addition;
+            vector[offset + i + m] = subtraction;
 
-			glusComplexMultiplyComplexc(&currentW, &currentW, &w);
-		}
-	}
-	else
-	{
-		// c0 = v0, so do nothing.
-	}
+            glusComplexMultiplyComplexc(&currentW, &currentW, &w);
+        }
+    }
+    else
+    {
+        // c0 = v0, so do nothing.
+    }
 }
 
 GLUSboolean glusFourierRecursiveFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
-		glusVectorNCopyc(result, vector, n);
+        glusVectorNCopyc(result, vector, n);
 
-		glusVectorNConjugatec(result, result, n);
+        glusVectorNConjugatec(result, result, n);
 
-		glusFourierRecursiveFunctionFFTc(result, n, 0);
+        glusFourierRecursiveFunctionFFTc(result, n, 0);
 
-		glusVectorNConjugatec(result, result, n);
-		glusVectorNMultiplyScalarc(result, result, n, scalar);
+        glusVectorNConjugatec(result, result, n);
+        glusVectorNMultiplyScalarc(result, result, n, scalar);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 GLUSboolean glusFourierRecursiveInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		glusVectorNCopyc(result, vector, n);
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        glusVectorNCopyc(result, vector, n);
 
-		glusFourierRecursiveFunctionFFTc(result, n, 0);
+        glusFourierRecursiveFunctionFFTc(result, n, 0);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 static GLUSvoid glusFourierButterflyShuffleFunctionFFTc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
 {
-	if (n > 1)
-	{
-		GLUSint i, k;
+    if (n > 1)
+    {
+        GLUSint i, k;
 
-		GLUSint m = n / 2;
+        GLUSint m = n / 2;
 
-		GLUScomplex temp;
-		for (i = 1; i < m; i++)
-		{
-			for (k = 0; k < m - i; k++)
-			{
-				temp = vector[offset + 2 * k + i];
-				vector[offset + 2 * k + i] = vector[offset + 2 * k + 1 + i];
-				vector[offset + 2 * k + 1 + i] = temp;
-			}
-		}
+        GLUScomplex temp;
+        for (i = 1; i < m; i++)
+        {
+            for (k = 0; k < m - i; k++)
+            {
+                temp                           = vector[offset + 2 * k + i];
+                vector[offset + 2 * k + i]     = vector[offset + 2 * k + 1 + i];
+                vector[offset + 2 * k + 1 + i] = temp;
+            }
+        }
 
-		glusFourierButterflyShuffleFunctionFFTc(vector, m, offset);
-		glusFourierButterflyShuffleFunctionFFTc(vector, m, offset + m);
-	}
-	else
-	{
-		// c0 = v0, so do nothing.
-	}
+        glusFourierButterflyShuffleFunctionFFTc(vector, m, offset);
+        glusFourierButterflyShuffleFunctionFFTc(vector, m, offset + m);
+    }
+    else
+    {
+        // c0 = v0, so do nothing.
+    }
 }
 
 GLUSboolean glusFourierButterflyShuffleFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		glusVectorNCopyc(result, vector, n);
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        glusVectorNCopyc(result, vector, n);
 
-		glusFourierButterflyShuffleFunctionFFTc(result, n, 0);
+        glusFourierButterflyShuffleFunctionFFTc(result, n, 0);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 static GLUSvoid glusFourierButterflyFunctionFFTc(GLUScomplex* vector, const GLUSint n, const GLUSint offset)
 {
-	GLUSint currentStep;
-	GLUSint currentSection;
-	GLUSint currentButterfly;
+    GLUSint currentStep;
+    GLUSint currentSection;
+    GLUSint currentButterfly;
 
-	GLUSint numberSections;
-	GLUSint numberButterfliesInSection;
+    GLUSint numberSections;
+    GLUSint numberButterfliesInSection;
 
-	GLUSint m = n / 2;
+    GLUSint m = n / 2;
 
-	GLUSint steps = 0;
-	GLUSint temp = n;
-	while (!(temp & 0x1))
-	{
-		temp = temp >> 1;
-		steps++;
-	}
+    GLUSint steps = 0;
+    GLUSint temp  = n;
+    while (!(temp & 0x1))
+    {
+        temp = temp >> 1;
+        steps++;
+    }
 
-	numberSections = m;
-	numberButterfliesInSection = 1;
+    numberSections             = m;
+    numberButterfliesInSection = 1;
 
-	for (currentStep = 0; currentStep < steps; currentStep++)
-	{
-		for (currentSection = 0; currentSection < numberSections; currentSection++)
-		{
-			GLUScomplex currentW;
-			currentW.real = 1.0f;
-			currentW.imaginary = 0.0f;
+    for (currentStep = 0; currentStep < steps; currentStep++)
+    {
+        for (currentSection = 0; currentSection < numberSections; currentSection++)
+        {
+            GLUScomplex currentW;
+            currentW.real      = 1.0f;
+            currentW.imaginary = 0.0f;
 
-			GLUScomplex w;
-			glusComplexRootOfUnityc(&w, numberButterfliesInSection * 2, 1, 1.0f);
+            GLUScomplex w;
+            glusComplexRootOfUnityc(&w, numberButterfliesInSection * 2, 1, 1.0f);
 
-			for (currentButterfly = 0; currentButterfly < numberButterfliesInSection; currentButterfly++)
-			{
-				GLUSint leftIndex = currentButterfly + currentSection * numberButterfliesInSection * 2;
-				GLUSint rightIndex = currentButterfly + numberButterfliesInSection + currentSection * numberButterfliesInSection * 2;
+            for (currentButterfly = 0; currentButterfly < numberButterfliesInSection; currentButterfly++)
+            {
+                GLUSint leftIndex  = currentButterfly + currentSection * numberButterfliesInSection * 2;
+                GLUSint rightIndex = currentButterfly + numberButterfliesInSection + currentSection * numberButterfliesInSection * 2;
 
-				GLUScomplex multiply;
-				GLUScomplex addition;
-				GLUScomplex subtraction;
+                GLUScomplex multiply;
+                GLUScomplex addition;
+                GLUScomplex subtraction;
 
-				glusComplexMultiplyComplexc(&multiply, &currentW, &vector[rightIndex]);
+                glusComplexMultiplyComplexc(&multiply, &currentW, &vector[rightIndex]);
 
-				glusComplexAddComplexc(&addition, &vector[leftIndex], &multiply);
-				glusComplexSubtractComplexc(&subtraction, &vector[leftIndex], &multiply);
+                glusComplexAddComplexc(&addition, &vector[leftIndex], &multiply);
+                glusComplexSubtractComplexc(&subtraction, &vector[leftIndex], &multiply);
 
-				vector[leftIndex] = addition;
-				vector[rightIndex] = subtraction;
+                vector[leftIndex]  = addition;
+                vector[rightIndex] = subtraction;
 
-				glusComplexMultiplyComplexc(&currentW, &currentW, &w);
-			}
-		}
+                glusComplexMultiplyComplexc(&currentW, &currentW, &w);
+            }
+        }
 
-		numberButterfliesInSection *= 2;
-		numberSections /= 2;
-	}
+        numberButterfliesInSection *= 2;
+        numberSections /= 2;
+    }
 }
 
 GLUSboolean glusFourierButterflyFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		GLUSfloat scalar = 1.0f / (GLUSfloat)n;
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        GLUSfloat scalar = 1.0f / (GLUSfloat)n;
 
-		glusVectorNCopyc(result, vector, n);
+        glusVectorNCopyc(result, vector, n);
 
-		glusVectorNConjugatec(result, result, n);
+        glusVectorNConjugatec(result, result, n);
 
-		glusFourierButterflyShuffleFFTc(result, result, n);
+        glusFourierButterflyShuffleFFTc(result, result, n);
 
-		glusFourierButterflyFunctionFFTc(result, n, 0);
+        glusFourierButterflyFunctionFFTc(result, n, 0);
 
-		glusVectorNConjugatec(result, result, n);
-		glusVectorNMultiplyScalarc(result, result, n, scalar);
+        glusVectorNConjugatec(result, result, n);
+        glusVectorNMultiplyScalarc(result, result, n, scalar);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 GLUSboolean glusFourierButterflyInverseFFTc(GLUScomplex* result, const GLUScomplex* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		glusVectorNCopyc(result, vector, n);
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        glusVectorNCopyc(result, vector, n);
 
-		glusFourierButterflyShuffleFFTc(result, result, n);
+        glusFourierButterflyShuffleFFTc(result, result, n);
 
-		glusFourierButterflyFunctionFFTc(result, n, 0);
+        glusFourierButterflyFunctionFFTc(result, n, 0);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
 
 static GLUSvoid glusFourierButterflyShuffleFunctionFFTi(GLUSint* vector, const GLUSint n, const GLUSint offset)
 {
-	if (n > 1)
-	{
-		GLUSint i, k;
+    if (n > 1)
+    {
+        GLUSint i, k;
 
-		GLUSint m = n / 2;
+        GLUSint m = n / 2;
 
-		GLUSint temp;
-		for (i = 1; i < m; i++)
-		{
-			for (k = 0; k < m - i; k++)
-			{
-				temp = vector[offset + 2 * k + i];
-				vector[offset + 2 * k + i] = vector[offset + 2 * k + 1 + i];
-				vector[offset + 2 * k + 1 + i] = temp;
-			}
-		}
+        GLUSint temp;
+        for (i = 1; i < m; i++)
+        {
+            for (k = 0; k < m - i; k++)
+            {
+                temp                           = vector[offset + 2 * k + i];
+                vector[offset + 2 * k + i]     = vector[offset + 2 * k + 1 + i];
+                vector[offset + 2 * k + 1 + i] = temp;
+            }
+        }
 
-		glusFourierButterflyShuffleFunctionFFTi(vector, m, offset);
-		glusFourierButterflyShuffleFunctionFFTi(vector, m, offset + m);
-	}
-	else
-	{
-		// c0 = v0, so do nothing.
-	}
+        glusFourierButterflyShuffleFunctionFFTi(vector, m, offset);
+        glusFourierButterflyShuffleFunctionFFTi(vector, m, offset + m);
+    }
+    else
+    {
+        // c0 = v0, so do nothing.
+    }
 }
 
 GLUSboolean glusFourierButterflyShuffleFFTi(GLUSint* result, const GLUSint* vector, const GLUSint n)
 {
-	if (!result || !vector)
-	{
-		return GLUS_FALSE;
-	}
+    if (!result || !vector)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (glusFourierIsPowerOfTwo(n))
-	{
-		GLUSint i;
+    if (glusFourierIsPowerOfTwo(n))
+    {
+        GLUSint i;
 
-		for (i = 0; i < n; i++)
-		{
-			result[i] = vector[i];
-		}
+        for (i = 0; i < n; i++)
+        {
+            result[i] = vector[i];
+        }
 
-		glusFourierButterflyShuffleFunctionFFTi(result, n, 0);
+        glusFourierButterflyShuffleFunctionFFTi(result, n, 0);
 
-		return GLUS_TRUE;
-	}
+        return GLUS_TRUE;
+    }
 
-	return GLUS_FALSE;
+    return GLUS_FALSE;
 }
-

@@ -12,7 +12,7 @@ out vec4 fragColor;
 
 void main(void)
 {
-	vec3 normal = u_normalMatrix * normalize(texture(u_normalMap, v_texCoord).xyz);
+    vec3 normal = u_normalMatrix * normalize(texture(u_normalMap, v_texCoord).xyz);
 
-	fragColor = u_color * max(dot(normal, u_lightDirection), 0.0);
+    fragColor = u_color * max(dot(normal, u_lightDirection), 0.0);
 }

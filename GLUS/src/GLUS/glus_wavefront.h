@@ -23,114 +23,114 @@
  */
 typedef struct _GLUSmaterial
 {
-	/**
-	 * Name of the material.
-	 */
-	GLUSchar name[GLUS_MAX_STRING];
+    /**
+     * Name of the material.
+     */
+    GLUSchar name[GLUS_MAX_STRING];
 
-	/**
-	 * Emissive color.
-	 */
-	GLUSfloat emissive[4];
+    /**
+     * Emissive color.
+     */
+    GLUSfloat emissive[4];
 
-	/**
-	 * Ambient color.
-	 */
-	GLUSfloat ambient[4];
+    /**
+     * Ambient color.
+     */
+    GLUSfloat ambient[4];
 
-	/**
-	 * Diffuse color.
-	 */
-	GLUSfloat diffuse[4];
+    /**
+     * Diffuse color.
+     */
+    GLUSfloat diffuse[4];
 
-	/**
-	 * Specular color.
-	 */
-	GLUSfloat specular[4];
+    /**
+     * Specular color.
+     */
+    GLUSfloat specular[4];
 
-	/**
-	 * Shininess.
-	 */
-	GLUSfloat shininess;
+    /**
+     * Shininess.
+     */
+    GLUSfloat shininess;
 
-	/**
-	 * Transparency, which is the alpha value.
-	 */
-	GLUSfloat transparency;
+    /**
+     * Transparency, which is the alpha value.
+     */
+    GLUSfloat transparency;
 
-	/**
-	 * Reflection.
-	 */
-	GLUSboolean reflection;
+    /**
+     * Reflection.
+     */
+    GLUSboolean reflection;
 
-	/**
-	 * Refraction.
-	 */
-	GLUSboolean refraction;
+    /**
+     * Refraction.
+     */
+    GLUSboolean refraction;
 
-	/**
-	 * Index of refraction.
-	 */
-	GLUSfloat indexOfRefraction;
+    /**
+     * Index of refraction.
+     */
+    GLUSfloat indexOfRefraction;
 
-	/**
-	 * Emissive color texture filename.
-	 */
-	GLUSchar emissiveTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Emissive color texture filename.
+     */
+    GLUSchar emissiveTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Ambient color texture filename.
-	 */
-	GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Ambient color texture filename.
+     */
+    GLUSchar ambientTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Diffuse color texture filename.
-	 */
-	GLUSchar diffuseTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Diffuse color texture filename.
+     */
+    GLUSchar diffuseTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Specular color texture filename.
-	 */
-	GLUSchar specularTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Specular color texture filename.
+     */
+    GLUSchar specularTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Transparency texture filename.
-	 */
-	GLUSchar transparencyTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Transparency texture filename.
+     */
+    GLUSchar transparencyTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Bump texture filename.
-	 */
-	GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
+    /**
+     * Bump texture filename.
+     */
+    GLUSchar bumpTextureFilename[GLUS_MAX_STRING];
 
-	/**
-	 * Can be used to store the emissive texture name.
-	 */
+    /**
+     * Can be used to store the emissive texture name.
+     */
     GLUSuint emissiveTextureName;
 
-	/**
-	 * Can be used to store the ambient texture name.
-	 */
+    /**
+     * Can be used to store the ambient texture name.
+     */
     GLUSuint ambientTextureName;
 
-	/**
-	 * Can be used to store the diffuse texture name.
-	 */
+    /**
+     * Can be used to store the diffuse texture name.
+     */
     GLUSuint diffuseTextureName;
 
-	/**
-	 * Can be used to store the specular texture name.
-	 */
+    /**
+     * Can be used to store the specular texture name.
+     */
     GLUSuint specularTextureName;
 
-	/**
-	 * Can be used to store the transparency texture name.
-	 */
+    /**
+     * Can be used to store the transparency texture name.
+     */
     GLUSuint transparencyTextureName;
 
-	/**
-	 * Can be used to store the bump texture name.
-	 */
+    /**
+     * Can be used to store the bump texture name.
+     */
     GLUSuint bumpTextureName;
 
 } GLUSmaterial;
@@ -140,15 +140,15 @@ typedef struct _GLUSmaterial
  */
 typedef struct _GLUSmaterialList
 {
-	/**
-	 * The material data.
-	 */
-	GLUSmaterial material;
+    /**
+     * The material data.
+     */
+    GLUSmaterial material;
 
-	/**
-	 * The pointer to the next element.
-	 */
-	struct _GLUSmaterialList* next;
+    /**
+     * The pointer to the next element.
+     */
+    struct _GLUSmaterialList* next;
 
 } GLUSmaterialList;
 
@@ -157,48 +157,48 @@ typedef struct _GLUSmaterialList
  */
 typedef struct _GLUSgroup
 {
-		/**
-		 * Name of the group.
-		 */
-		GLUSchar name[GLUS_MAX_STRING];
+    /**
+     * Name of the group.
+     */
+    GLUSchar name[GLUS_MAX_STRING];
 
-		/**
-		 * Name of the material.
-		 */
-		GLUSchar materialName[GLUS_MAX_STRING];
+    /**
+     * Name of the material.
+     */
+    GLUSchar materialName[GLUS_MAX_STRING];
 
-		/**
-		 * Pointer to the material.
-		 */
-		GLUSmaterial* material;
+    /**
+     * Pointer to the material.
+     */
+    GLUSmaterial* material;
 
-	    /**
-	     * Indices.
-	     */
-	    GLUSindex* indices;
+    /**
+     * Indices.
+     */
+    GLUSindex* indices;
 
-	    /**
-	     * Indices VBO.
-	     */
-	    GLUSuint indicesVBO;
+    /**
+     * Indices VBO.
+     */
+    GLUSuint indicesVBO;
 
-	    /**
-	     * VAO of this group.
-	     */
-	    GLUSuint vao;
+    /**
+     * VAO of this group.
+     */
+    GLUSuint vao;
 
-	    /**
-	     * Number of indices.
-	     */
-	    GLUSuint numberIndices;
+    /**
+     * Number of indices.
+     */
+    GLUSuint numberIndices;
 
-	    /**
-	     * Triangle render mode - could be either:
-	     *
-	     * GLUS_TRIANGLES
-	     * GLUS_TRIANGLE_STRIP
-	     */
-	    GLUSenum mode;
+    /**
+     * Triangle render mode - could be either:
+     *
+     * GLUS_TRIANGLES
+     * GLUS_TRIANGLE_STRIP
+     */
+    GLUSenum mode;
 
 } GLUSgroup;
 
@@ -207,15 +207,15 @@ typedef struct _GLUSgroup
  */
 typedef struct _GLUSgroupList
 {
-		/**
-		 * The group data.
-		 */
-		GLUSgroup group;
+    /**
+     * The group data.
+     */
+    GLUSgroup group;
 
-	    /**
-	     * The pointer to the next group element.
-	     */
-	    struct _GLUSgroupList* next;
+    /**
+     * The pointer to the next group element.
+     */
+    struct _GLUSgroupList* next;
 
 } GLUSgroupList;
 
@@ -224,75 +224,75 @@ typedef struct _GLUSgroupList
  */
 typedef struct _GLUSwavefront
 {
-		/**
-		 * Name of the object.
-		 */
-		GLUSchar name[GLUS_MAX_STRING];
+    /**
+     * Name of the object.
+     */
+    GLUSchar name[GLUS_MAX_STRING];
 
-		/**
-		 * Vertices in homogeneous coordinates.
-		 */
-	    GLUSfloat* vertices;
+    /**
+     * Vertices in homogeneous coordinates.
+     */
+    GLUSfloat* vertices;
 
-	    /**
-	     * Vertices VBO.
-	     */
-	    GLUSuint verticesVBO;
+    /**
+     * Vertices VBO.
+     */
+    GLUSuint verticesVBO;
 
-	    /**
-	     * Normals.
-	     */
-	    GLUSfloat* normals;
+    /**
+     * Normals.
+     */
+    GLUSfloat* normals;
 
-	    /**
-	     * Normals VBO.
-	     */
-	    GLUSuint normalsVBO;
+    /**
+     * Normals VBO.
+     */
+    GLUSuint normalsVBO;
 
-	    /**
-	     * Tangents.
-	     */
-	    GLUSfloat* tangents;
+    /**
+     * Tangents.
+     */
+    GLUSfloat* tangents;
 
-	    /**
-	     * Tangents VBO.
-	     */
-	    GLUSuint tangentsVBO;
+    /**
+     * Tangents VBO.
+     */
+    GLUSuint tangentsVBO;
 
-	    /**
-	     * Bitangents.
-	     */
-	    GLUSfloat* bitangents;
+    /**
+     * Bitangents.
+     */
+    GLUSfloat* bitangents;
 
-	    /**
-	     * Bitangents VBO.
-	     */
-	    GLUSuint bitangentsVBO;
+    /**
+     * Bitangents VBO.
+     */
+    GLUSuint bitangentsVBO;
 
-	    /**
-	     * Texture coordinates.
-	     */
-	    GLUSfloat* texCoords;
+    /**
+     * Texture coordinates.
+     */
+    GLUSfloat* texCoords;
 
-	    /**
-	     * Texture corrdinates VBO.
-	     */
-	    GLUSuint texCoordsVBO;
+    /**
+     * Texture corrdinates VBO.
+     */
+    GLUSuint texCoordsVBO;
 
-	    /**
-	     * Number of vertices.
-	     */
-	    GLUSuint numberVertices;
+    /**
+     * Number of vertices.
+     */
+    GLUSuint numberVertices;
 
-	    /**
-	     * Pointer to the first element of the groups.
-	     */
-	    GLUSgroupList* groups;
+    /**
+     * Pointer to the first element of the groups.
+     */
+    GLUSgroupList* groups;
 
-	    /**
-	     * Pointer to the first element of the materials.
-	     */
-	    GLUSmaterialList* materials;
+    /**
+     * Pointer to the first element of the materials.
+     */
+    GLUSmaterialList* materials;
 
 } GLUSwavefront;
 
@@ -301,15 +301,15 @@ typedef struct _GLUSwavefront
  */
 typedef struct _GLUSobjectList
 {
-		/**
-		 * The object data.
-		 */
-		GLUSwavefront object;
+    /**
+     * The object data.
+     */
+    GLUSwavefront object;
 
-	    /**
-	     * The pointer to the next group element.
-	     */
-	    struct _GLUSobjectList* next;
+    /**
+     * The pointer to the next group element.
+     */
+    struct _GLUSobjectList* next;
 
 } GLUSobjectList;
 
@@ -318,10 +318,10 @@ typedef struct _GLUSobjectList
  */
 typedef struct _GLUSscene
 {
-		/**
-		 * The root object list data.
-		 */
-		GLUSobjectList* objectList;
+    /**
+     * The root object list data.
+     */
+    GLUSobjectList* objectList;
 
 } GLUSscene;
 

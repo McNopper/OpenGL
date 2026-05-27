@@ -9,8 +9,8 @@ out vec3 g_normal;
 
 void main(void)
 {
-	g_normal = u_normalMatrix * a_normal;
+    g_normal = u_normalMatrix * a_normal;
 
-	// Projection etc. is done in the geometry shader
-	gl_Position = a_vertex;
+    // Projection etc. is done in the geometry shader
+    gl_Position = a_vertex;
 }

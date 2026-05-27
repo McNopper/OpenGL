@@ -21,5 +21,5 @@ extern GLUSboolean _glusWavefrontParseLine(const GLUSchar* filename, GLUSline* l
 
 GLUSboolean GLUSAPIENTRY glusLineLoadWavefront(const GLUSchar* filename, GLUSline* line)
 {
-	return _glusWavefrontParseLine(filename, line);
+    return _glusWavefrontParseLine(filename, line);
 }

@@ -28,35 +28,35 @@
 uniform sampler2D u_panoramaTexture;
 uniform int       u_face;
 
-in  vec2 v_texCoord;
+in vec2  v_texCoord;
 out vec4 fragColor;
 
 // Equirectangular UV from a normalised direction.
 vec2 panorama(vec3 ray)
 {
-	return vec2(0.5 + 0.5 * atan(ray.x, -ray.z) / GLUS_PI,
-	            1.0 - acos(clamp(ray.y, -1.0, 1.0)) / GLUS_PI);
+    return vec2(0.5 + 0.5 * atan(ray.x, -ray.z) / GLUS_PI,
+                1.0 - acos(clamp(ray.y, -1.0, 1.0)) / GLUS_PI);
 }
 
 // Convert a cube-face UV in [-1, 1]^2 to the corresponding 3-D direction.
 // Face order follows OpenGL Table 8.19.
 vec3 cubemapDirection(int face, vec2 uv)
 {
-	switch (face)
-	{
-		case 0: return normalize(vec3( 1.0, -uv.y, -uv.x)); // +X
-		case 1: return normalize(vec3(-1.0, -uv.y,  uv.x)); // -X
-		case 2: return normalize(vec3( uv.x,  1.0,  uv.y)); // +Y
-		case 3: return normalize(vec3( uv.x, -1.0, -uv.y)); // -Y
-		case 4: return normalize(vec3( uv.x, -uv.y,  1.0)); // +Z
-		case 5: return normalize(vec3(-uv.x, -uv.y, -1.0)); // -Z
-	}
-	return vec3(0.0);
+    switch (face)
+    {
+    case 0: return normalize(vec3(1.0, -uv.y, -uv.x));  // +X
+    case 1: return normalize(vec3(-1.0, -uv.y, uv.x));  // -X
+    case 2: return normalize(vec3(uv.x, 1.0, uv.y));    // +Y
+    case 3: return normalize(vec3(uv.x, -1.0, -uv.y));  // -Y
+    case 4: return normalize(vec3(uv.x, -uv.y, 1.0));   // +Z
+    case 5: return normalize(vec3(-uv.x, -uv.y, -1.0)); // -Z
+    }
+    return vec3(0.0);
 }
 
 void main(void)
 {
-	vec3 dir = cubemapDirection(u_face, v_texCoord);
+    vec3 dir = cubemapDirection(u_face, v_texCoord);
 
-	fragColor = vec4(texture(u_panoramaTexture, panorama(dir)).rgb, 1.0);
+    fragColor = vec4(texture(u_panoramaTexture, panorama(dir)).rgb, 1.0);
 }

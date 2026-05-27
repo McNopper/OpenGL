@@ -18,10 +18,10 @@
 #ifndef GLUS_DEFINE_COLOR_H_
 #define GLUS_DEFINE_COLOR_H_
 
-#define GLUS_RED  						0x00001903
-#define GLUS_ALPHA  					VG_A_8
-#define GLUS_RGB    					0x00001907
-#define GLUS_RGBA   					VG_sABGR_8888
-#define GLUS_LUMINANCE  				VG_sL_8
+#define GLUS_RED 0x00001903
+#define GLUS_ALPHA VG_A_8
+#define GLUS_RGB 0x00001907
+#define GLUS_RGBA VG_sABGR_8888
+#define GLUS_LUMINANCE VG_sL_8
 
 #endif /* GLUS_DEFINE_COLOR_H_ */

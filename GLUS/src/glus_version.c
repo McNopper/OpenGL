@@ -22,7 +22,7 @@ GLUSboolean GLUSAPIENTRY glusVersionIsSupported(const GLUSint major, const GLUSi
     GLUSint driverMajor;
     GLUSint driverMinor;
 
-    const GLUSchar* version = (const GLUSchar*) glGetString(GLUS_VERSION);
+    const GLUSchar* version = (const GLUSchar*)glGetString(GLUS_VERSION);
 
     if (!version)
     {
@@ -31,7 +31,7 @@ GLUSboolean GLUSAPIENTRY glusVersionIsSupported(const GLUSint major, const GLUSi
 
     if (major < 1 || minor < 0)
     {
-    	return GLUS_FALSE;
+        return GLUS_FALSE;
     }
 
     driverMajor = atoi(version);

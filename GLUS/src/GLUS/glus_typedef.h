@@ -18,31 +18,31 @@
 #ifndef GLUS_TYPEDEF_H_
 #define GLUS_TYPEDEF_H_
 
-typedef unsigned char GLUSboolean;
-typedef signed char GLUSbyte;
-typedef unsigned char GLUSubyte;
-typedef char GLUSchar;
-typedef short GLUSshort;
+typedef unsigned char  GLUSboolean;
+typedef signed char    GLUSbyte;
+typedef unsigned char  GLUSubyte;
+typedef char           GLUSchar;
+typedef short          GLUSshort;
 typedef unsigned short GLUSushort;
-typedef int GLUSint;
-typedef unsigned int GLUSuint;
-typedef int GLUSfixed;
-typedef int64_t  GLUSint64;
-typedef uint64_t GLUSuint64;
-typedef int GLUSsizei;
-typedef unsigned int GLUSenum;
+typedef int            GLUSint;
+typedef unsigned int   GLUSuint;
+typedef int            GLUSfixed;
+typedef int64_t        GLUSint64;
+typedef uint64_t       GLUSuint64;
+typedef int            GLUSsizei;
+typedef unsigned int   GLUSenum;
 // GLUSintptr, GLUSsizeiptr and GLUSsync not implemented.
-typedef unsigned int GLUSbitfield;
+typedef unsigned int   GLUSbitfield;
 typedef unsigned short GLUShalf;
-typedef float GLUSfloat;
-typedef float GLUSclampf;
-typedef double GLUSdouble;
-typedef double GLUSclampd;
+typedef float          GLUSfloat;
+typedef float          GLUSclampf;
+typedef double         GLUSdouble;
+typedef double         GLUSclampd;
 
 typedef struct _GLUScomplex
 {
-	GLUSfloat real;
-	GLUSfloat imaginary;
+    GLUSfloat real;
+    GLUSfloat imaginary;
 } GLUScomplex;
 
 #ifdef __cplusplus

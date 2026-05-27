@@ -2,8 +2,14 @@
 
 layout(local_size_x = 256) in;
 
-layout(std430, binding = 1) buffer IndexBuffer { uint  indices[]; };
-layout(std430, binding = 2) buffer DepthBuffer { float depths[];  };
+layout(std430, binding = 1) buffer IndexBuffer
+{
+    uint indices[];
+};
+layout(std430, binding = 2) buffer DepthBuffer
+{
+    float depths[];
+};
 
 // Current bitonic merge parameters.
 uniform uint u_j;
@@ -16,7 +22,9 @@ void main()
 
     // Each pair is handled exactly once: only the thread with the lower index acts.
     if (ixj <= i)
+    {
         return;
+    }
 
     float di = depths[i];
     float dj = depths[ixj];

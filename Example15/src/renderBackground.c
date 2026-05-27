@@ -47,7 +47,7 @@ GLUSboolean initBackground()
     glusFileLoadText("../Example15/shader/Background.vert.glsl", &vertexSource);
     glusFileLoadText("../Example15/shader/Background.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -55,7 +55,7 @@ GLUSboolean initBackground()
     //
 
     g_projectionMatrixBackgroundLocation = glGetUniformLocation(g_programBackground.program, "u_projectionMatrix");
-    g_modelViewMatrixBackgroundLocation = glGetUniformLocation(g_programBackground.program, "u_modelViewMatrix");
+    g_modelViewMatrixBackgroundLocation  = glGetUniformLocation(g_programBackground.program, "u_modelViewMatrix");
 
     g_cubemapBackgroundLocation = glGetUniformLocation(g_programBackground.program, "u_cubemap");
 
@@ -68,22 +68,22 @@ GLUSboolean initBackground()
 
     //
 
-    glusShapeCreateSpheref(&background, (GLfloat) (GLfloat) WATER_PLANE_LENGTH / 2.0f + 0.5f, 32);
+    glusShapeCreateSpheref(&background, (GLfloat)(GLfloat)WATER_PLANE_LENGTH / 2.0f + 0.5f, 32);
     g_numberIndicesBackground = background.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) background.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)background.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) background.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)background.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesBackgroundVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, background.numberIndices * sizeof(GLuint), (GLuint*) background.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, background.numberIndices * sizeof(GLuint), (GLuint*)background.indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

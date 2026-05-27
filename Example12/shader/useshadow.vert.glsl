@@ -16,16 +16,16 @@ out vec4 v_projCoord;
 
 void main(void)
 {
-	vec4 vertex = u_modelMatrix*a_vertex;
+    vec4 vertex = u_modelMatrix * a_vertex;
 
-	// Bring the vertex to the light / shadow coordinate system
-	v_projCoord = u_shadowMatrix*vertex;
+    // Bring the vertex to the light / shadow coordinate system
+    v_projCoord = u_shadowMatrix * vertex;
 
-	vertex = u_viewMatrix*vertex;
+    vertex = u_viewMatrix * vertex;
 
-	v_eye = -vec3(vertex);
+    v_eye = -vec3(vertex);
 
-	v_normal = u_normalMatrix*a_normal;
+    v_normal = u_normalMatrix * a_normal;
 
-	gl_Position = u_projectionMatrix*vertex;
+    gl_Position = u_projectionMatrix * vertex;
 }

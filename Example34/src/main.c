@@ -22,9 +22,9 @@ static GLUSuint g_width;
  */
 static GLUSuint g_height;
 
-static GLUSfloat g_cameraPosition[3] = { 0.0f, 0.0f, 3.0f };
+static GLUSfloat g_cameraPosition[3] = {0.0f, 0.0f, 3.0f};
 
-static GLUSfloat g_lightPosition[3] = { 2.0f, 2.0f, 3.0f };
+static GLUSfloat g_lightPosition[3] = {2.0f, 2.0f, 3.0f};
 
 static GLUSfloat g_near = 1.0f;
 
@@ -138,7 +138,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example34/shader/renderdepthmap.vert.glsl", &vertexSource);
     glusFileLoadText("../Example34/shader/renderdepthmap.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_programDepthPass, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_programDepthPass, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -148,7 +148,7 @@ GLUSboolean init(GLUSvoid)
     glusFileLoadText("../Example34/shader/subsurfacescattering.vert.glsl", &vertexSource);
     glusFileLoadText("../Example34/shader/subsurfacescattering.frag.glsl", &fragmentSource);
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**) &vertexSource.text, 0, 0, 0, (const GLUSchar**) &fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -156,25 +156,24 @@ GLUSboolean init(GLUSvoid)
     //
 
     g_projectionMatrixDepthPassLocation = glGetUniformLocation(g_programDepthPass.program, "u_projectionMatrix");
-    g_modelViewMatrixDepthPassLocation = glGetUniformLocation(g_programDepthPass.program, "u_modelViewMatrix");
-    g_vertexDepthPassLocation = glGetAttribLocation(g_programDepthPass.program, "a_vertex");
+    g_modelViewMatrixDepthPassLocation  = glGetUniformLocation(g_programDepthPass.program, "u_modelViewMatrix");
+    g_vertexDepthPassLocation           = glGetAttribLocation(g_programDepthPass.program, "a_vertex");
 
     //
 
     g_projectionMatrixLocation = glGetUniformLocation(g_program.program, "u_projectionMatrix");
-    g_viewMatrixLocation = glGetUniformLocation(g_program.program, "u_viewMatrix");
-    g_modelMatrixLocation = glGetUniformLocation(g_program.program, "u_modelMatrix");
-    g_normalMatrixLocation = glGetUniformLocation(g_program.program, "u_normalMatrix");
-    g_depthPassMatrixLocation = glGetUniformLocation(g_program.program, "u_depthPassMatrix");
-    g_diffuseColorLocation = glGetUniformLocation(g_program.program, "u_diffuseColor");
-    g_scatterColorLocation = glGetUniformLocation(g_program.program, "u_scatterColor");
-    g_lightDirectionLocation = glGetUniformLocation(g_program.program, "u_lightDirection");
+    g_viewMatrixLocation       = glGetUniformLocation(g_program.program, "u_viewMatrix");
+    g_modelMatrixLocation      = glGetUniformLocation(g_program.program, "u_modelMatrix");
+    g_normalMatrixLocation     = glGetUniformLocation(g_program.program, "u_normalMatrix");
+    g_depthPassMatrixLocation  = glGetUniformLocation(g_program.program, "u_depthPassMatrix");
+    g_diffuseColorLocation     = glGetUniformLocation(g_program.program, "u_diffuseColor");
+    g_scatterColorLocation     = glGetUniformLocation(g_program.program, "u_scatterColor");
+    g_lightDirectionLocation   = glGetUniformLocation(g_program.program, "u_lightDirection");
     g_depthPassTextureLocation = glGetUniformLocation(g_program.program, "u_depthPassTexture");
-    g_nearFarLocation = glGetUniformLocation(g_program.program, "u_nearFar");
-    g_wrapLocation = glGetUniformLocation(g_program.program, "u_wrap");
-    g_scatterWidthLocation = glGetUniformLocation(g_program.program, "u_scatterWidth");
-    g_scatterFalloffLocation = glGetUniformLocation(g_program.program, "u_scatterFalloff");
-
+    g_nearFarLocation          = glGetUniformLocation(g_program.program, "u_nearFar");
+    g_wrapLocation             = glGetUniformLocation(g_program.program, "u_wrap");
+    g_scatterWidthLocation     = glGetUniformLocation(g_program.program, "u_scatterWidth");
+    g_scatterFalloffLocation   = glGetUniformLocation(g_program.program, "u_scatterFalloff");
 
     g_vertexLocation = glGetAttribLocation(g_program.program, "a_vertex");
     g_normalLocation = glGetAttribLocation(g_program.program, "a_normal");
@@ -227,11 +226,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 4 * sizeof(GLfloat), (GLfloat*) wavefrontObj.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefrontObj.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 3 * sizeof(GLfloat), (GLfloat*) wavefrontObj.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefrontObj.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -290,7 +289,7 @@ GLUSboolean init(GLUSvoid)
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-    static GLfloat biasMatrix[] = { 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f };
+    static GLfloat biasMatrix[] = {0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 
     GLfloat projectionMatrix[16];
 
@@ -302,7 +301,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glUseProgram(g_programDepthPass.program);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) g_depthPassTextureSize / (GLfloat) g_depthPassTextureSize, g_near, g_far);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)g_depthPassTextureSize / (GLfloat)g_depthPassTextureSize, g_near, g_far);
 
     glUniformMatrix4fv(g_projectionMatrixDepthPassLocation, 1, GL_FALSE, projectionMatrix);
 
@@ -314,7 +313,7 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glUseProgram(g_program.program);
 
-    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat) width / (GLfloat) height, 1.0f, 100.0f);
+    glusMatrix4x4Perspectivef(projectionMatrix, 40.0f, (GLfloat)width / (GLfloat)height, 1.0f, 100.0f);
 
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
@@ -473,58 +472,56 @@ GLUSvoid terminate(GLUSvoid)
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 {
-	if (pressed)
-	{
-		if (key == '1')
-		{
-			g_wrap -= 0.1f;
-		}
-		else if (key == '2')
-		{
-			g_wrap += 0.1f;
-		}
-		else if (key == '3')
-		{
-			g_scatterWidth -= 0.1f;
-		}
-		else if (key == '4')
-		{
-			g_scatterWidth += 0.1f;
-		}
-		else if (key == '5')
-		{
-			g_scatterFalloff -= 5.0f;
-		}
-		else if (key == '6')
-		{
-			g_scatterFalloff += 5.0f;
-		}
-	}
+    if (pressed)
+    {
+        if (key == '1')
+        {
+            g_wrap -= 0.1f;
+        }
+        else if (key == '2')
+        {
+            g_wrap += 0.1f;
+        }
+        else if (key == '3')
+        {
+            g_scatterWidth -= 0.1f;
+        }
+        else if (key == '4')
+        {
+            g_scatterWidth += 0.1f;
+        }
+        else if (key == '5')
+        {
+            g_scatterFalloff -= 5.0f;
+        }
+        else if (key == '6')
+        {
+            g_scatterFalloff += 5.0f;
+        }
+    }
 
-	g_wrap = glusMathClampf(g_wrap, 0.0f, 1.0f);
-	g_scatterWidth = glusMathClampf(g_scatterWidth, 0.0f, 1.0f);
-	g_scatterFalloff = glusMathClampf(g_scatterFalloff, 0.0f, 50.0f);
+    g_wrap           = glusMathClampf(g_wrap, 0.0f, 1.0f);
+    g_scatterWidth   = glusMathClampf(g_scatterWidth, 0.0f, 1.0f);
+    g_scatterFalloff = glusMathClampf(g_scatterFalloff, 0.0f, 50.0f);
 }
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 24,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 3,
-    		EGL_CONTEXT_MINOR_VERSION, 2,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

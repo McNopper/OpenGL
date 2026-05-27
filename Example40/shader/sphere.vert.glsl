@@ -10,7 +10,7 @@ out vec3 v_normal;
 
 void main(void)
 {
-	v_normal = u_normalMatrix * a_normal;
+    v_normal = u_normalMatrix * a_normal;
 
-	gl_Position = u_modelViewProjectionMatrix * a_vertex;
+    gl_Position = u_modelViewProjectionMatrix * a_vertex;
 }

@@ -9,5 +9,5 @@ in vec4 a_vertex;
 
 void main(void)
 {
-	gl_Position = u_projectionMatrix * u_viewMatrix * u_shadowProjectionMatrix * u_modelMatrix * a_vertex;
+    gl_Position = u_projectionMatrix * u_viewMatrix * u_shadowProjectionMatrix * u_modelMatrix * a_vertex;
 }

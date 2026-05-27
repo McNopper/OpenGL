@@ -21,6 +21,5 @@ extern double _glusOsGetRawTime(GLUSvoid);
 
 GLUSfloat GLUSAPIENTRY glusTimeGetTimestampf()
 {
-	return (GLUSfloat)_glusOsGetRawTime();
+    return (GLUSfloat)_glusOsGetRawTime();
 }
-

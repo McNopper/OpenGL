@@ -27,14 +27,17 @@ shared vec4 s_line[GRID_N];
 
 void main()
 {
-    uint  lid = gl_LocalInvocationID.x;
-    int   j   = int(gl_WorkGroupID.x);
-    int   k   = int(gl_WorkGroupID.y);
+    uint lid = gl_LocalInvocationID.x;
+    int  j   = int(gl_WorkGroupID.x);
+    int  k   = int(gl_WorkGroupID.y);
 
     ivec3 pos;
-    if      (u_axis == 0) pos = ivec3(int(lid), j, k);
-    else if (u_axis == 1) pos = ivec3(j, int(lid), k);
-    else                  pos = ivec3(j, k, int(lid));
+    if (u_axis == 0)
+        pos = ivec3(int(lid), j, k);
+    else if (u_axis == 1)
+        pos = ivec3(j, int(lid), k);
+    else
+        pos = ivec3(j, k, int(lid));
 
     // Load line into shared memory — barrier is at top level, no warning.
     s_line[lid] = imageLoad(u_colorImage, pos);
@@ -74,8 +77,10 @@ void main()
     // Write phase: swap if out of order.
     if (paired)
     {
-        float myKey = (u_axis == 0) ? myVal.r : (u_axis == 1) ? myVal.g : myVal.b;
-        float nKey  = (u_axis == 0) ? nVal.r  : (u_axis == 1) ? nVal.g  : nVal.b;
+        float myKey = (u_axis == 0) ? myVal.r : (u_axis == 1) ? myVal.g
+                                                              : myVal.b;
+        float nKey  = (u_axis == 0) ? nVal.r : (u_axis == 1) ? nVal.g
+                                                             : nVal.b;
 
         if (lid < neighbor ? (myKey > nKey) : (myKey < nKey))
             s_line[lid] = nVal;

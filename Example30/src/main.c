@@ -88,320 +88,316 @@ static GLfloat g_stackBuffer[WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODE
 
 typedef struct _Material
 {
-	GLfloat emissiveColor[4];
+    GLfloat emissiveColor[4];
 
-	GLfloat diffuseColor[4];
+    GLfloat diffuseColor[4];
 
-	GLfloat specularColor[4];
+    GLfloat specularColor[4];
 
-	GLfloat shininess;
+    GLfloat shininess;
 
-	GLfloat alpha;
+    GLfloat alpha;
 
-	GLfloat reflectivity;
+    GLfloat reflectivity;
 
-	GLfloat padding;
+    GLfloat padding;
 
 } Material;
 
 typedef struct _Sphere
 {
-	GLfloat center[4];
+    GLfloat center[4];
 
-	GLfloat radius;
+    GLfloat radius;
 
-	GLfloat padding[3];
+    GLfloat padding[3];
 
-	Material material;
+    Material material;
 
 } Sphere;
 
 static GLuint g_sphereSSBO;
 
 Sphere g_sphereBuffer[NUM_SPHERES] = {
-		// Ground sphere
-		{ { 0.0f, -10001.0f, -20.0f, 1.0f }, 10000.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, 0.0f, 1.0f, 0.0f, PADDING_VALUE } },
-		// Transparent sphere
-		{ { 0.0f, 0.0f, -10.0f, 1.0f }, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 0.2f, 1.0f, PADDING_VALUE } },
-		// Reflective sphere
-		{ { 1.0f, -0.75f, -7.0f, 1.0f }, 0.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.8f, PADDING_VALUE } },
-		// Blue sphere
-		{ { 2.0f, 1.0f, -16.0f, 1.0f }, 2.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.8f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } },
-		// Green sphere
-		{ { -2.0f, 0.25f, -6.0f, 1.0f }, 1.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.8f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } },
-		// Red sphere
-		{ { 3.0f, 0.0f, -8.0f, 1.0f }, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.0f, 0.0f, 1.0f }, { 0.8f, 0.8f, 0.8f, 1.0f }, 20.0f, 1.0f, 0.2f, PADDING_VALUE } }
-};
+    // Ground sphere
+    {{0.0f, -10001.0f, -20.0f, 1.0f}, 10000.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, PADDING_VALUE}},
+    // Transparent sphere
+    {{0.0f, 0.0f, -10.0f, 1.0f}, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, 20.0f, 0.2f, 1.0f, PADDING_VALUE}},
+    // Reflective sphere
+    {{1.0f, -0.75f, -7.0f, 1.0f}, 0.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, 20.0f, 1.0f, 0.8f, PADDING_VALUE}},
+    // Blue sphere
+    {{2.0f, 1.0f, -16.0f, 1.0f}, 2.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.8f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, 20.0f, 1.0f, 0.2f, PADDING_VALUE}},
+    // Green sphere
+    {{-2.0f, 0.25f, -6.0f, 1.0f}, 1.25f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.8f, 0.0f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, 20.0f, 1.0f, 0.2f, PADDING_VALUE}},
+    // Red sphere
+    {{3.0f, 0.0f, -8.0f, 1.0f}, 1.0f, {PADDING_VALUE, PADDING_VALUE, PADDING_VALUE}, {{0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 0.0f, 0.0f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, 20.0f, 1.0f, 0.2f, PADDING_VALUE}}};
 
 //
 
 typedef struct _PointLight
 {
-	GLfloat position[4];
+    GLfloat position[4];
 
-	GLfloat color[4];
+    GLfloat color[4];
 
 } PointLight;
 
 static GLuint g_pointLightSSBO;
 
 PointLight g_lightBuffer[NUM_LIGHTS] = {
-		{{0.0f, 5.0f, -5.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f }}
-};
+    {{0.0f, 5.0f, -5.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}};
 
 GLUSboolean init(GLUSvoid)
 {
-	GLint i;
+    GLint i;
 
-	GLUStextfile vertexSource;
-	GLUStextfile fragmentSource;
-	GLUStextfile computeSource;
+    GLUStextfile vertexSource;
+    GLUStextfile fragmentSource;
+    GLUStextfile computeSource;
 
-	glusFileLoadText("../Example30/shader/fullscreen.vert.glsl", &vertexSource);
-	glusFileLoadText("../Example30/shader/texture.frag.glsl", &fragmentSource);
+    glusFileLoadText("../Example30/shader/fullscreen.vert.glsl", &vertexSource);
+    glusFileLoadText("../Example30/shader/texture.frag.glsl", &fragmentSource);
 
-	glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+    glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
 
-	glusFileDestroyText(&vertexSource);
-	glusFileDestroyText(&fragmentSource);
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
 
-	glusFileLoadText("../Example30/shader/raytrace.comp.glsl", &computeSource);
+    glusFileLoadText("../Example30/shader/raytrace.comp.glsl", &computeSource);
 
-	glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
+    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
 
-	glusFileDestroyText(&computeSource);
+    glusFileDestroyText(&computeSource);
 
-	//
+    //
 
-	// Retrieve the uniform locations in the program.
-	g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
+    // Retrieve the uniform locations in the program.
+    g_textureLocation = glGetUniformLocation(g_program.program, "u_texture");
 
-	//
+    //
 
-	// Generate and bind a texture.
-	glGenTextures(1, &g_texture);
-	glBindTexture(GL_TEXTURE_2D, g_texture);
+    // Generate and bind a texture.
+    glGenTextures(1, &g_texture);
+    glBindTexture(GL_TEXTURE_2D, g_texture);
 
-	// Create an empty image.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    // Create an empty image.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
-	// Setting the texture parameters.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Setting the texture parameters.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	//
-	//
+    //
+    //
 
-	glUseProgram(g_program.program);
+    glUseProgram(g_program.program);
 
-	glGenVertexArrays(1, &g_vao);
-	glBindVertexArray(g_vao);
+    glGenVertexArrays(1, &g_vao);
+    glBindVertexArray(g_vao);
 
-	//
+    //
 
-	// Also bind created texture ...
-	glBindTexture(GL_TEXTURE_2D, g_texture);
+    // Also bind created texture ...
+    glBindTexture(GL_TEXTURE_2D, g_texture);
 
-	// ... and bind this texture as an image, as we will write to it. see binding = 0 in shader.
-	glBindImageTexture(0, g_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+    // ... and bind this texture as an image, as we will write to it. see binding = 0 in shader.
+    glBindImageTexture(0, g_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
-	// ... and as this is texture number 0, bind the uniform to the program.
-	glUniform1i(g_textureLocation, 0);
+    // ... and as this is texture number 0, bind the uniform to the program.
+    glUniform1i(g_textureLocation, 0);
 
-	//
-	//
+    //
+    //
 
-	glUseProgram(g_computeProgram.program);
+    glUseProgram(g_computeProgram.program);
 
-	//
+    //
 
-	printf("Preparing buffers ... ");
+    printf("Preparing buffers ... ");
 
-	// Generate the ray directions depending on FOV, width and height.
-	if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTION_BUFFER_PADDING, 30.0f, WIDTH, HEIGHT))
-	{
-		printf("failed!\n");
+    // Generate the ray directions depending on FOV, width and height.
+    if (!glusRaytracePerspectivef(g_directionBuffer, DIRECTION_BUFFER_PADDING, 30.0f, WIDTH, HEIGHT))
+    {
+        printf("failed!\n");
 
-		printf("Error: Could not create direction buffer.\n");
+        printf("Error: Could not create direction buffer.\n");
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	// Compute shader will use these textures just for input.
-	glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTION_BUFFER_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+    // Compute shader will use these textures just for input.
+    glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTION_BUFFER_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-	for (i = 0; i < WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES; i++)
-	{
-		g_stackBuffer[i] = 0.0f;
-	}
+    for (i = 0; i < WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES; i++)
+    {
+        g_stackBuffer[i] = 0.0f;
+    }
 
-	printf("done!\n");
+    printf("done!\n");
 
-	//
-	// Buffers with the initial ray position and direction.
-	//
+    //
+    // Buffers with the initial ray position and direction.
+    //
 
-	glGenBuffers(1, &g_directionSSBO);
+    glGenBuffers(1, &g_directionSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_directionSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
-	// see binding = 1 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, g_directionSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_directionSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
+    // see binding = 1 in the shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, g_directionSSBO);
 
-	//
+    //
 
-	glGenBuffers(1, &g_positionSSBO);
+    glGenBuffers(1, &g_positionSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_positionSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_DRAW);
-	// see binding = 2 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_positionSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_positionSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_DRAW);
+    // see binding = 2 in the shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_positionSSBO);
 
-	//
+    //
 
-	glGenBuffers(1, &g_stackSSBO);
+    glGenBuffers(1, &g_stackSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_stackSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
-	// see binding = 3 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_stackSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_stackSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
+    // see binding = 3 in the shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_stackSSBO);
 
-	//
+    //
 
-	glGenBuffers(1, &g_sphereSSBO);
+    glGenBuffers(1, &g_sphereSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_sphereSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_SPHERES * sizeof(Sphere), g_sphereBuffer, GL_STATIC_DRAW);
-	// see binding = 4 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, g_sphereSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_sphereSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_SPHERES * sizeof(Sphere), g_sphereBuffer, GL_STATIC_DRAW);
+    // see binding = 4 in the shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, g_sphereSSBO);
 
-	//
+    //
 
-	glGenBuffers(1, &g_pointLightSSBO);
+    glGenBuffers(1, &g_pointLightSSBO);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_lightBuffer, GL_STATIC_DRAW);
-	// see binding = 5 in the shader
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_pointLightSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, NUM_LIGHTS * sizeof(PointLight), g_lightBuffer, GL_STATIC_DRAW);
+    // see binding = 5 in the shader
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, g_pointLightSSBO);
 
-	//
+    //
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
-	glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 }
 
 GLUSboolean update(GLUSfloat time)
 {
-	// Switch to the compute shader.
-	glUseProgram(g_computeProgram.program);
+    // Switch to the compute shader.
+    glUseProgram(g_computeProgram.program);
 
-	// Create threads depending on width, height and block size. In this case we have 1200 threads.
-	glDispatchCompute(WIDTH / g_localSize, HEIGHT / g_localSize, 1);
+    // Create threads depending on width, height and block size. In this case we have 1200 threads.
+    glDispatchCompute(WIDTH / g_localSize, HEIGHT / g_localSize, 1);
 
-	// Switch back to the render program.
-	glUseProgram(g_program.program);
+    // Switch back to the render program.
+    glUseProgram(g_program.program);
 
-	// Here we full screen the output of the compute shader.
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    // Here we full screen the output of the compute shader.
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSvoid terminate(GLUSvoid)
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (g_texture)
-	{
-		glDeleteTextures(1, &g_texture);
+    if (g_texture)
+    {
+        glDeleteTextures(1, &g_texture);
 
-		g_texture = 0;
-	}
+        g_texture = 0;
+    }
 
-	//
+    //
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	if (g_directionSSBO)
-	{
-		glDeleteBuffers(1, &g_directionSSBO);
+    if (g_directionSSBO)
+    {
+        glDeleteBuffers(1, &g_directionSSBO);
 
-		g_directionSSBO = 0;
-	}
+        g_directionSSBO = 0;
+    }
 
-	if (g_positionSSBO)
-	{
-		glDeleteBuffers(1, &g_positionSSBO);
+    if (g_positionSSBO)
+    {
+        glDeleteBuffers(1, &g_positionSSBO);
 
-		g_positionSSBO = 0;
-	}
+        g_positionSSBO = 0;
+    }
 
-	if (g_stackSSBO)
-	{
-		glDeleteBuffers(1, &g_stackSSBO);
+    if (g_stackSSBO)
+    {
+        glDeleteBuffers(1, &g_stackSSBO);
 
-		g_stackSSBO = 0;
-	}
+        g_stackSSBO = 0;
+    }
 
-	if (g_sphereSSBO)
-	{
-		glDeleteBuffers(1, &g_sphereSSBO);
+    if (g_sphereSSBO)
+    {
+        glDeleteBuffers(1, &g_sphereSSBO);
 
-		g_sphereSSBO = 0;
-	}
+        g_sphereSSBO = 0;
+    }
 
-	if (g_pointLightSSBO)
-	{
-		glDeleteBuffers(1, &g_pointLightSSBO);
+    if (g_pointLightSSBO)
+    {
+        glDeleteBuffers(1, &g_pointLightSSBO);
 
-		g_pointLightSSBO = 0;
-	}
+        g_pointLightSSBO = 0;
+    }
 
-	//
+    //
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	if (g_vao)
-	{
-		glDeleteVertexArrays(1, &g_vao);
+    if (g_vao)
+    {
+        glDeleteVertexArrays(1, &g_vao);
 
-		g_vao = 0;
-	}
+        g_vao = 0;
+    }
 
-	glUseProgram(0);
+    glUseProgram(0);
 
-	glusProgramDestroy(&g_program);
+    glusProgramDestroy(&g_program);
 
-	glusProgramDestroy(&g_computeProgram);
+    glusProgramDestroy(&g_computeProgram);
 }
 
 int main(int argc, char* argv[])
 {
-	EGLint eglConfigAttributes[] = {
-	        EGL_RED_SIZE, 8,
-	        EGL_GREEN_SIZE, 8,
-	        EGL_BLUE_SIZE, 8,
-	        EGL_DEPTH_SIZE, 0,
-	        EGL_STENCIL_SIZE, 0,
-	        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-	        EGL_NONE
-	};
+    EGLint eglConfigAttributes[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 0,
+        EGL_STENCIL_SIZE, 0,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
 
     EGLint eglContextAttributes[] = {
-    		EGL_CONTEXT_MAJOR_VERSION, 4,
-    		EGL_CONTEXT_MINOR_VERSION, 3,
-    		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
-    		EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-    		EGL_NONE
-    };
+        EGL_CONTEXT_MAJOR_VERSION, 4,
+        EGL_CONTEXT_MINOR_VERSION, 3,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_NONE};
 
     glusWindowSetInitFunc(init);
 

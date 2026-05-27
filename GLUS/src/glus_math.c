@@ -39,34 +39,31 @@ GLUSfloat GLUSAPIENTRY glusMathDegToRadf(const GLUSfloat degrees)
 
 GLUSfloat GLUSAPIENTRY glusMathMixf(const GLUSfloat value0, const GLUSfloat value1, const GLUSfloat t)
 {
-	return value0 * (1.0f - t) + value1 * t;
+    return value0 * (1.0f - t) + value1 * t;
 }
 
 GLUSfloat GLUSAPIENTRY glusMathClampf(const GLUSfloat value, const GLUSfloat min, const GLUSfloat max)
 {
-	if (value < min)
-	{
-		return min;
-	}
-	if (value > max)
-	{
-		return max;
-	}
-	return value;
+    if (value < min)
+    {
+        return min;
+    }
+    if (value > max)
+    {
+        return max;
+    }
+    return value;
 }
 
 GLUSfloat GLUSAPIENTRY glusMathLengthf(const GLUSfloat x, const GLUSfloat y, const GLUSfloat z)
 {
-	return sqrtf(x*x + y*y + z*z);
+    return sqrtf(x * x + y * y + z * z);
 }
 
 GLUSfloat GLUSAPIENTRY glusMathCubicHermitef(const GLUSfloat p0, const GLUSfloat m0, const GLUSfloat p1, const GLUSfloat m1, const GLUSfloat t)
 {
-	GLUSfloat t2 = t * t;
-	GLUSfloat t3 = t2 * t;
+    GLUSfloat t2 = t * t;
+    GLUSfloat t3 = t2 * t;
 
-	return (2.0f * t3 - 3.0f * t2 + 1.0f) * p0
-	     + (       t3 - 2.0f * t2 + t    ) * m0
-	     + (-2.0f * t3 + 3.0f * t2       ) * p1
-	     + (       t3 -        t2         ) * m1;
+    return (2.0f * t3 - 3.0f * t2 + 1.0f) * p0 + (t3 - 2.0f * t2 + t) * m0 + (-2.0f * t3 + 3.0f * t2) * p1 + (t3 - t2) * m1;
 }

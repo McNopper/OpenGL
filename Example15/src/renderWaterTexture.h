@@ -12,16 +12,16 @@
 
 typedef struct _WaveParameters
 {
-	GLfloat speed;
-	GLfloat amplitude;
-	GLfloat wavelength;
-	GLfloat steepness;
+    GLfloat speed;
+    GLfloat amplitude;
+    GLfloat wavelength;
+    GLfloat steepness;
 } WaveParameters;
 
 typedef struct _WaveDirections
 {
-	GLfloat x;
-	GLfloat z;
+    GLfloat x;
+    GLfloat z;
 } WaveDirections;
 
 GLUSuint initWaterTexture(GLUSfloat waterPlaneLength);
