@@ -905,7 +905,11 @@ int main(int argc, char* argv[])
         EGL_CONTEXT_MINOR_VERSION, 1,
         EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
         EGL_NONE};
+
+    glusLogSetLevel(GLUS_LOG_DEBUG);
+
 
     glusWindowSetInitFunc(init);
 

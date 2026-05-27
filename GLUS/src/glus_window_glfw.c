@@ -640,9 +640,14 @@ GLUSboolean GLUSAPIENTRY glusWindowCreate(const GLUSchar* title, const GLUSint w
 
     if (debug && glusVersionIsSupported(4, 3))
     {
-        glusLogSetLevel(GLUS_LOG_DEBUG);
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
         glDebugMessageCallback(&glusWindowDebugMessage, 0);
+
+        // Suppress driver housekeeping notifications (buffer placement, shader
+        // cache hits, etc.) — only real warnings and errors remain visible.
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, 0, GL_FALSE);
     }
 
     return GLUS_TRUE; // Success

@@ -369,6 +369,9 @@ int main(int argc, char* argv[])
         EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
         EGL_NONE};
 
+    glusLogSetLevel(GLUS_LOG_DEBUG);
+
+
     glusWindowSetInitFunc(init);
 
     glusWindowSetReshapeFunc(reshape);

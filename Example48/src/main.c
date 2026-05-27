@@ -1419,10 +1419,14 @@ int main(int argc, char** argv)
         EGL_CONTEXT_MINOR_VERSION, 6,
         EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE,
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG, EGL_TRUE,
         EGL_NONE};
 
     g_gltfPath     = (argc > 1) ? argv[1] : "einstein/scene.gltf";
     g_panoramaPath = (argc > 2) ? argv[2] : "sunny_rose_garden_4k.hdr";
+
+    glusLogSetLevel(GLUS_LOG_DEBUG);
+
 
     glusWindowSetInitFunc(init);
     glusWindowSetReshapeFunc(reshape);
@@ -1430,7 +1434,7 @@ int main(int argc, char** argv)
     glusWindowSetTerminateFunc(terminate);
     glusWindowSetKeyFunc(key);
 
-    if (!glusWindowCreate("Example 49 - glTF 2.0 PBR + IBL",
+    if (!glusWindowCreate("GLUS Example Window",
                           SCREEN_WIDTH, SCREEN_HEIGHT,
                           GLUS_FALSE, GLUS_FALSE,
                           eglConfigAttributes, eglContextAttributes, 0))

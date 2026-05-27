@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OpenGL 4.6 - Example 51
  *
  * @author	Norbert Nopper norbert@nopper.tv
@@ -732,7 +732,7 @@ int main(int argc, char* argv[])
     glusWindowSetTerminateFunc(terminate);
     glusWindowSetKeyFunc(key);
 
-    if (!glusWindowCreate("Example 51 - 3D Gaussian Splatting",
+    if (!glusWindowCreate("GLUS Example Window",
                           WINDOW_WIDTH, WINDOW_HEIGHT,
                           GLUS_FALSE, GLUS_FALSE,
                           eglConfigAttributes, eglContextAttributes, 0))
