@@ -14,7 +14,7 @@ OpenGL 3 and OpenGL 4 with GLSL
   - Linux: GCC or Clang
   - macOS: Xcode Command Line Tools
 - **Git** - For fetching dependencies
-- **OpenGL 3.2+** compatible graphics driver
+- **OpenGL 3 and 4** compatible graphics driver
 
 ### Verify Installation
 
@@ -58,7 +58,7 @@ All dependencies are automatically fetched and built:
 
 ## Examples
 
-All 47 examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
+All examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 
 - [Example01 - Basic window and OpenGL 3 initialization](#example01---basic-window-and-opengl-3-initialization)
 - [Example02 - Rendering of a triangle](#example02---rendering-of-a-triangle)
