@@ -14,7 +14,7 @@ OpenGL 3 and OpenGL 4 with GLSL
   - Linux: GCC or Clang
   - macOS: Xcode Command Line Tools
 - **Git** - For fetching dependencies
-- **OpenGL 3 and 4** compatible graphics driver
+- **OpenGL 3.2+** compatible graphics driver
 
 ### Verify Installation
 
