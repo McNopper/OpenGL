@@ -266,3 +266,6 @@ Binaries/*.app
 # CMake build artifacts
 lib/
 _deps/
+
+# GLUS runtime shaders copied from the fetched GLUS repository at configure time
+GLUS/

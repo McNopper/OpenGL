@@ -31,7 +31,7 @@ git --version
 
 ### Building
 
-Dependencies (GLFW and GLEW) are automatically downloaded and built via CMake FetchContent.
+Dependencies (GLUS, GLFW and GLEW) are automatically downloaded and built via CMake FetchContent. GLUS lives in its own repository at [github.com/McNopper/GLUS](https://github.com/McNopper/GLUS).
 
 **Windows (Visual Studio):**
 ```bash

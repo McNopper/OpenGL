@@ -64,7 +64,18 @@ ENDIF()
 
 include_directories(${glfw_SOURCE_DIR}/include ${glew_SOURCE_DIR}/include)
 
-add_subdirectory(GLUS)
+# Fetch GLUS from GitHub
+FetchContent_Declare(
+    glus
+    GIT_REPOSITORY https://github.com/McNopper/GLUS.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(glus)
+
+# Some examples (e.g. Example48/49/50) load GLUS' runtime shaders via the
+# relative path "../GLUS/shader/". Copy them from the fetched GLUS repository
+# into that expected location next to the example sources.
+file(COPY ${glus_SOURCE_DIR}/shader DESTINATION ${CMAKE_SOURCE_DIR}/GLUS)
 
 file(GLOB EXAMPLES_LIST LIST_DIRECTORIES true RELATIVE ${CMAKE_SOURCE_DIR} "Example*")
 foreach (EXAMPLE ${EXAMPLES_LIST})
