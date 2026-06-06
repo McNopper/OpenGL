@@ -68,7 +68,7 @@ include_directories(${glfw_SOURCE_DIR}/include ${glew_SOURCE_DIR}/include)
 FetchContent_Declare(
     glus
     GIT_REPOSITORY https://github.com/McNopper/GLUS.git
-    GIT_TAG        main
+    GIT_TAG        v1.0.0
 )
 FetchContent_MakeAvailable(glus)
 
