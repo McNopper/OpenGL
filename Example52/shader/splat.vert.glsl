@@ -46,10 +46,7 @@ layout(std430, binding = 1) readonly buffer IndexBuffer
 
 layout(std430, binding = 3) readonly buffer ModelBuffer
 {
-    mat4  worldMatrix;
-    float wigner1[9];  // column-major 3×3, 3DGS-basis band-1 SH rotation
-    float wigner2[25]; // column-major 5×5
-    float wigner3[49]; // column-major 7×7
+    mat4 worldMatrix;
 };
 
 out vec3  v_color;
@@ -64,66 +61,6 @@ mat3 quatToMat3(vec4 q)
         1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y + z * w), 2.0 * (x * z - y * w),
         2.0 * (x * y - z * w), 1.0 - 2.0 * (x * x + z * z), 2.0 * (y * z + x * w),
         2.0 * (x * z + y * w), 2.0 * (y * z - x * w), 1.0 - 2.0 * (x * x + y * y));
-}
-
-// Apply a band-1 SH rotation (column-major 3x3) to 3 RGB SH coefficients.
-void rotateSH1(inout vec3 c[3])
-{
-    int  mp, m;
-    vec3 tmp[3];
-
-    for (mp = 0; mp < 3; mp++)
-    {
-        tmp[mp] = vec3(0.0);
-        for (m = 0; m < 3; m++)
-        {
-            tmp[mp] += wigner1[m * 3 + mp] * c[m];
-        }
-    }
-    for (mp = 0; mp < 3; mp++)
-    {
-        c[mp] = tmp[mp];
-    }
-}
-
-// Apply a band-2 SH rotation (column-major 5x5) to 5 RGB SH coefficients.
-void rotateSH2(inout vec3 c[5])
-{
-    int  mp, m;
-    vec3 tmp[5];
-
-    for (mp = 0; mp < 5; mp++)
-    {
-        tmp[mp] = vec3(0.0);
-        for (m = 0; m < 5; m++)
-        {
-            tmp[mp] += wigner2[m * 5 + mp] * c[m];
-        }
-    }
-    for (mp = 0; mp < 5; mp++)
-    {
-        c[mp] = tmp[mp];
-    }
-}
-
-// Apply a band-3 SH rotation (column-major 7x7) to 7 RGB SH coefficients.
-void rotateSH3(inout vec3 c[7])
-{
-    int  mp, m;
-    vec3 tmp[7];
-
-    for (mp = 0; mp < 7; mp++)
-    {
-        tmp[mp] = vec3(0.0);
-        for (m = 0; m < 7; m++)
-        {
-            tmp[mp] += wigner3[m * 7 + mp] * c[m];
-        }
-    }
-    for (mp = 0; mp < 7; mp++)
-    {
-        c[mp] = tmp[mp];
-    }
 }
 
 void main()
@@ -216,7 +153,14 @@ void main()
     //
     // Spherical harmonics colour evaluation (KHR_gaussian_splatting, SH section).
     //
-    vec3  dir = normalize(worldPos - world.camPos.xyz);
+    // The SH coefficients are stored in the cloud's local frame. Instead of
+    // rotating the coefficients (see Example51), we rotate the world-space view
+    // direction into the local frame by the inverse node rotation and evaluate
+    // the SH there. This is the approach used by the Inria reference renderer and
+    // by gsplat / PlayCanvas / three.js / the Khronos glTF sample renderer.
+    //
+    mat3  modelRot = mat3(normalize(M[0]), normalize(M[1]), normalize(M[2]));
+    vec3  dir      = transpose(modelRot) * normalize(worldPos - world.camPos.xyz);
     float x = dir.x, y = dir.y, z = dir.z;
 
     vec3 sh0   = vec3(splats[base + 11u], splats[base + 12u], splats[base + 13u]);
@@ -228,8 +172,6 @@ void main()
     sh1[1] = vec3(splats[base + 17u], splats[base + 18u], splats[base + 19u]);
     sh1[2] = vec3(splats[base + 20u], splats[base + 21u], splats[base + 22u]);
 
-    rotateSH1(sh1);
-
     color += sh1[0] * (-C1 * y) + sh1[1] * (C1 * z) + sh1[2] * (-C1 * x);
 #endif
 
@@ -240,8 +182,6 @@ void main()
     sh2[2] = vec3(splats[base + 29u], splats[base + 30u], splats[base + 31u]);
     sh2[3] = vec3(splats[base + 32u], splats[base + 33u], splats[base + 34u]);
     sh2[4] = vec3(splats[base + 35u], splats[base + 36u], splats[base + 37u]);
-
-    rotateSH2(sh2);
 
     color += sh2[0] * (C2a * x * y) + sh2[1] * (-C2a * y * z) + sh2[2] * (C2b * (3.0 * z * z - 1.0)) + sh2[3] * (-C2a * x * z) + sh2[4] * (C2c * (x * x - y * y));
 #endif
@@ -255,8 +195,6 @@ void main()
     sh3[4] = vec3(splats[base + 50u], splats[base + 51u], splats[base + 52u]);
     sh3[5] = vec3(splats[base + 53u], splats[base + 54u], splats[base + 55u]);
     sh3[6] = vec3(splats[base + 56u], splats[base + 57u], splats[base + 58u]);
-
-    rotateSH3(sh3);
 
     color += sh3[0] * (-C3a * y * (3.0 * x * x - y * y)) + sh3[1] * (C3b * x * y * z) + sh3[2] * (-C3c * y * (5.0 * z * z - 1.0)) + sh3[3] * (C3d * z * (5.0 * z * z - 3.0)) + sh3[4] * (-C3c * x * (5.0 * z * z - 1.0)) + sh3[5] * (C3e * z * (x * x - y * y)) + sh3[6] * (-C3a * x * (x * x - 3.0 * y * y));
 #endif

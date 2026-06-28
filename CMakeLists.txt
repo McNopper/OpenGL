@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project (OpenGLExamples)
+project (OpenGLExamples VERSION 3.1.1)
 
 include(FetchContent)
 
@@ -68,7 +68,7 @@ include_directories(${glfw_SOURCE_DIR}/include ${glew_SOURCE_DIR}/include)
 FetchContent_Declare(
     glus
     GIT_REPOSITORY https://github.com/McNopper/GLUS.git
-    GIT_TAG        v1.0.0
+    GIT_TAG        v1.0.1
 )
 FetchContent_MakeAvailable(glus)
 

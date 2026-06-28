@@ -1,5 +1,5 @@
 /**
- * OpenGL 4.6 - Example 51
+ * OpenGL 4.6 - Example 52
  *
  * @author	Norbert Nopper norbert@nopper.tv
  *
@@ -10,12 +10,14 @@
  * 3D Gaussian Splatting renderer implementing the KHR_gaussian_splatting
  * glTF 2.0 extension (https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting).
  *
- * Splats are sorted back-to-front each frame using a GPU bitonic sort
- * (adapted from Example 47) and rendered as instanced screen-space quads
- * with full spherical-harmonics colour evaluation (band 0-3) including
- * Wigner-D rotation for nodes with transforms.
+ * Variant of Example51: instead of rotating the spherical-harmonics
+ * coefficients into world space (Wigner-D), this version rotates the
+ * world-space view direction into the splat cloud's local frame by the inverse
+ * node rotation and evaluates the SH there. This is the approach used by the
+ * Inria reference renderer and by gsplat / PlayCanvas / three.js / the Khronos
+ * glTF sample renderer. Both examples produce identical results.
  *
- * Usage:  Example51 [path/to/model.gltf]
+ * Usage:  Example52 [path/to/model.gltf]
  * Default model: ../Binaries/lego.gltf
  *
  * Controls:
@@ -71,7 +73,7 @@ static GLint g_sort_kLoc;
 static GLuint g_splatSSBO = 0; // binding 0: splat float data (read-only)
 static GLuint g_indexSSBO = 0; // binding 1: sorted indices
 static GLuint g_depthSSBO = 0; // binding 2: Euclidean distances
-static GLuint g_modelSSBO = 0; // binding 3: world matrix + Wigner-D matrices
+static GLuint g_modelSSBO = 0; // binding 3: world matrix
 static GLuint g_worldUBO  = 0; // UBO binding 0: projection, view, focal, viewport, camPos
 
 // Quad VAO for instanced splat rendering.
@@ -261,11 +263,6 @@ GLUSboolean init(GLUSvoid)
     GLUSchar*    patchedDepth;
     GLUSchar*    patchedVert;
 
-    GLfloat rotation[9];
-    GLfloat wigner1[9];
-    GLfloat wigner2[25];
-    GLfloat wigner3[49];
-
     const char* bvData;
     size_t      bvSize;
     GLuint      byteStride;
@@ -390,7 +387,9 @@ GLUSboolean init(GLUSvoid)
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_depthSSBO);
 
     //
-    // Node world matrix and Wigner-D rotation matrices.
+    // Node world matrix. The SH coefficients are rotated at shader time by
+    // rotating the view direction into the local frame (see splat.vert.glsl),
+    // so no CPU-side SH rotation matrices are needed here.
     //
     glusMatrix4x4Identityf(g_worldMatrix);
 
@@ -411,106 +410,11 @@ GLUSboolean init(GLUSvoid)
         cgltf_node_transform_world(splatNode, g_worldMatrix);
     }
 
-    // Extract normalized rotation columns from the upper-left 3×3 of the
-    // world matrix (column-major) for use with the Wigner-D recurrence.
-    {
-        int col;
-        for (col = 0; col < 3; col++)
-        {
-            GLfloat cx  = g_worldMatrix[col * 4 + 0];
-            GLfloat cy  = g_worldMatrix[col * 4 + 1];
-            GLfloat cz  = g_worldMatrix[col * 4 + 2];
-            GLfloat len = sqrtf(cx * cx + cy * cy + cz * cz);
-            if (len > 1e-6f)
-            {
-                cx /= len;
-                cy /= len;
-                cz /= len;
-            }
-            rotation[col * 3 + 0] = cx;
-            rotation[col * 3 + 1] = cy;
-            rotation[col * 3 + 2] = cz;
-        }
-    }
-
-    // Build Wigner-D matrices (identity if no rotation / degree 0).
-    memset(wigner1, 0, sizeof(wigner1));
-    wigner1[0] = wigner1[4] = wigner1[8] = 1.0f;
-    memset(wigner2, 0, sizeof(wigner2));
-    wigner2[0] = wigner2[6] = wigner2[12] = wigner2[18] = wigner2[24] = 1.0f;
-    memset(wigner3, 0, sizeof(wigner3));
-    wigner3[0] = wigner3[8] = wigner3[16] = wigner3[24] = wigner3[32] = wigner3[40] = wigner3[48] = 1.0f;
-
-    //
-    // The per-splat SH coefficients are stored in the cloud's local frame. To
-    // evaluate them with the world-space view direction (3DGS / Inria
-    // convention) we rotate the coefficients into world space on the CPU.
-    //
-    // glusSHBuildRotation*f build a *standard* real-SH rotation D(Q) with the
-    // property eval_std(d; D(Q)c) = eval_std(Q d; c). Two bridges are required so
-    // the result is correct for glTF KHR_gaussian_splatting data:
-    //   1. World coeffs at world dir d must equal local coeffs at R^-1 d (R = node
-    //      rotation), so the matrices are built from the inverse rotation R^T.
-    //   2. glTF/Inria SH differ from the standard real-SH basis by the
-    //      Condon-Shortley phase (-1)^m (i.e. all odd-m basis functions negated).
-    //      That is a diagonal involution S = diag((-1)^m); conjugating each band
-    //      (D_3dgs = S * D_std * S) makes the matrices usable directly with the
-    //      3DGS evaluation performed in the shader.
-    {
-        GLfloat  rotationInv[9];
-        GLfloat* bands[3] = {wigner1, wigner2, wigner3};
-        int      r, c, l;
-
-        // Inverse node rotation R^T (column-major).
-        for (r = 0; r < 3; r++)
-        {
-            for (c = 0; c < 3; c++)
-            {
-                rotationInv[c * 3 + r] = rotation[r * 3 + c];
-            }
-        }
-
-        // Standard-basis Wigner-D recurrence (each band built from the lower band).
-        if (g_shDegree >= 1)
-        {
-            glusSHBuildRotation1f(wigner1, rotationInv);
-        }
-        if (g_shDegree >= 2)
-        {
-            glusSHBuildRotation2f(wigner2, wigner1);
-        }
-        if (g_shDegree >= 3)
-        {
-            glusSHBuildRotation3f(wigner3, wigner1, wigner2);
-        }
-
-        // Conjugate each band by the Condon-Shortley phase S = diag((-1)^m), m = -l..+l
-        // (index i -> m = i - l), bridging the standard real-SH basis and the
-        // Inria/3DGS/glTF SH sign convention: D_3dgs = S * D_std * S.
-        for (l = 1; l <= g_shDegree; l++)
-        {
-            GLfloat* m   = bands[l - 1];
-            int      n   = 2 * l + 1;
-            for (c = 0; c < n; c++)
-            {
-                GLfloat sc = ((c - l) & 1) ? -1.0f : 1.0f;
-                for (r = 0; r < n; r++)
-                {
-                    GLfloat sr = ((r - l) & 1) ? -1.0f : 1.0f;
-                    m[c * n + r] *= sr * sc;
-                }
-            }
-        }
-    }
-
-    // Upload ModelData SSBO: worldMatrix(64B) | wigner1(36B) | wigner2(100B) | wigner3(196B).
+    // Upload ModelData SSBO: worldMatrix(64B).
     glGenBuffers(1, &g_modelSSBO);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_modelSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 396, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 64, NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 64, g_worldMatrix);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 64, 36, wigner1);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 100, 100, wigner2);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 200, 196, wigner3);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_modelSSBO);
 
     cgltf_free(gltfData);
@@ -527,7 +431,7 @@ GLUSboolean init(GLUSvoid)
     //
     // Depth compute shader with SPLAT_STRIDE injected.
     //
-    glusFileLoadText("../Example51/shader/depth.comp.glsl", &depthSource);
+    glusFileLoadText("../Example52/shader/depth.comp.glsl", &depthSource);
     patchedDepth = injectSplatDefines(depthSource.text, g_splatStride, g_shDegree, 0);
     glusProgramBuildComputeFromSource(&g_depthProgram, (const GLUSchar**)&patchedDepth);
     free(patchedDepth);
@@ -542,7 +446,7 @@ GLUSboolean init(GLUSvoid)
     //
     // Bitonic sort compute shader.
     //
-    glusFileLoadText("../Example51/shader/sort.comp.glsl", &sortSource);
+    glusFileLoadText("../Example52/shader/sort.comp.glsl", &sortSource);
     glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&sortSource.text);
     glusFileDestroyText(&sortSource);
 
@@ -554,8 +458,8 @@ GLUSboolean init(GLUSvoid)
     //
     // Splat render program with SPLAT_STRIDE and SH_DEGREE injected.
     //
-    glusFileLoadText("../Example51/shader/splat.vert.glsl", &vertSource);
-    glusFileLoadText("../Example51/shader/splat.frag.glsl", &fragSource);
+    glusFileLoadText("../Example52/shader/splat.vert.glsl", &vertSource);
+    glusFileLoadText("../Example52/shader/splat.frag.glsl", &fragSource);
 
     patchedVert = injectSplatDefines(vertSource.text, g_splatStride, g_shDegree, 1);
     glusProgramBuildFromSource(&g_splatProgram,

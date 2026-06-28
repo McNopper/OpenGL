@@ -3,6 +3,16 @@ OpenGL
 
 OpenGL 3 and OpenGL 4 with GLSL
 
+## Changelog
+
+### v3.1.1
+
+- Added **Example52** – 3D Gaussian Splatting with view-direction SH rotation.
+- **Example51**: corrected spherical-harmonics handling for rotated splat nodes
+  (Wigner-D bridged to the glTF/3DGS SH sign convention via the Condon-Shortley phase).
+- Both splatting examples: auto-rotation is off by default and toggles with Space.
+- Requires **GLUS v1.0.1** (band-3 SH rotation fix).
+
 ## Build Instructions
 
 ### Prerequisites
@@ -111,6 +121,7 @@ All examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 - [Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)](#example49---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
 - [Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)](#example50---rec2020-hdr-via-egl-opengl-46)
 - [Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL 4.6)](#example51---3d-gaussian-splatting-via-khr_gaussian_splatting-opengl-46)
+- [Example52 - 3D Gaussian Splatting with view-direction SH rotation (OpenGL 4.6)](#example52---3d-gaussian-splatting-with-view-direction-sh-rotation-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -450,8 +461,23 @@ Example51 [path/to/model.gltf]
 ```
 Defaults to `../Binaries/lego.gltf`.
 
-**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · auto-orbits at 0.5 rad/s
+**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles auto-rotation (off by default)
 
 **References:**
 - [3D Gaussian Splatting for Real-Time Radiance Field Rendering](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) (Kerbl et al., SIGGRAPH 2023)
 - [KHR_gaussian_splatting extension specification](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting)
+
+### Example52 - 3D Gaussian Splatting with view-direction SH rotation (OpenGL 4.6)
+
+![Example52](screenshots/Example52.png)
+
+A variant of Example51 that produces an **identical** image but handles the view-dependent spherical-harmonics colour of rotated splat nodes differently:
+
+- **Example51** rotates the **SH coefficients** into world space on the CPU (Wigner-D, via GLUS).
+- **Example52** rotates the **view direction** into the splat's local frame in the shader (the Inria / gsplat / Khronos reference approach).
+
+Both are **mathematically identical** (verified to machine precision); Example52 is **faster** — one `mat3·vec3` per splat instead of rotating all SH coefficients, with no CPU rotation matrices or extra SSBO storage.
+
+**Usage:** `Example52 [path/to/model.gltf]` (defaults to `../Binaries/lego.gltf`)
+
+**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles auto-rotation (off by default)
