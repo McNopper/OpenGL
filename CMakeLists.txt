@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project (OpenGLExamples VERSION 3.1.1)
+project (OpenGLExamples VERSION 3.2.0)
 
 include(FetchContent)
 
@@ -64,18 +64,24 @@ ENDIF()
 
 include_directories(${glfw_SOURCE_DIR}/include ${glew_SOURCE_DIR}/include)
 
-# Fetch GLUS from GitHub
-FetchContent_Declare(
-    glus
-    GIT_REPOSITORY https://github.com/McNopper/GLUS.git
-    GIT_TAG        v1.0.1
-)
+# GLUS: prefer the sibling local checkout (multi-repo development layout), and
+# fall back to the published release when it is not present.
+if(EXISTS "${CMAKE_SOURCE_DIR}/../GLUS/CMakeLists.txt")
+    FetchContent_Declare(
+        glus
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}/../GLUS
+    )
+else()
+    FetchContent_Declare(
+        glus
+        GIT_REPOSITORY https://github.com/McNopper/GLUS.git
+        GIT_TAG        v1.0.1
+    )
+endif()
 FetchContent_MakeAvailable(glus)
 
-# Some examples (e.g. Example48/49/50) load GLUS' runtime shaders via the
-# relative path "../GLUS/shader/". Copy them from the fetched GLUS repository
-# into that expected location next to the example sources.
-file(COPY ${glus_SOURCE_DIR}/shader DESTINATION ${CMAKE_SOURCE_DIR}/GLUS)
+# GLUS exposes its shader directory via the GLUS_SHADER_DIR compile definition,
+# so examples load the glTF / IBL shaders straight from the GLUS source tree.
 
 file(GLOB EXAMPLES_LIST LIST_DIRECTORIES true RELATIVE ${CMAKE_SOURCE_DIR} "Example*")
 foreach (EXAMPLE ${EXAMPLES_LIST})

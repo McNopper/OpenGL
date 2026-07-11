@@ -1,5 +1,5 @@
 /**
- * OpenGL 4 - Example 49
+ * OpenGL 4 - Example 48
  *
  * @author  Norbert Nopper norbert@nopper.tv
  *
@@ -9,28 +9,13 @@
  *
  * glTF 2.0 PBR renderer with Image-Based Lighting.
  *
+ * Scene loading, mesh upload and the node hierarchy are handled by the GLUS
+ * glTF loader (glusGltfLoadScene). This example owns the IBL pre-filtering, the
+ * camera, the MSAA resolve pass and the per-primitive material binding.
+ *
  * Usage:  Example48 [path/to/model.glb]  [path/to/panorama.hdr]
  * Defaults: einstein/scene.gltf / sunny_rose_garden_4k.hdr next to the binary.
- *
- * IBL pipeline (uses GLUS IBL API):
- *   Pass 1 — Pre-filtered specular cubemap array (GGX importance sampling)
- *   Pass 2 — Diffuse irradiance cubemap
- *   Pass 3 — BRDF split-sum LUT
- *   Pass 4 — Background cubemap (plain panorama remap, no filtering)
- *
- * PBR rendering:
- *   Pass A — Opaque + Alpha-mask primitives
- *   Pass B — Alpha-blend primitives
- *   Resolve — MSAA tone-mapped fullscreen quad
- *
- * Camera: auto-orbits the scene; arrow keys adjust height/radius; +/- zoom.
  */
-
-#define CGLTF_IMPLEMENTATION
-#include "cgltf.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include <GL/glus.h>
 #include <math.h>
@@ -52,11 +37,6 @@
 #define NUMBER_ROUGHNESS 6
 #define MSAA_SAMPLES 4
 
-#define MAX_PRIMITIVES 4096
-#define MAX_TEXTURES 1024
-#define MAX_IMAGE_CACHE 1024
-
-// Camera and rendering constants
 #define CAMERA_ORBIT_RADIUS_FACTOR 1.8f
 #define CAMERA_ORBIT_RADIUS_MIN 0.5f
 #define CAMERA_HEIGHT_OFFSET 0.4f
@@ -74,70 +54,11 @@
 #define CAMERA_DEG_TO_RAD (GLUS_PI / 180.0f)
 
 //
-// Data structures
-//
-
-typedef struct
-{
-    GLuint  vao;
-    GLuint  vbo_pos;
-    GLuint  vbo_nor;
-    GLuint  vbo_tan;
-    GLuint  vbo_uv0;
-    GLuint  ibo;
-    GLsizei vertexCount; // used when ibo == 0
-    GLsizei indexCount;
-    GLenum  indexType; // GL_UNSIGNED_INT
-
-    // Material
-    GLuint baseColorTexture;
-    GLuint metallicRoughnessTexture;
-    GLuint normalTexture;
-    GLuint occlusionTexture;
-    GLuint emissiveTexture;
-
-    GLfloat baseColorFactor[4];
-    GLfloat metallicFactor;
-    GLfloat roughnessFactor;
-    GLfloat emissiveFactor[3];
-    GLfloat occlusionStrength;
-    GLfloat alphaCutoff;
-    GLint   alphaMode; // 0=OPAQUE,1=MASK,2=BLEND
-    GLint   doubleSided;
-    GLint   hasNormalMap;
-
-    // World transform
-    GLfloat modelMatrix[16];
-    GLfloat normalMatrix[9];
-} GltfPrimitive;
-
-typedef struct
-{
-    cgltf_image* image;
-    GLuint       texture;
-} ImageCacheEntry;
-
-//
 // Globals
 //
 
-// Scene
-static GltfPrimitive   g_primitives[MAX_PRIMITIVES];
-static GLint           g_numPrimitives = 0;
-static GLuint          g_textures[MAX_TEXTURES];
-static GLint           g_numTextures = 0;
-static ImageCacheEntry g_imageCache[MAX_IMAGE_CACHE];
-static GLint           g_numCacheEntries      = 0;
-static GLuint          g_defaultWhiteTexture  = 0;
-static GLuint          g_defaultNormalTexture = 0;
-
-// Scene bounds
-static GLfloat g_sceneMin[3]  = {1e30f, 1e30f, 1e30f};
-static GLfloat g_sceneMax[3]  = {-1e30f, -1e30f, -1e30f};
-static GLfloat g_sceneCenterX = 0.0f;
-static GLfloat g_sceneCenterY = 0.0f;
-static GLfloat g_sceneCenterZ = 0.0f;
-static GLfloat g_sceneRadius  = 1.0f;
+// glTF scene (loaded by GLUS).
+static GLUSgltfScene g_scene;
 
 // Camera
 static GLfloat g_orbitAngle  = 0.0f; // degrees
@@ -177,7 +98,7 @@ static GLUSprogram g_bgProg;
 static GLUSprogram g_fullscreenProg;
 static GLUSprogram g_pbrProg;
 
-// Uniform locations — PBR
+// Uniform locations - PBR
 static GLint g_u_modelMatrix;
 static GLint g_u_vpMatrix;
 static GLint g_u_normalMatrix;
@@ -190,11 +111,17 @@ static GLint g_u_occlusionStrength;
 static GLint g_u_alphaCutoff;
 static GLint g_u_alphaMode;
 static GLint g_u_hasNormalMap;
+static GLint g_u_normalScale;
+static GLint g_u_baseColorTexCoordSet;
+static GLint g_u_metallicRoughnessTexCoordSet;
+static GLint g_u_normalTexCoordSet;
+static GLint g_u_occlusionTexCoordSet;
+static GLint g_u_emissiveTexCoordSet;
 
-// Uniform locations — background
+// Uniform locations - background
 static GLint g_u_vpMatrix_bg;
 
-// Uniform locations — fullscreen
+// Uniform locations - fullscreen
 static GLint g_u_gamma;
 static GLint g_u_msaaSamples;
 
@@ -203,579 +130,21 @@ static const GLUSchar* g_gltfPath     = NULL;
 static const GLUSchar* g_panoramaPath = NULL;
 
 //
-// Texture helpers
-//
-
-static GLuint createTexture1x1(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
-{
-    GLuint  tex;
-    GLubyte data[4];
-
-    data[0] = r;
-    data[1] = g;
-    data[2] = b;
-    data[3] = a;
-
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    return tex;
-}
-
-// Register a texture for cleanup.
-static void trackTexture(GLuint tex)
-{
-    if (g_numTextures < MAX_TEXTURES)
-    {
-        g_textures[g_numTextures++] = tex;
-    }
-}
-
-// Load a 2-D texture from a cgltf_image.
-// Returns a cached texture if the image was already loaded.
-static GLuint loadImageTexture(cgltf_image* image, const GLUSchar* basePath, GLint sRGB)
-{
-    GLint          w, h, comp;
-    GLubyte*       pixels;
-    GLuint         tex;
-    GLenum         internalFmt;
-    GLint          i;
-    GLUSchar       path[1024];
-    const GLubyte* embeddedBuf;
-
-    if (!image)
-    {
-        return g_defaultWhiteTexture;
-    }
-
-    // Check cache
-    for (i = 0; i < g_numCacheEntries; i++)
-    {
-        if (g_imageCache[i].image == image)
-        {
-            return g_imageCache[i].texture;
-        }
-    }
-
-    pixels      = NULL;
-    embeddedBuf = NULL;
-
-    if (image->buffer_view)
-    {
-        // Embedded image data (GLB)
-        embeddedBuf = (const GLubyte*)image->buffer_view->buffer->data + image->buffer_view->offset;
-        pixels      = stbi_load_from_memory(embeddedBuf, (int)image->buffer_view->size,
-                                            &w, &h, &comp, 4);
-    }
-    else if (image->uri && strncmp(image->uri, "data:", 5) != 0)
-    {
-        // External file
-        if (basePath[0])
-        {
-            snprintf(path, sizeof(path), "%s%s", basePath, image->uri);
-        }
-        else
-        {
-            strncpy(path, image->uri, sizeof(path) - 1);
-            path[sizeof(path) - 1] = '\0';
-        }
-        pixels = stbi_load(path, &w, &h, &comp, 4);
-    }
-
-    if (!pixels)
-    {
-        printf("Warning: failed to load image '%s'\n",
-               image->uri ? image->uri : "(embedded)");
-        return g_defaultWhiteTexture;
-    }
-
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    internalFmt = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt, w, h, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    stbi_image_free(pixels);
-
-    trackTexture(tex);
-
-    if (g_numCacheEntries < MAX_IMAGE_CACHE)
-    {
-        g_imageCache[g_numCacheEntries].image   = image;
-        g_imageCache[g_numCacheEntries].texture = tex;
-        g_numCacheEntries++;
-    }
-
-    return tex;
-}
-
-// Apply sampler parameters from cgltf (its enum values equal GL constants).
-static void applyGltfSampler(const cgltf_sampler* sampler)
-{
-    if (!sampler)
-    {
-        return;
-    }
-    if (sampler->min_filter)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler->min_filter);
-    }
-    if (sampler->mag_filter)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler->mag_filter);
-    }
-    if (sampler->wrap_s)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler->wrap_s);
-    }
-    if (sampler->wrap_t)
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler->wrap_t);
-    }
-}
-
-//
-// Scene bounds helpers
-//
-
-static void expandBoundsWithPoint(const GLfloat p[3])
-{
-    GLint i;
-    for (i = 0; i < 3; i++)
-    {
-        if (p[i] < g_sceneMin[i])
-        {
-            g_sceneMin[i] = p[i];
-        }
-        if (p[i] > g_sceneMax[i])
-        {
-            g_sceneMax[i] = p[i];
-        }
-    }
-}
-
-// Transform all 8 corners of an AABB by modelMatrix and expand global bounds.
-static void expandBoundsAABB(const GLfloat minP[3], const GLfloat maxP[3],
-                             const GLfloat modelMatrix[16])
-{
-    GLint cx, cy, cz;
-    for (cx = 0; cx < 2; cx++)
-    {
-        for (cy = 0; cy < 2; cy++)
-        {
-            for (cz = 0; cz < 2; cz++)
-            {
-                GLfloat corner[4];
-                GLfloat world[4];
-                GLfloat wp3[3];
-
-                corner[0] = cx ? maxP[0] : minP[0];
-                corner[1] = cy ? maxP[1] : minP[1];
-                corner[2] = cz ? maxP[2] : minP[2];
-                corner[3] = 1.0f;
-
-                glusMatrix4x4MultiplyPoint4f(world, modelMatrix, corner);
-
-                wp3[0] = world[0];
-                wp3[1] = world[1];
-                wp3[2] = world[2];
-                expandBoundsWithPoint(wp3);
-            }
-        }
-    }
-}
-
-//
-// glTF scene loading
-//
-
-static void processMesh(const cgltf_data* data, const cgltf_mesh* mesh,
-                        const GLfloat parentMatrix[16], const GLUSchar* basePath)
-{
-    GLint pi;
-    (void)data;
-
-    for (pi = 0; pi < (GLint)mesh->primitives_count; pi++)
-    {
-        const cgltf_primitive* prim = &mesh->primitives[pi];
-        GltfPrimitive*         gp;
-        GLfloat                tmpM[16];
-        const cgltf_accessor*  accPos;
-        const cgltf_accessor*  accNor;
-        const cgltf_accessor*  accTan;
-        const cgltf_accessor*  accUV0;
-        GLint                  ai;
-        GLsizei                vertCount;
-        GLfloat*               buf;
-
-        if (prim->type != cgltf_primitive_type_triangles)
-        {
-            continue;
-        }
-        if (g_numPrimitives >= MAX_PRIMITIVES)
-        {
-            break;
-        }
-
-        gp = &g_primitives[g_numPrimitives++];
-        memset(gp, 0, sizeof(*gp));
-
-        // --- World transform copy ---
-        memcpy(gp->modelMatrix, parentMatrix, 64);
-
-        // --- Normal matrix = transpose(inverse(modelMatrix)) ---
-        memcpy(tmpM, parentMatrix, 64);
-        glusMatrix4x4Inversef(tmpM);
-        glusMatrix4x4Transposef(tmpM);
-        glusMatrix4x4ExtractMatrix3x3f(gp->normalMatrix, tmpM);
-
-        // --- Attribute accessors ---
-        accPos = NULL;
-        accNor = NULL;
-        accTan = NULL;
-        accUV0 = NULL;
-
-        for (ai = 0; ai < (GLint)prim->attributes_count; ai++)
-        {
-            const cgltf_attribute* attr = &prim->attributes[ai];
-            if (attr->index != 0)
-            {
-                continue;
-            }
-            switch (attr->type)
-            {
-            case cgltf_attribute_type_position: accPos = attr->data; break;
-            case cgltf_attribute_type_normal: accNor = attr->data; break;
-            case cgltf_attribute_type_tangent: accTan = attr->data; break;
-            case cgltf_attribute_type_texcoord: accUV0 = attr->data; break;
-            default: break;
-            }
-        }
-
-        if (!accPos)
-        {
-            g_numPrimitives--;
-            continue;
-        }
-
-        // --- Expand scene bounds ---
-        if (accPos->has_min && accPos->has_max)
-        {
-            GLfloat lMin[3];
-            GLfloat lMax[3];
-            lMin[0] = (GLfloat)accPos->min[0];
-            lMin[1] = (GLfloat)accPos->min[1];
-            lMin[2] = (GLfloat)accPos->min[2];
-            lMax[0] = (GLfloat)accPos->max[0];
-            lMax[1] = (GLfloat)accPos->max[1];
-            lMax[2] = (GLfloat)accPos->max[2];
-            expandBoundsAABB(lMin, lMax, parentMatrix);
-        }
-
-        vertCount = (GLsizei)accPos->count;
-
-        // --- Upload positions ---
-        {
-            GLsizei vi;
-            buf = (GLfloat*)malloc((size_t)vertCount * 3 * sizeof(GLfloat));
-            for (vi = 0; vi < vertCount; vi++)
-            {
-                cgltf_accessor_read_float(accPos, vi, buf + vi * 3, 3);
-            }
-            glGenBuffers(1, &gp->vbo_pos);
-            glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_pos);
-            glBufferData(GL_ARRAY_BUFFER, vertCount * 3 * sizeof(GLfloat), buf, GL_STATIC_DRAW);
-            free(buf);
-        }
-
-        // --- Upload normals (or flat zero if missing) ---
-        {
-            GLsizei vi;
-            buf = (GLfloat*)calloc((size_t)vertCount * 3, sizeof(GLfloat));
-            if (accNor)
-            {
-                for (vi = 0; vi < vertCount; vi++)
-                {
-                    cgltf_accessor_read_float(accNor, vi, buf + vi * 3, 3);
-                }
-            }
-            glGenBuffers(1, &gp->vbo_nor);
-            glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_nor);
-            glBufferData(GL_ARRAY_BUFFER, vertCount * 3 * sizeof(GLfloat), buf, GL_STATIC_DRAW);
-            free(buf);
-        }
-
-        // --- Upload tangents (or zero if missing) ---
-        {
-            GLsizei vi;
-            buf = (GLfloat*)calloc((size_t)vertCount * 4, sizeof(GLfloat));
-            if (accTan)
-            {
-                for (vi = 0; vi < vertCount; vi++)
-                {
-                    cgltf_accessor_read_float(accTan, vi, buf + vi * 4, 4);
-                }
-            }
-            glGenBuffers(1, &gp->vbo_tan);
-            glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_tan);
-            glBufferData(GL_ARRAY_BUFFER, vertCount * 4 * sizeof(GLfloat), buf, GL_STATIC_DRAW);
-            free(buf);
-            gp->hasNormalMap = (accTan != NULL);
-        }
-
-        // --- Upload UVs (or zero if missing) ---
-        {
-            GLsizei vi;
-            buf = (GLfloat*)calloc((size_t)vertCount * 2, sizeof(GLfloat));
-            if (accUV0)
-            {
-                for (vi = 0; vi < vertCount; vi++)
-                {
-                    cgltf_accessor_read_float(accUV0, vi, buf + vi * 2, 2);
-                }
-            }
-            glGenBuffers(1, &gp->vbo_uv0);
-            glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_uv0);
-            glBufferData(GL_ARRAY_BUFFER, vertCount * 2 * sizeof(GLfloat), buf, GL_STATIC_DRAW);
-            free(buf);
-        }
-
-        // --- Upload indices if present ---
-        if (prim->indices)
-        {
-            const cgltf_accessor* accIdx   = prim->indices;
-            GLsizei               idxCount = (GLsizei)accIdx->count;
-            unsigned int*         ibuf     = (unsigned int*)malloc((size_t)idxCount * sizeof(unsigned int));
-            GLsizei               ii;
-            for (ii = 0; ii < idxCount; ii++)
-            {
-                ibuf[ii] = (unsigned int)cgltf_accessor_read_index(accIdx, ii);
-            }
-            glGenBuffers(1, &gp->ibo);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gp->ibo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxCount * sizeof(unsigned int),
-                         ibuf, GL_STATIC_DRAW);
-            free(ibuf);
-            gp->indexCount = idxCount;
-            gp->indexType  = GL_UNSIGNED_INT;
-        }
-        else
-        {
-            gp->vertexCount = vertCount;
-        }
-
-        // --- Build VAO ---
-        glGenVertexArrays(1, &gp->vao);
-        glBindVertexArray(gp->vao);
-
-        glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_pos);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_nor);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(1);
-
-        glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_tan);
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, gp->vbo_uv0);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(3);
-
-        if (gp->ibo)
-        {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gp->ibo);
-        }
-
-        glBindVertexArray(0);
-
-        // --- Material defaults ---
-        gp->baseColorFactor[0] = 1.0f;
-        gp->baseColorFactor[1] = 1.0f;
-        gp->baseColorFactor[2] = 1.0f;
-        gp->baseColorFactor[3] = 1.0f;
-        gp->metallicFactor     = 1.0f;
-        gp->roughnessFactor    = 1.0f;
-        gp->emissiveFactor[0]  = 0.0f;
-        gp->emissiveFactor[1]  = 0.0f;
-        gp->emissiveFactor[2]  = 0.0f;
-        gp->occlusionStrength  = 1.0f;
-        gp->alphaCutoff        = 0.5f;
-
-        gp->baseColorTexture         = g_defaultWhiteTexture;
-        gp->metallicRoughnessTexture = g_defaultWhiteTexture;
-        gp->normalTexture            = g_defaultNormalTexture;
-        gp->occlusionTexture         = g_defaultWhiteTexture;
-        gp->emissiveTexture          = g_defaultWhiteTexture;
-
-        {
-            const cgltf_material* mat = prim->material;
-            if (mat)
-            {
-                gp->doubleSided = mat->double_sided ? 1 : 0;
-                gp->alphaMode   = (GLint)mat->alpha_mode;
-                gp->alphaCutoff = mat->alpha_cutoff > 0.0f ? mat->alpha_cutoff : 0.5f;
-
-                if (mat->has_pbr_metallic_roughness)
-                {
-                    const cgltf_pbr_metallic_roughness* pbr = &mat->pbr_metallic_roughness;
-                    memcpy(gp->baseColorFactor, pbr->base_color_factor, 16);
-                    gp->metallicFactor  = pbr->metallic_factor;
-                    gp->roughnessFactor = pbr->roughness_factor;
-
-                    if (pbr->base_color_texture.texture)
-                    {
-                        gp->baseColorTexture = loadImageTexture(
-                            pbr->base_color_texture.texture->image, basePath, 1);
-                        glBindTexture(GL_TEXTURE_2D, gp->baseColorTexture);
-                        applyGltfSampler(pbr->base_color_texture.texture->sampler);
-                    }
-                    if (pbr->metallic_roughness_texture.texture)
-                    {
-                        gp->metallicRoughnessTexture = loadImageTexture(
-                            pbr->metallic_roughness_texture.texture->image, basePath, 0);
-                        glBindTexture(GL_TEXTURE_2D, gp->metallicRoughnessTexture);
-                        applyGltfSampler(pbr->metallic_roughness_texture.texture->sampler);
-                    }
-                }
-
-                if (mat->normal_texture.texture)
-                {
-                    gp->normalTexture = loadImageTexture(
-                        mat->normal_texture.texture->image, basePath, 0);
-                    gp->hasNormalMap = (accTan != NULL) ? 1 : 0;
-                    glBindTexture(GL_TEXTURE_2D, gp->normalTexture);
-                    applyGltfSampler(mat->normal_texture.texture->sampler);
-                }
-
-                if (mat->occlusion_texture.texture)
-                {
-                    gp->occlusionTexture = loadImageTexture(
-                        mat->occlusion_texture.texture->image, basePath, 0);
-                    gp->occlusionStrength = mat->occlusion_texture.scale;
-                    glBindTexture(GL_TEXTURE_2D, gp->occlusionTexture);
-                    applyGltfSampler(mat->occlusion_texture.texture->sampler);
-                }
-
-                if (mat->emissive_texture.texture)
-                {
-                    gp->emissiveTexture = loadImageTexture(
-                        mat->emissive_texture.texture->image, basePath, 1);
-                    glBindTexture(GL_TEXTURE_2D, gp->emissiveTexture);
-                    applyGltfSampler(mat->emissive_texture.texture->sampler);
-                }
-
-                memcpy(gp->emissiveFactor, mat->emissive_factor, 12);
-            }
-        }
-    }
-}
-
-// Recursive node traversal.
-static void processNode(const cgltf_data* data, const cgltf_node* node,
-                        const GLfloat parentMatrix[16], const GLUSchar* basePath)
-{
-    GLfloat localMatrix[16];
-    GLfloat worldMatrix[16];
-    GLint   ci;
-    GLint   i;
-    GLfloat T[16], R[16], S[16], RS[16];
-    GLfloat q[4];
-
-    glusMatrix4x4Identityf(localMatrix);
-
-    if (node->has_matrix)
-    {
-        // cgltf stores column-major — same layout as GLUS.
-        for (i = 0; i < 16; i++)
-        {
-            localMatrix[i] = (GLfloat)node->matrix[i];
-        }
-    }
-    else
-    {
-        // Compose TRS
-        glusMatrix4x4Identityf(T);
-        glusMatrix4x4Identityf(R);
-        glusMatrix4x4Identityf(S);
-
-        if (node->has_translation)
-        {
-            T[12] = (GLfloat)node->translation[0];
-            T[13] = (GLfloat)node->translation[1];
-            T[14] = (GLfloat)node->translation[2];
-        }
-
-        if (node->has_rotation)
-        {
-            // cgltf quaternion is [x,y,z,w] — same as GLUS.
-            q[0] = (GLfloat)node->rotation[0];
-            q[1] = (GLfloat)node->rotation[1];
-            q[2] = (GLfloat)node->rotation[2];
-            q[3] = (GLfloat)node->rotation[3];
-            glusQuaternionGetMatrix4x4f(R, q);
-        }
-
-        if (node->has_scale)
-        {
-            S[0]  = (GLfloat)node->scale[0];
-            S[5]  = (GLfloat)node->scale[1];
-            S[10] = (GLfloat)node->scale[2];
-        }
-
-        glusMatrix4x4Multiplyf(RS, R, S);
-        glusMatrix4x4Multiplyf(localMatrix, T, RS);
-    }
-
-    glusMatrix4x4Multiplyf(worldMatrix, parentMatrix, localMatrix);
-
-    if (node->mesh)
-    {
-        processMesh(data, node->mesh, worldMatrix, basePath);
-    }
-
-    for (ci = 0; ci < (GLint)node->children_count; ci++)
-    {
-        processNode(data, node->children[ci], worldMatrix, basePath);
-    }
-}
-
-//
 // GLUS callbacks
 //
 
 GLUSboolean init(GLUSvoid)
 {
-    GLUShdrimage  panoramaImage;
-    GLuint        panoramaTex;
-    GLUSshape     sphere;
-    cgltf_options gltfOptions;
-    cgltf_data*   gltfData;
-    cgltf_result  res;
-    GLfloat       identity[16];
-    GLUSchar      basePath[1024];
-    GLUStextfile  vertexSource;
-    GLUStextfile  fragmentSource;
-    GLUSchar      tmp[1024];
-    GLUSchar*     sl;
-    GLUSchar*     bsl;
-    GLUSchar*     sep;
-    GLint         ni;
-    GLfloat       dx, dy, dz;
+    GLUShdrimage panoramaImage;
+    GLuint       panoramaTex;
+    GLUSshape    sphere;
+    GLUStextfile vertexSource;
+    GLUStextfile fragmentSource;
+    GLfloat      dx, dy, dz;
 
     // ----------------------------------------------------------------
     // Build shader programs for background and fullscreen resolve.
-    // PBR and IBL shaders are loaded from GLUS/shader/.
+    // The PBR and IBL shaders are loaded from the GLUS shader directory.
     // ----------------------------------------------------------------
 
     glusFileLoadText("../Example48/shader/background.vert.glsl", &vertexSource);
@@ -802,8 +171,8 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../GLUS/shader/glus_gltf_pbr.vert.glsl", &vertexSource);
-    glusFileLoadText("../GLUS/shader/glus_gltf_pbr.frag.glsl", &fragmentSource);
+    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.vert.glsl", &vertexSource);
+    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource);
     if (!glusProgramBuildFromSource(&g_pbrProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -821,14 +190,7 @@ GLUSboolean init(GLUSvoid)
     glGenVertexArrays(1, &g_fullscreenVAO);
 
     // ----------------------------------------------------------------
-    // Default textures (created before loadImageTexture is first called).
-    // ----------------------------------------------------------------
-
-    g_defaultWhiteTexture  = createTexture1x1(255, 255, 255, 255);
-    g_defaultNormalTexture = createTexture1x1(128, 128, 255, 255);
-
-    // ----------------------------------------------------------------
-    // IBL — load panorama and run all four GPU prefilter passes via
+    // IBL - load panorama and run all four GPU prefilter passes via
     // the GLUS IBL API.  Panorama texture is deleted afterwards.
     // ----------------------------------------------------------------
 
@@ -853,8 +215,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Tell GLUS IBL where to find its shaders.
-    glusIblSetShaderPath("../GLUS/shader/");
+    glusIblSetShaderPath(GLUS_SHADER_DIR "/");
 
     printf("Pre-filtering specular cubemap (%dx%d, %d levels) ...\n",
            SPECULAR_CUBEMAP_SIZE, SPECULAR_CUBEMAP_SIZE, NUMBER_ROUGHNESS);
@@ -890,7 +251,6 @@ GLUSboolean init(GLUSvoid)
         return GLUS_FALSE;
     }
 
-    // Panorama no longer needed on the GPU.
     glDeleteTextures(1, &panoramaTex);
 
     // ----------------------------------------------------------------
@@ -941,7 +301,6 @@ GLUSboolean init(GLUSvoid)
     glUniform1f(glGetUniformLocation(g_pbrProg.program, "u_roughnessScale"),
                 (GLfloat)(NUMBER_ROUGHNESS - 1));
 
-    // Cache per-frame uniform locations.
     g_u_modelMatrix       = glGetUniformLocation(g_pbrProg.program, "u_modelMatrix");
     g_u_vpMatrix          = glGetUniformLocation(g_pbrProg.program, "u_viewProjectionMatrix");
     g_u_normalMatrix      = glGetUniformLocation(g_pbrProg.program, "u_normalMatrix");
@@ -954,6 +313,12 @@ GLUSboolean init(GLUSvoid)
     g_u_alphaCutoff       = glGetUniformLocation(g_pbrProg.program, "u_alphaCutoff");
     g_u_alphaMode         = glGetUniformLocation(g_pbrProg.program, "u_alphaMode");
     g_u_hasNormalMap      = glGetUniformLocation(g_pbrProg.program, "u_hasNormalMap");
+    g_u_normalScale       = glGetUniformLocation(g_pbrProg.program, "u_normalScale");
+    g_u_baseColorTexCoordSet         = glGetUniformLocation(g_pbrProg.program, "u_baseColorTexCoordSet");
+    g_u_metallicRoughnessTexCoordSet = glGetUniformLocation(g_pbrProg.program, "u_metallicRoughnessTexCoordSet");
+    g_u_normalTexCoordSet            = glGetUniformLocation(g_pbrProg.program, "u_normalTexCoordSet");
+    g_u_occlusionTexCoordSet         = glGetUniformLocation(g_pbrProg.program, "u_occlusionTexCoordSet");
+    g_u_emissiveTexCoordSet          = glGetUniformLocation(g_pbrProg.program, "u_emissiveTexCoordSet");
 
     g_u_vpMatrix_bg = glGetUniformLocation(g_bgProg.program, "u_viewProjectionMatrix");
 
@@ -963,86 +328,25 @@ GLUSboolean init(GLUSvoid)
     glUseProgram(0);
 
     // ----------------------------------------------------------------
-    // Load glTF scene.
+    // Load glTF scene (GLUS loader).
     // ----------------------------------------------------------------
-
-    memset(&gltfOptions, 0, sizeof(gltfOptions));
-    gltfData = NULL;
 
     printf("Loading glTF: %s\n", g_gltfPath);
-    res = cgltf_parse_file(&gltfOptions, g_gltfPath, &gltfData);
-    if (res != cgltf_result_success)
+    if (!glusGltfLoadScene(g_gltfPath, &g_scene))
     {
-        printf("Error: cgltf_parse_file failed (%d)\n", res);
-        return GLUS_FALSE;
-    }
-    res = cgltf_load_buffers(&gltfOptions, gltfData, g_gltfPath);
-    if (res != cgltf_result_success)
-    {
-        printf("Error: cgltf_load_buffers failed (%d)\n", res);
-        cgltf_free(gltfData);
+        printf("Error: failed to load glTF '%s'\n", g_gltfPath);
         return GLUS_FALSE;
     }
 
-    // Derive base path for external image loading.
-    memset(basePath, 0, sizeof(basePath));
-    strncpy(tmp, g_gltfPath, sizeof(tmp) - 1);
-    tmp[sizeof(tmp) - 1] = '\0';
-    sl                   = strrchr(tmp, '/');
-    bsl                  = strrchr(tmp, '\\');
-    sep                  = (sl > bsl) ? sl : bsl;
-    if (sep)
-    {
-        *(sep + 1) = '\0';
-        strncpy(basePath, tmp, sizeof(basePath) - 1);
-    }
-
-    // Traverse default scene (or all nodes if no scene is defined).
-    glusMatrix4x4Identityf(identity);
-
-    if (gltfData->scene)
-    {
-        for (ni = 0; ni < (GLint)gltfData->scene->nodes_count; ni++)
-        {
-            processNode(gltfData, gltfData->scene->nodes[ni], identity, basePath);
-        }
-    }
-    else
-    {
-        for (ni = 0; ni < (GLint)gltfData->nodes_count; ni++)
-        {
-            processNode(gltfData, &gltfData->nodes[ni], identity, basePath);
-        }
-    }
-
-    cgltf_free(gltfData);
-    printf("Loaded %d primitives, %d unique textures\n",
-           g_numPrimitives, g_numTextures);
-
-    // ----------------------------------------------------------------
-    // Compute scene centre / orbit radius from AABB.
-    // ----------------------------------------------------------------
-
-    if (g_numPrimitives > 0)
-    {
-        g_sceneCenterX = (g_sceneMin[0] + g_sceneMax[0]) * 0.5f;
-        g_sceneCenterY = (g_sceneMin[1] + g_sceneMax[1]) * 0.5f;
-        g_sceneCenterZ = (g_sceneMin[2] + g_sceneMax[2]) * 0.5f;
-        dx             = g_sceneMax[0] - g_sceneMin[0];
-        dy             = g_sceneMax[1] - g_sceneMin[1];
-        dz             = g_sceneMax[2] - g_sceneMin[2];
-        g_sceneRadius  = sqrtf(dx * dx + dy * dy + dz * dz) * 0.5f;
-        if (g_sceneRadius < SCENE_RADIUS_MIN)
-        {
-            g_sceneRadius = 1.0f;
-        }
-    }
-    g_orbitRadius = g_sceneRadius * CAMERA_ORBIT_RADIUS_FACTOR;
+    (void)dx;
+    (void)dy;
+    (void)dz;
+    g_orbitRadius = g_scene.sceneRadius * CAMERA_ORBIT_RADIUS_FACTOR;
     if (g_orbitRadius < CAMERA_ORBIT_RADIUS_MIN)
     {
         g_orbitRadius = CAMERA_ORBIT_RADIUS_MIN;
     }
-    g_cameraY = g_sceneCenterY + g_sceneRadius * CAMERA_HEIGHT_OFFSET;
+    g_cameraY = g_scene.sceneCenter[1] + g_scene.sceneRadius * CAMERA_HEIGHT_OFFSET;
 
     // ----------------------------------------------------------------
     // General GL state.
@@ -1057,8 +361,8 @@ GLUSboolean init(GLUSvoid)
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     printf("Scene centre (%.2f, %.2f, %.2f)  radius %.2f  orbit %.2f\n",
-           g_sceneCenterX, g_sceneCenterY, g_sceneCenterZ,
-           g_sceneRadius, g_orbitRadius);
+           g_scene.sceneCenter[0], g_scene.sceneCenter[1], g_scene.sceneCenter[2],
+           g_scene.sceneRadius, g_orbitRadius);
 
     return GLUS_TRUE;
 }
@@ -1073,7 +377,6 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
     g_windowWidth  = width;
     g_windowHeight = height;
 
-    // (Re-)create MSAA framebuffer.
     if (g_msaaFBO)
     {
         glDeleteFramebuffers(1, &g_msaaFBO);
@@ -1102,43 +405,37 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 }
 
 // Helper: bind all material textures for a primitive and set uniforms.
-static void bindPrimitiveMaterial(const GltfPrimitive* gp)
+static void bindPrimitiveMaterial(const GLUSgltfPrimitive* gp)
 {
+    const GLUSgltfMaterial* m = &gp->material;
+
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gp->baseColorTexture);
+    glBindTexture(GL_TEXTURE_2D, m->baseColorTexture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gp->metallicRoughnessTexture);
+    glBindTexture(GL_TEXTURE_2D, m->metallicRoughnessTexture);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gp->normalTexture);
+    glBindTexture(GL_TEXTURE_2D, m->normalTexture);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, gp->occlusionTexture);
+    glBindTexture(GL_TEXTURE_2D, m->occlusionTexture);
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, gp->emissiveTexture);
+    glBindTexture(GL_TEXTURE_2D, m->emissiveTexture);
 
     glUniformMatrix4fv(g_u_modelMatrix, 1, GL_FALSE, gp->modelMatrix);
     glUniformMatrix3fv(g_u_normalMatrix, 1, GL_FALSE, gp->normalMatrix);
-    glUniform4fv(g_u_baseColorFactor, 1, gp->baseColorFactor);
-    glUniform1f(g_u_metallicFactor, gp->metallicFactor);
-    glUniform1f(g_u_roughnessFactor, gp->roughnessFactor);
-    glUniform3fv(g_u_emissiveFactor, 1, gp->emissiveFactor);
-    glUniform1f(g_u_occlusionStrength, gp->occlusionStrength);
-    glUniform1f(g_u_alphaCutoff, gp->alphaCutoff);
-    glUniform1i(g_u_alphaMode, gp->alphaMode);
-    glUniform1i(g_u_hasNormalMap, gp->hasNormalMap);
-}
-
-static void drawPrimitive(const GltfPrimitive* gp)
-{
-    glBindVertexArray(gp->vao);
-    if (gp->ibo)
-    {
-        glDrawElements(GL_TRIANGLES, gp->indexCount, gp->indexType, 0);
-    }
-    else
-    {
-        glDrawArrays(GL_TRIANGLES, 0, gp->vertexCount);
-    }
-    glBindVertexArray(0);
+    glUniform4fv(g_u_baseColorFactor, 1, m->baseColorFactor);
+    glUniform1f(g_u_metallicFactor, m->metallicFactor);
+    glUniform1f(g_u_roughnessFactor, m->roughnessFactor);
+    glUniform3fv(g_u_emissiveFactor, 1, m->emissiveFactor);
+    glUniform1f(g_u_occlusionStrength, m->occlusionStrength);
+    glUniform1f(g_u_alphaCutoff, m->alphaCutoff);
+    glUniform1i(g_u_alphaMode, m->alphaMode);
+    glUniform1i(g_u_hasNormalMap, m->hasNormalMap);
+    glUniform1f(g_u_normalScale, m->normalScale);
+    glUniform1i(g_u_baseColorTexCoordSet, m->baseColorTexCoordSet);
+    glUniform1i(g_u_metallicRoughnessTexCoordSet, m->metallicRoughnessTexCoordSet);
+    glUniform1i(g_u_normalTexCoordSet, m->normalTexCoordSet);
+    glUniform1i(g_u_occlusionTexCoordSet, m->occlusionTexCoordSet);
+    glUniform1i(g_u_emissiveTexCoordSet, m->emissiveTexCoordSet);
 }
 
 GLUSboolean update(GLUSfloat time)
@@ -1154,7 +451,7 @@ GLUSboolean update(GLUSfloat time)
 
     if (!g_msaaFBO)
     {
-        return GLUS_TRUE; // reshape not yet called
+        return GLUS_TRUE;
     }
 
     // --- Orbit camera ---
@@ -1165,31 +462,30 @@ GLUSboolean update(GLUSfloat time)
     }
 
     rad  = g_orbitAngle * CAMERA_DEG_TO_RAD;
-    eyeX = g_sceneCenterX + g_orbitRadius * sinf(rad);
+    eyeX = g_scene.sceneCenter[0] + g_orbitRadius * sinf(rad);
     eyeY = g_cameraY;
-    eyeZ = g_sceneCenterZ + g_orbitRadius * cosf(rad);
+    eyeZ = g_scene.sceneCenter[2] + g_orbitRadius * cosf(rad);
 
     g_eye[0] = eyeX;
     g_eye[1] = eyeY;
     g_eye[2] = eyeZ;
     g_eye[3] = 1.0f;
 
-    nearPlane = g_sceneRadius * CAMERA_NEAR_FACTOR;
-    farPlane  = g_orbitRadius + g_sceneRadius * CAMERA_FAR_RADIUS_FACTOR + CAMERA_FAR_EXTRA;
+    nearPlane = g_scene.sceneRadius * CAMERA_NEAR_FACTOR;
+    farPlane  = g_orbitRadius + g_scene.sceneRadius * CAMERA_FAR_RADIUS_FACTOR + CAMERA_FAR_EXTRA;
     if (nearPlane < CAMERA_NEAR_MIN)
     {
         nearPlane = CAMERA_NEAR_MIN;
     }
 
     glusMatrix4x4LookAtf(viewMatrix, eyeX, eyeY, eyeZ,
-                         g_sceneCenterX, g_sceneCenterY, g_sceneCenterZ,
+                         g_scene.sceneCenter[0], g_scene.sceneCenter[1], g_scene.sceneCenter[2],
                          0.0f, 1.0f, 0.0f);
     glusMatrix4x4Perspectivef(projMatrix, CAMERA_FOV_DEG,
                               (GLfloat)g_windowWidth / (GLfloat)g_windowHeight,
                               nearPlane, farPlane);
     glusMatrix4x4Multiplyf(g_viewProjectionMatrix, projMatrix, viewMatrix);
 
-    // Rotation-only VP for background: strip camera translation so sphere is always centered on camera.
     memcpy(bgViewMatrix, viewMatrix, 16 * sizeof(GLfloat));
     bgViewMatrix[12] = 0.0f;
     bgViewMatrix[13] = 0.0f;
@@ -1235,15 +531,14 @@ GLUSboolean update(GLUSfloat time)
 
     // --- Pass A: Opaque + Mask ---
     glEnable(GL_DEPTH_TEST);
-    for (i = 0; i < g_numPrimitives; i++)
+    for (i = 0; i < g_scene.primitiveCount; i++)
     {
-        const GltfPrimitive* gp = &g_primitives[i];
-        if (gp->alphaMode == 2)
+        const GLUSgltfPrimitive* gp = &g_scene.primitives[i];
+        if (gp->material.alphaMode == GLUS_GLTF_ALPHA_BLEND)
         {
-            continue; // skip blend
+            continue;
         }
-
-        if (gp->doubleSided)
+        if (gp->material.doubleSided)
         {
             glDisable(GL_CULL_FACE);
         }
@@ -1251,9 +546,8 @@ GLUSboolean update(GLUSfloat time)
         {
             glEnable(GL_CULL_FACE);
         }
-
         bindPrimitiveMaterial(gp);
-        drawPrimitive(gp);
+        glusGltfDrawPrimitive(&g_scene, i);
     }
 
     // --- Pass B: Blend ---
@@ -1261,15 +555,14 @@ GLUSboolean update(GLUSfloat time)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);
 
-    for (i = 0; i < g_numPrimitives; i++)
+    for (i = 0; i < g_scene.primitiveCount; i++)
     {
-        const GltfPrimitive* gp = &g_primitives[i];
-        if (gp->alphaMode != 2)
+        const GLUSgltfPrimitive* gp = &g_scene.primitives[i];
+        if (gp->material.alphaMode != GLUS_GLTF_ALPHA_BLEND)
         {
             continue;
         }
-
-        if (gp->doubleSided)
+        if (gp->material.doubleSided)
         {
             glDisable(GL_CULL_FACE);
         }
@@ -1277,9 +570,8 @@ GLUSboolean update(GLUSfloat time)
         {
             glEnable(GL_CULL_FACE);
         }
-
         bindPrimitiveMaterial(gp);
-        drawPrimitive(gp);
+        glusGltfDrawPrimitive(&g_scene, i);
     }
 
     glDisable(GL_BLEND);
@@ -1309,46 +601,19 @@ GLUSboolean update(GLUSfloat time)
 
 GLUSvoid terminate(GLUSvoid)
 {
-    GLint i;
+    glusGltfDestroyScene(&g_scene);
 
-    // Primitives
-    for (i = 0; i < g_numPrimitives; i++)
-    {
-        GltfPrimitive* gp = &g_primitives[i];
-        glDeleteVertexArrays(1, &gp->vao);
-        glDeleteBuffers(1, &gp->vbo_pos);
-        glDeleteBuffers(1, &gp->vbo_nor);
-        glDeleteBuffers(1, &gp->vbo_tan);
-        glDeleteBuffers(1, &gp->vbo_uv0);
-        if (gp->ibo)
-        {
-            glDeleteBuffers(1, &gp->ibo);
-        }
-    }
-
-    // Textures
-    for (i = 0; i < g_numTextures; i++)
-    {
-        glDeleteTextures(1, &g_textures[i]);
-    }
-    glDeleteTextures(1, &g_defaultWhiteTexture);
-    glDeleteTextures(1, &g_defaultNormalTexture);
-
-    // IBL
     glDeleteTextures(1, &g_specularTexture);
     glDeleteTextures(1, &g_diffuseTexture);
     glDeleteTextures(1, &g_brdfLutTexture);
     glDeleteTextures(1, &g_bgCubemapTexture);
 
-    // Background sphere
     glDeleteVertexArrays(1, &g_bgVAO);
     glDeleteBuffers(1, &g_bgVBO);
     glDeleteBuffers(1, &g_bgIBO);
 
-    // VAOs
     glDeleteVertexArrays(1, &g_fullscreenVAO);
 
-    // MSAA FBO
     if (g_msaaFBO)
     {
         glDeleteFramebuffers(1, &g_msaaFBO);
@@ -1356,7 +621,6 @@ GLUSvoid terminate(GLUSvoid)
         glDeleteRenderbuffers(1, &g_msaaDepth);
     }
 
-    // Programs
     glusProgramDestroy(&g_bgProg);
     glusProgramDestroy(&g_fullscreenProg);
     glusProgramDestroy(&g_pbrProg);
@@ -1371,16 +635,16 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 
     switch (key)
     {
-    case 265: // Arrow up   — camera higher
-        g_cameraY += g_sceneRadius * CAMERA_HEIGHT_STEP;
+    case 265:
+        g_cameraY += g_scene.sceneRadius * CAMERA_HEIGHT_STEP;
         break;
-    case 264: // Arrow down — camera lower
-        g_cameraY -= g_sceneRadius * CAMERA_HEIGHT_STEP;
+    case 264:
+        g_cameraY -= g_scene.sceneRadius * CAMERA_HEIGHT_STEP;
         break;
-    case 262: // Arrow right — orbit faster
+    case 262:
         g_orbitSpeed += CAMERA_ORBIT_SPEED_STEP;
         break;
-    case 263: // Arrow left  — orbit slower
+    case 263:
         g_orbitSpeed -= CAMERA_ORBIT_SPEED_STEP;
         if (g_orbitSpeed < 0.0f)
         {
@@ -1390,9 +654,9 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
     case '+':
     case '=':
         g_orbitRadius *= CAMERA_ZOOM_IN_FACTOR;
-        if (g_orbitRadius < g_sceneRadius * CAMERA_ZOOM_MIN_FACTOR)
+        if (g_orbitRadius < g_scene.sceneRadius * CAMERA_ZOOM_MIN_FACTOR)
         {
-            g_orbitRadius = g_sceneRadius * CAMERA_ZOOM_MIN_FACTOR;
+            g_orbitRadius = g_scene.sceneRadius * CAMERA_ZOOM_MIN_FACTOR;
         }
         break;
     case '-':
@@ -1426,7 +690,6 @@ int main(int argc, char** argv)
     g_panoramaPath = (argc > 2) ? argv[2] : "sunny_rose_garden_4k.hdr";
 
     glusLogSetLevel(GLUS_LOG_DEBUG);
-
 
     glusWindowSetInitFunc(init);
     glusWindowSetReshapeFunc(reshape);

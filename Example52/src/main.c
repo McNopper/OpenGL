@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CGLTF_IMPLEMENTATION
 #include "cgltf.h"
 
 #include "GL/glus.h"
@@ -249,11 +248,13 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
 // Init callback
 // -----------------------------------------------------------------------
 
+// glTF scene parsed by GLUS; the splat extension data is read from its
+// cgltf handle (glusGltfGetCgltfData). Mesh upload is disabled.
+static GLUSgltfScene g_scene;
+
 GLUSboolean init(GLUSvoid)
 {
-    cgltf_options    cgltfOpts = {0};
     cgltf_data*      gltfData  = NULL;
-    cgltf_result     cgltfRes;
     cgltf_primitive* prim;
     cgltf_accessor*  posAcc;
     cgltf_node*      splatNode;
@@ -275,26 +276,23 @@ GLUSboolean init(GLUSvoid)
         1.0f, 1.0f};
 
     //
-    // Load the glTF model.
+    // Load the glTF model (GLUS: parse + buffers; mesh upload disabled).
     //
-    cgltfRes = cgltf_parse_file(&cgltfOpts, g_gltfPath, &gltfData);
-    if (cgltfRes != cgltf_result_success)
     {
-        glusLogPrint(GLUS_LOG_ERROR, "Failed to parse glTF: %s", g_gltfPath);
-        return GLUS_FALSE;
-    }
-    cgltfRes = cgltf_load_buffers(&cgltfOpts, gltfData, g_gltfPath);
-    if (cgltfRes != cgltf_result_success)
-    {
-        glusLogPrint(GLUS_LOG_ERROR, "Failed to load glTF buffers: %s", g_gltfPath);
-        cgltf_free(gltfData);
-        return GLUS_FALSE;
+        GLUSgltfLoadOptions gltfOpts;
+        memset(&gltfOpts, 0, sizeof(gltfOpts));
+        gltfOpts.uploadMeshes = GLUS_FALSE;
+        if (!glusGltfLoadSceneWith(g_gltfPath, &gltfOpts, &g_scene))
+        {
+            glusLogPrint(GLUS_LOG_ERROR, "Failed to load glTF: %s", g_gltfPath);
+            return GLUS_FALSE;
+        }
+        gltfData = glusGltfGetCgltfData(&g_scene);
     }
 
     if (gltfData->meshes_count == 0 || gltfData->meshes[0].primitives_count == 0)
     {
         glusLogPrint(GLUS_LOG_ERROR, "glTF has no meshes or primitives: %s", g_gltfPath);
-        cgltf_free(gltfData);
         return GLUS_FALSE;
     }
     prim = &gltfData->meshes[0].primitives[0];
@@ -339,7 +337,6 @@ GLUSboolean init(GLUSvoid)
     if (!posAcc)
     {
         glusLogPrint(GLUS_LOG_ERROR, "No POSITION attribute in glTF primitive.");
-        cgltf_free(gltfData);
         return GLUS_FALSE;
     }
 
@@ -416,8 +413,6 @@ GLUSboolean init(GLUSvoid)
     glBufferData(GL_SHADER_STORAGE_BUFFER, 64, NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 64, g_worldMatrix);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_modelSSBO);
-
-    cgltf_free(gltfData);
 
     //
     // WorldData UBO.
@@ -610,6 +605,8 @@ GLUSboolean update(GLUSfloat time)
 GLUSvoid terminate(GLUSvoid)
 {
     glBindVertexArray(0);
+
+    glusGltfDestroyScene(&g_scene);
 
     if (g_quadVAO)
     {

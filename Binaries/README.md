@@ -22,11 +22,11 @@ cd Binaries
 Executables are built using CMake and link statically with:
 - GLFW 3.4
 - GLEW 2.2.0
-- GLUS (project's utility library)
+- GLUS (project's utility library, which in turn bundles cgltf and stb_image)
 
 Dependencies are automatically downloaded during CMake configuration.
 
 Further information:
 
 - See main README.md in project root for build instructions
-- See GLUS/README.md for GLUS library details
+- See the GLUS repository (https://github.com/McNopper/GLUS) for GLUS library details

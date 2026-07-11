@@ -5,6 +5,12 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.0
+
+- Migrated the glTF examples (48-52) onto the GLUS glTF 2.0 loader (`glusGltfLoadScene` / `glusGltfGetCgltfData`). GLUS now provides cgltf + stb_image and exposes `GLUS_SHADER_DIR`; the copied `OpenGL/GLUS/` folder is gone.
+- Requires **GLUS v1.1.0**. GLUS is taken from the sibling local checkout `../GLUS` when present, otherwise fetched from [McNopper/GLUS](https://github.com/McNopper/GLUS).
+- Refreshed screenshots.
+
 ### v3.1.1
 
 - Added **Example52** – 3D Gaussian Splatting with view-direction SH rotation.
@@ -41,7 +47,7 @@ git --version
 
 ### Building
 
-Dependencies (GLUS, GLFW and GLEW) are automatically downloaded and built via CMake FetchContent. GLUS lives in its own repository at [github.com/McNopper/GLUS](https://github.com/McNopper/GLUS).
+Dependencies (GLUS, GLFW and GLEW) are automatically downloaded and built via CMake FetchContent. GLUS is taken from the sibling local checkout `../GLUS` when present (multi-repo development layout), and otherwise fetched from its own repository at [github.com/McNopper/GLUS](https://github.com/McNopper/GLUS). GLUS in turn provides cgltf and stb_image, and exposes its shader directory through the `GLUS_SHADER_DIR` compile definition.
 
 **Windows (Visual Studio):**
 ```bash
@@ -373,7 +379,7 @@ to start, +/- to adjust step delay, R to reshuffle.
 
 ![Example48](screenshots/Example48.png)
 
-Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness shading and Image-Based Lighting (IBL). The IBL precomputation pipeline is provided by the GLUS library (`glusIblBuild*`).
+Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness shading and Image-Based Lighting (IBL). Scene loading (parse, mesh upload, node hierarchy, materials, textures) is handled by the GLUS glTF loader (`glusGltfLoadScene`); the IBL precomputation pipeline is provided by GLUS (`glusIblBuild*`). The glTF / IBL shaders are loaded from the GLUS shader directory (`GLUS_SHADER_DIR`).
 
 **Usage:**
 ```

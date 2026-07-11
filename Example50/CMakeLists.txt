@@ -14,22 +14,6 @@ if(NOT Vulkan_FOUND)
     return()
 endif()
 
-# cgltf v1.14 - single-header glTF 2.0 parser
-FetchContent_Declare(
-    cgltf
-    GIT_REPOSITORY https://github.com/jkuhlmann/cgltf.git
-    GIT_TAG        v1.14
-)
-FetchContent_MakeAvailable(cgltf)
-
-# stb - for stb_image.h
-FetchContent_Declare(
-    stb
-    GIT_REPOSITORY https://github.com/nothings/stb.git
-    GIT_TAG        master
-)
-FetchContent_MakeAvailable(stb)
-
 # McNopper/EGL - portable HDR-capable EGL 1.5 implementation.
 # We only need the EGL static library; their CMakeLists also adds an
 # examples/ subdirectory which depends on test asset paths and would build
@@ -64,16 +48,13 @@ if(NOT mcnopper_egl_POPULATED)
     add_subdirectory(${mcnopper_egl_SOURCE_DIR} ${mcnopper_egl_BINARY_DIR})
 endif()
 
+# cgltf, stb_image and the GLUS_SHADER_DIR path are provided transitively by GLUS.
+
 file(GLOB SOURCES "src/*.cpp" "src/*.c")
 file(GLOB SHADERS "shader/*.glsl")
 source_group("Shaders" FILES ${SHADERS})
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHADERS})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${cgltf_SOURCE_DIR}
-    ${stb_SOURCE_DIR}
-)
 
 # EGL must come before opengl32 so its eglXxx symbols are picked up; the
 # library publicly links Vulkan on Windows already.
