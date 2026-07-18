@@ -19,6 +19,18 @@ OpenGL 3 and OpenGL 4 with GLSL
 - Both splatting examples: auto-rotation is off by default and toggles with Space.
 - Requires **GLUS v1.0.1** (band-3 SH rotation fix).
 
+## License
+
+The project is distributed under the **MIT License** — see [`LICENSE`](LICENSE).
+
+These examples are built on [GLUS](https://github.com/McNopper/GLUS) (MIT), which
+bundles glfw, glew, cgltf and stb — their notices live in the
+[GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+The dependencies and bundled assets **added by this repository** — McNopper/EGL
+(MIT) and the Einstein / phoenix 3D models (CC-BY-4.0) — are documented in
+[`THIRD-PARTY.md`](THIRD-PARTY.md); per-example attributions are noted in each
+example's section below.
+
 ## Build Instructions
 
 ### Prerequisites
@@ -390,8 +402,8 @@ Defaults to `einstein/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working 
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
-- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
-- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
 **Model:**
 This work is based on ["Albert Einstein"](https://sketchfab.com/3d-models/albert-einstein-33ba1b5ba92744ec90b032b82d47befb) by [pattarrian](https://sketchfab.com/pattarrian) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
@@ -411,8 +423,8 @@ Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working d
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
-- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
-- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
 **Model:**
 This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
@@ -439,12 +451,9 @@ Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working d
 
 **Requires:** an HDR-capable display with HDR enabled in Windows. On systems without HDR the app transparently falls back to sRGB output.
 
-**Additional third-party license:**
-- [McNopper/EGL](https://github.com/McNopper/EGL) by Norbert Nopper — MIT License
-
-**Inherited third-party licenses (from Example49):**
-- [cgltf](https://github.com/jkuhlmann/cgltf) by Johannes Kuhlmann — MIT License
-- [stb_image](https://github.com/nothings/stb) by Sean Barrett — MIT License / Public Domain
+**Third-party licenses:**
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
 **Model:**
 This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
