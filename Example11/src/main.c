@@ -87,20 +87,62 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    glusFileLoadText("../Example11/shader/glass.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example11/shader/glass.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example11/shader/glass.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example11/shader/glass.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusFileLoadText("../Example11/shader/background.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example11/shader/background.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example11/shader/background.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example11/shader/background.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programBackground, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -129,27 +171,63 @@ GLUSboolean init(GLUSvoid)
     glGenTextures(1, &g_cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemap);
 
-    glusImageLoadTga("cm_pos_x.tga", &image);
+    if (!glusImageLoadTga("cm_pos_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_x.tga", &image);
+    if (!glusImageLoadTga("cm_neg_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_pos_y.tga", &image);
+    if (!glusImageLoadTga("cm_pos_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_y.tga", &image);
+    if (!glusImageLoadTga("cm_neg_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_pos_z.tga", &image);
+    if (!glusImageLoadTga("cm_pos_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_z.tga", &image);
+    if (!glusImageLoadTga("cm_neg_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
@@ -162,7 +240,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateTorusf(&torus, 0.25f, 1.0f, 32, 32);
+    if (!glusShapeCreateTorusf(&torus, 0.25f, 1.0f, 32, 32))
+    {
+        printf("Could not create torus!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesSphere = torus.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);
@@ -185,7 +269,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateSpheref(&backgroundSphere, g_circleRadius, 32);
+    if (!glusShapeCreateSpheref(&backgroundSphere, g_circleRadius, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesBackground = backgroundSphere.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);

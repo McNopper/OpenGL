@@ -112,10 +112,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example09/shader/particle.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example09/shader/particle.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example09/shader/particle.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example09/shader/particle.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -128,10 +149,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example09/shader/update_points.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example09/shader/update_points.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example09/shader/update_points.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programUpdatePoints, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example09/shader/update_points.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programUpdatePoints, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -144,7 +186,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusImageLoadTga("particle.tga", &image);
+    if (!glusImageLoadTga("particle.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_texture);
 
@@ -197,8 +244,22 @@ GLUSboolean init(GLUSvoid)
     glBindFramebuffer(GL_FRAMEBUFFER, g_positionFramebuffer[0]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_positionTexture[0], 0);
 
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+        return GLUS_FALSE;
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, g_positionFramebuffer[1]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_positionTexture[1], 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+        return GLUS_FALSE;
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -411,6 +472,8 @@ GLUSvoid terminate(GLUSvoid)
     glUseProgram(0);
 
     glusProgramDestroy(&g_program);
+
+    glusProgramDestroy(&g_programUpdatePoints);
 }
 
 int main(int argc, char* argv[])

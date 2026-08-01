@@ -58,11 +58,42 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile geometrySource;
     GLUStextfile fragmentSource;
 
-    glusFileLoadText("../Example10/shader/dublicate.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example10/shader/dublicate.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example10/shader/dublicate.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example10/shader/dublicate.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example10/shader/dublicate.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example10/shader/dublicate.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -80,7 +111,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateSpheref(&sphere, 1.0f, 32);
+    if (!glusShapeCreateSpheref(&sphere, 1.0f, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesSphere = sphere.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);

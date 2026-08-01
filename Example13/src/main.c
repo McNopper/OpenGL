@@ -48,13 +48,67 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile geometrySource;
     GLUStextfile fragmentSource;
 
-    glusFileLoadText("../Example13/shader/tessellation.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example13/shader/tessellation.cont.glsl", &controlSource);
-    glusFileLoadText("../Example13/shader/tessellation.eval.glsl", &evaluationSource);
-    glusFileLoadText("../Example13/shader/tessellation.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example13/shader/tessellation.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example13/shader/tessellation.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example13/shader/tessellation.cont.glsl", &controlSource))
+    {
+        printf("Could not load tessellation control shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example13/shader/tessellation.eval.glsl", &evaluationSource))
+    {
+        printf("Could not load tessellation evaluation shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example13/shader/tessellation.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example13/shader/tessellation.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&controlSource);
@@ -70,7 +124,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&plane, 1.0f);
+    if (!glusShapeCreatePlanef(&plane, 1.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);

@@ -87,16 +87,49 @@ GLUSboolean init(GLUSvoid)
     GLfloat sphereCenter[4] = {0.0f, 0.0f, -0.01f, 1.0f};
     GLfloat sphereRadius    = 1.0f;
 
-    glusFileLoadText("../Example40/shader/cloth.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example40/shader/cloth.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
-    glusFileLoadText("../Example40/shader/cloth.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example40/shader/cloth.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example40/shader/cloth.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example40/shader/cloth.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -121,7 +154,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a grid plane.
-    glusShapeCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE);
+    if (!glusShapeCreateRectangularGridPlanef(&g_gridPlane, 2.0f, 2.0f, ROWS, ROWS, GLUS_FALSE))
+    {
+        printf("Could not create rectangular grid plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Use x, as only horizontal and vertical springs are used. Adapt this, if diagonal or a non square grid is used.
     distanceRest         = g_gridPlane.vertices[4] - g_gridPlane.vertices[0];
@@ -146,12 +184,19 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    normals = (GLfloat*)malloc(g_gridPlane.numberVertices * 4 * sizeof(GLfloat));
+    normals = (GLfloat*)glusMemoryMalloc(g_gridPlane.numberVertices * 4 * sizeof(GLfloat));
+
+    if (!normals)
+    {
+        printf("Could not allocate the normals!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Add one more GLfloat channel as padding for std430 layout.
     glusPaddingConvertf(normals, g_gridPlane.normals, 3, 1, g_gridPlane.numberVertices);
 
-    free(g_gridPlane.normals);
+    glusMemoryFree(g_gridPlane.normals);
     g_gridPlane.normals = normals;
 
     //

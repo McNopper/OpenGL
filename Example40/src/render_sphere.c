@@ -18,6 +18,8 @@
  * Copyright Norbert Nopper
  */
 
+#include <stdio.h>
+
 #include "render_sphere.h"
 
 static GLUSprogram g_program;
@@ -57,10 +59,31 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     GLUSshape sphere;
 
-    glusFileLoadText("../Example40/shader/sphere.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example40/shader/sphere.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example40/shader/sphere.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example40/shader/sphere.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -78,7 +101,12 @@ GLUSboolean initSphere(GLUSfloat sphereCenter[4], GLUSfloat sphereRadius, GLUSfl
 
     //
 
-    glusShapeCreateSpheref(&sphere, sphereRadius, 64);
+    if (!glusShapeCreateSpheref(&sphere, sphereRadius, 64))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesSphere = sphere.numberIndices;
 

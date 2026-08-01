@@ -410,7 +410,7 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
  */
 GLUSboolean init(GLUSvoid)
 {
-    GLubyte pixels[WIDTH * HEIGHT * BYTES_PER_PIXEL];
+    static GLubyte pixels[WIDTH * HEIGHT * BYTES_PER_PIXEL];
 
     //
 
@@ -428,10 +428,31 @@ GLUSboolean init(GLUSvoid)
 
     // Load full screen rendering shaders
 
-    glusFileLoadText("../Example37/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example37/shader/texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example37/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example37/shader/texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);

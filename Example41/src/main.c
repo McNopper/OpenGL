@@ -152,28 +152,85 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example41/shader/ocean_update_ht.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeUpdateHtProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeUpdateHtProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
-    glusFileLoadText("../Example41/shader/ocean_fft.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example41/shader/ocean_fft.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeFftProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeFftProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
-    glusFileLoadText("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example41/shader/ocean_update_normal.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeUpdateNormalProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeUpdateNormalProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
-    glusFileLoadText("../Example41/shader/ocean.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example41/shader/ocean.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example41/shader/ocean.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example41/shader/ocean.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -196,7 +253,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a grid plane.
-    glusShapeCreateRectangularGridPlanef(&gridPlane, LENGTH, LENGTH, N - 1, N - 1, GLUS_FALSE);
+    if (!glusShapeCreateRectangularGridPlanef(&gridPlane, LENGTH, LENGTH, N - 1, N - 1, GLUS_FALSE))
+    {
+        printf("Could not create rectangular grid plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndices = gridPlane.numberIndices;
 

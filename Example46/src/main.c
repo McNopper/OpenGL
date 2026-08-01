@@ -239,15 +239,46 @@ GLUSboolean init(GLUSvoid)
     // Build voxelisation program (vert + geom + frag).
     //
 
-    glusFileLoadText("../Example46/shader/voxelize.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example46/shader/voxelize.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example46/shader/voxelize.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example46/shader/voxelize.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_voxelizeProgram,
-                               (const GLUSchar**)&vertexSource.text,
-                               0, 0,
-                               (const GLUSchar**)&geometrySource.text,
-                               (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example46/shader/voxelize.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example46/shader/voxelize.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_voxelizeProgram,
+                                    (const GLUSchar**)&vertexSource.text,
+                                    0, 0,
+                                    (const GLUSchar**)&geometrySource.text,
+                                    (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -277,13 +308,34 @@ GLUSboolean init(GLUSvoid)
     // Build VCT rendering program (vert + frag).
     //
 
-    glusFileLoadText("../Example46/shader/vct.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example46/shader/vct.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example46/shader/vct.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_vctProgram,
-                               (const GLUSchar**)&vertexSource.text,
-                               0, 0, 0,
-                               (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example46/shader/vct.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_vctProgram,
+                                    (const GLUSchar**)&vertexSource.text,
+                                    0, 0, 0,
+                                    (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -478,7 +530,12 @@ GLUSboolean init(GLUSvoid)
     // matrix is a pure translation updated every frame.
     //
 
-    glusShapeCreateSpheref(&g_sphere, SPHERE_RADIUS, 24);
+    if (!glusShapeCreateSpheref(&g_sphere, SPHERE_RADIUS, 24))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenBuffers(1, &g_sphereVerticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_sphereVerticesVBO);

@@ -5,6 +5,26 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.1
+
+Security and correctness fixes across all 52 examples:
+- Fixed Example36 SSBO allocation (std430 stride was 24 B instead of 32 B — 25 % undersized).
+- Added missing `glMemoryBarrier` calls in Examples 21, 30, 36, 45.
+- Fixed `glUniform4fv`/`glUniform2fv` count (vec4/vec2 elements, not floats) in Example15.
+- Moved 900 KB stack arrays to static storage in Examples 29, 37.
+- Fixed `glDeleteRenderbuffers` on texture names in Examples 12, 34.
+- Added NULL-source guards for `glusFileLoadText` in Examples 47, 51, 52.
+- Added missing `glViewport` in Example27 `reshape()`.
+- Fixed resource leaks (programs, VAOs, VBOs, text files) in Examples 09, 12, 14, 22, 27, 31, 35, 36, 50.
+- Fixed fur VAO attribute locations in Example26.
+- Fixed `glDrawBuffer(GL_COLOR_ATTACHMENT0)` on default framebuffer in Examples 28, 31.
+- Fixed double angle advancement in Example19.
+- Fixed Gerstner wave steepness index in Example15.
+- Added FBO completeness checks in Examples 09, 33, 48, 49, 50.
+- Checked GLUS return values across all examples (316 call sites).
+- Replaced deprecated `FetchContent_Populate` in root CMakeLists.txt.
+- Requires **GLUS v1.1.1**.
+
 ### v3.2.0
 
 - Migrated the glTF examples (48-52) onto the GLUS glTF 2.0 loader (`glusGltfLoadScene` / `glusGltfGetCgltfData`). GLUS now provides cgltf + stb_image and exposes `GLUS_SHADER_DIR`; the copied `OpenGL/GLUS/` folder is gone.

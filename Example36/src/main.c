@@ -142,10 +142,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example36/shader/phong_linked_list.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example36/shader/phong_linked_list.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example36/shader/phong_linked_list.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example36/shader/phong_linked_list.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -174,10 +195,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example36/shader/fullscreen_blend.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example36/shader/fullscreen_blend.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example36/shader/fullscreen_blend.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_blendFullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example36/shader/fullscreen_blend.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_blendFullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -218,12 +260,17 @@ GLUSboolean init(GLUSvoid)
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_BUFFER_LINKED_LIST, g_linkedListBuffer);
     // Size is RGBA, depth (5 * GLfloat), next pointer (1 * GLuint) and 2 paddings (2 * GLfloat).
-    glBufferData(GL_SHADER_STORAGE_BUFFER, MAX_NODES * (sizeof(GLfloat) * 5 + sizeof(GLuint) * 1) + sizeof(GLfloat) * 2, 0, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (GLsizeiptr)MAX_NODES * (sizeof(GLfloat) * 5 + sizeof(GLuint) * 1 + sizeof(GLfloat) * 2), 0, GL_DYNAMIC_DRAW);
 
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("dragon.obj", &wavefrontObj);
+    if (!glusShapeLoadWavefront("dragon.obj", &wavefrontObj))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -353,6 +400,9 @@ GLUSboolean update(GLUSfloat time)
 
     glDrawArrays(GL_TRIANGLES, 0, g_numberVertices);
 
+    // Ensure the linked list and the head index image writes are visible to the resolve pass.
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
     //
     // Fullscreen quad rendering.
     //
@@ -395,11 +445,11 @@ GLUSvoid terminate(GLUSvoid)
         g_vao = 0;
     }
 
-    if (g_vao)
+    if (g_blendFullscreenVAO)
     {
         glDeleteVertexArrays(1, &g_blendFullscreenVAO);
 
-        g_vao = 0;
+        g_blendFullscreenVAO = 0;
     }
 
     glUseProgram(0);

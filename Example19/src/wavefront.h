@@ -74,7 +74,7 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
 GLUSvoid reshapeWavefront(GLUSint width, GLUSint height);
 
-GLUSboolean updateWavefront(GLUSfloat time, GLUSfloat scaleMatrix[16]);
+GLUSboolean updateWavefront(GLUSfloat time, GLUSfloat scaleMatrix[16], GLUSboolean advance);
 
 GLUSvoid terminateWavefront(GLUSvoid);
 

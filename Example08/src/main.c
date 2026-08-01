@@ -70,10 +70,31 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    glusFileLoadText("../Example08/shader/cubemap.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example08/shader/cubemap.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example08/shader/cubemap.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example08/shader/cubemap.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -97,27 +118,63 @@ GLUSboolean init(GLUSvoid)
     glGenTextures(1, &g_cubemapTexture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemapTexture);
 
-    glusImageLoadTga("cm_pos_x.tga", &image);
+    if (!glusImageLoadTga("cm_pos_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_x.tga", &image);
+    if (!glusImageLoadTga("cm_neg_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_pos_y.tga", &image);
+    if (!glusImageLoadTga("cm_pos_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_y.tga", &image);
+    if (!glusImageLoadTga("cm_neg_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_pos_z.tga", &image);
+    if (!glusImageLoadTga("cm_pos_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("cm_neg_z.tga", &image);
+    if (!glusImageLoadTga("cm_neg_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
@@ -130,7 +187,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateCubef(&cube, 0.5f);
+    if (!glusShapeCreateCubef(&cube, 0.5f))
+    {
+        printf("Could not create cube!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesSphere = cube.numberIndices;
 

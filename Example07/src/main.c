@@ -86,10 +86,31 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat normalMatrix[9];
 
-    glusFileLoadText("../Example07/shader/normmap.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example07/shader/normmap.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example07/shader/normmap.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example07/shader/normmap.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -115,7 +136,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusImageLoadTga("rock_color.tga", &image);
+    if (!glusImageLoadTga("rock_color.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -130,7 +156,12 @@ GLUSboolean init(GLUSvoid)
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glusImageLoadTga("rock_normal.tga", &image);
+    if (!glusImageLoadTga("rock_normal.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_normalMap);
     glBindTexture(GL_TEXTURE_2D, g_normalMap);
@@ -147,7 +178,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&plane, 1.5f);
+    if (!glusShapeCreatePlanef(&plane, 1.5f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPlane = plane.numberIndices;
 

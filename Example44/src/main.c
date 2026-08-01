@@ -42,11 +42,42 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile geometrySource;
     GLUStextfile fragmentSource;
 
-    glusFileLoadText("../Example44/shader/conservative.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example44/shader/conservative.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example44/shader/conservative.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example44/shader/conservative.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example44/shader/conservative.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example44/shader/conservative.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);

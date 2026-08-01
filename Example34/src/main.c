@@ -135,20 +135,62 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example34/shader/renderdepthmap.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example34/shader/renderdepthmap.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example34/shader/renderdepthmap.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programDepthPass, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example34/shader/renderdepthmap.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programDepthPass, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusFileLoadText("../Example34/shader/subsurfacescattering.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example34/shader/subsurfacescattering.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example34/shader/subsurfacescattering.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example34/shader/subsurfacescattering.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -187,8 +229,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -220,7 +262,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("dragon.obj", &wavefrontObj);
+    if (!glusShapeLoadWavefront("dragon.obj", &wavefrontObj))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -411,7 +458,7 @@ GLUSvoid terminate(GLUSvoid)
 
     if (g_depthPassTexture)
     {
-        glDeleteRenderbuffers(1, &g_depthPassTexture);
+        glDeleteTextures(1, &g_depthPassTexture);
 
         g_depthPassTexture = 0;
     }

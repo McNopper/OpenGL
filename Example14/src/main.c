@@ -364,6 +364,16 @@ GLUSboolean init(GLUSvoid)
 
     indices = (GLuint*)malloc(g_sNumPoints * g_tNumPoints * sizeof(GLuint));
 
+    if (!map || !indices)
+    {
+        printf("Could not allocate the terrain mesh!\n");
+
+        free(map);
+        free(indices);
+
+        return GLUS_FALSE;
+    }
+
     for (t = 0; t < g_tNumPoints; t++)
     {
         for (s = 0; s < g_sNumPoints; s++)
@@ -442,9 +452,31 @@ GLUSboolean init(GLUSvoid)
 
     // Pass one.
 
-    glusFileLoadText("../Example14/shader/PassOne.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example14/shader/PassOne.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example14/shader/PassOne.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example14/shader/PassOne.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassOne.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassOne.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
 
     // Compile and ...
     glusProgramCreateFromSource(&g_programPassOne, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
@@ -456,6 +488,10 @@ GLUSboolean init(GLUSvoid)
     if (!glusProgramLink(&g_programPassOne))
     {
         printf("Could not build program one\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
 
         return GLUS_FALSE;
     }
@@ -478,15 +514,64 @@ GLUSboolean init(GLUSvoid)
 
     // Pass two.
 
-    glusFileLoadText("../Example14/shader/PassTwo.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example14/shader/PassTwo.cont.glsl", &controlSource);
-    glusFileLoadText("../Example14/shader/PassTwo.eval.glsl", &evaluationSource);
-    glusFileLoadText("../Example14/shader/PassTwo.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example14/shader/PassTwo.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example14/shader/PassTwo.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassTwo.cont.glsl", &controlSource))
+    {
+        printf("Could not load tessellation control shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassTwo.eval.glsl", &evaluationSource))
+    {
+        printf("Could not load tessellation evaluation shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassTwo.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example14/shader/PassTwo.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
 
     if (!glusProgramBuildFromSource(&g_shaderProgramPassTwo, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
     {
         printf("Could not build program two\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
 
         return GLUS_FALSE;
     }

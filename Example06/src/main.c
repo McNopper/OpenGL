@@ -65,10 +65,31 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape cube;
 
-    glusFileLoadText("../Example06/shader/basic.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example06/shader/texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example06/shader/basic.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example06/shader/texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -91,7 +112,12 @@ GLUSboolean init(GLUSvoid)
 
     // Texture set up.
 
-    glusImageLoadTga("crate.tga", &image);
+    if (!glusImageLoadTga("crate.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -113,7 +139,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateCubef(&cube, 0.5f);
+    if (!glusShapeCreateCubef(&cube, 0.5f))
+    {
+        printf("Could not create cube!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesSphere = cube.numberIndices;
 

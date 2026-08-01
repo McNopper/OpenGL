@@ -72,10 +72,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example20/shader/checker.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example20/shader/checker.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example20/shader/checker.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example20/shader/checker.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -94,7 +115,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&plane, 2.0f);
+    if (!glusShapeCreatePlanef(&plane, 2.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPlane = plane.numberIndices;
 

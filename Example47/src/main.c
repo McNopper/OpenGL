@@ -88,7 +88,6 @@ static GLuint g_vao = 0;
 
 static GLint     g_sortStep    = 0;
 static GLboolean g_sorting     = GLUS_FALSE;
-static GLboolean g_sorted      = GLUS_FALSE;
 static GLint     g_stepDelayMs = 100;  // ms between steps; 0 = STEPS_PER_FRAME/frame
 static GLfloat   g_accumTime   = 0.0f; // accumulated time for delay mode (seconds)
 
@@ -217,7 +216,6 @@ static void resetSortState(void)
 {
     g_sortStep  = 0;
     g_sorting   = GLUS_FALSE;
-    g_sorted    = GLUS_FALSE;
     g_accumTime = 0.0f;
 }
 
@@ -263,7 +261,6 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
     if (k == 32 && !g_sorting)
     {
         g_sorting   = GLUS_TRUE;
-        g_sorted    = GLUS_FALSE;
         g_sortStep  = 0;
         g_accumTime = 0.0f;
     }
@@ -271,7 +268,7 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint k)
     // R: reshuffle the texture; press Space to start sorting.
     if (k == 'r' || k == 'R')
     {
-        GLubyte* data = (GLubyte*)malloc((size_t)(g_gridN * g_gridN * g_gridN) * 4);
+        GLubyte* data = (GLubyte*)malloc((size_t)g_gridN * (size_t)g_gridN * (size_t)g_gridN * 4);
 
         if (data)
         {
@@ -312,11 +309,35 @@ GLUSboolean init(GLUSvoid)
     // Sort compute shader — GRID_N injected as a #define before compilation.
     //
 
-    glusFileLoadText("../Example47/shader/sort.comp.glsl", &sortSource);
+    if (!glusFileLoadText("../Example47/shader/sort.comp.glsl", &sortSource))
+    {
+        printf("Could not load compute shader!\n");
+
+        return GLUS_FALSE;
+    }
 
     {
         GLUSchar* patchedSource = injectDefine(sortSource.text, g_gridN);
-        glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&patchedSource);
+
+        if (!patchedSource)
+        {
+            printf("Could not patch compute shader!\n");
+
+            glusFileDestroyText(&sortSource);
+
+            return GLUS_FALSE;
+        }
+
+        if (!glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&patchedSource))
+        {
+            printf("Could not build compute program!\n");
+
+            free(patchedSource);
+            glusFileDestroyText(&sortSource);
+
+            return GLUS_FALSE;
+        }
+
         free(patchedSource);
     }
 
@@ -333,13 +354,34 @@ GLUSboolean init(GLUSvoid)
     // Render program.
     //
 
-    glusFileLoadText("../Example47/shader/render.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example47/shader/render.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example47/shader/render.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_renderProgram,
-                               (const GLUSchar**)&vertexSource.text,
-                               0, 0, 0,
-                               (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example47/shader/render.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_renderProgram,
+                                    (const GLUSchar**)&vertexSource.text,
+                                    0, 0, 0,
+                                    (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -361,7 +403,7 @@ GLUSboolean init(GLUSvoid)
     // Create the 3D texture - the core data structure.
     //
 
-    colorData = (GLubyte*)malloc((size_t)(g_gridN * g_gridN * g_gridN) * 4);
+    colorData = (GLubyte*)malloc((size_t)g_gridN * (size_t)g_gridN * (size_t)g_gridN * 4);
 
     if (!colorData)
     {
@@ -504,7 +546,6 @@ GLUSboolean update(GLUSfloat time)
                 if (g_sortStep >= totalSteps)
                 {
                     g_sorting = GLUS_FALSE;
-                    g_sorted  = GLUS_TRUE;
                 }
             }
 

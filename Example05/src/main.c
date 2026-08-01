@@ -110,10 +110,31 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape sphere;
 
-    glusFileLoadText("../Example05/shader/phong.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example05/shader/phong.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example05/shader/phong.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example05/shader/phong.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -140,7 +161,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a sphere.
-    glusShapeCreateSpheref(&sphere, 0.5f, 32);
+    if (!glusShapeCreateSpheref(&sphere, 0.5f, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesSphere = sphere.numberIndices;
 

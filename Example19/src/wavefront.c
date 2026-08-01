@@ -72,10 +72,31 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
     //
 
-    glusFileLoadText("../Example19/shader/phong.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example19/shader/phong.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example19/shader/phong.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example19/shader/phong.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -102,7 +123,12 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("monkey.obj", &wavefrontObj);
+    if (!glusShapeLoadWavefront("monkey.obj", &wavefrontObj))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberVertices = wavefrontObj.numberVertices;
 
@@ -176,7 +202,7 @@ GLUSvoid reshapeWavefront(GLUSint width, GLUSint height)
     glUniformMatrix4fv(g_projectionMatrixLocation, 1, GL_FALSE, projectionMatrix);
 }
 
-GLUSboolean updateWavefront(GLUSfloat time, GLUSfloat scaleMatrix[16])
+GLUSboolean updateWavefront(GLUSfloat time, GLUSfloat scaleMatrix[16], GLUSboolean advance)
 {
     static GLfloat angle = 0.0f;
 
@@ -209,7 +235,11 @@ GLUSboolean updateWavefront(GLUSfloat time, GLUSfloat scaleMatrix[16])
 
     glDrawArrays(GL_TRIANGLES, 0, g_numberVertices);
 
-    angle += 30.0f * time;
+    // The object is rendered twice per frame, so only advance the angle once.
+    if (advance)
+    {
+        angle += 30.0f * time;
+    }
 
     return GLUS_TRUE;
 }

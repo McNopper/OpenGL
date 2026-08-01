@@ -114,10 +114,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example19/shader/basic_proj.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example19/shader/texture_multi_proj.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example19/shader/basic_proj.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example19/shader/texture_multi_proj.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -143,7 +164,12 @@ GLUSboolean init(GLUSvoid)
 
     // Texture set up.
 
-    glusImageLoadTga("ice.tga", &image);
+    if (!glusImageLoadTga("ice.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -212,7 +238,12 @@ GLUSboolean init(GLUSvoid)
     //
     //
 
-    glusShapeCreatePlanef(&plane, 3.0f);
+    if (!glusShapeCreatePlanef(&plane, 3.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesSphere = plane.numberIndices;
 
@@ -356,7 +387,7 @@ GLUSboolean update(GLUSfloat time)
 
     glFrontFace(GL_CW);
 
-    if (!updateWavefront(time, scaleMatrix))
+    if (!updateWavefront(time, scaleMatrix, GLUS_FALSE))
     {
         return GLUS_FALSE;
     }
@@ -383,7 +414,7 @@ GLUSboolean update(GLUSfloat time)
 
     glFrontFace(GL_CCW);
 
-    if (!updateWavefront(time, scaleMatrix))
+    if (!updateWavefront(time, scaleMatrix, GLUS_TRUE))
     {
         return GLUS_FALSE;
     }

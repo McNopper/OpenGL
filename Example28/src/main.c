@@ -193,10 +193,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example28/shader/texture.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example28/shader/texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example28/shader/texture.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example28/shader/texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -220,10 +241,31 @@ GLUSboolean init(GLUSvoid)
     // SSAO shader etc.
     //
 
-    glusFileLoadText("../Example28/shader/ssao.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example28/shader/ssao.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example28/shader/ssao.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_ssaoProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example28/shader/ssao.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_ssaoProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -249,10 +291,31 @@ GLUSboolean init(GLUSvoid)
     // Blur shader etc.
     //
 
-    glusFileLoadText("../Example28/shader/blur.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example28/shader/blur.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example28/shader/blur.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_blurProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example28/shader/blur.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_blurProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -276,7 +339,12 @@ GLUSboolean init(GLUSvoid)
     // Texture set up for the ground plane.
     //
 
-    glusImageLoadTga("wood_texture.tga", &image);
+    if (!glusImageLoadTga("wood_texture.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_texture);
     glBindTexture(GL_TEXTURE_2D, g_texture);
@@ -404,7 +472,12 @@ GLUSboolean init(GLUSvoid)
     // Ground plane setup.
     //
 
-    glusShapeCreatePlanef(&plane, 20.0f);
+    if (!glusShapeCreatePlanef(&plane, 20.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPlane = plane.numberIndices;
 
@@ -466,7 +539,12 @@ GLUSboolean init(GLUSvoid)
     // Post process plane setup.
     //
 
-    glusShapeCreatePlanef(&plane, 1.0f);
+    if (!glusShapeCreatePlanef(&plane, 1.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPostprocessPlane = plane.numberIndices;
 
@@ -676,6 +754,8 @@ GLUSvoid key(GLUSboolean pressed, GLUSint key)
 {
     static GLboolean noSSAO = GL_FALSE;
 
+    glUseProgram(g_blurProgram.program);
+
     if (pressed)
     {
         // w for wireframe on / off
@@ -769,7 +849,7 @@ GLUSboolean update(GLUSfloat time)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(GL_BACK);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

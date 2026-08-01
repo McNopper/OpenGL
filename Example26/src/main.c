@@ -126,19 +126,71 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example26/shader/ambient_diffuse_texture.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example26/shader/ambient_diffuse_texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example26/shader/ambient_diffuse_texture.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example26/shader/ambient_diffuse_texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../Example26/shader/fur.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example26/shader/fur.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example26/shader/fur.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example26/shader/fur.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programFur, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example26/shader/fur.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example26/shader/fur.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programFur, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -178,7 +230,12 @@ GLUSboolean init(GLUSvoid)
 
     // Color texture set up.
 
-    glusImageLoadTga("tiger.tga", &image);
+    if (!glusImageLoadTga("tiger.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_textureFurColor);
     glBindTexture(GL_TEXTURE_2D, g_textureFurColor);
@@ -223,7 +280,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("bunny.obj", &bunnyShape);
+    if (!glusShapeLoadWavefront("bunny.obj", &bunnyShape))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     // This model does not have any texture coordinates, so generate them.
     glusShapeTexGenByAxesf(&bunnyShape, 2.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f);
@@ -271,16 +333,16 @@ GLUSboolean init(GLUSvoid)
     glBindVertexArray(g_vaoFur);
 
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glVertexAttribPointer(g_vertexLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(g_vertexLocation);
+    glVertexAttribPointer(g_vertexFurLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_vertexFurLocation);
 
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glVertexAttribPointer(g_normalLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(g_normalLocation);
+    glVertexAttribPointer(g_normalFurLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_normalFurLocation);
 
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glVertexAttribPointer(g_texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(g_texCoordLocation);
+    glVertexAttribPointer(g_texCoordFurLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(g_texCoordFurLocation);
 
     //
 

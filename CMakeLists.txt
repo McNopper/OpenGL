@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project (OpenGLExamples VERSION 3.2.0)
+project (OpenGLExamples VERSION 3.2.1)
 
 include(FetchContent)
 
@@ -35,23 +35,25 @@ set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(glew-cmake_BUILD_STATIC ON CACHE BOOL "" FORCE)
 set(ONLY_LIBS ON CACHE BOOL "" FORCE)
 
+# glew-cmake still declares cmake_minimum_required(VERSION 2.8.12), which modern
+# CMake refuses. The single argument FetchContent_Populate() that used to patch
+# it is deprecated (CMP0169) and becomes an error with CMake >= 3.30, so the
+# patch is applied through PATCH_COMMAND instead. The replacement is idempotent,
+# therefore it is safe to re-run on every configure.
+set(GLEW_PATCH_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/patch_glew.cmake)
+file(WRITE ${GLEW_PATCH_SCRIPT}
+"file(READ \"\${GLEW_CMAKELISTS}\" GLEW_CMAKE_CONTENT)\n"
+"string(REPLACE \"cmake_minimum_required(VERSION 2.8.12)\" \"cmake_minimum_required(VERSION 3.5)\" GLEW_CMAKE_CONTENT \"\${GLEW_CMAKE_CONTENT}\")\n"
+"file(WRITE \"\${GLEW_CMAKELISTS}\" \"\${GLEW_CMAKE_CONTENT}\")\n")
+
 FetchContent_Declare(
     glew
     GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
     GIT_TAG glew-cmake-2.2.0
+    PATCH_COMMAND ${CMAKE_COMMAND} -DGLEW_CMAKELISTS=<SOURCE_DIR>/CMakeLists.txt -P ${GLEW_PATCH_SCRIPT}
 )
 
-FetchContent_GetProperties(glew)
-if(NOT glew_POPULATED)
-    FetchContent_Populate(glew)
-    # Patch the CMakeLists.txt to use a modern CMake version
-    file(READ "${glew_SOURCE_DIR}/CMakeLists.txt" GLEW_CMAKE_CONTENT)
-    string(REPLACE "cmake_minimum_required(VERSION 2.8.12)" "cmake_minimum_required(VERSION 3.5)" GLEW_CMAKE_CONTENT "${GLEW_CMAKE_CONTENT}")
-    file(WRITE "${glew_SOURCE_DIR}/CMakeLists.txt" "${GLEW_CMAKE_CONTENT}")
-    add_subdirectory(${glew_SOURCE_DIR} ${glew_BINARY_DIR})
-endif()
-
-FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(glew glfw)
 
 # Set Variables for include and linking depending on platform
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

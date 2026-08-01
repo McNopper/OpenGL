@@ -149,23 +149,54 @@ PointLight g_lightBuffer[NUM_LIGHTS] = {
 
 GLUSboolean init(GLUSvoid)
 {
-    GLint i;
-
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
     GLUStextfile computeSource;
 
-    glusFileLoadText("../Example30/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example30/shader/texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example30/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example30/shader/texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../Example30/shader/raytrace.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example30/shader/raytrace.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
@@ -232,10 +263,7 @@ GLUSboolean init(GLUSvoid)
     // Compute shader will use these textures just for input.
     glusRaytraceLookAtf(g_positionBuffer, g_directionBuffer, g_directionBuffer, DIRECTION_BUFFER_PADDING, WIDTH, HEIGHT, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-    for (i = 0; i < WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES; i++)
-    {
-        g_stackBuffer[i] = 0.0f;
-    }
+    // The stack buffer has static storage duration, so it is already zero initialized.
 
     printf("done!\n");
 
@@ -264,7 +292,16 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_stackSSBO);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_stackSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (GLsizeiptr)WIDTH * HEIGHT * STACK_NODE_FLOATS * NUM_STACK_NODES * sizeof(GLfloat), g_stackBuffer, GL_STATIC_DRAW);
+
+    // The stack buffer is huge and can easily exceed GL_MAX_SHADER_STORAGE_BLOCK_SIZE.
+    if (glGetError() != GL_NO_ERROR)
+    {
+        printf("Could not allocate the stack buffer!\n");
+
+        return GLUS_FALSE;
+    }
+
     // see binding = 3 in the shader
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_stackSSBO);
 
@@ -303,6 +340,9 @@ GLUSboolean update(GLUSfloat time)
 
     // Create threads depending on width, height and block size. In this case we have 1200 threads.
     glDispatchCompute(WIDTH / g_localSize, HEIGHT / g_localSize, 1);
+
+    // Ensure the image writes are visible, before the texture is sampled.
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
     // Switch back to the render program.
     glUseProgram(g_program.program);

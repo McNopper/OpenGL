@@ -61,19 +61,54 @@ GLUSboolean init(GLUSvoid)
     GLUStextfile fragmentSource;
 
     // Load the source of the vertex and fragment shader.
-    glusFileLoadText("../Example39/shader/offset.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example39/shader/red_green_blue.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example39/shader/offset.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example39/shader/red_green_blue.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
 
     // Build the programs.
-    glusProgramBuildSeparableFromSource(&g_vertexProgram, GL_VERTEX_SHADER, (const GLchar**)&vertexSource.text);
-    glusProgramBuildSeparableFromSource(&g_fragmentProgram, GL_FRAGMENT_SHADER, (const GLchar**)&fragmentSource.text);
+    if (!glusProgramBuildSeparableFromSource(&g_vertexProgram, GL_VERTEX_SHADER, (const GLchar**)&vertexSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildSeparableFromSource(&g_fragmentProgram, GL_FRAGMENT_SHADER, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     // Destroy the text resources.
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     // Build the program pipeline.
-    glusProgramPipelineBuild(&g_programPipeline, g_vertexProgram.program, 0, 0, 0, g_fragmentProgram.program);
+    if (!glusProgramPipelineBuild(&g_programPipeline, g_vertexProgram.program, 0, 0, 0, g_fragmentProgram.program))
+    {
+        printf("Could not build program pipeline!\n");
+
+        return GLUS_FALSE;
+    }
 
     //
 

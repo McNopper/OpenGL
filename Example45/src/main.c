@@ -70,11 +70,42 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat halfPixelSize[2];
 
-    glusFileLoadText("../Example45/shader/voxelize.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example45/shader/voxelize.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example45/shader/voxelize.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example45/shader/voxelize.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example45/shader/voxelize.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example45/shader/voxelize.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -92,7 +123,12 @@ GLUSboolean init(GLUSvoid)
     // 3D model
     //
 
-    glusWavefrontLoad("ChessKing.obj", &g_wavefront);
+    if (!glusWavefrontLoad("ChessKing.obj", &g_wavefront))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenBuffers(1, &g_wavefront.verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
@@ -227,10 +263,31 @@ GLUSboolean init(GLUSvoid)
     // Full screen rendering.
     //
 
-    glusFileLoadText("../Example45/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example45/shader/draw_voxels.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example45/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_fullscreenProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example45/shader/draw_voxels.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_fullscreenProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -343,6 +400,9 @@ GLUSboolean update(GLUSfloat time)
     //
 
     glBindImageTexture(BINDING_VOXEL_GRID, 0, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI);
+
+    // Ensure all voxel image writes are visible to the following pass.
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     //
     // Dump the voxelized model to the screen.

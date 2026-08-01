@@ -61,10 +61,31 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape cube;
 
-    glusFileLoadText("../Example04/shader/basic.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example04/shader/color.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example04/shader/basic.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example04/shader/color.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -83,7 +104,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a cube.
-    glusShapeCreateCubef(&cube, 0.5f);
+    if (!glusShapeCreateCubef(&cube, 0.5f))
+    {
+        printf("Could not create cube!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Store the number indices, as we will render with glDrawElements.
     g_numberIndicesCube = cube.numberIndices;

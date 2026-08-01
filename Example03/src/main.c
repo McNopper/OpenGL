@@ -76,10 +76,31 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape plane;
 
-    glusFileLoadText("../Example03/shader/texture.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example03/shader/grey.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example03/shader/texture.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example03/shader/grey.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -96,7 +117,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Load the image.
-    glusImageLoadTga("desert.tga", &image);
+    if (!glusImageLoadTga("desert.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Generate and bind a texture.
     glGenTextures(1, &g_texture);
@@ -116,7 +142,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a rectangular plane.
-    glusShapeCreateRectangularPlanef(&plane, (GLfloat)image.width / 2.0f, (GLfloat)image.height / 2.0f);
+    if (!glusShapeCreateRectangularPlanef(&plane, (GLfloat)image.width / 2.0f, (GLfloat)image.height / 2.0f))
+    {
+        printf("Could not create rectangular plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Destroying now the image, as the width and height was used above.
     glusImageDestroyTga(&image);

@@ -72,10 +72,31 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
 
     //
 
-    glusFileLoadText("../Example20/shader/phong.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example20/shader/phong.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example20/shader/phong.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example20/shader/phong.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -102,7 +123,12 @@ GLUSboolean initWavefront(GLUSfloat viewMatrix[16], struct LightProperties* ligh
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("elephant.obj", &wavefrontObj);
+    if (!glusShapeLoadWavefront("elephant.obj", &wavefrontObj))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberVertices = wavefrontObj.numberVertices;
 

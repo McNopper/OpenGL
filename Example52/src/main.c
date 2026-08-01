@@ -426,9 +426,34 @@ GLUSboolean init(GLUSvoid)
     //
     // Depth compute shader with SPLAT_STRIDE injected.
     //
-    glusFileLoadText("../Example52/shader/depth.comp.glsl", &depthSource);
+    if (!glusFileLoadText("../Example52/shader/depth.comp.glsl", &depthSource))
+    {
+        printf("Could not load compute shader!\n");
+
+        return GLUS_FALSE;
+    }
+
     patchedDepth = injectSplatDefines(depthSource.text, g_splatStride, g_shDegree, 0);
-    glusProgramBuildComputeFromSource(&g_depthProgram, (const GLUSchar**)&patchedDepth);
+
+    if (!patchedDepth)
+    {
+        printf("Could not patch compute shader!\n");
+
+        glusFileDestroyText(&depthSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_depthProgram, (const GLUSchar**)&patchedDepth))
+    {
+        printf("Could not build compute program!\n");
+
+        free(patchedDepth);
+        glusFileDestroyText(&depthSource);
+
+        return GLUS_FALSE;
+    }
+
     free(patchedDepth);
     glusFileDestroyText(&depthSource);
 
@@ -441,8 +466,22 @@ GLUSboolean init(GLUSvoid)
     //
     // Bitonic sort compute shader.
     //
-    glusFileLoadText("../Example52/shader/sort.comp.glsl", &sortSource);
-    glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&sortSource.text);
+    if (!glusFileLoadText("../Example52/shader/sort.comp.glsl", &sortSource))
+    {
+        printf("Could not load compute shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_sortProgram, (const GLUSchar**)&sortSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&sortSource);
+
+        return GLUS_FALSE;
+    }
+
     glusFileDestroyText(&sortSource);
 
     glUseProgram(g_sortProgram.program);
@@ -453,14 +492,48 @@ GLUSboolean init(GLUSvoid)
     //
     // Splat render program with SPLAT_STRIDE and SH_DEGREE injected.
     //
-    glusFileLoadText("../Example52/shader/splat.vert.glsl", &vertSource);
-    glusFileLoadText("../Example52/shader/splat.frag.glsl", &fragSource);
+    if (!glusFileLoadText("../Example52/shader/splat.vert.glsl", &vertSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example52/shader/splat.frag.glsl", &fragSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertSource);
+
+        return GLUS_FALSE;
+    }
 
     patchedVert = injectSplatDefines(vertSource.text, g_splatStride, g_shDegree, 1);
-    glusProgramBuildFromSource(&g_splatProgram,
-                               (const GLUSchar**)&patchedVert,
-                               0, 0, 0,
-                               (const GLUSchar**)&fragSource.text);
+
+    if (!patchedVert)
+    {
+        printf("Could not patch vertex shader!\n");
+
+        glusFileDestroyText(&vertSource);
+        glusFileDestroyText(&fragSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_splatProgram,
+                                    (const GLUSchar**)&patchedVert,
+                                    0, 0, 0,
+                                    (const GLUSchar**)&fragSource.text))
+    {
+        printf("Could not build program!\n");
+
+        free(patchedVert);
+        glusFileDestroyText(&vertSource);
+        glusFileDestroyText(&fragSource);
+
+        return GLUS_FALSE;
+    }
+
     free(patchedVert);
     glusFileDestroyText(&vertSource);
     glusFileDestroyText(&fragSource);

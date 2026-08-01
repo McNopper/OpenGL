@@ -83,8 +83,6 @@ static GLuint g_vaoBackground;
 
 static GLuint g_vaoShadow;
 
-static GLuint g_vaoShadowBackground;
-
 //
 
 static GLuint g_numberIndicesSphere;
@@ -129,20 +127,62 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example12/shader/rendershadow.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example12/shader/rendershadow.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example12/shader/rendershadow.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programShadow, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example12/shader/rendershadow.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programShadow, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusFileLoadText("../Example12/shader/useshadow.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example12/shader/useshadow.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example12/shader/useshadow.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example12/shader/useshadow.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -176,8 +216,8 @@ GLUSboolean init(GLUSvoid)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
@@ -211,7 +251,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
+    if (!glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32))
+    {
+        printf("Could not create torus!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesSphere = torus.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);
@@ -234,7 +280,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&background, 10.0f);
+    if (!glusShapeCreatePlanef(&background, 10.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesBackground = background.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -312,16 +364,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
 
-    // Plane
-
-    glGenVertexArrays(1, &g_vaoShadowBackground);
-    glBindVertexArray(g_vaoShadowBackground);
-
-    glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-    glVertexAttribPointer(g_vertexShadowLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(g_vertexShadowLocation);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
+    // The plane does not cast into the shadow map, so no VAO is needed for it here.
 
     //
 
@@ -474,7 +517,7 @@ GLUSvoid terminate(GLUSvoid)
 
     if (g_shadowTexture)
     {
-        glDeleteRenderbuffers(1, &g_shadowTexture);
+        glDeleteTextures(1, &g_shadowTexture);
 
         g_shadowTexture = 0;
     }
@@ -551,7 +594,7 @@ GLUSvoid terminate(GLUSvoid)
     {
         glDeleteVertexArrays(1, &g_vaoBackground);
 
-        g_vao = 0;
+        g_vaoBackground = 0;
     }
 
     glUseProgram(0);
@@ -565,13 +608,6 @@ GLUSvoid terminate(GLUSvoid)
         glDeleteVertexArrays(1, &g_vaoShadow);
 
         g_vaoShadow = 0;
-    }
-
-    if (g_vaoShadowBackground)
-    {
-        glDeleteVertexArrays(1, &g_vaoShadowBackground);
-
-        g_vaoShadowBackground = 0;
     }
 
     glusProgramDestroy(&g_programShadow);

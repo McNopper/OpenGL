@@ -140,15 +140,28 @@ GLUSboolean init(GLUSvoid)
     GLUSshape    sphere;
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
-    GLfloat      dx, dy, dz;
 
     // ----------------------------------------------------------------
     // Build shader programs for background and fullscreen resolve.
     // The PBR and IBL shaders are loaded from the GLUS shader directory.
     // ----------------------------------------------------------------
 
-    glusFileLoadText("../Example48/shader/background.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example48/shader/background.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example48/shader/background.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example48/shader/background.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_bgProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -159,8 +172,22 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../Example48/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example48/shader/fullscreen.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example48/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example48/shader/fullscreen.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_fullscreenProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -171,8 +198,22 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.vert.glsl", &vertexSource);
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_pbrProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -257,7 +298,13 @@ GLUSboolean init(GLUSvoid)
     // Background sphere.
     // ----------------------------------------------------------------
 
-    glusShapeCreateSpheref(&sphere, 500.0f, 32);
+    if (!glusShapeCreateSpheref(&sphere, 500.0f, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_bgIndexCount = sphere.numberIndices;
 
     glGenVertexArrays(1, &g_bgVAO);
@@ -338,9 +385,6 @@ GLUSboolean init(GLUSvoid)
         return GLUS_FALSE;
     }
 
-    (void)dx;
-    (void)dy;
-    (void)dz;
     g_orbitRadius = g_scene.sceneRadius * CAMERA_ORBIT_RADIUS_FACTOR;
     if (g_orbitRadius < CAMERA_ORBIT_RADIUS_MIN)
     {
@@ -400,6 +444,11 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
                                      GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                               GL_RENDERBUFFER, g_msaaDepth);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

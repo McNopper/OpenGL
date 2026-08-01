@@ -75,6 +75,16 @@ GLUSboolean init(GLUSvoid)
 
     GLuint waterTexture;
 
+    if (!points || !indices)
+    {
+        printf("Could not allocate the water plane!\n");
+
+        free(points);
+        free(indices);
+
+        return GLUS_FALSE;
+    }
+
     for (z = 0; z < WATER_PLANE_LENGTH; z++)
     {
         for (x = 0; x < WATER_PLANE_LENGTH; x++)
@@ -105,10 +115,40 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example15/shader/Water.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example15/shader/Water.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example15/shader/Water.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        free(points);
+        free(indices);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example15/shader/Water.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        free(points);
+        free(indices);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        free(points);
+        free(indices);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -156,27 +196,63 @@ GLUSboolean init(GLUSvoid)
     glGenTextures(1, &g_cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_cubemap);
 
-    glusImageLoadTga("water_pos_x.tga", &image);
+    if (!glusImageLoadTga("water_pos_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("water_neg_x.tga", &image);
+    if (!glusImageLoadTga("water_neg_x.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("water_pos_y.tga", &image);
+    if (!glusImageLoadTga("water_pos_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("water_neg_y.tga", &image);
+    if (!glusImageLoadTga("water_neg_y.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("water_pos_z.tga", &image);
+    if (!glusImageLoadTga("water_pos_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
-    glusImageLoadTga("water_neg_z.tga", &image);
+    if (!glusImageLoadTga("water_neg_z.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
+
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, image.format, image.width, image.height, 0, image.format, GL_UNSIGNED_BYTE, image.data);
     glusImageDestroyTga(&image);
 
@@ -190,6 +266,13 @@ GLUSboolean init(GLUSvoid)
     //
 
     waterTexture = initWaterTexture((GLUSfloat)WATER_PLANE_LENGTH);
+
+    if (!waterTexture)
+    {
+        printf("Could not initialize the water texture!\n");
+
+        return GLUS_FALSE;
+    }
 
     glUseProgram(g_program.program);
 
@@ -214,7 +297,12 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    initBackground();
+    if (!initBackground())
+    {
+        printf("Could not initialize the background!\n");
+
+        return GLUS_FALSE;
+    }
 
     //
 
@@ -276,7 +364,7 @@ GLUSvoid renderWater(GLUSfloat passedTime)
     waveParameters[2].speed      = 0.1f;
     waveParameters[2].amplitude  = 0.015f;
     waveParameters[2].wavelength = 2.0f;
-    waveParameters[2].steepness  = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat)NUMBERWAVES);
+    waveParameters[2].steepness  = overallSteepness / (waveParameters[2].wavelength * waveParameters[2].amplitude * (GLfloat)NUMBERWAVES);
     waveDirections[2].x          = -0.1f;
     waveDirections[2].z          = -0.2f;
 
@@ -284,7 +372,7 @@ GLUSvoid renderWater(GLUSfloat passedTime)
     waveParameters[3].speed      = 1.1f;
     waveParameters[3].amplitude  = 0.008f;
     waveParameters[3].wavelength = 1.0f;
-    waveParameters[3].steepness  = overallSteepness / (waveParameters[1].wavelength * waveParameters[1].amplitude * (GLfloat)NUMBERWAVES);
+    waveParameters[3].steepness  = overallSteepness / (waveParameters[3].wavelength * waveParameters[3].amplitude * (GLfloat)NUMBERWAVES);
     waveDirections[3].x          = -0.2f;
     waveDirections[3].z          = -0.1f;
 
@@ -295,8 +383,8 @@ GLUSvoid renderWater(GLUSfloat passedTime)
 
     glUniform1f(g_passedTimeLocation, passedTime);
 
-    glUniform4fv(g_waveParametersLocation, 4 * NUMBERWAVES, (GLfloat*)waveParameters);
-    glUniform2fv(g_waveDirectionsLocation, 2 * NUMBERWAVES, (GLfloat*)waveDirections);
+    glUniform4fv(g_waveParametersLocation, NUMBERWAVES, (GLfloat*)waveParameters);
+    glUniform2fv(g_waveDirectionsLocation, NUMBERWAVES, (GLfloat*)waveDirections);
 
     glBindVertexArray(g_vao);
 

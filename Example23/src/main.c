@@ -92,13 +92,67 @@ GLUSboolean init(GLUSvoid)
 
     GLUStgaimage image;
 
-    glusFileLoadText("../Example23/shader/tessellation.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example23/shader/tessellation.cont.glsl", &controlSource);
-    glusFileLoadText("../Example23/shader/tessellation.eval.glsl", &evaluationSource);
-    glusFileLoadText("../Example23/shader/tessellation.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example23/shader/tessellation.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example23/shader/tessellation.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example23/shader/tessellation.cont.glsl", &controlSource))
+    {
+        printf("Could not load tessellation control shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example23/shader/tessellation.eval.glsl", &evaluationSource))
+    {
+        printf("Could not load tessellation evaluation shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example23/shader/tessellation.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example23/shader/tessellation.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, (const GLUSchar**)&controlSource.text, (const GLUSchar**)&evaluationSource.text, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&controlSource);
+        glusFileDestroyText(&evaluationSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&controlSource);
@@ -134,7 +188,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Load the image.
-    glusImageLoadTga("four_shapes_color.tga", &image);
+    if (!glusImageLoadTga("four_shapes_color.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -156,7 +215,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Load the image.
-    glusImageLoadTga("four_shapes_normal.tga", &image);
+    if (!glusImageLoadTga("four_shapes_normal.tga", &image))
+    {
+        printf("Could not load image!\n");
+
+        return GLUS_FALSE;
+    }
 
     glActiveTexture(GL_TEXTURE1);
 
@@ -182,7 +246,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Core grid
-    glusShapeCreateRectangularGridPlanef(&plane, 3.0f, 3.0f, 16, 16, GLUS_FALSE);
+    if (!glusShapeCreateRectangularGridPlanef(&plane, 3.0f, 3.0f, 16, 16, GLUS_FALSE))
+    {
+        printf("Could not create rectangular grid plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPlane = plane.numberIndices;
 
@@ -287,6 +356,8 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 
     glViewport(0, 0, width, height);
 
+    glUseProgram(g_program.program);
+
     // Needed for screen space dependent tessellation
     glUniform1f(g_widthLocation, (GLfloat)width);
     glUniform1f(g_heightLocation, (GLfloat)height);
@@ -303,6 +374,8 @@ GLUSvoid key(GLUSboolean pressed, GLUSint key)
     static GLboolean tessellation = GL_TRUE;
 
     static GLboolean wireframe = GL_FALSE;
+
+    glUseProgram(g_program.program);
 
     if (pressed && key == 'd')
     {
@@ -379,6 +452,7 @@ GLUSboolean update(GLUSfloat time)
 
 GLUSvoid terminate(GLUSvoid)
 {
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if (g_colorTexture)
@@ -388,12 +462,17 @@ GLUSvoid terminate(GLUSvoid)
         g_colorTexture = 0;
     }
 
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     if (g_normalTexture)
     {
         glDeleteTextures(1, &g_normalTexture);
 
         g_normalTexture = 0;
     }
+
+    glActiveTexture(GL_TEXTURE0);
 
     //
 

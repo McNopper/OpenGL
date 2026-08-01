@@ -242,8 +242,22 @@ GLUSboolean init(GLUSvoid)
     // Build shader programs.
     // ----------------------------------------------------------------
 
-    glusFileLoadText("../Example50/shader/background.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example50/shader/background.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example50/shader/background.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example50/shader/background.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_bgProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -254,8 +268,22 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../Example50/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example50/shader/fullscreen.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example50/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example50/shader/fullscreen.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_fullscreenProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -266,8 +294,22 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.vert.glsl", &vertexSource);
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_pbrProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -278,8 +320,22 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr_skinned.vert.glsl", &vertexSource);
-    glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr_skinned.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText(GLUS_SHADER_DIR "/glus_gltf_pbr.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
     if (!glusProgramBuildFromSource(&g_pbrSkinnedProg, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         glusFileDestroyText(&vertexSource);
@@ -385,7 +441,13 @@ GLUSboolean init(GLUSvoid)
     // Background sphere.
     // ----------------------------------------------------------------
 
-    glusShapeCreateSpheref(&sphere, 500.0f, 32);
+    if (!glusShapeCreateSpheref(&sphere, 500.0f, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_bgIndexCount = sphere.numberIndices;
 
     glGenVertexArrays(1, &g_bgVAO);
@@ -557,6 +619,11 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
                                      GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                               GL_RENDERBUFFER, g_msaaDepth);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -818,6 +885,13 @@ GLUSvoid terminate(GLUSvoid)
     glusProgramDestroy(&g_fullscreenProg);
     glusProgramDestroy(&g_pbrProg);
     glusProgramDestroy(&g_pbrSkinnedProg);
+
+    if (g_logFile)
+    {
+        fclose(g_logFile);
+
+        g_logFile = NULL;
+    }
 }
 
 GLUSvoid key(const GLUSboolean pressed, const GLUSint key)

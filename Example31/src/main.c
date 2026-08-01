@@ -148,10 +148,31 @@ GLUSboolean init(GLUSvoid)
     // Each point light is rendered as a sphere.
     //
 
-    glusFileLoadText("../Example31/shader/point_light.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example31/shader/point_light.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example31/shader/point_light.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programPointLight, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example31/shader/point_light.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programPointLight, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -173,7 +194,12 @@ GLUSboolean init(GLUSvoid)
     g_vertexPointLightLocation = glGetAttribLocation(g_programPointLight.program, "a_vertex");
 
     // Use a helper function to create a cube.
-    glusShapeCreateSpheref(&sphere, POINT_LIGHT_RADIUS, 32);
+    if (!glusShapeCreateSpheref(&sphere, POINT_LIGHT_RADIUS, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberIndicesPointLight = sphere.numberIndices;
 
@@ -222,10 +248,31 @@ GLUSboolean init(GLUSvoid)
     //
     //
 
-    glusFileLoadText("../Example31/shader/deferred_shading.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example31/shader/deferred_shading.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example31/shader/deferred_shading.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programDeferredShading, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example31/shader/deferred_shading.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programDeferredShading, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -252,7 +299,12 @@ GLUSboolean init(GLUSvoid)
     // Use a helper function to load the wavefront object file.
     //
 
-    glusWavefrontLoad("ChessPawn.obj", &g_wavefront);
+    if (!glusWavefrontLoad("ChessPawn.obj", &g_wavefront))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenBuffers(1, &g_wavefront.verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
@@ -317,7 +369,12 @@ GLUSboolean init(GLUSvoid)
         if (materialWalker->material.diffuseTextureFilename[0] != '\0')
         {
             // Load the image.
-            glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image);
+            if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
+            {
+                printf("Could not load image!\n");
+
+                return GLUS_FALSE;
+            }
 
             // Generate and bind a texture.
             glGenTextures(1, &materialWalker->material.diffuseTextureName);
@@ -564,7 +621,7 @@ GLUSboolean update(GLUSfloat time)
     //
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(GL_BACK);
 
     reshape(TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
@@ -671,6 +728,13 @@ GLUSvoid terminate(GLUSvoid)
         glDeleteBuffers(1, &g_verticesPointLightVBO);
 
         g_verticesPointLightVBO = 0;
+    }
+
+    if (g_indicesPointLightVBO)
+    {
+        glDeleteBuffers(1, &g_indicesPointLightVBO);
+
+        g_indicesPointLightVBO = 0;
     }
 
     if (g_wavefront.verticesVBO)

@@ -110,10 +110,31 @@ GLUSboolean init(GLUSvoid)
     GLUSgroupList*    groupWalker;
     GLUSmaterialList* materialWalker;
 
-    glusFileLoadText("../Example25/shader/phong_textured.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example25/shader/phong_textured.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example25/shader/phong_textured.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example25/shader/phong_textured.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -145,7 +166,12 @@ GLUSboolean init(GLUSvoid)
     // Use a helper function to load the wavefront object file.
     //
 
-    glusWavefrontLoad("ChessKing.obj", &g_wavefront);
+    if (!glusWavefrontLoad("ChessKing.obj", &g_wavefront))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     glGenBuffers(1, &g_wavefront.verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
@@ -210,7 +236,12 @@ GLUSboolean init(GLUSvoid)
         if (materialWalker->material.diffuseTextureFilename[0] != '\0')
         {
             // Load the image.
-            glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image);
+            if (!glusImageLoadTga(materialWalker->material.diffuseTextureFilename, &image))
+            {
+                printf("Could not load image!\n");
+
+                return GLUS_FALSE;
+            }
 
             // Generate and bind a texture.
             glGenTextures(1, &materialWalker->material.diffuseTextureName);

@@ -142,10 +142,31 @@ GLUSboolean init(GLUSvoid)
 
     GLfloat colorMaterial[3] = {0.8f, 0.8f, 0.8f};
 
-    glusFileLoadText("../Example32/shader/brdf.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example32/shader/brdf.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example32/shader/brdf.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example32/shader/brdf.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -168,10 +189,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example32/shader/fullscreen.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example32/shader/fullscreen.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example32/shader/fullscreen.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example32/shader/fullscreen.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -187,10 +229,31 @@ GLUSboolean init(GLUSvoid)
     //
     //
 
-    glusFileLoadText("../Example32/shader/background.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example32/shader/background.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example32/shader/background.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example32/shader/background.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -278,7 +341,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32);
+    if (!glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32))
+    {
+        printf("Could not create sphere!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesBackground = backgroundSphere.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -299,7 +368,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to load an wavefront object file.
-    glusShapeLoadWavefront("venusm.obj", &wavefront);
+    if (!glusShapeLoadWavefront("venusm.obj", &wavefront))
+    {
+        printf("Could not load wavefront object!\n");
+
+        return GLUS_FALSE;
+    }
 
     g_numberVerticesModel = wavefront.numberVertices;
 
@@ -365,6 +439,8 @@ GLUSboolean init(GLUSvoid)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glClearDepth(1.0f);
+
+    glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
 
@@ -549,7 +625,7 @@ GLUSvoid terminate(GLUSvoid)
 
     //
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
     if (g_fullscreenTexture)
     {

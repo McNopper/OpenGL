@@ -114,10 +114,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example22/shader/color.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example22/shader/color.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example22/shader/color.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example22/shader/color.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -136,11 +157,42 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example22/shader/shadowvolume.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example22/shader/shadowvolume.geom.glsl", &geometrySource);
-    glusFileLoadText("../Example22/shader/shadowvolume.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example22/shader/shadowvolume.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programShadowVolume, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example22/shader/shadowvolume.geom.glsl", &geometrySource))
+    {
+        printf("Could not load geometry shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example22/shader/shadowvolume.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programShadowVolume, (const GLUSchar**)&vertexSource.text, 0, 0, (const GLUSchar**)&geometrySource.text, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&geometrySource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&geometrySource);
@@ -157,10 +209,31 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example22/shader/shadow.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example22/shader/shadow.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example22/shader/shadow.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programShadowPlane, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example22/shader/shadow.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programShadowPlane, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -171,8 +244,20 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
-    glusShapeCreateAdjacencyIndicesf(&torusWithAdjacency, &torus);
+    if (!glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32))
+    {
+        printf("Could not create torus!\n");
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusShapeCreateAdjacencyIndicesf(&torusWithAdjacency, &torus))
+    {
+        printf("Could not create adjacency indices!\n");
+
+        return GLUS_FALSE;
+    }
+
     glusShapeDestroyf(&torus);
 
     g_numberIndices = torusWithAdjacency.numberIndices;
@@ -197,7 +282,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&plane, 10.0f);
+    if (!glusShapeCreatePlanef(&plane, 10.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesPlane = plane.numberIndices;
 
     glGenBuffers(1, &g_verticesPlaneVBO);
@@ -221,7 +312,13 @@ GLUSboolean init(GLUSvoid)
     //
 
     // The plane extends from -1.0 to 1.0 for both sides. So when rendering in NDC, the plane is always fullscreen.
-    glusShapeCreatePlanef(&shadowPlane, 1.0f);
+    if (!glusShapeCreatePlanef(&shadowPlane, 1.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesShadowPlane = shadowPlane.numberIndices;
 
     glGenBuffers(1, &g_verticesShadowPlaneVBO);
@@ -541,6 +638,13 @@ GLUSvoid terminate(GLUSvoid)
         glDeleteVertexArrays(1, &g_vaoShadowPlane);
 
         g_vaoShadowPlane = 0;
+    }
+
+    if (g_vaoShadowVolume)
+    {
+        glDeleteVertexArrays(1, &g_vaoShadowVolume);
+
+        g_vaoShadowVolume = 0;
     }
 
     glUseProgram(0);

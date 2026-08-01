@@ -97,20 +97,62 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusFileLoadText("../Example27/shader/shadow.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example27/shader/shadow.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example27/shader/shadow.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_programShadow, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example27/shader/shadow.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_programShadow, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
     //
 
-    glusFileLoadText("../Example27/shader/color.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example27/shader/color.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example27/shader/color.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example27/shader/color.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
@@ -137,7 +179,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32);
+    if (!glusShapeCreateTorusf(&torus, 0.5f, 1.0f, 32, 32))
+    {
+        printf("Could not create torus!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesTorus = torus.numberIndices;
 
     glGenBuffers(1, &g_verticesVBO);
@@ -160,7 +208,13 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    glusShapeCreatePlanef(&background, 10.0f);
+    if (!glusShapeCreatePlanef(&background, 10.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
     g_numberIndicesBackground = background.numberIndices;
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
@@ -252,6 +306,8 @@ GLUSboolean init(GLUSvoid)
 GLUSvoid reshape(GLUSint width, GLUSint height)
 {
     GLfloat projectionMatrix[16];
+
+    glViewport(0, 0, width, height);
 
     //
 
@@ -418,7 +474,7 @@ GLUSvoid terminate(GLUSvoid)
     {
         glDeleteVertexArrays(1, &g_vaoBackground);
 
-        g_vao = 0;
+        g_vaoBackground = 0;
     }
 
     glUseProgram(0);

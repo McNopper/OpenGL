@@ -97,17 +97,50 @@ GLUSboolean init(GLUSvoid)
 
     GLUSshape plane;
 
-    glusFileLoadText("../Example21/shader/texture.vert.glsl", &vertexSource);
-    glusFileLoadText("../Example21/shader/texture.frag.glsl", &fragmentSource);
+    if (!glusFileLoadText("../Example21/shader/texture.vert.glsl", &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
-    glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText("../Example21/shader/texture.frag.glsl", &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(&g_program, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    glusFileLoadText("../Example21/shader/texture.comp.glsl", &computeSource);
+    if (!glusFileLoadText("../Example21/shader/texture.comp.glsl", &computeSource))
+    {
+        printf("Could not load compute shader!\n");
 
-    glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text);
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildComputeFromSource(&g_computeProgram, (const GLchar**)&computeSource.text))
+    {
+        printf("Could not build compute program!\n");
+
+        glusFileDestroyText(&computeSource);
+
+        return GLUS_FALSE;
+    }
 
     glusFileDestroyText(&computeSource);
 
@@ -142,7 +175,12 @@ GLUSboolean init(GLUSvoid)
     //
 
     // Use a helper function to create a rectangular plane.
-    glusShapeCreateRectangularPlanef(&plane, (GLfloat)g_imageWidth / 2.0f, (GLfloat)g_imageHeight / 2.0f);
+    if (!glusShapeCreateRectangularPlanef(&plane, (GLfloat)g_imageWidth / 2.0f, (GLfloat)g_imageHeight / 2.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
 
     // Store the number indices, as we will render with glDrawElements.
     g_numberIndicesPlane = plane.numberIndices;
@@ -242,6 +280,9 @@ GLUSboolean update(GLUSfloat time)
 
     // Create threads depending on width, height and block size. In this case we have 1200 threads.
     glDispatchCompute(g_imageWidth / g_localSize, g_imageHeight / g_localSize, 1);
+
+    // Ensure the image writes are visible, before the texture is sampled.
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
     // Switch back to the render program.
     glUseProgram(g_program.program);
