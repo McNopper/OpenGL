@@ -132,7 +132,7 @@ GLUSboolean init(GLUSvoid)
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
 
     // Transfer the vertices from CPU to GPU.
-    glBufferData(GL_ARRAY_BUFFER, 3 * 4 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)3 * 4 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //

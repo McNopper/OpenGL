@@ -360,7 +360,8 @@ GLUSboolean init(GLUSvoid)
         byteStride = g_splatStride * sizeof(GLfloat);
     }
 
-    bvData = (const char*)posAcc->buffer_view->buffer->data + posAcc->buffer_view->offset;
+    // The accessor's own byte offset sits on top of the buffer view's.
+    bvData = (const char*)posAcc->buffer_view->buffer->data + posAcc->buffer_view->offset + posAcc->offset;
     bvSize = posAcc->buffer_view->size;
 
     glusLogPrint(GLUS_LOG_INFO, "Splat count: %u  padded: %u  byteStride: %u",

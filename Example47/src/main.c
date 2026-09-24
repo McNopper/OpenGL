@@ -107,9 +107,9 @@ static GLint g_windowHeight = WINDOW_HEIGHT;
 static void swapTexel(GLubyte* data, GLuint i, GLuint j)
 {
     GLubyte tmp[4];
-    memcpy(tmp, data + i * 4, 4);
-    memcpy(data + i * 4, data + j * 4, 4);
-    memcpy(data + j * 4, tmp, 4);
+    memcpy(tmp, data + (size_t)i * 4, 4);
+    memcpy(data + (size_t)i * 4, data + (size_t)j * 4, 4);
+    memcpy(data + (size_t)j * 4, tmp, 4);
 }
 
 // Fill data with all N^3 unique RGB8 lattice colours then Fisher-Yates shuffle.

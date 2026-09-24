@@ -312,7 +312,7 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_bgVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_bgVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat),
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(sphere.numberVertices) * 4 * sizeof(GLfloat),
                  sphere.vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);

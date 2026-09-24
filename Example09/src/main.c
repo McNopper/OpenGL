@@ -269,7 +269,7 @@ GLUSboolean init(GLUSvoid)
 
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
 
-    glBufferData(GL_ARRAY_BUFFER, PARTICLE_TEXTURE_WIDTH * PARTICLE_TEXTURE_WIDTH * 2 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)PARTICLE_TEXTURE_WIDTH * PARTICLE_TEXTURE_WIDTH * 2 * sizeof(GLfloat), (GLfloat*)points, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

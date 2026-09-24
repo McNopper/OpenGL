@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
-project (OpenGLExamples VERSION 3.2.1)
+project (OpenGLExamples VERSION 3.2.2)
+
+# Build policy + static analysis. Registered ONLY when this is the top-level
+# project: GLUS is vendored through FetchContent and Example50 vendors EGL the
+# same way, and a second `cppcheck` custom target would make CMake fail that
+# build outright. None of this is required to build the examples - with the
+# tools absent and every option at its default the build is unchanged.
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+	include(cppcheck)
+	include(warnings)
+endif()
 
 include(FetchContent)
 
@@ -43,7 +54,7 @@ set(ONLY_LIBS ON CACHE BOOL "" FORCE)
 set(GLEW_PATCH_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/patch_glew.cmake)
 file(WRITE ${GLEW_PATCH_SCRIPT}
 "file(READ \"\${GLEW_CMAKELISTS}\" GLEW_CMAKE_CONTENT)\n"
-"string(REPLACE \"cmake_minimum_required(VERSION 2.8.12)\" \"cmake_minimum_required(VERSION 3.5)\" GLEW_CMAKE_CONTENT \"\${GLEW_CMAKE_CONTENT}\")\n"
+"string(REPLACE \"cmake_minimum_required(VERSION 2.8.12)\" \"cmake_minimum_required(VERSION 3.10)\" GLEW_CMAKE_CONTENT \"\${GLEW_CMAKE_CONTENT}\")\n"
 "file(WRITE \"\${GLEW_CMAKELISTS}\" \"\${GLEW_CMAKE_CONTENT}\")\n")
 
 FetchContent_Declare(
@@ -77,7 +88,7 @@ else()
     FetchContent_Declare(
         glus
         GIT_REPOSITORY https://github.com/McNopper/GLUS.git
-        GIT_TAG        v1.0.1
+        GIT_TAG        v1.1.2
     )
 endif()
 FetchContent_MakeAvailable(glus)
@@ -90,3 +101,16 @@ foreach (EXAMPLE ${EXAMPLES_LIST})
 	message(STATUS "Add Subdirectory: " ${EXAMPLE})
 	add_subdirectory(${EXAMPLE})
 endforeach()
+
+# Warnings are applied per example target and only here - AFTER the dependency
+# setup above - so GLFW, GLEW, GLUS and the EGL that Example50 vendors all
+# keep building exactly as before, and every warning that appears is ours. At
+# the default settings this loop adds no flags at all.
+if(COMMAND project_enable_warnings)
+	foreach(_ex IN LISTS EXAMPLES_LIST)
+		get_filename_component(_ex_target ${_ex} NAME)
+		if(TARGET ${_ex_target})
+			project_enable_warnings(${_ex_target})
+		endif()
+	endforeach()
+endif()

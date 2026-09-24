@@ -38,7 +38,9 @@ void main(void)
     vec4 refractionColor = texture(u_cubemap, refraction);
     vec4 reflectionColor = texture(u_cubemap, reflection);
 
-    float fresnel = Eta + (1.0 - Eta) * pow(max(0.0, 1.0 - dot(-worldIncident, worldNormal)), 5.0);
+    // max(0.0, ...) only clamped the lower end. The base also has to be <= 1, or
+    // pow() exceeds 1 and the mix() below extrapolates past the reflection colour.
+    float fresnel = Eta + (1.0 - Eta) * pow(clamp(1.0 - dot(-worldIncident, worldNormal), 0.0, 1.0), 5.0);
 
     fragColor = mix(refractionColor, reflectionColor, fresnel);
 }

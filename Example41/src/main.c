@@ -267,16 +267,16 @@ GLUSboolean init(GLUSvoid)
     glusMatrix4x4RotateRxf(matrix, -90.0f);
     for (i = 0; i < gridPlane.numberVertices; i++)
     {
-        glusMatrix4x4MultiplyPoint4f(&gridPlane.vertices[4 * i], matrix, &gridPlane.vertices[4 * i]);
+        glusMatrix4x4MultiplyPoint4f(&gridPlane.vertices[(size_t)4 * i], matrix, &gridPlane.vertices[(size_t)4 * i]);
     }
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)gridPlane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(gridPlane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)gridPlane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, gridPlane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)gridPlane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(gridPlane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)gridPlane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -292,7 +292,7 @@ GLUSboolean init(GLUSvoid)
     // Generate H0.
     //
 
-    h0Data = (GLfloat*)malloc(N * N * 2 * sizeof(GLfloat));
+    h0Data = (GLfloat*)malloc((size_t)N * N * 2 * sizeof(GLfloat));
 
     if (!h0Data)
     {

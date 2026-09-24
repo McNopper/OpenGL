@@ -58,6 +58,7 @@ void main(void)
 
     // Calculate the rotation matrix for the kernel.
 
+    // The noise texture is GL_RGB32F holding already-signed unit vectors.
     vec3 randomVector = normalize(texture(u_rotationNoiseTexture, v_texCoord * u_rotationNoiseScale).xyz * 2.0 - 1.0);
 
     // Using Gram-Schmidt process to get an orthogonal vector to the normal vector.
@@ -106,7 +107,7 @@ void main(void)
     }
 
     // No occlusion gets white, full occlusion gets black.
-    occlusion = 1.0 - occlusion / (float(KERNEL_SIZE) - 1.0);
+    occlusion = 1.0 - occlusion / float(KERNEL_SIZE);
 
     fragColor = vec4(occlusion, occlusion, occlusion, 1.0);
 }

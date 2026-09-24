@@ -360,9 +360,9 @@ GLUSboolean init(GLUSvoid)
     // Generate the flat terrain mesh.
     //
 
-    map = (GLUSfloat*)malloc(g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat));
+    map = (GLUSfloat*)malloc((size_t)g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat));
 
-    indices = (GLuint*)malloc(g_sNumPoints * g_tNumPoints * sizeof(GLuint));
+    indices = (GLuint*)malloc((size_t)g_sNumPoints * g_tNumPoints * sizeof(GLuint));
 
     if (!map || !indices)
     {
@@ -393,13 +393,13 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesPassOneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesPassOneVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat), map, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)g_sNumPoints * g_tNumPoints * 2 * sizeof(GLfloat), map, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &g_indicesPassOneVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesPassOneVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_sNumPoints * g_tNumPoints * sizeof(GLuint), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (size_t)g_sNumPoints * g_tNumPoints * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -408,7 +408,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_verticesPassTwoVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesPassTwoVBO);
     // Calculate enough space!
-    glBufferData(GL_ARRAY_BUFFER, g_sNumPoints * g_tNumPoints * (GLuint)pow(4, DETAIL_LEVEL_FIRST_PASS + 1) * 2 * sizeof(GLfloat), 0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)g_sNumPoints * g_tNumPoints * (GLuint)pow(4, DETAIL_LEVEL_FIRST_PASS + 1) * 2 * sizeof(GLfloat), 0, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

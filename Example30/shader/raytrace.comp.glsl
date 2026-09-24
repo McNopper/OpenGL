@@ -122,7 +122,9 @@ float fresnel(vec3 incident, vec3 normal, float r0)
 {
     // see http://en.wikipedia.org/wiki/Schlick%27s_approximation
 
-    return r0 + (1.0 - r0) * pow(1.0 - dot(-incident, normal), 5.0);
+    // Clamped: a dot of two rounded unit vectors can exceed 1, which makes the
+    // base negative and pow() undefined in GLSL.
+    return r0 + (1.0 - r0) * pow(clamp(1.0 - dot(-incident, normal), 0.0, 1.0), 5.0);
 }
 
 int intersectRaySphere(out float tNear, out float tFar, out bool insideSphere, vec4 rayStart, vec3 rayDirection, vec4 sphereCenter, float radius)
@@ -314,7 +316,11 @@ void trace(int pixelPos, int maxLoops, int rayIndex)
         // If inside, it is from glass to air.
         float eta = insideSphereNear ? 1.0 / Eta : Eta;
 
-        vec3 refractionDirection = normalize(refract(rayDirection, hitDirection, eta));
+        // refract() returns vec3(0) on total internal reflection, and normalize()
+        // of that is NaN - which then poisons the whole ray stack. Fall back to
+        // pure reflection at and beyond the critical angle.
+        vec3 refractionCandidate = refract(rayDirection, hitDirection, eta);
+        vec3 refractionDirection = (dot(refractionCandidate, refractionCandidate) > 0.0) ? normalize(refractionCandidate) : reflect(rayDirection, hitDirection);
 
         b_stacks.stack[pixelPos * maxLoops + refractionIndex].position  = biasedNegativeHitPosition;
         b_stacks.stack[pixelPos * maxLoops + refractionIndex].direction = refractionDirection;
@@ -395,7 +401,9 @@ void shade(int pixelPos, int maxLoops, int rayIndex)
     {
         bool obstacle = false;
 
-        vec3 lightDirection         = normalize((b_pointLights.pointLight[i].position - b_stacks.stack[pixelPos * maxLoops + rayIndex].hitPosition).xyz);
+        vec3  lightOffset   = (b_pointLights.pointLight[i].position - b_stacks.stack[pixelPos * maxLoops + rayIndex].hitPosition).xyz;
+        float lightDistance = length(lightOffset);
+        vec3 lightDirection         = normalize(lightOffset);
         vec3 incidentLightDirection = lightDirection * -1.0;
 
         // Check for obstacles between current hit point surface and point light.
@@ -412,7 +420,10 @@ void shade(int pixelPos, int maxLoops, int rayIndex)
 
             int numberIntersections = intersectRaySphere(t0, t1, insideSphere, biasedPositiveHitPosition, lightDirection, b_spheres.sphere[k].center, b_spheres.sphere[k].radius);
 
-            if (numberIntersections > 0)
+            // Only geometry BETWEEN the hit point and the light occludes it. The
+            // unbounded ray also let spheres sitting beyond the light cast
+            // shadows, and let a sphere the ray merely starts inside of count.
+            if (numberIntersections > 0 && t0 > 0.0 && t0 <= lightDistance)
             {
                 obstacle = true;
 

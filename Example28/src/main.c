@@ -483,15 +483,15 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -550,11 +550,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_postprocessVerticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_postprocessVerticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_postprocessTexCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_postprocessTexCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -604,13 +604,13 @@ GLUSboolean init(GLUSvoid)
         g_kernel[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
         g_kernel[i * 3 + 2] = glusRandomUniformf(0.0f, 1.0f); // Kernel hemisphere points to positive Z-Axis.
 
-        glusVector3Normalizef(&g_kernel[i * 3]); // Normalize, so included in the hemisphere.
+        glusVector3Normalizef(&g_kernel[(ptrdiff_t)i * 3]); // Normalize, so included in the hemisphere.
 
         GLfloat scale = (GLfloat)i / (GLfloat)KERNEL_SIZE; // Create a scale value between [0;1[ .
 
         scale = glusMathClampf(scale * scale, 0.1f, 1.0f); // Adjust scale, that there are more values closer to the center of the g_kernel.
 
-        glusVector3MultiplyScalarf(&g_kernel[i * 3], &g_kernel[i * 3], scale);
+        glusVector3MultiplyScalarf(&g_kernel[(ptrdiff_t)i * 3], &g_kernel[(ptrdiff_t)i * 3], scale);
     }
 
     // Pass g_kernel to shader
@@ -626,7 +626,7 @@ GLUSboolean init(GLUSvoid)
         g_rotationNoise[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
         g_rotationNoise[i * 3 + 2] = 0.0f; // Rotate on x-y-plane, so z is zero.
 
-        glusVector3Normalizef(&g_rotationNoise[i * 3]); // Normalized rotation vector.
+        glusVector3Normalizef(&g_rotationNoise[(ptrdiff_t)i * 3]); // Normalized rotation vector.
     }
 
     //

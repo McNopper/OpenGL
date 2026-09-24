@@ -296,13 +296,17 @@ static GLvoid march(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
 
                     currentDistance = currentPrimitive->distanceFunction(marchPosition, currentPrimitive);
 
-                    if (currentDistance < distance && currentDistance >= 0.0f)
-                    {
-                        distance = currentDistance;
-
-                        closestPrimitive = currentPrimitive;
-                    }
-                    else if (currentDistance > distance && currentDistance < 0.0f)
+                    // Tracked exactly like the sibling march at the top of trace():
+                    // a plain minimum already admits negative (interior) distances,
+                    // so a sample landing INSIDE a primitive registers and
+                    // `distance < EPSILON` reports the occluder. The previous pair
+                    // of conditions required `currentDistance >= 0`, and its else
+                    // branch was unreachable (distance starts at INFINITY and can
+                    // never go negative), so interior samples were ignored and the
+                    // march reported "no obstacle" straight through solid geometry.
+                    // Deliberately NOT fabsf(): that would let a nearby exterior
+                    // surface mask a deeper interior hit.
+                    if (currentDistance < distance)
                     {
                         distance = currentDistance;
 
@@ -392,7 +396,7 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
         {
             index = (x + y * WIDTH);
 
-            march(pixelColor, &g_positionBuffer[index * 4], &g_directionBuffer[index * 3], 0);
+            march(pixelColor, &g_positionBuffer[(ptrdiff_t)index * 4], &g_directionBuffer[(ptrdiff_t)index * 3], 0);
 
             // Resolve to pixel buffer, which is used for the texture.
 

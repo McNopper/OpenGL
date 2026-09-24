@@ -179,15 +179,15 @@ GLUSboolean init(GLUSvoid)
     {
         glGenBuffers(1, &objectWalker->object.verticesVBO);
         glBindBuffer(GL_ARRAY_BUFFER, objectWalker->object.verticesVBO);
-        glBufferData(GL_ARRAY_BUFFER, objectWalker->object.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)objectWalker->object.vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (size_t)(objectWalker->object.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)objectWalker->object.vertices, GL_STATIC_DRAW);
 
         glGenBuffers(1, &objectWalker->object.normalsVBO);
         glBindBuffer(GL_ARRAY_BUFFER, objectWalker->object.normalsVBO);
-        glBufferData(GL_ARRAY_BUFFER, objectWalker->object.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)objectWalker->object.normals, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (size_t)(objectWalker->object.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)objectWalker->object.normals, GL_STATIC_DRAW);
 
         glGenBuffers(1, &objectWalker->object.texCoordsVBO);
         glBindBuffer(GL_ARRAY_BUFFER, objectWalker->object.texCoordsVBO);
-        glBufferData(GL_ARRAY_BUFFER, objectWalker->object.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)objectWalker->object.texCoords, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (size_t)(objectWalker->object.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)objectWalker->object.texCoords, GL_STATIC_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 

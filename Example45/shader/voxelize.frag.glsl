@@ -95,7 +95,11 @@ void main(void)
     // Swizzle back.
     if (v_orientation == 1.0)
     {
-        temp.y = gridSize.y - gridPositionStart.z;
+        // Inverse of the geometry shader's axis swap is gridSize - 1 - z: the
+        // forward map quantizes z over [0, gridSize.z - 1]. Using gridSize - z
+        // shifted every orientation 1/2 voxel by one and wrote index gridSize
+        // (out of bounds) while voxel 0 was never written.
+        temp.y = gridSize.y - 1 - gridPositionStart.z;
         temp.z = gridPositionStart.y;
 
         gridPositionStart.yz = temp.yz;
@@ -104,7 +108,7 @@ void main(void)
     }
     else if (v_orientation == 2.0)
     {
-        temp.x = gridSize.x - gridPositionStart.z;
+        temp.x = gridSize.x - 1 - gridPositionStart.z;
         temp.z = gridPositionStart.x;
 
         gridPositionStart.xz = temp.xz;

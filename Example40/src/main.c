@@ -171,7 +171,7 @@ GLUSboolean init(GLUSvoid)
     glusMatrix4x4RotateRxf(matrix, -90.0f);
     for (i = 0; i < g_gridPlane.numberVertices; i++)
     {
-        glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[4 * i], matrix, &g_gridPlane.vertices[4 * i]);
+        glusMatrix4x4MultiplyPoint4f(&g_gridPlane.vertices[(size_t)4 * i], matrix, &g_gridPlane.vertices[(size_t)4 * i]);
     }
 
     g_numberIndicesPlane = g_gridPlane.numberIndices;
@@ -184,7 +184,7 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    normals = (GLfloat*)glusMemoryMalloc(g_gridPlane.numberVertices * 4 * sizeof(GLfloat));
+    normals = (GLfloat*)glusMemoryMalloc((size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat));
 
     if (!normals)
     {
@@ -204,18 +204,18 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(3, g_verticesBuffer);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[0]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[1]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), g_gridPlane.vertices, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[2]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), 0, GL_DYNAMIC_DRAW);
 
     glGenBuffers(1, &g_normalsBuffer);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_normalsBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.normals, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), g_gridPlane.normals, GL_DYNAMIC_DRAW);
 
     //
 
@@ -387,10 +387,10 @@ GLUSboolean update(GLUSfloat time)
         currentOutput = 2;
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[previousInput]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), g_gridPlane.vertices);
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_verticesBuffer[currentInput]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, g_gridPlane.numberVertices * 4 * sizeof(GLfloat), g_gridPlane.vertices);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, (size_t)(g_gridPlane.numberVertices) * 4 * sizeof(GLfloat), g_gridPlane.vertices);
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 

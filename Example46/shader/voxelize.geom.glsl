@@ -60,11 +60,20 @@ void main()
     //
     // The plane is pushed outward by half a voxel so the rasterised triangle
     // covers all voxels the original triangle touches.
+    // The outward push below is winding dependent: for a clockwise projected
+    // triangle the same offset moves the edge planes INWARD, so the "conservative"
+    // triangle ends up smaller than the original and those faces lose their edge
+    // voxels (holes and light leaks in the radiance volume). Flip the offset for
+    // that case. Example45 normalizes the winding instead; this is equivalent and
+    // keeps the v_worldPosition[i] association intact.
+    float winding = cross(vec3(pos[1] - pos[0], 0.0), vec3(pos[2] - pos[0], 0.0)).z;
+    vec2  expand  = (winding < 0.0) ? -u_halfPixelSize : u_halfPixelSize;
+
     vec3 plane[3];
     for (int i = 0; i < 3; i++)
     {
         plane[i] = cross(vec3(pos[i], 1.0), vec3(pos[(i + 2) % 3], 1.0));
-        plane[i].z -= dot(u_halfPixelSize, abs(plane[i].xy));
+        plane[i].z -= dot(expand, abs(plane[i].xy));
     }
 
     // New vertices are the pairwise intersections of the expanded edge planes.

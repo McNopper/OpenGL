@@ -102,11 +102,11 @@ GLUSboolean initBackground()
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)background.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(background.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)background.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)background.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(background.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)background.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -135,8 +135,15 @@ GLUSboolean initBackground()
     glEnableVertexAttribArray(g_vertexBackgroundLocation);
 
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsBackgroundVBO);
-    glVertexAttribPointer(g_normalBackgroundLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(g_normalBackgroundLocation);
+    // a_normal is declared but never read in Background.vert.glsl, so the attribute
+    // is inactive and this location is -1. glVertexAttribPointer and
+    // glEnableVertexAttribArray take a GLuint index, so -1 became 4294967295 and
+    // both calls raised GL_INVALID_VALUE on every run.
+    if (g_normalBackgroundLocation >= 0)
+    {
+        glVertexAttribPointer(g_normalBackgroundLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(g_normalBackgroundLocation);
+    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesBackgroundVBO);
 

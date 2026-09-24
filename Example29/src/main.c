@@ -230,10 +230,21 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
         // If inside, it is from glass to air.
         GLfloat eta = insideSphereNear ? 1.0f / Eta : Eta;
 
+        // glusVector3Refractf leaves (0,0,0) on total internal reflection, and the
+        // normalize below then silently failed - so the recursion traced a
+        // zero-direction ray that immediately re-intersected this sphere and
+        // produced a bogus colour. Drop the refraction contribution and shade by
+        // reflection alone in that case.
         glusVector3Refractf(refractionDirection, rayDirection, hitDirection, eta);
-        glusVector3Normalizef(refractionDirection);
 
-        trace(refractionColor, biasedNegativeHitPosition, refractionDirection, depth + 1);
+        if (glusVector3Normalizef(refractionDirection))
+        {
+            trace(refractionColor, biasedNegativeHitPosition, refractionDirection, depth + 1);
+        }
+        else
+        {
+            fresnel = 1.0f;
+        }
     }
     else
     {
@@ -252,8 +263,11 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
         GLboolean obstacle = GL_FALSE;
         GLfloat   lightDirection[3];
         GLfloat   incidentLightDirection[3];
+        GLfloat   lightDistance;
+        GLfloat   obstacleT0, obstacleT1;
 
         glusPoint4SubtractPoint4f(lightDirection, pointLight->position, hitPosition);
+        lightDistance = sqrtf(glusVector3Dotf(lightDirection, lightDirection));
         glusVector3Normalizef(lightDirection);
         glusVector3MultiplyScalarf(incidentLightDirection, lightDirection, -1.0f);
 
@@ -267,11 +281,18 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
                 continue;
             }
 
-            if (glusIntersectRaySpheref(0, 0, 0, biasedPositiveHitPosition, lightDirection, obstacleSphere->center, obstacleSphere->radius))
+            if (glusIntersectRaySpheref(&obstacleT0, &obstacleT1, 0, biasedPositiveHitPosition, lightDirection, obstacleSphere->center, obstacleSphere->radius))
             {
-                obstacle = GL_TRUE;
+                // Only geometry BETWEEN the hit point and the light occludes it.
+                // Testing the unbounded ray also let spheres sitting beyond the
+                // light cast shadows, and let a sphere the ray merely starts
+                // inside of count as an occluder.
+                if (obstacleT0 > 0.0f && obstacleT0 <= lightDistance)
+                {
+                    obstacle = GL_TRUE;
 
-                break;
+                    break;
+                }
             }
         }
 
@@ -343,7 +364,7 @@ static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const G
         {
             index = (x + y * WIDTH);
 
-            trace(pixelColor, &g_positionBuffer[index * 4], &g_directionBuffer[index * 3], 0);
+            trace(pixelColor, &g_positionBuffer[(ptrdiff_t)index * 4], &g_directionBuffer[(ptrdiff_t)index * 3], 0);
 
             // Resolve to pixel buffer, which is used for the texture.
 

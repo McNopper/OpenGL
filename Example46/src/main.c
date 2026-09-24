@@ -52,7 +52,7 @@
 // Translate = -center = (6.05, -65.15, 3.87) applied before scale.
 #define SPONZA_SCALE 0.005375f
 #define SPONZA_TX 6.05f
-#define SPONZA_TY -65.15f
+#define SPONZA_TY (-65.15f)
 #define SPONZA_TZ 3.87f
 
 // Attribute locations shared by both shader programs.
@@ -84,7 +84,7 @@
 
 // Fixed Y height of the orbit centre. Keep above the floor (~-0.40).
 // Lower = more floor/column illumination; higher = lights walls/ceiling.
-#define SPHERE_ORBIT_Y -0.26f
+#define SPHERE_ORBIT_Y (-0.26f)
 
 // Seconds for one complete revolution. Smaller = faster.
 #define SPHERE_ORBIT_PERIOD 7.5f
@@ -140,8 +140,9 @@ static GLuint    g_sphereVAO          = 0;
 
 // Accumulated time used to animate the sphere orbit.
 static GLfloat g_totalTime = 0.0f;
-// When GLUS_TRUE the sphere orbit is frozen (toggled with Space).
-static GLboolean g_spherePaused = GLUS_FALSE;
+// When GLUS_TRUE the sphere orbit is frozen (toggled with Space). Frozen by
+// default so a run is deterministic and the emissive sphere stays in view.
+static GLboolean g_spherePaused = GLUS_TRUE;
 
 // Model matrix (uniform scale + translate).
 static GLfloat g_modelMatrix[16];
@@ -376,7 +377,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_wavefront.verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
     glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 4 * sizeof(GLfloat),
+                 (size_t)(g_wavefront.numberVertices) * 4 * sizeof(GLfloat),
                  (GLfloat*)g_wavefront.vertices,
                  GL_STATIC_DRAW);
 
@@ -384,7 +385,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_wavefront.normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
     glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 3 * sizeof(GLfloat),
+                 (size_t)(g_wavefront.numberVertices) * 3 * sizeof(GLfloat),
                  (GLfloat*)g_wavefront.normals,
                  GL_STATIC_DRAW);
 
@@ -392,7 +393,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_wavefront.texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
     glBufferData(GL_ARRAY_BUFFER,
-                 g_wavefront.numberVertices * 2 * sizeof(GLfloat),
+                 (size_t)(g_wavefront.numberVertices) * 2 * sizeof(GLfloat),
                  (GLfloat*)g_wavefront.texCoords,
                  GL_STATIC_DRAW);
 
@@ -539,17 +540,17 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_sphereVerticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_sphereVerticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 4 * sizeof(GLfloat),
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_sphere.numberVertices) * 4 * sizeof(GLfloat),
                  g_sphere.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_sphereNormalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_sphereNormalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 3 * sizeof(GLfloat),
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_sphere.numberVertices) * 3 * sizeof(GLfloat),
                  g_sphere.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_sphereTexCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_sphereTexCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_sphere.numberVertices * 2 * sizeof(GLfloat),
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_sphere.numberVertices) * 2 * sizeof(GLfloat),
                  g_sphere.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

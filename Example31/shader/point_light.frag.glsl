@@ -30,7 +30,10 @@ void main()
     vec3  normal        = texture(u_normal, texCoord).rgb;
 
     // Eye is at origin, as we do calculations in camera space.
-    vec3 eyeDirection = normalize(-position.xyz);
+    // Background texels carry a cleared-to-zero position, and normalize(vec3(0))
+    // is NaN - which would poison eDotR below. The contribution is zero there
+    // anyway because the normal is zero too.
+    vec3 eyeDirection = (dot(position.xyz, position.xyz) > 0.0) ? normalize(-position.xyz) : vec3(0.0);
 
     vec3 lightVector = v_lightPosition.xyz - position.xyz;
 

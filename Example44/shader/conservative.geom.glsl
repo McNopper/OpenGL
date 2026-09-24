@@ -90,7 +90,11 @@ void main(void)
         //
         // Compare: (x, y, w) <=> (x/w, y/w, 1) => (xClip, yClip)
         //
-        gl_Position.xyw = intersect;
+        // gl_Position is undefined until written, and only xyw were set here. The
+        // z component is read by the clipper, so leaving it made the conservative
+        // triangle's clipping driver-dependent. All three source vertices share
+        // one NDC depth and this example has no depth buffer, so 0 is exact.
+        gl_Position = vec4(intersect.xy, 0.0, intersect.z);
 
         // Later NDC position if each fragment.
         v_pos  = intersect.xy / intersect.z;

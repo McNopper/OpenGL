@@ -5,6 +5,18 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.2
+
+Dependency and static-analysis pass across all 52 examples:
+
+- **Requires GLUS v1.1.2** and **EGL v1.0.9**.
+- GLUS was pinned at `v1.0.1` and Example50's EGL at the moving `main` ref; both now track the tagged releases above.
+- Widened the flagged `count * stride` products across the examples so the multiplication happens in the wide type rather than being widened after a narrow 32-bit multiply.
+- Example50: reordered `OutputColorspaceCandidate` to remove 8 bytes of padding; `winProc` now has an explicit `default:`.
+- Example24, Example30, Example46: parenthesised negative `#define` literals (operator-precedence hazard).
+- Example46: the sphere orbit starts paused, so the sphere is visible in a static screenshot.
+- Added the `cppcheck` and `clang-tidy` analysis lanes and `AGENTS.md`.
+
 ### v3.2.1
 
 Security and correctness fixes across all 52 examples:

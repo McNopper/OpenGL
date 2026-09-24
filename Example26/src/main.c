@@ -257,7 +257,14 @@ GLUSboolean init(GLUSvoid)
 
     // A simple noise texture influences the strength of each fur pixel.
 
-    glusPerlinCreateNoise2D(&image, 64, 64, 0, 100.0f, 255.0f, 0.5f, 1);
+    // Checked: on failure the image is left destroyed and glTexImage2D below
+    // would otherwise be handed zeroed dimensions and a NULL data pointer.
+    if (!glusPerlinCreateNoise2D(&image, 64, 64, 0, 100.0f, 255.0f, 0.5f, 1))
+    {
+        glusImageDestroyTga(&image);
+
+        return GLUS_FALSE;
+    }
 
     glGenTextures(1, &g_textureFurStrength);
     glBindTexture(GL_TEXTURE_2D, g_textureFurStrength);
@@ -294,15 +301,15 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, bunnyShape.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)bunnyShape.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(bunnyShape.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)bunnyShape.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, bunnyShape.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)bunnyShape.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(bunnyShape.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)bunnyShape.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, bunnyShape.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)bunnyShape.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(bunnyShape.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)bunnyShape.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

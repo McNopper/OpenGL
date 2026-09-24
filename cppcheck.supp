@@ -1,0 +1,20 @@
+# cppcheck suppressions
+#
+# Format: one suppression id per line (optionally id:file:line).
+# Keep this list short and justified. Prefer inline // cppcheck-suppress
+# comments for one-off, local suppressions over global entries here.
+#
+# NOTE: unusedFunction is deliberately NOT suppressed here. Every example is a
+# self-contained application, so dead functions are exactly the defect class
+# this gate exists to catch. (The library-shaped projects suppress it because
+# their exported API has no in-tree caller; that argument does not apply.)
+
+# System/standard-library headers are not analysed; silence the advisory
+# that fires when cppcheck cannot find them.
+missingIncludeSystem
+
+# Informational messages produced by cppcheck itself, not code findings.
+checkersReport
+
+# Do not fail when a suppression in this file matches nothing.
+unmatchedSuppression

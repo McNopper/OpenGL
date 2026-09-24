@@ -175,15 +175,15 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_wavefront.verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)g_wavefront.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_wavefront.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)g_wavefront.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_wavefront.normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)g_wavefront.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_wavefront.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)g_wavefront.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_wavefront.texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_wavefront.texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, g_wavefront.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)g_wavefront.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(g_wavefront.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)g_wavefront.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

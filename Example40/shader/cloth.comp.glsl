@@ -63,7 +63,10 @@ vec4 calculateSpringVector(vec4 a, vec4 b, float distanceRest)
 
     float deltaLength = length(deltaVector);
 
-    return 0.5 * deltaVector * (distanceRest - deltaLength) / deltaLength * STIFFNESS;
+    // max() keeps the divisor away from zero: coincident particles would divide
+    // 0/0 and the resulting NaN spreads through every later relaxation pass over
+    // the whole cloth. The numerator is zero there too, so the force is still 0.
+    return 0.5 * deltaVector * (distanceRest - deltaLength) / max(deltaLength, 0.000001) * STIFFNESS;
 }
 
 vec3 gramSchmidt(vec3 u, vec3 v)
@@ -110,9 +113,13 @@ void main(void)
 
         normalVector = normalize(normalVector);
 
-        float cosAlpha = max(dot(normalVector.xyz, vec3(0.0, 1.0, 0.0)), 0.0);
+        // Clamped: max() only bounded the lower end, and a rounded dot of two unit
+        // vectors can still exceed 1 - acos() of that is NaN. The tolerance also
+        // replaces an exact-equality test that let gramSchmidt return ~0 and
+        // normalize(vec3(0)) produce NaN at the contact apex.
+        float cosAlpha = clamp(dot(normalVector.xyz, vec3(0.0, 1.0, 0.0)), 0.0, 1.0);
 
-        if (cosAlpha != 1.0)
+        if (cosAlpha < 0.999999)
         {
             tangentVector = normalize(gramSchmidt(normalVector.xyz, vec3(0.0, 1.0, 0.0)));
         }

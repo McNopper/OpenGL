@@ -455,7 +455,7 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_bgVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_bgVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat),
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(sphere.numberVertices) * 4 * sizeof(GLfloat),
                  sphere.vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
@@ -941,9 +941,10 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 
 typedef struct
 {
-    int         id;         // OUT_*
+    // Pointer members first: this order packs the struct with no padding.
     const char* name;       // human-readable
     const char* extension;  // EGL extension that signals support
+    int         id;         // OUT_*
     EGLint      colorspace; // EGL_GL_COLORSPACE_* attribute value
     EGLint      redSize;
     EGLint      greenSize;
@@ -955,15 +956,15 @@ typedef struct
 // preferred, so all BT.2020 variants come first; scRGB / Display P3 / sRGB
 // are progressive fallbacks.
 static const OutputColorspaceCandidate g_candidates[] = {
-    {OUT_BT2020_PQ, "BT.2020 PQ (HDR10)", "EGL_EXT_gl_colorspace_bt2020_pq", EGL_GL_COLORSPACE_BT2020_PQ_EXT, 10, 10, 10, 2},
-    {OUT_BT2020_HLG, "BT.2020 HLG", "EGL_EXT_gl_colorspace_bt2020_hlg", EGL_GL_COLORSPACE_BT2020_HLG_EXT, 10, 10, 10, 2},
-    {OUT_BT2020_LINEAR, "BT.2020 linear", "EGL_EXT_gl_colorspace_bt2020_linear", EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, 16, 16, 16, 16},
-    {OUT_SCRGB_LINEAR, "scRGB linear (fp16)", "EGL_EXT_gl_colorspace_scrgb_linear", EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, 16, 16, 16, 16},
-    {OUT_SCRGB, "scRGB", "EGL_EXT_gl_colorspace_scrgb", EGL_GL_COLORSPACE_SCRGB_EXT, 16, 16, 16, 16},
-    {OUT_DISPLAY_P3_LINEAR, "Display P3 linear", "EGL_EXT_gl_colorspace_display_p3_linear", EGL_GL_COLORSPACE_DISPLAY_P3_LINEAR_EXT, 16, 16, 16, 16},
-    {OUT_DISPLAY_P3, "Display P3", "EGL_EXT_gl_colorspace_display_p3", EGL_GL_COLORSPACE_DISPLAY_P3_EXT, 8, 8, 8, 8},
-    {OUT_SRGB, "sRGB", NULL, EGL_GL_COLORSPACE_SRGB, 8, 8, 8, 8},
-    {OUT_LINEAR, "linear (Rec.709)", NULL, EGL_GL_COLORSPACE_LINEAR, 8, 8, 8, 8},
+    {"BT.2020 PQ (HDR10)", "EGL_EXT_gl_colorspace_bt2020_pq", OUT_BT2020_PQ, EGL_GL_COLORSPACE_BT2020_PQ_EXT, 10, 10, 10, 2},
+    {"BT.2020 HLG", "EGL_EXT_gl_colorspace_bt2020_hlg", OUT_BT2020_HLG, EGL_GL_COLORSPACE_BT2020_HLG_EXT, 10, 10, 10, 2},
+    {"BT.2020 linear", "EGL_EXT_gl_colorspace_bt2020_linear", OUT_BT2020_LINEAR, EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, 16, 16, 16, 16},
+    {"scRGB linear (fp16)", "EGL_EXT_gl_colorspace_scrgb_linear", OUT_SCRGB_LINEAR, EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, 16, 16, 16, 16},
+    {"scRGB", "EGL_EXT_gl_colorspace_scrgb", OUT_SCRGB, EGL_GL_COLORSPACE_SCRGB_EXT, 16, 16, 16, 16},
+    {"Display P3 linear", "EGL_EXT_gl_colorspace_display_p3_linear", OUT_DISPLAY_P3_LINEAR, EGL_GL_COLORSPACE_DISPLAY_P3_LINEAR_EXT, 16, 16, 16, 16},
+    {"Display P3", "EGL_EXT_gl_colorspace_display_p3", OUT_DISPLAY_P3, EGL_GL_COLORSPACE_DISPLAY_P3_EXT, 8, 8, 8, 8},
+    {"sRGB", NULL, OUT_SRGB, EGL_GL_COLORSPACE_SRGB, 8, 8, 8, 8},
+    {"linear (Rec.709)", NULL, OUT_LINEAR, EGL_GL_COLORSPACE_LINEAR, 8, 8, 8, 8},
 };
 static const int g_numCandidates = (int)(sizeof(g_candidates) / sizeof(g_candidates[0]));
 
@@ -1050,6 +1051,8 @@ static LRESULT CALLBACK winProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         }
     }
         return 0;
+    default:
+        break;
     }
     return DefWindowProcW(hwnd, msg, wp, lp);
 }
@@ -1143,10 +1146,10 @@ int main(int argc, char** argv)
             if (pSetCtx)
             {
                 /* DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = ((HANDLE)-4) */
-                if (!pSetCtx((HANDLE)-4))
+                if (!pSetCtx((HANDLE)-4)) // NOLINT(performance-no-int-to-ptr) - documented Win32 pseudo-handle; winuser.h defines it as ((HANDLE)-4)
                 {
                     /* Fall back to v1 per-monitor awareness if v2 isn't available. */
-                    pSetCtx((HANDLE)-3);
+                    pSetCtx((HANDLE)-3); // NOLINT(performance-no-int-to-ptr) - documented Win32 pseudo-handle
                 }
             }
             else
@@ -1283,7 +1286,6 @@ int main(int argc, char** argv)
 
         cfg                = tryCfg;
         surface            = trySurf;
-        chosen             = c;
         g_outputColorspace = c->id;
         LOGF("  [%-22s] surface created OK <-- using this\n", c->name);
     }

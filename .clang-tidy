@@ -1,0 +1,100 @@
+---
+# clang-tidy profile - C.
+#
+# This codebase is C, so the gate runs C findings only. Anything that is about
+# C++ semantics, or that merely criticises legal and idiomatic C syntax, is not
+# part of it. Correctness first: real problems in otherwise well-written code.
+# Code style is NOT enforced and formatting stays exactly as authored - there
+# is deliberately no .clang-format here.
+#
+# Kept - these are C bug classes, and they matter specifically here because
+# 50+ examples are built from one template and copy/paste between them is the
+# natural hazard:
+#   * clang-diagnostic-*            the compiler's own C diagnostics
+#   * clang-analyzer-core/unix      uninitialized reads, NULL derefs, errno and
+#                                   stream-error handling
+#   * clang-analyzer-security.insecureAPI.strcpy
+#                                   unbounded string copies (CWE-119)
+#   * bugprone-macro-parentheses    operator-precedence bugs in the per-example
+#                                   #define blocks
+#   * bugprone-branch-clone         the copy/paste slips between examples
+#   * bugprone-suspicious-memory-comparison
+#                                   memcmp over a struct that has padding bytes
+#   * bugprone-implicit-widening-of-multiplication-result
+#                                   `count * sizeof(...)` sized uploads and
+#                                   width*height*bpp computations
+#   * bugprone-sizeof-expression, -suspicious-strlen-usage,
+#     -signed-char-misuse, -unsafe-functions, -unchecked-string-to-number
+#                                   size/format/width errors in the loaders
+#   * portability-*                 non-portable C constructs
+#
+# Out of scope - not C findings:
+#   * modernize-*, cppcoreguidelines-*, hicpp-*
+#                                 - C++-only families. Omitted outright rather
+#                                   than listed and disabled: they are skipped
+#                                   on C translation units either way, so
+#                                   listing them only buries what does run.
+#   * bugprone-throwing-static-initialization, -exception-escape,
+#     -invalid-enum-default-initialization
+#                                 - C++ exceptions and C++ enum default-init.
+#                                   C has neither.
+#   * bugprone-casting-through-void, -narrowing-conversions,
+#     -multi-level-implicit-pointer-conversion
+#                                 - legal, idiomatic C. Explicit casts, void*
+#                                   round-trips and implicit arithmetic
+#                                   conversions are simply how C is written.
+#   * bugprone-reserved-identifier - the internal `_*` prefix is the
+#                                   long-standing convention here; renaming it
+#                                   is an ABI break.
+#   * bugprone-easily-swappable-parameters - subjective
+#   * clang-analyzer-security.ArrayBound
+#                                 - flags deliberate contiguous-member indexing
+#                                   via `(&x)[i]`; high false-positive rate.
+#   * clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#                                 - demands optional C11 Annex K (`memset_s`,
+#                                   `snprintf_s`). `memset`/`snprintf` with
+#                                   checked lengths are correct C. The genuinely
+#                                   dangerous subset stays on via
+#                                   insecureAPI.strcpy.
+#   * clang-analyzer-optin.performance.Padding
+#                                 - struct-layout advice, not a defect.
+#   * performance-enum-size        - changing the underlying type would change
+#                                   the ABI of the exported types.
+#
+# NOTE: comments must stay OUTSIDE the folded "Checks:" scalar below, or they
+# become part of the value and silently break the check list.
+Checks: >
+  -*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  -clang-analyzer-security.ArrayBound,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,
+  -bugprone-casting-through-void,
+  -bugprone-narrowing-conversions,
+  -bugprone-multi-level-implicit-pointer-conversion,
+  -bugprone-throwing-static-initialization,
+  -bugprone-exception-escape,
+  -bugprone-invalid-enum-default-initialization,
+  performance-*,
+  -performance-enum-size,
+  portability-*
+
+# Only correctness-oriented C findings fail the gate; the rest report.
+WarningsAsErrors: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  -clang-analyzer-optin.performance.Padding,
+  bugprone-*,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-unchecked-string-to-number-conversion,
+  -bugprone-switch-missing-default-case
+
+# Each example is self-contained under ExampleNN/; analyse their headers too.
+HeaderFilterRegex: '.*[\\/]Example[0-9]+[\\/].*'
+
+# Do not reformat: style is authored, not derived.
+FormatStyle: none

@@ -273,11 +273,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)wavefrontObj.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(wavefrontObj.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)wavefrontObj.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, wavefrontObj.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)wavefrontObj.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(wavefrontObj.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)wavefrontObj.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

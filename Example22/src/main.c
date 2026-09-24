@@ -264,11 +264,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(torusWithAdjacency.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, torusWithAdjacency.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(torusWithAdjacency.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)torusWithAdjacency.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -293,11 +293,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, plane.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -323,7 +323,7 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesShadowPlaneVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesShadowPlaneVBO);
-    glBufferData(GL_ARRAY_BUFFER, shadowPlane.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)shadowPlane.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(shadowPlane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)shadowPlane.vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

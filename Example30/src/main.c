@@ -17,7 +17,7 @@
 
 #define DIRECTION_BUFFER_PADDING 1
 
-#define PADDING_VALUE -321.123f
+#define PADDING_VALUE (-321.123f)
 
 // Every ray can have two sub rays (reflect and refract). This can be organized as a tree, with  breadth-first indexing.
 // So, a tree with a depth has 2^depth-1 nodes. In this case we have a MAX_DEPTH of 5
@@ -274,7 +274,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_directionSSBO);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_directionSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)WIDTH * HEIGHT * (3 + DIRECTION_BUFFER_PADDING) * sizeof(GLfloat), g_directionBuffer, GL_STATIC_DRAW);
     // see binding = 1 in the shader
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, g_directionSSBO);
 
@@ -283,7 +283,7 @@ GLUSboolean init(GLUSvoid)
     glGenBuffers(1, &g_positionSSBO);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_positionSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (size_t)WIDTH * HEIGHT * 4 * sizeof(GLfloat), g_positionBuffer, GL_STATIC_DRAW);
     // see binding = 2 in the shader
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_positionSSBO);
 

@@ -13,7 +13,7 @@
 #include "GL/glus.h"
 
 #define ERODE_START 0.7f
-#define ERODE_END -0.1f
+#define ERODE_END (-0.1f)
 
 /**
  * Properties of the light.
@@ -161,7 +161,14 @@ GLUSboolean init(GLUSvoid)
 
     // Create perlin noise. The brightness of the texels represents the time to erode.
     // The brighter the texel, the earlier the pixel erodes.
-    glusPerlinCreateNoise3D(&image, 64, 64, 64, 0, 8.0f, 192.0f, 0.5f, 4);
+    // Checked: on failure the image is left destroyed and glTexImage3D below
+    // would otherwise be handed zeroed dimensions and a NULL data pointer.
+    if (!glusPerlinCreateNoise3D(&image, 64, 64, 64, 0, 8.0f, 192.0f, 0.5f, 4))
+    {
+        glusImageDestroyTga(&image);
+
+        return GLUS_FALSE;
+    }
 
     // Generate and bind a texture.
     glGenTextures(1, &g_texture);
@@ -215,11 +222,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)sphere.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(sphere.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)sphere.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sphere.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)sphere.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(sphere.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)sphere.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

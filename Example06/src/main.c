@@ -150,15 +150,15 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, cube.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)cube.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(cube.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)cube.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, cube.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)cube.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(cube.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)cube.normals, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_texCoordsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, cube.numberVertices * 2 * sizeof(GLfloat), (GLfloat*)cube.texCoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(cube.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)cube.texCoords, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

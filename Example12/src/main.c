@@ -262,11 +262,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, torus.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)torus.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(torus.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)torus.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, torus.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)torus.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(torus.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)torus.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -291,11 +291,11 @@ GLUSboolean init(GLUSvoid)
 
     glGenBuffers(1, &g_verticesBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_verticesBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 4 * sizeof(GLfloat), (GLfloat*)background.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(background.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)background.vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &g_normalsBackgroundVBO);
     glBindBuffer(GL_ARRAY_BUFFER, g_normalsBackgroundVBO);
-    glBufferData(GL_ARRAY_BUFFER, background.numberVertices * 3 * sizeof(GLfloat), (GLfloat*)background.normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(background.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)background.normals, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

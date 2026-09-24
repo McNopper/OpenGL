@@ -14,39 +14,55 @@ if(NOT Vulkan_FOUND)
     return()
 endif()
 
-# McNopper/EGL - portable HDR-capable EGL 1.5 implementation.
-# We only need the EGL static library; their CMakeLists also adds an
-# examples/ subdirectory which depends on test asset paths and would build
-# 11+ extra executables.  Patch it out before MakeAvailable.
-FetchContent_Declare(
-    mcnopper_egl
-    GIT_REPOSITORY https://github.com/McNopper/EGL.git
-    GIT_TAG        main
-)
+# McNopper/EGL - portable HDR-capable EGL 1.5 implementation.  We only need
+# the EGL static library; its CMakeLists also adds an examples/ subdirectory
+# which depends on test asset paths and would build 11+ extra executables, so
+# those are switched off through its EGL_BUILD_EXAMPLES option.
+#
+# Prefer the sibling local checkout - the same multi-repo development layout
+# the top-level CMakeLists uses for GLUS - and fall back to the published
+# repository.  Using the sibling also means fixes land in this build
+# immediately instead of after they have been published.
+set(EGL_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-FetchContent_GetProperties(mcnopper_egl)
-if(NOT mcnopper_egl_POPULATED)
-    FetchContent_Populate(mcnopper_egl)
-    file(READ "${mcnopper_egl_SOURCE_DIR}/CMakeLists.txt" MCEGL_CMAKE)
-    string(REPLACE "add_subdirectory(examples)" "# add_subdirectory(examples)  # disabled by Example50"
-        MCEGL_CMAKE "${MCEGL_CMAKE}")
-    file(WRITE "${mcnopper_egl_SOURCE_DIR}/CMakeLists.txt" "${MCEGL_CMAKE}")
+if(EXISTS "${CMAKE_SOURCE_DIR}/../EGL/CMakeLists.txt")
+    message(STATUS "Example50: using sibling EGL checkout at ${CMAKE_SOURCE_DIR}/../EGL")
+    FetchContent_Declare(mcnopper_egl SOURCE_DIR ${CMAKE_SOURCE_DIR}/../EGL)
+else()
+    # Published repository.  Two patches are needed for older revisions:
+    #   * examples/ switched off (pre-EGL_BUILD_EXAMPLES revisions)
+    #   * the platform sources include internal headers via
+    #     ../../EGL/include/..., which only resolves when the checkout
+    #     directory is literally named "EGL"
+    # The single-argument FetchContent_Populate() previously used to apply
+    # these is deprecated (CMP0169) and becomes an error with CMake >= 3.30,
+    # so they run through PATCH_COMMAND instead.  Every replacement is
+    # idempotent (its replacement text does not contain its own search text),
+    # so re-running the patch on each configure is safe.
+    set(MCEGL_PATCH_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/patch_mcegl.cmake)
+    file(WRITE ${MCEGL_PATCH_SCRIPT}
+    "set(_mcegl_root \"\${MCEGL_ROOT}\")\n"
+    "file(READ \"\${_mcegl_root}/CMakeLists.txt\" _mcegl_c)\n"
+    "string(REPLACE \"add_subdirectory(examples)\" \"# disabled by Example50: EGL examples need test asset paths\" _mcegl_c \"\${_mcegl_c}\")\n"
+    "file(WRITE \"\${_mcegl_root}/CMakeLists.txt\" \"\${_mcegl_c}\")\n"
+    "foreach(_mcegl_s egl_windows.cpp egl_windows_vk.cpp egl_windows_angle.cpp)\n"
+    "  set(_mcegl_p \"\${_mcegl_root}/src/\${_mcegl_s}\")\n"
+    "  if(EXISTS \"\${_mcegl_p}\")\n"
+    "    file(READ \"\${_mcegl_p}\" _mcegl_c)\n"
+    "    string(REPLACE \"../../EGL/include/EGL/\" \"../include/EGL/\" _mcegl_c \"\${_mcegl_c}\")\n"
+    "    file(WRITE \"\${_mcegl_p}\" \"\${_mcegl_c}\")\n"
+    "  endif()\n"
+    "endforeach()\n")
 
-    # The platform sources reference internal headers via ../../EGL/include/...
-    # which only resolves when the repo directory is literally named "EGL".
-    # Patch them to use a path relative to the source file instead.
-    foreach(MCEGL_SRC egl_windows.cpp egl_windows_vk.cpp egl_windows_angle.cpp)
-        set(MCEGL_PATH "${mcnopper_egl_SOURCE_DIR}/src/${MCEGL_SRC}")
-        if(EXISTS "${MCEGL_PATH}")
-            file(READ "${MCEGL_PATH}" MCEGL_CONTENT)
-            string(REPLACE "../../EGL/include/EGL/" "../include/EGL/"
-                MCEGL_CONTENT "${MCEGL_CONTENT}")
-            file(WRITE "${MCEGL_PATH}" "${MCEGL_CONTENT}")
-        endif()
-    endforeach()
-
-    add_subdirectory(${mcnopper_egl_SOURCE_DIR} ${mcnopper_egl_BINARY_DIR})
+    FetchContent_Declare(
+        mcnopper_egl
+        GIT_REPOSITORY https://github.com/McNopper/EGL.git
+        GIT_TAG        v1.0.9
+        PATCH_COMMAND ${CMAKE_COMMAND} -DMCEGL_ROOT=<SOURCE_DIR> -P ${MCEGL_PATCH_SCRIPT}
+    )
 endif()
+
+FetchContent_MakeAvailable(mcnopper_egl)
 
 # cgltf, stb_image and the GLUS_SHADER_DIR path are provided transitively by GLUS.
 

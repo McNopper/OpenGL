@@ -37,7 +37,11 @@ void main(void)
     v_reflection = reflect(incident, normal);
 
     // see http://en.wikipedia.org/wiki/Schlick%27s_approximation
-    v_fresnel = R0 + (1.0 - R0) * pow((1.0 - dot(-incident, normal)), 5.0);
+    // Clamped on both ends: the Schlick base is only in [0,1] for a front-facing
+    // normal. For a back-facing one it exceeds 1 and pow() reaches 32, so the
+    // mix() below extrapolated far past the reflection colour; a negative base is
+    // undefined for pow() in GLSL.
+    v_fresnel = R0 + (1.0 - R0) * pow(clamp(1.0 - dot(-incident, normal), 0.0, 1.0), 5.0);
 
     gl_Position = u_viewProjectionMatrix * vertex;
 }
