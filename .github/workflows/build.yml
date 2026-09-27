@@ -45,11 +45,17 @@ jobs:
             libvulkan-dev
 
       # Example50 needs the Vulkan SDK for its HDR signalling backend. The
-      # macOS runner has none and Example50 skips itself there.
+      # macOS runner has none and Example50 skips itself there. The installer
+      # sets VULKAN_SDK at machine level, which later steps do not inherit, so
+      # export it for the configure step via GITHUB_ENV.
       - name: Install Vulkan SDK (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: choco install -y vulkan-sdk
+        run: |
+          choco install -y vulkan-sdk
+          $sdk = (Get-ChildItem 'C:\VulkanSDK' -Directory | Sort-Object Name -Descending | Select-Object -First 1).FullName
+          if (-not $sdk) { throw 'Vulkan SDK install directory not found under C:\VulkanSDK' }
+          "VULKAN_SDK=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       # The Visual Studio generator sets up its own environment on Windows;
       # Ninja is used on the Unix runners.
