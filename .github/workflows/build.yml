@@ -1,0 +1,64 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      # The examples prefer a sibling ../GLUS checkout, which builds the
+      # current GLUS HEAD instead of the pinned release tag.
+      - uses: actions/checkout@v4
+        with:
+          path: OpenGL
+      - uses: actions/checkout@v4
+        with:
+          repository: McNopper/GLUS
+          path: GLUS
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libgl1-mesa-dev \
+            libvulkan-dev
+
+      # Example50 needs the Vulkan SDK for its HDR signalling backend. The
+      # macOS runner has none and Example50 skips itself there.
+      - name: Install Vulkan SDK (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install -y vulkan-sdk
+
+      # The Visual Studio generator sets up its own environment on Windows;
+      # Ninja is used on the Unix runners.
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -S OpenGL -B OpenGL/build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: cmake -S OpenGL -B OpenGL/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build OpenGL/build --config Release
