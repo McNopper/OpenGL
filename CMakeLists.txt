@@ -55,6 +55,7 @@ set(GLEW_PATCH_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/patch_glew.cmake)
 file(WRITE ${GLEW_PATCH_SCRIPT}
 "file(READ \"\${GLEW_CMAKELISTS}\" GLEW_CMAKE_CONTENT)\n"
 "string(REPLACE \"cmake_minimum_required(VERSION 2.8.12)\" \"cmake_minimum_required(VERSION 3.10)\" GLEW_CMAKE_CONTENT \"\${GLEW_CMAKE_CONTENT}\")\n"
+"string(REPLACE \"find_library(AGL_LIBRARY AGL)\" \"# AGL is not part of modern macOS SDKs; GL symbols resolve through the OpenGL framework\" GLEW_CMAKE_CONTENT \"\${GLEW_CMAKE_CONTENT}\")\n"
 "file(WRITE \"\${GLEW_CMAKELISTS}\" \"\${GLEW_CMAKE_CONTENT}\")\n")
 
 FetchContent_Declare(
