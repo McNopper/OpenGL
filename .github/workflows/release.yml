@@ -1,0 +1,128 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, platform: windows-x64 }
+          - { os: ubuntu-latest, platform: linux-x64 }
+          - { os: macos-latest, platform: macos-arm64 }
+
+    steps:
+      # The examples prefer a sibling ../GLUS checkout, which builds the
+      # current GLUS HEAD instead of the pinned release tag.
+      - uses: actions/checkout@v4
+        with:
+          path: OpenGL
+      - uses: actions/checkout@v4
+        with:
+          repository: McNopper/GLUS
+          path: GLUS
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libgl1-mesa-dev \
+            libvulkan-dev
+
+      # Example50 needs the Vulkan SDK for its HDR signalling backend. The
+      # macOS runner has none and Example50 skips itself there. The installer
+      # sets VULKAN_SDK at machine level, which later steps do not inherit, so
+      # export it for the configure step via GITHUB_ENV.
+      - name: Install Vulkan SDK (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install -y vulkan-sdk
+          $sdk = (Get-ChildItem 'C:\VulkanSDK' -Directory | Sort-Object Name -Descending | Select-Object -First 1).FullName
+          if (-not $sdk) { throw 'Vulkan SDK install directory not found under C:\VulkanSDK' }
+          "VULKAN_SDK=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # The Visual Studio generator sets up its own environment on Windows;
+      # Ninja is used on the Unix runners.
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -S OpenGL -B OpenGL/build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: cmake -S OpenGL -B OpenGL/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build OpenGL/build --config Release
+
+      # Runnable drop: the executables land in Binaries/, which is also the
+      # runtime working directory (assets load by bare filename); shaders
+      # load relative from the source tree, so the ExampleNN/shader layout
+      # must be preserved next to Binaries/.
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $name = "OpenGL-Examples-$($env:GITHUB_REF_NAME.TrimStart('v'))-${{ matrix.platform }}"
+          $stage = "stage/$name"
+          New-Item -ItemType Directory -Force $stage, 'dist' | Out-Null
+          Copy-Item -Recurse OpenGL/Binaries "$stage/Binaries"
+          Remove-Item "$stage/Binaries/*.pdb" -ErrorAction SilentlyContinue
+          foreach ($ex in Get-ChildItem OpenGL -Directory -Filter 'Example*') {
+            if (Test-Path "$($ex.FullName)/shader") {
+              New-Item -ItemType Directory -Force "$stage/$($ex.Name)" | Out-Null
+              Copy-Item -Recurse "$($ex.FullName)/shader" "$stage/$($ex.Name)/shader"
+            }
+          }
+          Copy-Item OpenGL/LICENSE, OpenGL/THIRD-PARTY.md, OpenGL/README.md "$stage/"
+          Push-Location $stage
+          cmake -E tar cfv "../../dist/$name.zip" --format=zip .
+          Pop-Location
+
+      - name: Package (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: |
+          set -e
+          name="OpenGL-Examples-${GITHUB_REF_NAME#v}-${{ matrix.platform }}"
+          stage="stage/$name"
+          mkdir -p "$stage" dist
+          cp -r OpenGL/Binaries "$stage/Binaries"
+          for ex in OpenGL/Example*/; do
+            if [ -d "$ex/shader" ]; then
+              mkdir -p "$stage/$(basename "$ex")"
+              cp -r "$ex/shader" "$stage/$(basename "$ex")/shader"
+            fi
+          done
+          cp OpenGL/LICENSE OpenGL/THIRD-PARTY.md OpenGL/README.md "$stage/"
+          ( cd "$stage" && cmake -E tar cfz "../../dist/$name.tar.gz" --format=gnutar . )
+
+      # The release entry is normally created together with the tag; the
+      # fallback create keeps a bare-tag push self-sufficient.
+      - name: Attach archives to the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
