@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project (OpenGLExamples VERSION 3.2.2)
+project (OpenGLExamples VERSION 3.2.3)
 
 # Build policy + static analysis. Registered ONLY when this is the top-level
 # project: GLUS is vendored through FetchContent and Example50 vendors EGL the
@@ -89,7 +89,7 @@ else()
     FetchContent_Declare(
         glus
         GIT_REPOSITORY https://github.com/McNopper/GLUS.git
-        GIT_TAG        v1.1.2
+        GIT_TAG        v1.1.3
     )
 endif()
 FetchContent_MakeAvailable(glus)

@@ -5,6 +5,22 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.3
+
+Build-system fixes, dependency pins and CI; no example code changes.
+
+- **macOS linking fixed**: glew-cmake 2.2.0 links the Carbon-era `AGL`
+  framework, removed from modern macOS SDKs, so every example executable
+  failed to link on a current Mac. The FetchContent patch now drops the AGL
+  link. 51 of 52 examples build and link on Apple Silicon; Example50 requires
+  the Vulkan SDK and remains Windows/Linux only.
+- **Dependency pins**: GLUS moved from v1.1.2 to **v1.1.3**, EGL from v1.0.9
+  to **v1.0.10** (both used by the FetchContent fallback paths).
+- **CI and releases**: GitHub Actions build workflow for Windows, Linux and
+  macOS (Example50 included on Windows and Linux via the Vulkan SDK), and a
+  release workflow that attaches runnable example packages to each tagged
+  GitHub release.
+
 ### v3.2.2
 
 Dependency and static-analysis pass across all 52 examples:
