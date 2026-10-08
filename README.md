@@ -1,6 +1,8 @@
 OpenGL
 ======
 
+[![Build](https://github.com/McNopper/OpenGL/actions/workflows/build.yml/badge.svg)](https://github.com/McNopper/OpenGL/actions/workflows/build.yml)
+
 OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
