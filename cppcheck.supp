@@ -18,3 +18,18 @@ checkersReport
 
 # Do not fail when a suppression in this file matches nothing.
 unmatchedSuppression
+
+# cppcheck's C parser bails on the vendored glew.h (PFNGLCLIENTWAITSYNCAPPLEPROC
+# typedefs a parameter named GLsync, shadowing the GLsync typedef). The header is
+# unmodified third-party code (glew-cmake 2.2.0, fetched at configure time) - not
+# ours to fix, and -i does not cover header findings surfaced through our TUs.
+# Scoped to glew.h so real parse errors in our code stay fatal.
+syntaxError:*glew.h
+
+# The EGL dependency (sibling checkout or FetchContent) guards its platform
+# dispatch with deliberate #error traps (eglplatform.h, egl_internal.h).
+# cppcheck evaluates headers in configurations where no platform macro is set,
+# so the traps always "fire" there. Scoped to the two dispatch headers; any
+# other #error in our code stays fatal.
+preprocessorErrorDirective:*eglplatform.h
+preprocessorErrorDirective:*egl_internal.h

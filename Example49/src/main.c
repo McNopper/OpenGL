@@ -793,16 +793,16 @@ GLUSvoid key(const GLUSboolean pressed, const GLUSint key)
 
     switch (key)
     {
-    case 265:
+    case GLFW_KEY_UP:
         g_cameraY += g_scene.sceneRadius * CAMERA_HEIGHT_STEP;
         break;
-    case 264:
+    case GLFW_KEY_DOWN:
         g_cameraY -= g_scene.sceneRadius * CAMERA_HEIGHT_STEP;
         break;
-    case 262:
+    case GLFW_KEY_RIGHT:
         g_orbitSpeed += CAMERA_ORBIT_SPEED_STEP;
         break;
-    case 263:
+    case GLFW_KEY_LEFT:
         g_orbitSpeed -= CAMERA_ORBIT_SPEED_STEP;
         if (g_orbitSpeed < 0.0f)
         {

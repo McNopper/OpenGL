@@ -113,35 +113,15 @@ Sphere g_allSpheres[NUM_SPHERES] = {
 PointLight g_allLights[NUM_LIGHTS] = {
     {{0.0f, 5.0f, -5.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}};
 
-static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const GLfloat rayDirection[3], const GLint depth)
+// The nearest sphere along the ray, or 0 when the ray escapes to the
+// background. Outputs the hit distance and whether the ray started inside.
+static GLboolean findNearestSphere(const GLfloat rayPosition[4], const GLfloat rayDirection[3], GLfloat* tNear, Sphere** sphereNear, GLboolean* insideSphereNear)
 {
-    const GLfloat bias = 1e-4f;
+    GLint i;
 
-    GLint i, k;
-
-    GLfloat   tNear            = INFINITY;
-    Sphere*   sphereNear       = 0;
-    GLboolean insideSphereNear = GL_FALSE;
-
-    GLfloat ray[3];
-
-    GLfloat hitPosition[4];
-    GLfloat hitDirection[3];
-
-    GLfloat biasedPositiveHitPosition[4];
-    GLfloat biasedNegativeHitPosition[4];
-    GLfloat biasedHitDirection[3];
-
-    GLfloat eyeDirection[3];
-
-    //
-
-    pixelColor[0] = 0.0f;
-    pixelColor[1] = 0.0f;
-    pixelColor[2] = 0.0f;
-    pixelColor[3] = 1.0f;
-
-    //
+    *tNear            = INFINITY;
+    *sphereNear       = 0;
+    *insideSphereNear = GL_FALSE;
 
     for (i = 0; i < NUM_SPHERES; i++)
     {
@@ -162,26 +142,26 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
             }
 
             // Found a sphere, which is closer.
-            if (t0 < tNear)
+            if (t0 < *tNear)
             {
-                tNear            = t0;
-                sphereNear       = currentSphere;
-                insideSphereNear = insideSphere;
+                *tNear            = t0;
+                *sphereNear       = currentSphere;
+                *insideSphereNear = insideSphere;
             }
         }
     }
 
-    //
+    return *sphereNear != 0;
+}
 
-    // No intersection, return background color / ambient light.
-    if (!sphereNear)
-    {
-        pixelColor[0] = 0.8f;
-        pixelColor[1] = 0.8f;
-        pixelColor[2] = 0.8f;
+// Hit position and outward-facing surface normal at the hit distance, plus the
+// normal-biased hit positions the reflection/refraction rays spawn from.
+static GLvoid computeHitFrame(const GLfloat rayPosition[4], const GLfloat rayDirection[3], GLfloat tNear, const Sphere* sphereNear, GLboolean insideSphereNear, GLfloat hitPosition[4], GLfloat hitDirection[3], GLfloat biasedPositiveHitPosition[4], GLfloat biasedNegativeHitPosition[4])
+{
+    const GLfloat bias = 1e-4f;
 
-        return;
-    }
+    GLfloat ray[3];
+    GLfloat biasedHitDirection[3];
 
     // Calculate ray hit position ...
     glusVector3MultiplyScalarf(ray, rayDirection, tNear);
@@ -197,19 +177,19 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
         glusVector3MultiplyScalarf(hitDirection, hitDirection, -1.0f);
     }
 
-    //
-
     // Biasing, to avoid artifacts.
     glusVector3MultiplyScalarf(biasedHitDirection, hitDirection, bias);
     glusPoint4AddVector3f(biasedPositiveHitPosition, hitPosition, biasedHitDirection);
     glusPoint4SubtractVector3f(biasedNegativeHitPosition, hitPosition, biasedHitDirection);
+}
 
-    //
+static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const GLfloat rayDirection[3], const GLint depth);
 
-    GLfloat reflectionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-    GLfloat refractionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-
-    GLfloat fresnel = glusVector3Fresnelf(rayDirection, hitDirection, R0);
+// Traces the reflection and refraction rays and combines their contributions
+// into the Fresnel term - the recursion re-enters trace() per bounce.
+static GLvoid spawnSecondaryRays(GLfloat reflectionColor[4], GLfloat refractionColor[4], GLfloat* fresnel, const GLfloat rayDirection[3], const GLfloat hitDirection[3], const GLfloat biasedPositiveHitPosition[4], const GLfloat biasedNegativeHitPosition[4], GLboolean insideSphereNear, const Sphere* sphereNear, GLint depth)
+{
+    *fresnel = glusVector3Fresnelf(rayDirection, hitDirection, R0);
 
     // Reflection ...
     if (sphereNear->material.reflectivity > 0.0f && depth < MAX_RAY_DEPTH)
@@ -243,19 +223,20 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
         }
         else
         {
-            fresnel = 1.0f;
+            *fresnel = 1.0f;
         }
     }
     else
     {
-        fresnel = 1.0f;
+        *fresnel = 1.0f;
     }
+}
 
-    //
+// Diffuse and specular contribution of every unoccluded point light.
+static GLvoid accumulateDirectLighting(GLfloat pixelColor[4], const GLfloat hitPosition[4], const GLfloat hitDirection[3], const GLfloat eyeDirection[3], const GLfloat biasedPositiveHitPosition[4], const Sphere* sphereNear, GLboolean insideSphereNear)
+{
+    GLint i, k;
 
-    glusVector3MultiplyScalarf(eyeDirection, rayDirection, -1.0f);
-
-    // Diffuse and specular color
     for (i = 0; i < NUM_LIGHTS; i++)
     {
         PointLight* pointLight = &g_allLights[i];
@@ -327,7 +308,12 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
             }
         }
     }
+}
 
+// Emissive term plus the Fresnel blend of reflection, refraction and local
+// shading - the material's own coefficients weight the three contributions.
+static GLvoid compositeColor(GLfloat pixelColor[4], const GLfloat reflectionColor[4], const GLfloat refractionColor[4], const Sphere* sphereNear, GLfloat fresnel)
+{
     // Emissive color
     pixelColor[0] = pixelColor[0] + sphereNear->material.emissiveColor[0];
     pixelColor[1] = pixelColor[1] + sphereNear->material.emissiveColor[1];
@@ -337,6 +323,53 @@ static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const G
     pixelColor[0] = (1.0f - fresnel) * refractionColor[0] * (1.0f - sphereNear->material.alpha) + pixelColor[0] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[0] * sphereNear->material.reflectivity;
     pixelColor[1] = (1.0f - fresnel) * refractionColor[1] * (1.0f - sphereNear->material.alpha) + pixelColor[1] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[1] * sphereNear->material.reflectivity;
     pixelColor[2] = (1.0f - fresnel) * refractionColor[2] * (1.0f - sphereNear->material.alpha) + pixelColor[2] * (1.0f - sphereNear->material.reflectivity) * sphereNear->material.alpha + fresnel * reflectionColor[2] * sphereNear->material.reflectivity;
+}
+
+static GLvoid trace(GLfloat pixelColor[4], const GLfloat rayPosition[4], const GLfloat rayDirection[3], const GLint depth)
+{
+    GLfloat tNear;
+    Sphere* sphereNear;
+    GLboolean insideSphereNear;
+
+    GLfloat hitPosition[4];
+    GLfloat hitDirection[3];
+    GLfloat biasedPositiveHitPosition[4];
+    GLfloat biasedNegativeHitPosition[4];
+
+    GLfloat reflectionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    GLfloat refractionColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    GLfloat fresnel;
+
+    GLfloat eyeDirection[3];
+
+    //
+
+    pixelColor[0] = 0.0f;
+    pixelColor[1] = 0.0f;
+    pixelColor[2] = 0.0f;
+    pixelColor[3] = 1.0f;
+
+    //
+
+    if (!findNearestSphere(rayPosition, rayDirection, &tNear, &sphereNear, &insideSphereNear))
+    {
+        // No intersection, return background color / ambient light.
+        pixelColor[0] = 0.8f;
+        pixelColor[1] = 0.8f;
+        pixelColor[2] = 0.8f;
+
+        return;
+    }
+
+    computeHitFrame(rayPosition, rayDirection, tNear, sphereNear, insideSphereNear, hitPosition, hitDirection, biasedPositiveHitPosition, biasedNegativeHitPosition);
+
+    spawnSecondaryRays(reflectionColor, refractionColor, &fresnel, rayDirection, hitDirection, biasedPositiveHitPosition, biasedNegativeHitPosition, insideSphereNear, sphereNear, depth);
+
+    glusVector3MultiplyScalarf(eyeDirection, rayDirection, -1.0f);
+
+    accumulateDirectLighting(pixelColor, hitPosition, hitDirection, eyeDirection, biasedPositiveHitPosition, sphereNear, insideSphereNear);
+
+    compositeColor(pixelColor, reflectionColor, refractionColor, sphereNear, fresnel);
 }
 
 static GLboolean renderToPixelBuffer(GLubyte* pixels, const GLint width, const GLint height)

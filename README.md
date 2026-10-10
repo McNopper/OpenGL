@@ -7,6 +7,22 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.4
+
+Comment and refactoring pass over four examples; rendered output unchanged.
+Requires **GLUS v1.1.4**; Example50 vendors **EGL v1.0.11**.
+
+- **Comment fixes**: G-buffer attachment comments in Example31, a typo in
+  Example14, a stale comment in Example33.
+- **Quick wins**: shared shader-program loader in Example33, SSBO layout
+  constants in Example51, GLFW key names.
+- **Teaching decompositions** (verbatim motion, unchanged rendering):
+  Example29 `trace()` into five named phases; Example46 `update()` into
+  three passes with a shared `bindGroupMaterial`; Example33 `init()` into
+  the eight IBL-pipeline phases its banners already described; Example28
+  `init()` into eight named stages.
+- **Refreshed screenshots.**
+
 ### v3.2.3
 
 Build-system fixes, dependency pins and CI; no example code changes.

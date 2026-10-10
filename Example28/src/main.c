@@ -169,16 +169,280 @@ static GLfloat g_rotationNoiseScale[2];
 
 static GLfloat g_texelStep[2];
 
-GLUSboolean init(GLUSvoid)
+// Loads a vertex/fragment shader pair and builds the program from it.
+static GLUSboolean loadProgramFromFiles(const GLUSchar* vertexPath, const GLUSchar* fragmentPath, GLUSprogram* program)
 {
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    GLUStgaimage image;
+    if (!glusFileLoadText(vertexPath, &vertexSource))
+    {
+        printf("Could not load vertex shader!\n");
 
+        return GLUS_FALSE;
+    }
+
+    if (!glusFileLoadText(fragmentPath, &fragmentSource))
+    {
+        printf("Could not load fragment shader!\n");
+
+        glusFileDestroyText(&vertexSource);
+
+        return GLUS_FALSE;
+    }
+
+    if (!glusProgramBuildFromSource(program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
+    {
+        printf("Could not build program!\n");
+
+        glusFileDestroyText(&vertexSource);
+        glusFileDestroyText(&fragmentSource);
+
+        return GLUS_FALSE;
+    }
+
+    glusFileDestroyText(&vertexSource);
+    glusFileDestroyText(&fragmentSource);
+
+    return GLUS_TRUE;
+}
+
+// Creates one full-screen render-target texture with the standard linear /
+// clamp sampling the post-processing passes expect.
+static GLUSvoid createRenderTexture2D(GLuint* texture, GLenum textureUnit, GLint internalFormat, GLenum format, GLenum type)
+{
+    glGenTextures(1, texture);
+    glActiveTexture(textureUnit);
+    glBindTexture(GL_TEXTURE_2D, *texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, format, type, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+//
+// Setting up the SSAO frame buffer.
+//
+static GLUSboolean setupSsaoFramebuffer(GLvoid)
+{
+    createRenderTexture2D(&g_ssaoTexture, GL_TEXTURE0, GLUS_RGB, GLUS_RGB, GL_UNSIGNED_BYTE);
+
+    //
+
+    createRenderTexture2D(&g_ssaoNormalTexture, GL_TEXTURE1, GLUS_RGB, GLUS_RGB, GL_UNSIGNED_BYTE);
+
+    //
+
+    createRenderTexture2D(&g_ssaoDepthTexture, GL_TEXTURE2, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT);
+
+    //
+
+    glGenFramebuffers(1, &g_ssaoFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_ssaoFBO);
+
+    // Attach the color buffer ...
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_ssaoTexture, 0);
+
+    // Attach the normal buffer ...
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_ssaoNormalTexture, 0);
+
+    // ... and the depth buffer,
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, g_ssaoDepthTexture, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+        return GLUS_FALSE;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return GLUS_TRUE;
+}
+
+//
+// Setting up the blur frame buffer
+//
+static GLUSboolean setupBlurFramebuffer(GLvoid)
+{
+    createRenderTexture2D(&g_blurTexture, GL_TEXTURE0, GLUS_RGB, GLUS_RGB, GL_UNSIGNED_BYTE);
+
+    //
+
+    glGenFramebuffers(1, &g_blurFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, g_blurFBO);
+
+    // Attach the color buffer ...
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_blurTexture, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+        return GLUS_FALSE;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return GLUS_TRUE;
+}
+
+//
+// Ground plane setup.
+//
+static GLUSboolean createGroundPlaneBuffers(GLvoid)
+{
     GLUSshape plane;
 
+    if (!glusShapeCreatePlanef(&plane, 20.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
+    g_numberIndicesPlane = plane.numberIndices;
+
+    glGenBuffers(1, &g_verticesVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_normalsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_texCoordsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, &g_indicesVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glusShapeDestroyf(&plane);
+
+    return GLUS_TRUE;
+}
+
+//
+// Post process plane setup.
+//
+static GLUSboolean createPostprocessPlaneBuffers(GLvoid)
+{
+    GLUSshape plane;
+
+    if (!glusShapeCreatePlanef(&plane, 1.0f))
+    {
+        printf("Could not create plane!\n");
+
+        return GLUS_FALSE;
+    }
+
+    g_numberIndicesPostprocessPlane = plane.numberIndices;
+
+    glGenBuffers(1, &g_postprocessVerticesVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_postprocessVerticesVBO);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &g_postprocessTexCoordsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_postprocessTexCoordsVBO);
+    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, &g_postprocessIndicesVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_postprocessIndicesVBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glusShapeDestroyf(&plane);
+
+    return GLUS_TRUE;
+}
+
+//
+// Create the Kernel for SSAO. The SSAO program must be current: the kernel is
+// uploaded straight to its uniform.
+//
+static GLUSvoid generateSsaoKernel(GLvoid)
+{
     GLint i;
+
+    for (i = 0; i < KERNEL_SIZE; i++)
+    {
+        g_kernel[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
+        g_kernel[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
+        g_kernel[i * 3 + 2] = glusRandomUniformf(0.0f, 1.0f); // Kernel hemisphere points to positive Z-Axis.
+
+        glusVector3Normalizef(&g_kernel[(ptrdiff_t)i * 3]); // Normalize, so included in the hemisphere.
+
+        GLfloat scale = (GLfloat)i / (GLfloat)KERNEL_SIZE; // Create a scale value between [0;1[ .
+
+        scale = glusMathClampf(scale * scale, 0.1f, 1.0f); // Adjust scale, that there are more values closer to the center of the g_kernel.
+
+        glusVector3MultiplyScalarf(&g_kernel[(ptrdiff_t)i * 3], &g_kernel[(ptrdiff_t)i * 3], scale);
+    }
+
+    // Pass g_kernel to shader
+    glUniform3fv(g_ssaoKernelLocation, KERNEL_SIZE, g_kernel);
+}
+
+//
+// Create the rotation noise texture. The SSAO program must be current: the
+// noise scale is uploaded straight to its uniform.
+//
+static GLUSvoid createRotationNoiseTexture(GLvoid)
+{
+    GLint i;
+
+    for (i = 0; i < ROTATION_NOISE_SIZE; i++)
+    {
+        g_rotationNoise[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
+        g_rotationNoise[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
+        g_rotationNoise[i * 3 + 2] = 0.0f; // Rotate on x-y-plane, so z is zero.
+
+        glusVector3Normalizef(&g_rotationNoise[(ptrdiff_t)i * 3]); // Normalized rotation vector.
+    }
+
+    //
+
+    glGenTextures(1, &g_ssaoRotationNoiseTexture);
+    glBindTexture(GL_TEXTURE_2D, g_ssaoRotationNoiseTexture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, ROTATION_NOISE_SIDE_LENGTH, ROTATION_NOISE_SIDE_LENGTH, 0, GL_RGB, GL_FLOAT, g_rotationNoise);
+
+    // No filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //
+    //
+
+    g_rotationNoiseScale[0] = (GLfloat)TEXTURE_WIDTH / (GLfloat)ROTATION_NOISE_SIDE_LENGTH;
+    g_rotationNoiseScale[1] = (GLfloat)TEXTURE_HEIGHT / (GLfloat)ROTATION_NOISE_SIDE_LENGTH;
+
+    // Pass the scale, as the rotation noise texture is repeated over the screen x / y times.
+    glUniform2fv(g_ssaoRotationNoiseScaleLocation, 1, g_rotationNoiseScale);
+}
+
+GLUSboolean init(GLUSvoid)
+{
+    GLUStgaimage image;
 
     //
 
@@ -193,34 +457,10 @@ GLUSboolean init(GLUSvoid)
 
     //
 
-    if (!glusFileLoadText("../Example28/shader/texture.vert.glsl", &vertexSource))
+    if (!loadProgramFromFiles("../Example28/shader/texture.vert.glsl", "../Example28/shader/texture.frag.glsl", &g_program))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example28/shader/texture.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&g_program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -241,34 +481,10 @@ GLUSboolean init(GLUSvoid)
     // SSAO shader etc.
     //
 
-    if (!glusFileLoadText("../Example28/shader/ssao.vert.glsl", &vertexSource))
+    if (!loadProgramFromFiles("../Example28/shader/ssao.vert.glsl", "../Example28/shader/ssao.frag.glsl", &g_ssaoProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example28/shader/ssao.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&g_ssaoProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -291,34 +507,10 @@ GLUSboolean init(GLUSvoid)
     // Blur shader etc.
     //
 
-    if (!glusFileLoadText("../Example28/shader/blur.vert.glsl", &vertexSource))
+    if (!loadProgramFromFiles("../Example28/shader/blur.vert.glsl", "../Example28/shader/blur.frag.glsl", &g_blurProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example28/shader/blur.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&g_blurProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     //
 
@@ -365,143 +557,21 @@ GLUSboolean init(GLUSvoid)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //
-    // Setting up the SSAO frame buffer.
-    //
 
-    glGenTextures(1, &g_ssaoTexture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, g_ssaoTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GLUS_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GLUS_RGB, GL_UNSIGNED_BYTE, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //
-
-    glGenTextures(1, &g_ssaoNormalTexture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, g_ssaoNormalTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GLUS_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GLUS_RGB, GL_UNSIGNED_BYTE, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //
-
-    glGenTextures(1, &g_ssaoDepthTexture);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, g_ssaoDepthTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //
-
-    glGenFramebuffers(1, &g_ssaoFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_ssaoFBO);
-
-    // Attach the color buffer ...
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_ssaoTexture, 0);
-
-    // Attach the normal buffer ...
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_ssaoNormalTexture, 0);
-
-    // ... and the depth buffer,
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, g_ssaoDepthTexture, 0);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    if (!setupSsaoFramebuffer())
     {
-        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
         return GLUS_FALSE;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //
-    // Setting up the blur frame buffer
-    //
-
-    glGenTextures(1, &g_blurTexture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, g_blurTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GLUS_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GLUS_RGB, GL_UNSIGNED_BYTE, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //
-
-    glGenFramebuffers(1, &g_blurFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_blurFBO);
-
-    // Attach the color buffer ...
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_blurTexture, 0);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    if (!setupBlurFramebuffer())
     {
-        printf("GL_FRAMEBUFFER_COMPLETE error 0x%x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
         return GLUS_FALSE;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //
-    // Ground plane setup.
-    //
-
-    if (!glusShapeCreatePlanef(&plane, 20.0f))
+    if (!createGroundPlaneBuffers())
     {
-        printf("Could not create plane!\n");
-
         return GLUS_FALSE;
     }
-
-    g_numberIndicesPlane = plane.numberIndices;
-
-    glGenBuffers(1, &g_verticesVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_verticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &g_normalsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_normalsVBO);
-    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 3 * sizeof(GLfloat), (GLfloat*)plane.normals, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &g_texCoordsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_texCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &g_indicesVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glusShapeDestroyf(&plane);
 
     //
 
@@ -536,35 +606,11 @@ GLUSboolean init(GLUSvoid)
     glUniform1f(g_repeatLocation, 6.0f);
 
     //
-    // Post process plane setup.
-    //
 
-    if (!glusShapeCreatePlanef(&plane, 1.0f))
+    if (!createPostprocessPlaneBuffers())
     {
-        printf("Could not create plane!\n");
-
         return GLUS_FALSE;
     }
-
-    g_numberIndicesPostprocessPlane = plane.numberIndices;
-
-    glGenBuffers(1, &g_postprocessVerticesVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_postprocessVerticesVBO);
-    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 4 * sizeof(GLfloat), (GLfloat*)plane.vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &g_postprocessTexCoordsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, g_postprocessTexCoordsVBO);
-    glBufferData(GL_ARRAY_BUFFER, (size_t)(plane.numberVertices) * 2 * sizeof(GLfloat), (GLfloat*)plane.texCoords, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &g_postprocessIndicesVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_postprocessIndicesVBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plane.numberIndices * sizeof(GLuint), (GLuint*)plane.indices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glusShapeDestroyf(&plane);
 
     //
 
@@ -595,63 +641,12 @@ GLUSboolean init(GLUSvoid)
     glUniform1f(g_ssaoRadiusLocation, SSAO_RADIUS);
 
     //
-    // Create the Kernel for SSAO.
-    //
 
-    for (i = 0; i < KERNEL_SIZE; i++)
-    {
-        g_kernel[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
-        g_kernel[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
-        g_kernel[i * 3 + 2] = glusRandomUniformf(0.0f, 1.0f); // Kernel hemisphere points to positive Z-Axis.
-
-        glusVector3Normalizef(&g_kernel[(ptrdiff_t)i * 3]); // Normalize, so included in the hemisphere.
-
-        GLfloat scale = (GLfloat)i / (GLfloat)KERNEL_SIZE; // Create a scale value between [0;1[ .
-
-        scale = glusMathClampf(scale * scale, 0.1f, 1.0f); // Adjust scale, that there are more values closer to the center of the g_kernel.
-
-        glusVector3MultiplyScalarf(&g_kernel[(ptrdiff_t)i * 3], &g_kernel[(ptrdiff_t)i * 3], scale);
-    }
-
-    // Pass g_kernel to shader
-    glUniform3fv(g_ssaoKernelLocation, KERNEL_SIZE, g_kernel);
-
-    //
-    // Create the rotation noise texture
-    //
-
-    for (i = 0; i < ROTATION_NOISE_SIZE; i++)
-    {
-        g_rotationNoise[i * 3 + 0] = glusRandomUniformf(-1.0f, 1.0f);
-        g_rotationNoise[i * 3 + 1] = glusRandomUniformf(-1.0f, 1.0f);
-        g_rotationNoise[i * 3 + 2] = 0.0f; // Rotate on x-y-plane, so z is zero.
-
-        glusVector3Normalizef(&g_rotationNoise[(ptrdiff_t)i * 3]); // Normalized rotation vector.
-    }
+    generateSsaoKernel();
 
     //
 
-    glGenTextures(1, &g_ssaoRotationNoiseTexture);
-    glBindTexture(GL_TEXTURE_2D, g_ssaoRotationNoiseTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, ROTATION_NOISE_SIDE_LENGTH, ROTATION_NOISE_SIDE_LENGTH, 0, GL_RGB, GL_FLOAT, g_rotationNoise);
-
-    // No filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    //
-    //
-
-    g_rotationNoiseScale[0] = (GLfloat)TEXTURE_WIDTH / (GLfloat)ROTATION_NOISE_SIDE_LENGTH;
-    g_rotationNoiseScale[1] = (GLfloat)TEXTURE_HEIGHT / (GLfloat)ROTATION_NOISE_SIDE_LENGTH;
-
-    // Pass the scale, as the rotation noise texture is repeated over the screen x / y times.
-    glUniform2fv(g_ssaoRotationNoiseScaleLocation, 1, g_rotationNoiseScale);
+    createRotationNoiseTexture();
 
     //
     //

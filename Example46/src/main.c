@@ -605,18 +605,63 @@ GLUSvoid reshape(GLUSint width, GLUSint height)
 // Update (called every frame).
 //
 
-GLUSboolean update(GLUSfloat time)
+// Uniform locations of one pass's material bindings. The voxelisation and VCT
+// passes shade the same groups through different programs; they differ only in
+// which uniforms they own (the voxeliser has no specular term).
+typedef struct MaterialLocs_
 {
-    static const GLfloat clearValue[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    GLint diffuseColorLoc;
+    GLint specularColorLoc;   // -1 when the pass has no specular term
+    GLint shininessLoc;       // -1 likewise
+    GLint hasDiffuseTextureLoc;
+} MaterialLocs;
 
-    GLUSgroupList* groupWalker;
+// Binds one group's material - or the neutral default - for the current program.
+static GLvoid bindGroupMaterial(const GLUSgroup* group, const MaterialLocs* locs)
+{
+    if (group->material)
+    {
+        glUniform4fv(locs->diffuseColorLoc, 1, group->material->diffuse);
 
+        if (locs->specularColorLoc >= 0)
+        {
+            glUniform4fv(locs->specularColorLoc, 1, group->material->specular);
+            glUniform1f(locs->shininessLoc, group->material->shininess);
+        }
+
+        if (group->material->diffuseTextureName)
+        {
+            glBindTexture(GL_TEXTURE_2D,
+                          group->material->diffuseTextureName);
+            glUniform1i(locs->hasDiffuseTextureLoc, 1);
+        }
+        else
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glUniform1i(locs->hasDiffuseTextureLoc, 0);
+        }
+    }
+    else
+    {
+        glUniform4f(locs->diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
+
+        if (locs->specularColorLoc >= 0)
+        {
+            glUniform4f(locs->specularColorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+            glUniform1f(locs->shininessLoc, 10.0f);
+        }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(locs->hasDiffuseTextureLoc, 0);
+    }
+}
+
+// Turns the input state into the frame's view-projection and model matrices and
+// advances the orbiting sphere's model matrix.
+static GLvoid updateCamera(GLUSfloat time, GLfloat vpMatrix[16], GLfloat mvpMatrix[16], GLfloat sphereModelMatrix[16])
+{
     GLfloat viewMatrix[16];
     GLfloat projectionMatrix[16];
-    GLfloat mvpMatrix[16];
-    GLfloat vpMatrix[16];
-    GLfloat sphereModelMatrix[16];
-    GLfloat sphereMvpMatrix[16];
 
     GLfloat moveSpeed;
     GLfloat turnSpeed;
@@ -626,15 +671,6 @@ GLUSboolean update(GLUSfloat time)
     GLfloat fwdZ;
     GLfloat rightX;
     GLfloat rightZ;
-
-    if (!g_spherePaused)
-    {
-        g_totalTime += time;
-    }
-
-    //
-    // Camera update.
-    //
 
     moveSpeed = 0.5f * time;
     turnSpeed = 60.0f * time;
@@ -718,10 +754,16 @@ GLUSboolean update(GLUSfloat time)
                                 SPHERE_ORBIT_Y,
                                 SPHERE_ORBIT_RADIUS * sinf(angle));
     }
+}
 
-    //
-    // Voxelisation pass (runs every frame so the moving sphere updates the grid).
-    //
+// Voxelisation pass (runs every frame so the moving sphere updates the grid).
+static GLvoid voxelizeScene(const GLfloat sphereModelMatrix[16])
+{
+    static const GLfloat clearValue[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+    GLUSgroupList* groupWalker;
+
+    const MaterialLocs locs = {g_voxelize_diffuseColorLoc, -1, -1, g_voxelize_hasDiffuseTextureLoc};
 
     // Ensure any previous frame's imageStore and texture-fetch operations on the
     // voxel grid are complete before we overwrite it with glClearTexImage.
@@ -753,29 +795,7 @@ GLUSboolean update(GLUSfloat time)
     groupWalker = g_wavefront.groups;
     while (groupWalker)
     {
-        if (groupWalker->group.material)
-        {
-            glUniform4fv(g_voxelize_diffuseColorLoc, 1,
-                         groupWalker->group.material->diffuse);
-
-            if (groupWalker->group.material->diffuseTextureName)
-            {
-                glBindTexture(GL_TEXTURE_2D,
-                              groupWalker->group.material->diffuseTextureName);
-                glUniform1i(g_voxelize_hasDiffuseTextureLoc, 1);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
-            }
-        }
-        else
-        {
-            glUniform4f(g_voxelize_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUniform1i(g_voxelize_hasDiffuseTextureLoc, 0);
-        }
+        bindGroupMaterial(&groupWalker->group, &locs);
 
         glBindVertexArray(groupWalker->group.vao);
         glDrawElements(GL_TRIANGLES,
@@ -816,10 +836,16 @@ GLUSboolean update(GLUSfloat time)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glViewport(0, 0, g_windowWidth, g_windowHeight);
+}
 
-    //
-    // VCT rendering pass.
-    //
+// VCT rendering pass.
+static GLvoid renderVctPass(const GLfloat vpMatrix[16], const GLfloat mvpMatrix[16], const GLfloat sphereModelMatrix[16])
+{
+    GLUSgroupList* groupWalker;
+
+    GLfloat sphereMvpMatrix[16];
+
+    const MaterialLocs locs = {g_vct_diffuseColorLoc, g_vct_specularColorLoc, g_vct_shininessLoc, g_vct_hasDiffuseTextureLoc};
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -838,32 +864,7 @@ GLUSboolean update(GLUSfloat time)
     groupWalker = g_wavefront.groups;
     while (groupWalker)
     {
-        if (groupWalker->group.material)
-        {
-            glUniform4fv(g_vct_diffuseColorLoc, 1, groupWalker->group.material->diffuse);
-            glUniform4fv(g_vct_specularColorLoc, 1, groupWalker->group.material->specular);
-            glUniform1f(g_vct_shininessLoc, groupWalker->group.material->shininess);
-
-            if (groupWalker->group.material->diffuseTextureName)
-            {
-                glBindTexture(GL_TEXTURE_2D,
-                              groupWalker->group.material->diffuseTextureName);
-                glUniform1i(g_vct_hasDiffuseTextureLoc, 1);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
-            }
-        }
-        else
-        {
-            glUniform4f(g_vct_diffuseColorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
-            glUniform4f(g_vct_specularColorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
-            glUniform1f(g_vct_shininessLoc, 10.0f);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUniform1i(g_vct_hasDiffuseTextureLoc, 0);
-        }
+        bindGroupMaterial(&groupWalker->group, &locs);
 
         glBindVertexArray(groupWalker->group.vao);
         glDrawElements(GL_TRIANGLES,
@@ -893,6 +894,24 @@ GLUSboolean update(GLUSfloat time)
     glActiveTexture(GL_TEXTURE0 + BINDING_VOXEL_GRID);
     glBindTexture(GL_TEXTURE_3D, 0);
     glActiveTexture(GL_TEXTURE0);
+}
+
+GLUSboolean update(GLUSfloat time)
+{
+    GLfloat mvpMatrix[16];
+    GLfloat vpMatrix[16];
+    GLfloat sphereModelMatrix[16];
+
+    if (!g_spherePaused)
+    {
+        g_totalTime += time;
+    }
+
+    updateCamera(time, vpMatrix, mvpMatrix, sphereModelMatrix);
+
+    voxelizeScene(sphereModelMatrix);
+
+    renderVctPass(vpMatrix, mvpMatrix, sphereModelMatrix);
 
     return GLUS_TRUE;
 }

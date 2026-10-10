@@ -135,53 +135,20 @@ static GLuint g_backgroundVAO;
 
 static GLuint g_numberIndicesBackground;
 
-GLUSboolean init(GLUSvoid)
+// Loads a vertex/fragment shader pair and builds the program from it.
+static GLUSboolean loadProgramFromFiles(const GLUSchar* vertexPath, const GLUSchar* fragmentPath, GLUSprogram* program)
 {
-    GLUSshape backgroundSphere;
-
-    GLUSshape wavefront;
-
-    // 6 sides of diffuse and specular; all roughness levels of specular.
-    // These are no longer loaded from disk; kept for potential future use.
-
-    // The BRDF integration LUT is generated on the GPU at startup (brdf_lut.frag.glsl).
-
     GLUStextfile vertexSource;
     GLUStextfile fragmentSource;
 
-    GLint k, m;
-
-    // IBL prefilter programs and their uniforms (temporary, used only during init).
-    GLUSprogram specularPrefilterProgram;
-    GLint       panoramaTexSPLoc, faceSPLoc, roughnessSPLoc;
-
-    GLUSprogram diffusePrefilterProgram;
-    GLint       panoramaTexDPLoc, faceDPLoc;
-
-    GLUSprogram brdfLutProgram;
-
-    // Panorama-to-cubemap program for the visible background sphere.
-    GLUSprogram panoramaToCubemapProgram;
-    GLint       panoramaTexBGLoc, faceBGLoc;
-
-    // Shared GPU resources for all prefilter passes.
-    GLuint       panoramaGLTexture;
-    GLuint       prefilterFBO;
-    GLuint       quadVBO;
-    GLuint       quadVAO;
-    GLUShdrimage panoramaImage;
-    GLfloat      quadVertices[8];
-
-    //
-
-    if (!glusFileLoadText("../Example33/shader/brdf.vert.glsl", &vertexSource))
+    if (!glusFileLoadText(vertexPath, &vertexSource))
     {
         printf("Could not load vertex shader!\n");
 
         return GLUS_FALSE;
     }
 
-    if (!glusFileLoadText("../Example33/shader/brdf.frag.glsl", &fragmentSource))
+    if (!glusFileLoadText(fragmentPath, &fragmentSource))
     {
         printf("Could not load fragment shader!\n");
 
@@ -190,7 +157,7 @@ GLUSboolean init(GLUSvoid)
         return GLUS_FALSE;
     }
 
-    if (!glusProgramBuildFromSource(&g_modelProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
+    if (!glusProgramBuildFromSource(program, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
     {
         printf("Could not build program!\n");
 
@@ -203,103 +170,12 @@ GLUSboolean init(GLUSvoid)
     glusFileDestroyText(&vertexSource);
     glusFileDestroyText(&fragmentSource);
 
-    g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
-    g_modelMatrixModelLocation          = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
-    g_normalMatrixModelLocation         = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
-    g_eyeModelLocation                  = glGetUniformLocation(g_modelProgram.program, "u_eye");
-    g_textureSpecularModelLocation      = glGetUniformLocation(g_modelProgram.program, "u_textureSpecular");
-    g_textureDiffuseModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_textureDiffuse");
-    g_textureLUTModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_textureLUT");
-    g_colorMaterialModelLocation        = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
-    g_roughnessMaterialModelLocation    = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
-    g_roughnessScaleModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_roughnessScale");
-    g_R0MaterialModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
+    return GLUS_TRUE;
+}
 
-    g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
-    g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
-
-    //
-
-    if (!glusFileLoadText("../Example33/shader/fullscreen.vert.glsl", &vertexSource))
-    {
-        printf("Could not load vertex shader!\n");
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusFileLoadText("../Example33/shader/fullscreen.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&g_fullscreenProgram, (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
-
-    //
-
-    g_framebufferTextureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_framebufferTexture");
-
-    g_msaaSamplesFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
-    g_exposureFullscreenLocation    = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
-    g_gammaFullscreenLocation       = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
-
-    //
-    //
-
-    if (!glusFileLoadText("../Example33/shader/background.vert.glsl", &vertexSource))
-    {
-        printf("Could not load vertex shader!\n");
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusFileLoadText("../Example33/shader/background.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&g_backgroundProgram, (const GLUSchar**)&vertexSource.text, 0, 0, 0, (const GLUSchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
-
-    //
-
-    g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_viewProjectionMatrix");
-    g_textureBackgroundLocation              = glGetUniformLocation(g_backgroundProgram.program, "u_texture");
-
-    g_vertexBackgroundLocation = glGetAttribLocation(g_backgroundProgram.program, "a_vertex");
-
-    //
-    // Setting up the full screen frame buffer.
-    //
-
+// Sets up the full screen frame buffer the final pass renders into.
+static GLUSboolean setupFullscreenFbo(GLvoid)
+{
     glGenTextures(1, &g_fullscreenTexture);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, g_fullscreenTexture);
@@ -337,9 +213,16 @@ GLUSboolean init(GLUSvoid)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    //
-    //
-    //
+    return GLUS_TRUE;
+}
+
+// Loads the HDR panorama once and builds the shared FBO and fullscreen quad the
+// four prefilter passes draw through. On return the shared FBO is bound, the
+// quad VAO is bound and face culling is off - the passes rely on that state.
+static GLUSboolean loadPanoramaAndPrefilterSetup(GLuint* panoramaGLTexture, GLuint* prefilterFBO, GLuint* quadVBO, GLuint* quadVAO)
+{
+    GLUShdrimage panoramaImage;
+    GLfloat      quadVertices[8];
 
     //
     // ---- GPU IBL prefilter ----
@@ -354,9 +237,9 @@ GLUSboolean init(GLUSvoid)
     }
     printf("done.\n");
 
-    glGenTextures(1, &panoramaGLTexture);
+    glGenTextures(1, panoramaGLTexture);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, panoramaGLTexture);
+    glBindTexture(GL_TEXTURE_2D, *panoramaGLTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F,
                  panoramaImage.width, panoramaImage.height,
                  0, GL_RGB, GL_FLOAT, panoramaImage.data);
@@ -368,7 +251,7 @@ GLUSboolean init(GLUSvoid)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Shared FBO and fullscreen quad for all prefilter passes.
-    glGenFramebuffers(1, &prefilterFBO);
+    glGenFramebuffers(1, prefilterFBO);
 
     quadVertices[0] = -1.0f;
     quadVertices[1] = -1.0f;
@@ -379,56 +262,40 @@ GLUSboolean init(GLUSvoid)
     quadVertices[6] = 1.0f;
     quadVertices[7] = 1.0f;
 
-    glGenBuffers(1, &quadVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glGenBuffers(1, quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, *quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
     // location=0 is set in the vertex shader with layout(location=0).
-    glGenVertexArrays(1, &quadVAO);
-    glBindVertexArray(quadVAO);
+    glGenVertexArrays(1, quadVAO);
+    glBindVertexArray(*quadVAO);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glDisable(GL_CULL_FACE);
-    glBindFramebuffer(GL_FRAMEBUFFER, prefilterFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, *prefilterFBO);
 
-    // ------------------------------------------------------------------
-    // Pass 1: specular pre-filtered cubemap array (g_texture[0])
-    //   Layout: 6 * NUMBER_ROUGHNESS layers.
-    //   Layer index = roughness_level * 6 + face.
-    //   Roughness range 0..1 mapped to levels 0..NUMBER_ROUGHNESS-1.
-    // ------------------------------------------------------------------
+    return GLUS_TRUE;
+}
 
-    if (!glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource))
+// ------------------------------------------------------------------
+// Pass 1: specular pre-filtered cubemap array (g_texture[0])
+//   Layout: 6 * NUMBER_ROUGHNESS layers.
+//   Layer index = roughness_level * 6 + face.
+//   Roughness range 0..1 mapped to levels 0..NUMBER_ROUGHNESS-1.
+// ------------------------------------------------------------------
+static GLUSboolean runSpecularPrefilter(GLuint panoramaGLTexture)
+{
+    GLUSprogram specularPrefilterProgram;
+    GLint       panoramaTexSPLoc, faceSPLoc, roughnessSPLoc;
+
+    GLint k, m;
+
+    if (!loadProgramFromFiles("../Example33/shader/panorama_to_cubemap.vert.glsl", "../Example33/shader/prefilter_specular.frag.glsl", &specularPrefilterProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example33/shader/prefilter_specular.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&specularPrefilterProgram,
-                                    (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     panoramaTexSPLoc = glGetUniformLocation(specularPrefilterProgram.program, "u_panoramaTexture");
     faceSPLoc        = glGetUniformLocation(specularPrefilterProgram.program, "u_face");
@@ -479,39 +346,23 @@ GLUSboolean init(GLUSvoid)
 
     glusProgramDestroy(&specularPrefilterProgram);
 
-    // ------------------------------------------------------------------
-    // Pass 2: diffuse irradiance cubemap (g_texture[1])
-    // ------------------------------------------------------------------
+    return GLUS_TRUE;
+}
 
-    if (!glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource))
+// ------------------------------------------------------------------
+// Pass 2: diffuse irradiance cubemap (g_texture[1])
+// ------------------------------------------------------------------
+static GLUSboolean runDiffusePrefilter(GLuint panoramaGLTexture)
+{
+    GLUSprogram diffusePrefilterProgram;
+    GLint       panoramaTexDPLoc, faceDPLoc;
+
+    GLint m;
+
+    if (!loadProgramFromFiles("../Example33/shader/panorama_to_cubemap.vert.glsl", "../Example33/shader/prefilter_diffuse.frag.glsl", &diffusePrefilterProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example33/shader/prefilter_diffuse.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&diffusePrefilterProgram,
-                                    (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     panoramaTexDPLoc = glGetUniformLocation(diffusePrefilterProgram.program, "u_panoramaTexture");
     faceDPLoc        = glGetUniformLocation(diffusePrefilterProgram.program, "u_face");
@@ -559,41 +410,22 @@ GLUSboolean init(GLUSvoid)
 
     glusProgramDestroy(&diffusePrefilterProgram);
 
-    // ------------------------------------------------------------------
-    // Pass 3: BRDF integration LUT (g_texture[2])
-    //   UV layout: x = NdotV, y = roughness (both in [0,1]).
-    //   Output: RG32F (scale, bias) as in Karis 2013.
-    // ------------------------------------------------------------------
+    return GLUS_TRUE;
+}
 
-    if (!glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource))
+// ------------------------------------------------------------------
+// Pass 3: BRDF integration LUT (g_texture[2])
+//   UV layout: x = NdotV, y = roughness (both in [0,1]).
+//   Output: RG32F (scale, bias) as in Karis 2013.
+// ------------------------------------------------------------------
+static GLUSboolean generateBrdfLut(GLvoid)
+{
+    GLUSprogram brdfLutProgram;
+
+    if (!loadProgramFromFiles("../Example33/shader/panorama_to_cubemap.vert.glsl", "../Example33/shader/brdf_lut.frag.glsl", &brdfLutProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example33/shader/brdf_lut.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&brdfLutProgram,
-                                    (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     glGenTextures(1, &g_texture[2]);
     glActiveTexture(GL_TEXTURE2);
@@ -624,39 +456,23 @@ GLUSboolean init(GLUSvoid)
 
     glusProgramDestroy(&brdfLutProgram);
 
-    // ------------------------------------------------------------------
-    // Pass 4: sharp background cubemap from the same panorama (g_backgroundCubemapTexture)
-    // ------------------------------------------------------------------
+    return GLUS_TRUE;
+}
 
-    if (!glusFileLoadText("../Example33/shader/panorama_to_cubemap.vert.glsl", &vertexSource))
+// ------------------------------------------------------------------
+// Pass 4: sharp background cubemap from the same panorama (g_backgroundCubemapTexture)
+// ------------------------------------------------------------------
+static GLUSboolean generateBackgroundCubemap(GLuint panoramaGLTexture)
+{
+    GLUSprogram panoramaToCubemapProgram;
+    GLint       panoramaTexBGLoc, faceBGLoc;
+
+    GLint m;
+
+    if (!loadProgramFromFiles("../Example33/shader/panorama_to_cubemap.vert.glsl", "../Example33/shader/panorama_to_cubemap.frag.glsl", &panoramaToCubemapProgram))
     {
-        printf("Could not load vertex shader!\n");
-
         return GLUS_FALSE;
     }
-
-    if (!glusFileLoadText("../Example33/shader/panorama_to_cubemap.frag.glsl", &fragmentSource))
-    {
-        printf("Could not load fragment shader!\n");
-
-        glusFileDestroyText(&vertexSource);
-
-        return GLUS_FALSE;
-    }
-
-    if (!glusProgramBuildFromSource(&panoramaToCubemapProgram,
-                                    (const GLchar**)&vertexSource.text, 0, 0, 0, (const GLchar**)&fragmentSource.text))
-    {
-        printf("Could not build program!\n");
-
-        glusFileDestroyText(&vertexSource);
-        glusFileDestroyText(&fragmentSource);
-
-        return GLUS_FALSE;
-    }
-
-    glusFileDestroyText(&vertexSource);
-    glusFileDestroyText(&fragmentSource);
 
     panoramaTexBGLoc = glGetUniformLocation(panoramaToCubemapProgram.program, "u_panoramaTexture");
     faceBGLoc        = glGetUniformLocation(panoramaToCubemapProgram.program, "u_face");
@@ -699,20 +515,13 @@ GLUSboolean init(GLUSvoid)
 
     glusProgramDestroy(&panoramaToCubemapProgram);
 
-    // ------------------------------------------------------------------
-    // Clean up all shared prefilter resources (textures live in g_texture[]).
-    // ------------------------------------------------------------------
+    return GLUS_TRUE;
+}
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &quadVAO);
-    glDeleteBuffers(1, &quadVBO);
-    glDeleteFramebuffers(1, &prefilterFBO);
-    glDeleteTextures(1, &panoramaGLTexture);
-
-    printf("IBL prefilter complete.\n");
-
-    //
+// The visible background sphere's geometry buffers.
+static GLUSboolean createBackgroundGeometry(GLvoid)
+{
+    GLUSshape backgroundSphere;
 
     if (!glusShapeCreateSpheref(&backgroundSphere, 500.0f, 32))
     {
@@ -737,8 +546,13 @@ GLUSboolean init(GLUSvoid)
 
     glusShapeDestroyf(&backgroundSphere);
 
-    //
-    //
+    return GLUS_TRUE;
+}
+
+// The wavefront model's geometry buffers.
+static GLUSboolean createModelGeometry(GLvoid)
+{
+    GLUSshape wavefront;
 
     // Use a helper function to load an wavefront object file.
     if (!glusShapeLoadWavefront("venusm.obj", &wavefront))
@@ -761,6 +575,128 @@ GLUSboolean init(GLUSvoid)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glusShapeDestroyf(&wavefront);
+
+    return GLUS_TRUE;
+}
+
+GLUSboolean init(GLUSvoid)
+{
+    // The BRDF integration LUT is generated on the GPU at startup (brdf_lut.frag.glsl).
+
+    // Shared GPU resources for all prefilter passes.
+    GLuint panoramaGLTexture;
+    GLuint prefilterFBO;
+    GLuint quadVBO;
+    GLuint quadVAO;
+
+    //
+
+    if (!loadProgramFromFiles("../Example33/shader/brdf.vert.glsl", "../Example33/shader/brdf.frag.glsl", &g_modelProgram))
+    {
+        return GLUS_FALSE;
+    }
+
+    g_viewProjectionMatrixModelLocation = glGetUniformLocation(g_modelProgram.program, "u_viewProjectionMatrix");
+    g_modelMatrixModelLocation          = glGetUniformLocation(g_modelProgram.program, "u_modelMatrix");
+    g_normalMatrixModelLocation         = glGetUniformLocation(g_modelProgram.program, "u_normalMatrix");
+    g_eyeModelLocation                  = glGetUniformLocation(g_modelProgram.program, "u_eye");
+    g_textureSpecularModelLocation      = glGetUniformLocation(g_modelProgram.program, "u_textureSpecular");
+    g_textureDiffuseModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_textureDiffuse");
+    g_textureLUTModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_textureLUT");
+    g_colorMaterialModelLocation        = glGetUniformLocation(g_modelProgram.program, "u_colorMaterial");
+    g_roughnessMaterialModelLocation    = glGetUniformLocation(g_modelProgram.program, "u_roughnessMaterial");
+    g_roughnessScaleModelLocation       = glGetUniformLocation(g_modelProgram.program, "u_roughnessScale");
+    g_R0MaterialModelLocation           = glGetUniformLocation(g_modelProgram.program, "u_R0Material");
+
+    g_vertexModelLocation = glGetAttribLocation(g_modelProgram.program, "a_vertex");
+    g_normalModelLocation = glGetAttribLocation(g_modelProgram.program, "a_normal");
+
+    //
+
+    if (!loadProgramFromFiles("../Example33/shader/fullscreen.vert.glsl", "../Example33/shader/fullscreen.frag.glsl", &g_fullscreenProgram))
+    {
+        return GLUS_FALSE;
+    }
+
+    //
+
+    g_framebufferTextureFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_framebufferTexture");
+
+    g_msaaSamplesFullscreenLocation = glGetUniformLocation(g_fullscreenProgram.program, "u_msaaSamples");
+    g_exposureFullscreenLocation    = glGetUniformLocation(g_fullscreenProgram.program, "u_exposure");
+    g_gammaFullscreenLocation       = glGetUniformLocation(g_fullscreenProgram.program, "u_gamma");
+
+    //
+    //
+
+    if (!loadProgramFromFiles("../Example33/shader/background.vert.glsl", "../Example33/shader/background.frag.glsl", &g_backgroundProgram))
+    {
+        return GLUS_FALSE;
+    }
+
+    //
+
+    g_viewProjectionMatrixBackgroundLocation = glGetUniformLocation(g_backgroundProgram.program, "u_viewProjectionMatrix");
+    g_textureBackgroundLocation              = glGetUniformLocation(g_backgroundProgram.program, "u_texture");
+
+    g_vertexBackgroundLocation = glGetAttribLocation(g_backgroundProgram.program, "a_vertex");
+
+    //
+
+    if (!setupFullscreenFbo())
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!loadPanoramaAndPrefilterSetup(&panoramaGLTexture, &prefilterFBO, &quadVBO, &quadVAO))
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!runSpecularPrefilter(panoramaGLTexture))
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!runDiffusePrefilter(panoramaGLTexture))
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!generateBrdfLut())
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!generateBackgroundCubemap(panoramaGLTexture))
+    {
+        return GLUS_FALSE;
+    }
+
+    // ------------------------------------------------------------------
+    // Clean up all shared prefilter resources (textures live in g_texture[]).
+    // ------------------------------------------------------------------
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &quadVAO);
+    glDeleteBuffers(1, &quadVBO);
+    glDeleteFramebuffers(1, &prefilterFBO);
+    glDeleteTextures(1, &panoramaGLTexture);
+
+    printf("IBL prefilter complete.\n");
+
+    //
+
+    if (!createBackgroundGeometry())
+    {
+        return GLUS_FALSE;
+    }
+
+    if (!createModelGeometry())
+    {
+        return GLUS_FALSE;
+    }
 
     //
 

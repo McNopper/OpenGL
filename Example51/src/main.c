@@ -49,6 +49,14 @@
 #define ORBIT_DELTA_PHI 0.05f
 #define ORBIT_DELTA_RADIUS 0.5f
 
+// std430 layout of the ModelData SSBO, mirrored exactly by the shaders:
+// worldMatrix | wigner1 | wigner2 | wigner3 - tightly packed floats.
+#define MODEL_SSBO_WORLD_OFFSET  0
+#define MODEL_SSBO_WIGNER1_OFFSET 64
+#define MODEL_SSBO_WIGNER2_OFFSET 100
+#define MODEL_SSBO_WIGNER3_OFFSET 200
+#define MODEL_SSBO_SIZE          396
+
 // -----------------------------------------------------------------------
 // Global GL objects
 // -----------------------------------------------------------------------
@@ -504,11 +512,11 @@ GLUSboolean init(GLUSvoid)
     // Upload ModelData SSBO: worldMatrix(64B) | wigner1(36B) | wigner2(100B) | wigner3(196B).
     glGenBuffers(1, &g_modelSSBO);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_modelSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 396, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 64, g_worldMatrix);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 64, 36, wigner1);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 100, 100, wigner2);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 200, 196, wigner3);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, MODEL_SSBO_SIZE, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, MODEL_SSBO_WORLD_OFFSET, sizeof(g_worldMatrix), g_worldMatrix);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, MODEL_SSBO_WIGNER1_OFFSET, sizeof(wigner1), wigner1);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, MODEL_SSBO_WIGNER2_OFFSET, sizeof(wigner2), wigner2);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, MODEL_SSBO_WIGNER3_OFFSET, sizeof(wigner3), wigner3);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, g_modelSSBO);
 
     //

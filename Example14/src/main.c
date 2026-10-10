@@ -873,7 +873,7 @@ GLUSboolean update(GLUSfloat time)
     // Now get the number of primitives written in the first render pass.
     glGetQueryObjectuiv(g_transformFeedbackQuery, GL_QUERY_RESULT, &primitivesWritten);
 
-    // No draw the final terrain.
+    // Now draw the final terrain.
     glDrawArrays(GL_PATCHES, 0, primitivesWritten);
 
     return GLUS_TRUE;
