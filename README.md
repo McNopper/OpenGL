@@ -7,6 +7,17 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.7
+
+Dependency pin update only; no example changes, rendered output unchanged.
+
+- **Example50 vendors EGL v1.0.14 -> v1.0.15** in its FetchContent fallback:
+  `eglSwapBuffers` reports a failed post as `EGL_BAD_NATIVE_WINDOW` per
+  EGL 1.5 section 3.10.4 on every backend (it returned `EGL_FALSE` with no
+  error code before), and the Wayland backend of the vendored EGL was
+  brought up to the X11 one. Example50 itself is unaffected - it runs on
+  Windows, where nothing changed in rendering.
+
 ### v3.2.6
 
 Dependency pin update only; no example changes, rendered output unchanged.
