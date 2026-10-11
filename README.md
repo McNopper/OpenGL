@@ -7,6 +7,19 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.5
+
+Dependency pin update only; no example changes, rendered output unchanged.
+
+- **Example50 vendors EGL v1.0.11 -> v1.0.13** in its FetchContent fallback:
+  the dEQP-EGL conformance release (221 pass / 0 fail), the EGL 1.5 surface
+  color space, the GL 3.1 context version rules, and the WGL sRGB fix that
+  restores window surface creation on NVIDIA drivers - Example50's
+  colorspace matrix exercises exactly those paths, so standalone builds
+  without a sibling EGL checkout get the conformant library now. The
+  sibling layout (the documented multi-repo development setup) is
+  unaffected and was already using the working-tree checkout.
+
 ### v3.2.4
 
 Comment and refactoring pass over four examples; rendered output unchanged.
