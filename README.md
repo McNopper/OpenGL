@@ -7,6 +7,20 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.6
+
+Dependency pin update only; no example changes, rendered output unchanged.
+
+- **Example50 vendors EGL v1.0.13 -> v1.0.14** in its FetchContent fallback:
+  v1.0.13 could back a Windows window surface with a single-buffered pixel
+  format, on which `eglSwapBuffers` has nothing to swap - the window stays
+  blank while the example runs. Example50's SDR outputs (sRGB, linear) open
+  exactly such plain window surfaces; v1.0.14 makes window surfaces
+  back-buffered by default again, as EGL 1.5 section 3.5.1 requires. The
+  HDR outputs present through Vulkan and were not affected. The sibling
+  layout (the documented multi-repo development setup) is unaffected and was
+  already using the working-tree checkout.
+
 ### v3.2.5
 
 Dependency pin update only; no example changes, rendered output unchanged.
