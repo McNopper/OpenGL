@@ -7,6 +7,19 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.8
+
+Dependency pin update only; no example changes, rendered output unchanged.
+
+- **Example50 vendors EGL v1.0.15 -> v1.0.16** in its FetchContent fallback:
+  the EGL entry point contract for images and syncs - no foreign function
+  pointers from eglGetProcAddress, the pre-1.5 KHR aliases implemented,
+  the extension string communicating the implemented core-promoted
+  functionality, delegated EGLImages and the context-free fence wait
+  (dEQP-EGL: the image group completes for the first time, fence_sync
+  28/28). Example50 itself is unaffected - the changes are in the entry
+  point resolution and the image/sync paths it does not use.
+
 ### v3.2.7
 
 Dependency pin update only; no example changes, rendered output unchanged.
