@@ -37,9 +37,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: windows-latest, platform: windows-x64 }
-          - { os: ubuntu-latest, platform: linux-x64 }
-          - { os: macos-latest, platform: macos-arm64 }
+          - {os: windows-latest, platform: windows-x64}
+          - {os: ubuntu-latest, platform: linux-x64}
+          - {os: macos-latest, platform: macos-arm64}
 
     steps:
       # The examples prefer a sibling ../GLUS checkout, which builds the

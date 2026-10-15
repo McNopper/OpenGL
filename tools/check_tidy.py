@@ -28,7 +28,6 @@ Exit codes:
 
 import argparse
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -132,14 +131,19 @@ def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
 
     for start in range(0, len(units), batch_size):
         batch = units[start:start + batch_size]
-        cmd = [exe, "-p", str(compile_dir)] + [str(u) for u in batch]
+        # --allow-no-checks: a vendored subtree may carry its own .clang-tidy
+        # that disables everything (documented scope boundary); clang-tidy
+        # otherwise refuses to run on an empty check set.
+        cmd = [exe, "-p", str(compile_dir), "--allow-no-checks"] + [str(u) for u in batch]
         if verbose:
             print("  $ " + " ".join(cmd))
         try:
-            proc = subprocess.run(cmd, capture_output=True, text=True,
+            # check=False: clang-tidy exits non-zero when it finds issues; the
+            # output parsing below is what decides the gate.
+            proc = subprocess.run(cmd, check=False, capture_output=True, text=True,
                                   cwd=str(REPO_ROOT))
         except OSError as exc:
-            print("error: could not run {}: {}".format(exe, exc), file=sys.stderr)
+            print(f"error: could not run {exe}: {exc}", file=sys.stderr)
             return errors, warnings, True
 
         output = (proc.stdout or "") + (proc.stderr or "")
@@ -161,7 +165,7 @@ def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
         if proc.returncode != 0 and not errors:
             tool_failed = True
             tail = "\n".join(output.splitlines()[-12:])
-            print("error: clang-tidy exited {} without diagnostics:".format(proc.returncode),
+            print(f"error: clang-tidy exited {proc.returncode} without diagnostics:",
                   file=sys.stderr)
             print(tail, file=sys.stderr)
 
@@ -172,8 +176,8 @@ def main(argv):
     args = parse_args(argv)
 
     if shutil.which(args.clang_tidy) is None:
-        print("error: clang-tidy not found ({}); install LLVM/clang or pass --clang-tidy"
-              .format(args.clang_tidy), file=sys.stderr)
+        print(f"error: clang-tidy not found ({args.clang_tidy}); install LLVM/clang or pass --clang-tidy"
+              , file=sys.stderr)
         return 2
 
     compile_dir = find_compile_commands(args.build_dir)
@@ -191,11 +195,11 @@ def main(argv):
         print("error: no translation units matched (from {})", file=sys.stderr)
         return 2
 
-    print("clang-tidy: {} translation units from {}".format(len(units), compile_dir))
+    print(f"clang-tidy: {len(units)} translation units from {compile_dir}")
 
     if args.list:
         for u in units:
-            print("  {}".format(u.relative_to(REPO_ROOT)))
+            print(f"  {u.relative_to(REPO_ROOT)}")
         return 0
 
     errors, warnings, tool_failed = run_clang_tidy(
@@ -206,9 +210,8 @@ def main(argv):
     for e in errors:
         print(e)
 
-    print("")
-    print("clang-tidy: {} error(s), {} warning(s) across {} translation units".format(
-        len(errors), len(warnings), len(units)))
+    print()
+    print(f"clang-tidy: {len(errors)} error(s), {len(warnings)} warning(s) across {len(units)} translation units")
     if warnings:
         print("            (warnings report only; the gate is the WarningsAsErrors "
               "set in .clang-tidy)")

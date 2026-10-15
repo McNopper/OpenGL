@@ -1,5 +1,4 @@
-OpenGL
-======
+# OpenGL
 
 [![Build](https://github.com/McNopper/OpenGL/actions/workflows/build.yml/badge.svg)](https://github.com/McNopper/OpenGL/actions/workflows/build.yml)
 
@@ -11,37 +10,37 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 Dependency pin update only; no example changes, rendered output unchanged.
 
-- **Example50 vendors EGL v1.0.16 -> v1.0.17** in its FetchContent fallback:
-  the EGL compliance wave - ES pbuffer delegation with format pairing,
-  preserved swap behavior, EGL_EXT_buffer_age with the damage extensions,
-  surfaceless contexts and reusable syncs (dEQP-EGL: 930 Pass / 28 Fail to
-  2307 Pass / 2 Fail, with zero crashes). Example50 itself is unaffected -
-  it exercises the entry points whose behavior the wave restored, and its
-  rendering path is unchanged.
+- **Example50 vendors EGL v1.0.16 -> v1.0.17** in its FetchContent fallback: the
+  EGL compliance wave - ES pbuffer delegation with format pairing, preserved
+  swap behavior, EGL_EXT_buffer_age with the damage extensions, surfaceless
+  contexts and reusable syncs (dEQP-EGL: 930 Pass / 28 Fail to 2307 Pass / 2
+  Fail, with zero crashes). Example50 itself is unaffected - it exercises the
+  entry points whose behavior the wave restored, and its rendering path is
+  unchanged.
 
 ### v3.2.8
 
 Dependency pin update only; no example changes, rendered output unchanged.
 
-- **Example50 vendors EGL v1.0.15 -> v1.0.16** in its FetchContent fallback:
-  the EGL entry point contract for images and syncs - no foreign function
-  pointers from eglGetProcAddress, the pre-1.5 KHR aliases implemented,
-  the extension string communicating the implemented core-promoted
-  functionality, delegated EGLImages and the context-free fence wait
-  (dEQP-EGL: the image group completes for the first time, fence_sync
-  28/28). Example50 itself is unaffected - the changes are in the entry
-  point resolution and the image/sync paths it does not use.
+- **Example50 vendors EGL v1.0.15 -> v1.0.16** in its FetchContent fallback: the
+  EGL entry point contract for images and syncs - no foreign function pointers
+  from eglGetProcAddress, the pre-1.5 KHR aliases implemented, the extension
+  string communicating the implemented core-promoted functionality, delegated
+  EGLImages and the context-free fence wait (dEQP-EGL: the image group completes
+  for the first time, fence_sync 28/28). Example50 itself is unaffected - the
+  changes are in the entry point resolution and the image/sync paths it does not
+  use.
 
 ### v3.2.7
 
 Dependency pin update only; no example changes, rendered output unchanged.
 
 - **Example50 vendors EGL v1.0.14 -> v1.0.15** in its FetchContent fallback:
-  `eglSwapBuffers` reports a failed post as `EGL_BAD_NATIVE_WINDOW` per
-  EGL 1.5 section 3.10.4 on every backend (it returned `EGL_FALSE` with no
-  error code before), and the Wayland backend of the vendored EGL was
-  brought up to the X11 one. Example50 itself is unaffected - it runs on
-  Windows, where nothing changed in rendering.
+  `eglSwapBuffers` reports a failed post as `EGL_BAD_NATIVE_WINDOW` per EGL 1.5
+  section 3.10.4 on every backend (it returned `EGL_FALSE` with no error code
+  before), and the Wayland backend of the vendored EGL was brought up to the X11
+  one. Example50 itself is unaffected - it runs on Windows, where nothing
+  changed in rendering.
 
 ### v3.2.6
 
@@ -49,26 +48,26 @@ Dependency pin update only; no example changes, rendered output unchanged.
 
 - **Example50 vendors EGL v1.0.13 -> v1.0.14** in its FetchContent fallback:
   v1.0.13 could back a Windows window surface with a single-buffered pixel
-  format, on which `eglSwapBuffers` has nothing to swap - the window stays
-  blank while the example runs. Example50's SDR outputs (sRGB, linear) open
-  exactly such plain window surfaces; v1.0.14 makes window surfaces
-  back-buffered by default again, as EGL 1.5 section 3.5.1 requires. The
-  HDR outputs present through Vulkan and were not affected. The sibling
-  layout (the documented multi-repo development setup) is unaffected and was
-  already using the working-tree checkout.
+  format, on which `eglSwapBuffers` has nothing to swap - the window stays blank
+  while the example runs. Example50's SDR outputs (sRGB, linear) open exactly
+  such plain window surfaces; v1.0.14 makes window surfaces back-buffered by
+  default again, as EGL 1.5 section 3.5.1 requires. The HDR outputs present
+  through Vulkan and were not affected. The sibling layout (the documented
+  multi-repo development setup) is unaffected and was already using the
+  working-tree checkout.
 
 ### v3.2.5
 
 Dependency pin update only; no example changes, rendered output unchanged.
 
-- **Example50 vendors EGL v1.0.11 -> v1.0.13** in its FetchContent fallback:
-  the dEQP-EGL conformance release (221 pass / 0 fail), the EGL 1.5 surface
-  color space, the GL 3.1 context version rules, and the WGL sRGB fix that
-  restores window surface creation on NVIDIA drivers - Example50's
-  colorspace matrix exercises exactly those paths, so standalone builds
-  without a sibling EGL checkout get the conformant library now. The
-  sibling layout (the documented multi-repo development setup) is
-  unaffected and was already using the working-tree checkout.
+- **Example50 vendors EGL v1.0.11 -> v1.0.13** in its FetchContent fallback: the
+  dEQP-EGL conformance release (221 pass / 0 fail), the EGL 1.5 surface color
+  space, the GL 3.1 context version rules, and the WGL sRGB fix that restores
+  window surface creation on NVIDIA drivers - Example50's colorspace matrix
+  exercises exactly those paths, so standalone builds without a sibling EGL
+  checkout get the conformant library now. The sibling layout (the documented
+  multi-repo development setup) is unaffected and was already using the
+  working-tree checkout.
 
 ### v3.2.4
 
@@ -79,11 +78,11 @@ Requires **GLUS v1.1.4**; Example50 vendors **EGL v1.0.11**.
   Example14, a stale comment in Example33.
 - **Quick wins**: shared shader-program loader in Example33, SSBO layout
   constants in Example51, GLFW key names.
-- **Teaching decompositions** (verbatim motion, unchanged rendering):
-  Example29 `trace()` into five named phases; Example46 `update()` into
-  three passes with a shared `bindGroupMaterial`; Example33 `init()` into
-  the eight IBL-pipeline phases its banners already described; Example28
-  `init()` into eight named stages.
+- **Teaching decompositions** (verbatim motion, unchanged rendering): Example29
+  `trace()` into five named phases; Example46 `update()` into three passes with
+  a shared `bindGroupMaterial`; Example33 `init()` into the eight IBL-pipeline
+  phases its banners already described; Example28 `init()` into eight named
+  stages.
 - **Refreshed screenshots.**
 
 ### v3.2.3
@@ -91,42 +90,53 @@ Requires **GLUS v1.1.4**; Example50 vendors **EGL v1.0.11**.
 Build-system fixes, dependency pins and CI; no example code changes.
 
 - **macOS linking fixed**: glew-cmake 2.2.0 links the Carbon-era `AGL`
-  framework, removed from modern macOS SDKs, so every example executable
-  failed to link on a current Mac. The FetchContent patch now drops the AGL
-  link. 51 of 52 examples build and link on Apple Silicon; Example50 requires
-  the Vulkan SDK and remains Windows/Linux only.
-- **Dependency pins**: GLUS moved from v1.1.2 to **v1.1.3**, EGL from v1.0.9
-  to **v1.0.10** (both used by the FetchContent fallback paths).
+  framework, removed from modern macOS SDKs, so every example executable failed
+  to link on a current Mac. The FetchContent patch now drops the AGL link. 51 of
+  52 examples build and link on Apple Silicon; Example50 requires the Vulkan SDK
+  and remains Windows/Linux only.
+- **Dependency pins**: GLUS moved from v1.1.2 to **v1.1.3**, EGL from v1.0.9 to
+  **v1.0.10** (both used by the FetchContent fallback paths).
 - **CI and releases**: GitHub Actions build workflow for Windows, Linux and
   macOS (Example50 included on Windows and Linux via the Vulkan SDK), and a
-  release workflow that attaches runnable example packages to each tagged
-  GitHub release.
+  release workflow that attaches runnable example packages to each tagged GitHub
+  release.
 
 ### v3.2.2
 
 Dependency and static-analysis pass across all 52 examples:
 
 - **Requires GLUS v1.1.2** and **EGL v1.0.9**.
-- GLUS was pinned at `v1.0.1` and Example50's EGL at the moving `main` ref; both now track the tagged releases above.
-- Widened the flagged `count * stride` products across the examples so the multiplication happens in the wide type rather than being widened after a narrow 32-bit multiply.
-- Example50: reordered `OutputColorspaceCandidate` to remove 8 bytes of padding; `winProc` now has an explicit `default:`.
-- Example24, Example30, Example46: parenthesised negative `#define` literals (operator-precedence hazard).
-- Example46: the sphere orbit starts paused, so the sphere is visible in a static screenshot.
+- GLUS was pinned at `v1.0.1` and Example50's EGL at the moving `main` ref; both
+  now track the tagged releases above.
+- Widened the flagged `count * stride` products across the examples so the
+  multiplication happens in the wide type rather than being widened after a
+  narrow 32-bit multiply.
+- Example50: reordered `OutputColorspaceCandidate` to remove 8 bytes of padding;
+  `winProc` now has an explicit `default:`.
+- Example24, Example30, Example46: parenthesised negative `#define` literals
+  (operator-precedence hazard).
+- Example46: the sphere orbit starts paused, so the sphere is visible in a
+  static screenshot.
 - Added the `cppcheck` and `clang-tidy` analysis lanes and `AGENTS.md`.
 
 ### v3.2.1
 
 Security and correctness fixes across all 52 examples:
-- Fixed Example36 SSBO allocation (std430 stride was 24 B instead of 32 B — 25 % undersized).
+
+- Fixed Example36 SSBO allocation (std430 stride was 24 B instead of 32 B — 25 %
+  undersized).
 - Added missing `glMemoryBarrier` calls in Examples 21, 30, 36, 45.
-- Fixed `glUniform4fv`/`glUniform2fv` count (vec4/vec2 elements, not floats) in Example15.
+- Fixed `glUniform4fv`/`glUniform2fv` count (vec4/vec2 elements, not floats) in
+  Example15.
 - Moved 900 KB stack arrays to static storage in Examples 29, 37.
 - Fixed `glDeleteRenderbuffers` on texture names in Examples 12, 34.
 - Added NULL-source guards for `glusFileLoadText` in Examples 47, 51, 52.
 - Added missing `glViewport` in Example27 `reshape()`.
-- Fixed resource leaks (programs, VAOs, VBOs, text files) in Examples 09, 12, 14, 22, 27, 31, 35, 36, 50.
+- Fixed resource leaks (programs, VAOs, VBOs, text files) in Examples 09, 12,
+  14, 22, 27, 31, 35, 36, 50.
 - Fixed fur VAO attribute locations in Example26.
-- Fixed `glDrawBuffer(GL_COLOR_ATTACHMENT0)` on default framebuffer in Examples 28, 31.
+- Fixed `glDrawBuffer(GL_COLOR_ATTACHMENT0)` on default framebuffer in Examples
+  28, 31.
 - Fixed double angle advancement in Example19.
 - Fixed Gerstner wave steepness index in Example15.
 - Added FBO completeness checks in Examples 09, 33, 48, 49, 50.
@@ -136,25 +146,32 @@ Security and correctness fixes across all 52 examples:
 
 ### v3.2.0
 
-- Migrated the glTF examples (48-52) onto the GLUS glTF 2.0 loader (`glusGltfLoadScene` / `glusGltfGetCgltfData`). GLUS now provides cgltf + stb_image and exposes `GLUS_SHADER_DIR`; the copied `OpenGL/GLUS/` folder is gone.
-- Requires **GLUS v1.1.0**. GLUS is taken from the sibling local checkout `../GLUS` when present, otherwise fetched from [McNopper/GLUS](https://github.com/McNopper/GLUS).
+- Migrated the glTF examples (48-52) onto the GLUS glTF 2.0 loader
+  (`glusGltfLoadScene` / `glusGltfGetCgltfData`). GLUS now provides cgltf +
+  stb_image and exposes `GLUS_SHADER_DIR`; the copied `OpenGL/GLUS/` folder is
+  gone.
+- Requires **GLUS v1.1.0**. GLUS is taken from the sibling local checkout
+  `../GLUS` when present, otherwise fetched from
+  [McNopper/GLUS](https://github.com/McNopper/GLUS).
 - Refreshed screenshots.
 
 ### v3.1.1
 
 - Added **Example52** – 3D Gaussian Splatting with view-direction SH rotation.
 - **Example51**: corrected spherical-harmonics handling for rotated splat nodes
-  (Wigner-D bridged to the glTF/3DGS SH sign convention via the Condon-Shortley phase).
-- Both splatting examples: auto-rotation is off by default and toggles with Space.
+  (Wigner-D bridged to the glTF/3DGS SH sign convention via the Condon-Shortley
+  phase).
+- Both splatting examples: auto-rotation is off by default and toggles with
+  Space.
 - Requires **GLUS v1.0.1** (band-3 SH rotation fix).
 
 ## License
 
 The project is distributed under the **MIT License** — see [`LICENSE`](LICENSE).
 
-These examples are built on [GLUS](https://github.com/McNopper/GLUS) (MIT), which
-bundles glfw, glew, cgltf and stb — their notices live in the
-[GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+These examples are built on [GLUS](https://github.com/McNopper/GLUS) (MIT),
+which bundles glfw, glew, cgltf and stb — their notices live in the [GLUS
+third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
 The dependencies and bundled assets **added by this repository** — McNopper/EGL
 (MIT) and the Einstein / phoenix 3D models (CC-BY-4.0) — are documented in
 [`THIRD-PARTY.md`](THIRD-PARTY.md); per-example attributions are noted in each
@@ -165,6 +182,7 @@ example's section below.
 ### Prerequisites
 
 **Required:**
+
 - **CMake 3.14 or higher** - [Download](https://cmake.org/download/)
 - **C/C++ Compiler**:
   - Windows: Visual Studio 2013+ (MSVC)
@@ -176,21 +194,30 @@ example's section below.
 ### Verify Installation
 
 Check if CMake is installed:
+
 ```bash
 cmake --version
 ```
+
 Should show version 3.14 or higher.
 
 Check if Git is installed:
+
 ```bash
 git --version
 ```
 
 ### Building
 
-Dependencies (GLUS, GLFW and GLEW) are automatically downloaded and built via CMake FetchContent. GLUS is taken from the sibling local checkout `../GLUS` when present (multi-repo development layout), and otherwise fetched from its own repository at [github.com/McNopper/GLUS](https://github.com/McNopper/GLUS). GLUS in turn provides cgltf and stb_image, and exposes its shader directory through the `GLUS_SHADER_DIR` compile definition.
+Dependencies (GLUS, GLFW and GLEW) are automatically downloaded and built via
+CMake FetchContent. GLUS is taken from the sibling local checkout `../GLUS` when
+present (multi-repo development layout), and otherwise fetched from its own
+repository at [github.com/McNopper/GLUS](https://github.com/McNopper/GLUS). GLUS
+in turn provides cgltf and stb_image, and exposes its shader directory through
+the `GLUS_SHADER_DIR` compile definition.
 
 **Windows (Visual Studio):**
+
 ```bash
 mkdir build && cd build
 cmake ..
@@ -198,6 +225,7 @@ cmake --build .
 ```
 
 **Linux / macOS:**
+
 ```bash
 mkdir build && cd build
 cmake ..
@@ -209,6 +237,7 @@ Executables will be in the `Binaries/` directory.
 ### Dependencies
 
 All dependencies are automatically fetched and built:
+
 - **GLFW 3.4** - Windowing and input
 - **GLEW 2.2.0** - OpenGL Extension Wrangler
 - **OpenGL 3.2+** - System graphics library
@@ -217,58 +246,98 @@ All dependencies are automatically fetched and built:
 
 All examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 
-- [Example01 - Basic window and OpenGL 3 initialization](#example01---basic-window-and-opengl-3-initialization)
+- [Example01 - Basic window and OpenGL 3
+  initialization](#example01---basic-window-and-opengl-3-initialization)
 - [Example02 - Rendering of a triangle](#example02---rendering-of-a-triangle)
 - [Example03 - Grey filter](#example03---grey-filter)
-- [Example04 - Perspective rendering of a cube](#example04---perspective-rendering-of-a-cube)
-- [Example05 - Phong rendering of a sphere](#example05---phong-rendering-of-a-sphere)
+- [Example04 - Perspective rendering of a
+  cube](#example04---perspective-rendering-of-a-cube)
+- [Example05 - Phong rendering of a
+  sphere](#example05---phong-rendering-of-a-sphere)
 - [Example06 - Texturing of a cube](#example06---texturing-of-a-cube)
 - [Example07 - Normal mapping](#example07---normal-mapping)
 - [Example08 - Environment/cube mapping](#example08---environmentcube-mapping)
 - [Example09 - GPU Particles](#example09---gpu-particles)
 - [Example10 - Geometry shader](#example10---geometry-shader)
-- [Example11 - Reflection and refraction](#example11---reflection-and-refraction)
+- [Example11 - Reflection and
+  refraction](#example11---reflection-and-refraction)
 - [Example12 - Shadow mapping](#example12---shadow-mapping)
-- [Example13 - Simple tessellation (OpenGL 4.1)](#example13---simple-tessellation-opengl-41)
-- [Example14 - Terrain rendering (OpenGL 4.1)](#example14---terrain-rendering-opengl-41)
+- [Example13 - Simple tessellation (OpenGL
+  4.1)](#example13---simple-tessellation-opengl-41)
+- [Example14 - Terrain rendering (OpenGL
+  4.1)](#example14---terrain-rendering-opengl-41)
 - [Example15 - Water rendering](#example15---water-rendering)
-- [Example16 - Model loading and rendering](#example16---model-loading-and-rendering)
-- [Example17 - Clipping planes and two sided rendering](#example17---clipping-planes-and-two-sided-rendering)
-- [Example18 - Using stencil buffer and clipping planes](#example18---using-stencil-buffer-and-clipping-planes)
-- [Example19 - Render to texture and planar reflection](#example19---render-to-texture-and-planar-reflection)
-- [Example20 - Texture matrix, alpha blending and discarding](#example20---texture-matrix-alpha-blending-and-discarding)
-- [Example21 - Compute shader (OpenGL 4.3)](#example21---compute-shader-opengl-43)
+- [Example16 - Model loading and
+  rendering](#example16---model-loading-and-rendering)
+- [Example17 - Clipping planes and two sided
+  rendering](#example17---clipping-planes-and-two-sided-rendering)
+- [Example18 - Using stencil buffer and clipping
+  planes](#example18---using-stencil-buffer-and-clipping-planes)
+- [Example19 - Render to texture and planar
+  reflection](#example19---render-to-texture-and-planar-reflection)
+- [Example20 - Texture matrix, alpha blending and
+  discarding](#example20---texture-matrix-alpha-blending-and-discarding)
+- [Example21 - Compute shader (OpenGL
+  4.3)](#example21---compute-shader-opengl-43)
 - [Example22 - Shadow volumes](#example22---shadow-volumes)
-- [Example23 - Displacement mapping (OpenGL 4.1)](#example23---displacement-mapping-opengl-41)
-- [Example24 - Erode effect using perlin noise](#example24---erode-effect-using-perlin-noise)
-- [Example25 - Model with groups and materials](#example25---model-with-groups-and-materials)
+- [Example23 - Displacement mapping (OpenGL
+  4.1)](#example23---displacement-mapping-opengl-41)
+- [Example24 - Erode effect using perlin
+  noise](#example24---erode-effect-using-perlin-noise)
+- [Example25 - Model with groups and
+  materials](#example25---model-with-groups-and-materials)
 - [Example26 - Fur rendering](#example26---fur-rendering)
-- [Example27 - Projection shadow for directional light](#example27---projection-shadow-for-directional-light)
-- [Example28 - Screen space ambient occlusion (SSAO) (OpenGL 4.1)](#example28---screen-space-ambient-occlusion-ssao-opengl-41)
+- [Example27 - Projection shadow for directional
+  light](#example27---projection-shadow-for-directional-light)
+- [Example28 - Screen space ambient occlusion (SSAO) (OpenGL
+  4.1)](#example28---screen-space-ambient-occlusion-ssao-opengl-41)
 - [Example29 - CPU ray tracing](#example29---cpu-ray-tracing)
-- [Example30 - GPU ray tracing using compute shader (OpenGL 4.3)](#example30---gpu-ray-tracing-using-compute-shader-opengl-43)
-- [Example31 - Many lights using deferred shading (OpenGL 4.1)](#example31---many-lights-using-deferred-shading-opengl-41)
-- [Example32 - BRDF and IBL rendering (OpenGL 4.1)](#example32---brdf-and-ibl-rendering-opengl-41)
-- [Example33 - Real-Time BRDF and IBL rendering (OpenGL 4.1)](#example33---real-time-brdf-and-ibl-rendering-opengl-41)
+- [Example30 - GPU ray tracing using compute shader (OpenGL
+  4.3)](#example30---gpu-ray-tracing-using-compute-shader-opengl-43)
+- [Example31 - Many lights using deferred shading (OpenGL
+  4.1)](#example31---many-lights-using-deferred-shading-opengl-41)
+- [Example32 - BRDF and IBL rendering (OpenGL
+  4.1)](#example32---brdf-and-ibl-rendering-opengl-41)
+- [Example33 - Real-Time BRDF and IBL rendering (OpenGL
+  4.1)](#example33---real-time-brdf-and-ibl-rendering-opengl-41)
 - [Example34 - Subsurface scattering](#example34---subsurface-scattering)
-- [Example35 - Order independent transparency using depth peeling](#example35---order-independent-transparency-using-depth-peeling)
-- [Example36 - Order independent transparency using linked list (OpenGL 4.4)](#example36---order-independent-transparency-using-linked-list-opengl-44)
+- [Example35 - Order independent transparency using depth
+  peeling](#example35---order-independent-transparency-using-depth-peeling)
+- [Example36 - Order independent transparency using linked list (OpenGL
+  4.4)](#example36---order-independent-transparency-using-linked-list-opengl-44)
 - [Example37 - CPU ray marching](#example37---cpu-ray-marching)
-- [Example38 - Basic usage of program pipeline and separable programs (OpenGL 4.1)](#example38---basic-usage-of-program-pipeline-and-separable-programs-opengl-41)
-- [Example39 - Basic usage of program pipeline, separable programs and shader subroutines (OpenGL 4.1)](#example39---basic-usage-of-program-pipeline-separable-programs-and-shader-subroutines-opengl-41)
-- [Example40 - Cloth simulation using compute shader (OpenGL 4.3)](#example40---cloth-simulation-using-compute-shader-opengl-43)
-- [Example41 - Ocean wave height/normal map calculation with FFT using compute shader (OpenGL 4.3)](#example41---ocean-wave-heightnormal-map-calculation-with-fft-using-compute-shader-opengl-43)
-- [Example42 - Fast Approximate Anti Aliasing - FXAA (OpenGL 4.3)](#example42---fast-approximate-anti-aliasing---fxaa-opengl-43)
-- [Example43 - Scene with several models having groups and materials](#example43---scene-with-several-models-having-groups-and-materials)
-- [Example44 - Conservative rasterization](#example44---conservative-rasterization)
-- [Example45 - GPU voxelization (OpenGL 4.4)](#example45---gpu-voxelization-opengl-44)
-- [Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)](#example46---voxel-cone-tracing---global-illumination-opengl-46)
-- [Example47 - 3D spatial colour sort — RGB cube (OpenGL 4.6)](#example47---3d-spatial-colour-sort--rgb-cube-opengl-46)
-- [Example48 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL 4.6)](#example48---gltf-20-pbr-renderer-with-image-based-lighting-opengl-46)
-- [Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)](#example49---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
-- [Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)](#example50---rec2020-hdr-via-egl-opengl-46)
-- [Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL 4.6)](#example51---3d-gaussian-splatting-via-khr_gaussian_splatting-opengl-46)
-- [Example52 - 3D Gaussian Splatting with view-direction SH rotation (OpenGL 4.6)](#example52---3d-gaussian-splatting-with-view-direction-sh-rotation-opengl-46)
+- [Example38 - Basic usage of program pipeline and separable programs (OpenGL
+  4.1)](#example38---basic-usage-of-program-pipeline-and-separable-programs-opengl-41)
+- [Example39 - Basic usage of program pipeline, separable programs and shader
+  subroutines (OpenGL
+  4.1)](#example39---basic-usage-of-program-pipeline-separable-programs-and-shader-subroutines-opengl-41)
+- [Example40 - Cloth simulation using compute shader (OpenGL
+  4.3)](#example40---cloth-simulation-using-compute-shader-opengl-43)
+- [Example41 - Ocean wave height/normal map calculation with FFT using compute
+  shader (OpenGL
+  4.3)](#example41---ocean-wave-heightnormal-map-calculation-with-fft-using-compute-shader-opengl-43)
+- [Example42 - Fast Approximate Anti Aliasing - FXAA (OpenGL
+  4.3)](#example42---fast-approximate-anti-aliasing---fxaa-opengl-43)
+- [Example43 - Scene with several models having groups and
+  materials](#example43---scene-with-several-models-having-groups-and-materials)
+- [Example44 - Conservative
+  rasterization](#example44---conservative-rasterization)
+- [Example45 - GPU voxelization (OpenGL
+  4.4)](#example45---gpu-voxelization-opengl-44)
+- [Example46 - Voxel cone tracing - Global illumination (OpenGL
+  4.6)](#example46---voxel-cone-tracing---global-illumination-opengl-46)
+- [Example47 - 3D spatial colour sort — RGB cube (OpenGL
+  4.6)](#example47---3d-spatial-colour-sort--rgb-cube-opengl-46)
+- [Example48 - glTF 2.0 PBR renderer with Image-Based Lighting (OpenGL
+  4.6)](#example48---gltf-20-pbr-renderer-with-image-based-lighting-opengl-46)
+- [Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL
+  4.6)](#example49---gltf-20-pbr--ibl--skeletal-animation-opengl-46)
+- [Example50 - Rec.2020 HDR via EGL (OpenGL
+  4.6)](#example50---rec2020-hdr-via-egl-opengl-46)
+- [Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL
+  4.6)](#example51---3d-gaussian-splatting-via-khr_gaussian_splatting-opengl-46)
+- [Example52 - 3D Gaussian Splatting with view-direction SH rotation (OpenGL
+  4.6)](#example52---3d-gaussian-splatting-with-view-direction-sh-rotation-opengl-46)
 
 ### Example01 - Basic window and OpenGL 3 initialization
 
@@ -452,16 +521,19 @@ All examples demonstrate various OpenGL 3.x and 4.x features with GLSL shaders.
 
 ### Example46 - Voxel cone tracing - Global illumination (OpenGL 4.6)
 
-Real-time global illumination using voxel cone tracing based on [Crassin et al. 2011](https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf).
-The Sponza scene is first voxelized into a 256³ RGBA16F 3D texture with a dominant-axis geometry shader.
-Mipmaps are generated for the voxel grid, then the final pass traces six diffuse cones plus a specular cone
-per fragment to compute indirect illumination, ambient occlusion, and specular reflections.
-A small emissive sphere orbits the scene as the sole indirect light source (Space to pause/resume).
+Real-time global illumination using voxel cone tracing based on [Crassin et al.
+2011](https://research.nvidia.com/sites/default/files/pubs/2011-09_Interactive-Indirect-Illumination/GIVoxels-pg2011-authors.pdf).
+The Sponza scene is first voxelized into a 256³ RGBA16F 3D texture with a
+dominant-axis geometry shader. Mipmaps are generated for the voxel grid, then
+the final pass traces six diffuse cones plus a specular cone per fragment to
+compute indirect illumination, ambient occlusion, and specular reflections. A
+small emissive sphere orbits the scene as the sole indirect light source (Space
+to pause/resume).
 
 **Simplifications vs. the original paper:**
 
 | Aspect | Paper | This implementation |
-|---|---|---|
+| --- | --- | --- |
 | Scene representation | Sparse Voxel Octree (SVO) — adaptive, high-resolution | Flat 256³ RGBA16F 3D texture — simpler, lower resolution |
 | Voxel filtering | Anisotropic pre-filtering: per-face directional radiance propagated up the octree | Isotropic `glGenerateMipmap` box filter |
 | Radiance storage | Per-face (6 directions) for directional shadowing | Single isotropic value per voxel |
@@ -486,7 +558,7 @@ with no index remapping.  The data set is the complete RGB8 lattice: all N³
 distinct colours, one per voxel, so every axis sort has a unique total order.
 
 | Dispatch | Sort key | Converges to |
-|---|---|---|
+| --- | --- | --- |
 | X-axis lines | Red (R) | R increases with x |
 | Y-axis lines | Green (G) | G increases with y |
 | Z-axis lines | Blue (B) | B increases with z |
@@ -496,7 +568,7 @@ The choice of data produces a unique fixed-point property: the only
 configuration that simultaneously satisfies all three axis sorts is the perfect
 RGB cube,
 
-```
+```c
 texel(x, y, z).rgb  =  (x, y, z) × 255 / (N − 1)
 ```
 
@@ -520,43 +592,70 @@ to start, +/- to adjust step delay, R to reshuffle.
 
 ![Example48](screenshots/Example48.png)
 
-Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness shading and Image-Based Lighting (IBL). Scene loading (parse, mesh upload, node hierarchy, materials, textures) is handled by the GLUS glTF loader (`glusGltfLoadScene`); the IBL precomputation pipeline is provided by GLUS (`glusIblBuild*`). The glTF / IBL shaders are loaded from the GLUS shader directory (`GLUS_SHADER_DIR`).
+Loads a glTF 2.0 scene and renders it with physically-based metallic-roughness
+shading and Image-Based Lighting (IBL). Scene loading (parse, mesh upload, node
+hierarchy, materials, textures) is handled by the GLUS glTF loader
+(`glusGltfLoadScene`); the IBL precomputation pipeline is provided by GLUS
+(`glusIblBuild*`). The glTF / IBL shaders are loaded from the GLUS shader
+directory (`GLUS_SHADER_DIR`).
 
 **Usage:**
-```
+
+```text
 Example48 [model.gltf] [panorama.hdr]
 ```
-Defaults to `einstein/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
+
+Defaults to `einstein/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working
+directory.
 
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
-- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
-- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
-**Model:**
-This work is based on ["Albert Einstein"](https://sketchfab.com/3d-models/albert-einstein-33ba1b5ba92744ec90b032b82d47befb) by [pattarrian](https://sketchfab.com/pattarrian) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by
+  Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and
+  stb (MIT / Public Domain); their full notices are in the [GLUS third-party
+  file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT)
+  by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
+
+**Model:** This work is based on ["Albert
+Einstein"](https://sketchfab.com/3d-models/albert-einstein-33ba1b5ba92744ec90b032b82d47befb)
+by [pattarrian](https://sketchfab.com/pattarrian) licensed under
+[CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
 ### Example49 - glTF 2.0 PBR + IBL + Skeletal Animation (OpenGL 4.6)
 
 ![Example49](screenshots/Example49.png)
 
-Extends Example48 with TRS node animation and skeletal skinning. Animation interpolation (STEP, LINEAR, CUBICSPLINE) for vec3 and quaternion tracks is provided by the GLUS library (`glusAnimationSample*`).
+Extends Example48 with TRS node animation and skeletal skinning. Animation
+interpolation (STEP, LINEAR, CUBICSPLINE) for vec3 and quaternion tracks is
+provided by the GLUS library (`glusAnimationSample*`).
 
 **Usage:**
-```
+
+```text
 Example49 [model.gltf] [panorama.hdr]
 ```
-Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
+
+Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working
+directory.
 
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
 **Third-party licenses:**
-- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
-- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
-**Model:**
-This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by
+  Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and
+  stb (MIT / Public Domain); their full notices are in the [GLUS third-party
+  file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT)
+  by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
+
+**Model:** This work is based on ["phoenix
+bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042)
+by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under
+[CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
 ### Example50 - Rec.2020 HDR via EGL (OpenGL 4.6)
 
@@ -565,63 +664,104 @@ This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-b
 Extends Example49. New in this example:
 
 - **Rec.2020 (BT.2020) scene-referred working space** instead of sRGB/Rec.709.
-- **HDR display output via [McNopper/EGL](https://github.com/McNopper/EGL).** The renderer prefers `EGL_GL_COLORSPACE_BT2020_PQ_EXT` (HDR10) and falls back through scRGB linear / BT.2020 linear / Display-P3 / sRGB depending on what the driver and surface advertise.
-- **SMPTE 2086 / CTA-861.3 mastering metadata** attached to the surface when an HDR colorspace is chosen.
+- **HDR display output via [McNopper/EGL](https://github.com/McNopper/EGL).**
+  The renderer prefers `EGL_GL_COLORSPACE_BT2020_PQ_EXT` (HDR10) and falls back
+  through scRGB linear / BT.2020 linear / Display-P3 / sRGB depending on what
+  the driver and surface advertise.
+- **SMPTE 2086 / CTA-861.3 mastering metadata** attached to the surface when an
+  HDR colorspace is chosen.
 - **Reversed camera orbit direction.**
-- **Diagnostic log** `Example50.log` written next to the executable, listing EGL vendor / version, all advertised colorspace extensions, and which candidate was used to create the surface.
+- **Diagnostic log** `Example50.log` written next to the executable, listing EGL
+  vendor / version, all advertised colorspace extensions, and which candidate
+  was used to create the surface.
 
 **Usage:**
-```
+
+```text
 Example50 [model.gltf] [panorama.hdr]
 ```
-Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working directory.
+
+Defaults to `phoenix/scene.gltf` and `sunny_rose_garden_4k.hdr` in the working
+directory.
 
 **Controls:** ↑/↓ camera height · ←/→ orbit speed · +/− zoom
 
-**Requires:** an HDR-capable display with HDR enabled in Windows. On systems without HDR the app transparently falls back to sRGB output.
+**Requires:** an HDR-capable display with HDR enabled in Windows. On systems
+without HDR the app transparently falls back to sRGB output.
 
 **Third-party licenses:**
-- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and stb (MIT / Public Domain); their full notices are in the [GLUS third-party file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
-- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT) by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
-**Model:**
-This work is based on ["phoenix bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042) by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+- These examples build on [GLUS](https://github.com/McNopper/GLUS) (MIT) by
+  Norbert Nopper. GLUS bundles glfw (Zlib), glew (BSD-3-Clause), cgltf (MIT) and
+  stb (MIT / Public Domain); their full notices are in the [GLUS third-party
+  file](https://github.com/McNopper/GLUS/blob/main/THIRD-PARTY.md).
+- Added by these examples: [McNopper/EGL](https://github.com/McNopper/EGL) (MIT)
+  by Norbert Nopper — see [`THIRD-PARTY.md`](THIRD-PARTY.md).
+
+**Model:** This work is based on ["phoenix
+bird"](https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042)
+by [NORBERTO-3D](https://sketchfab.com/norberto3d) licensed under
+[CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
 ### Example51 - 3D Gaussian Splatting via KHR_gaussian_splatting (OpenGL 4.6)
 
 ![Example51](screenshots/Example51.png)
 
-Implements the [KHR_gaussian_splatting](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting) glTF 2.0 extension. Loads a `.gltf` file containing 3D Gaussian splats and renders them in real time using OpenGL 4.6 compute shaders and instanced rendering.
+Implements the
+[KHR_gaussian_splatting](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting)
+glTF 2.0 extension. Loads a `.gltf` file containing 3D Gaussian splats and
+renders them in real time using OpenGL 4.6 compute shaders and instanced
+rendering.
 
-- **GPU bitonic sort** (adapted from Example 47) orders splats back-to-front by view-space depth each frame.
-- **Spherical harmonics** evaluated up to band 3 (degree 3). Wigner-D rotation matrices (bands 1–3) rotate SH coefficients for nodes with a non-identity transform; helpers live in GLUS (`glusSHBuildRotation1f/2f/3f`).
-- **EWA covariance projection** from the 3D Gaussian paper maps each splat to a screen-space ellipse quad.
-- **Premultiplied alpha compositing** with large-splat culling to avoid degenerate full-screen artefacts.
-- **Dynamic configuration**: SH degree and per-splat stride are detected automatically from the glTF primitive attributes.
+- **GPU bitonic sort** (adapted from Example 47) orders splats back-to-front by
+  view-space depth each frame.
+- **Spherical harmonics** evaluated up to band 3 (degree 3). Wigner-D rotation
+  matrices (bands 1–3) rotate SH coefficients for nodes with a non-identity
+  transform; helpers live in GLUS (`glusSHBuildRotation1f/2f/3f`).
+- **EWA covariance projection** from the 3D Gaussian paper maps each splat to a
+  screen-space ellipse quad.
+- **Premultiplied alpha compositing** with large-splat culling to avoid
+  degenerate full-screen artefacts.
+- **Dynamic configuration**: SH degree and per-splat stride are detected
+  automatically from the glTF primitive attributes.
 
 **Usage:**
-```
+
+```text
 Example51 [path/to/model.gltf]
 ```
+
 Defaults to `../Binaries/lego.gltf`.
 
-**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles auto-rotation (off by default)
+**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles
+auto-rotation (off by default)
 
 **References:**
-- [3D Gaussian Splatting for Real-Time Radiance Field Rendering](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) (Kerbl et al., SIGGRAPH 2023)
-- [KHR_gaussian_splatting extension specification](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting)
+
+- [3D Gaussian Splatting for Real-Time Radiance Field
+  Rendering](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) (Kerbl
+  et al., SIGGRAPH 2023)
+- [KHR_gaussian_splatting extension
+  specification](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_gaussian_splatting)
 
 ### Example52 - 3D Gaussian Splatting with view-direction SH rotation (OpenGL 4.6)
 
 ![Example52](screenshots/Example52.png)
 
-A variant of Example51 that produces an **identical** image but handles the view-dependent spherical-harmonics colour of rotated splat nodes differently:
+A variant of Example51 that produces an **identical** image but handles the
+view-dependent spherical-harmonics colour of rotated splat nodes differently:
 
-- **Example51** rotates the **SH coefficients** into world space on the CPU (Wigner-D, via GLUS).
-- **Example52** rotates the **view direction** into the splat's local frame in the shader (the Inria / gsplat / Khronos reference approach).
+- **Example51** rotates the **SH coefficients** into world space on the CPU
+  (Wigner-D, via GLUS).
+- **Example52** rotates the **view direction** into the splat's local frame in
+  the shader (the Inria / gsplat / Khronos reference approach).
 
-Both are **mathematically identical** (verified to machine precision); Example52 is **faster** — one `mat3·vec3` per splat instead of rotating all SH coefficients, with no CPU rotation matrices or extra SSBO storage.
+Both are **mathematically identical** (verified to machine precision); Example52
+is **faster** — one `mat3·vec3` per splat instead of rotating all SH
+coefficients, with no CPU rotation matrices or extra SSBO storage.
 
-**Usage:** `Example52 [path/to/model.gltf]` (defaults to `../Binaries/lego.gltf`)
+**Usage:** `Example52 [path/to/model.gltf]` (defaults to
+`../Binaries/lego.gltf`)
 
-**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles auto-rotation (off by default)
+**Controls:** ←/→ orbit · ↑/↓ elevation · Page Up/Down zoom · Space toggles
+auto-rotation (off by default)

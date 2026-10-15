@@ -75,3 +75,5 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 *.bin filter=lfs diff=lfs merge=lfs -text
+
+*.yml text eol=lf

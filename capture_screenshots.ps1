@@ -1,4 +1,4 @@
-param(
+﻿param(
     [int[]]$ExampleNumbers,
     [switch]$All,
     [int]$WaitSeconds = 3
@@ -76,7 +76,7 @@ Add-Type @"
 # Set DPI awareness to avoid scaling issues
 [Win32]::SetProcessDPIAware() | Out-Null
 
-function Capture-Window {
+function Save-WindowCapture {
     param(
         [string]$ProcessName,
         [string]$OutputPath
@@ -173,10 +173,10 @@ elseif (-not $All)
     $All = $true
 }
 
-Write-Host ("`n=== Capturing Screenshots for {0} ===" -f $modeLabel) -ForegroundColor Green
-Write-Host ("Target set: {0}" -f $selectionDescription) -ForegroundColor Cyan
-Write-Host "DPI Aware: Enabled" -ForegroundColor Cyan
-Write-Host ("Total examples: {0}`n" -f $selectedExamples.Count) -ForegroundColor Yellow
+Write-Output ("`n=== Capturing Screenshots for {0} ===" -f $modeLabel)
+Write-Output ("Target set: {0}" -f $selectionDescription)
+Write-Output "DPI Aware: Enabled"
+Write-Output ("Total examples: {0}`n" -f $selectedExamples.Count)
 
 $successCount = 0
 $failCount = 0
@@ -188,7 +188,7 @@ for ($position = 0; $position -lt $selectedExamples.Count; $position++)
     $index = [int]($exeName -replace 'Example', '')
     $current = $position + 1
     
-    Write-Host ("[{0}/{1}] Capturing {2} (Example {3})..." -f $current, $selectedExamples.Count, $exeName, $index) -ForegroundColor Cyan
+    Write-Output ("[{0}/{1}] Capturing {2} (Example {3})..." -f $current, $selectedExamples.Count, $exeName, $index)
     
     # Start the application
     $process = Start-Process -FilePath $exe.FullName -WorkingDirectory $binariesPath -PassThru
@@ -198,14 +198,14 @@ for ($position = 0; $position -lt $selectedExamples.Count; $position++)
     
     # Capture screenshot
     $outputFile = Join-Path $imagesPath "$exeName.png"
-    $captured = Capture-Window -ProcessName $exeName -OutputPath $outputFile
+    $captured = Save-WindowCapture -ProcessName $exeName -OutputPath $outputFile
     
     if ($captured -and (Test-Path $outputFile)) {
         $fileSize = (Get-Item $outputFile).Length
-        Write-Host "  ✓ Screenshot saved: $exeName.png ($([math]::Round($fileSize/1KB, 1)) KB)" -ForegroundColor Green
+        Write-Output "  ✓ Screenshot saved: $exeName.png ($([math]::Round($fileSize/1KB, 1)) KB)"
         $successCount++
     } else {
-        Write-Host "  ✗ Failed to capture screenshot" -ForegroundColor Red
+        Write-Output "  ✗ Failed to capture screenshot"
         $failCount++
     }
     
@@ -222,7 +222,7 @@ for ($position = 0; $position -lt $selectedExamples.Count; $position++)
     Start-Sleep -Milliseconds 500
 }
 
-Write-Host "`n=== Screenshot Capture Complete ===" -ForegroundColor Green
-Write-Host "Successful: $successCount" -ForegroundColor Green
-Write-Host "Failed: $failCount" -ForegroundColor $(if ($failCount -gt 0) { "Red" } else { "Green" })
-Write-Host "`nScreenshots saved to: $imagesPath" -ForegroundColor Cyan
+Write-Output "`n=== Screenshot Capture Complete ==="
+Write-Output "Successful: $successCount"
+Write-Output "Failed: $failCount"
+Write-Output "`nScreenshots saved to: $imagesPath"
