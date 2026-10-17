@@ -331,14 +331,14 @@ GLUSboolean init(GLUSvoid)
     // Do checking of calculated parameters
     if (MINIMUM_DETAIL_LEVEL > overallMaxDetailLevel)
     {
-        printf("Detail level to high %d > %d\n", MINIMUM_DETAIL_LEVEL, overallMaxDetailLevel);
+        printf("Detail level to high %u > %u\n", MINIMUM_DETAIL_LEVEL, overallMaxDetailLevel);
 
         return GLUS_FALSE;
     }
 
     if (MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS > overallMaxDetailLevel)
     {
-        printf("First pass detail level to high %d > %d\n", MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS, overallMaxDetailLevel);
+        printf("First pass detail level to high %u > %u\n", MINIMUM_DETAIL_LEVEL + DETAIL_LEVEL_FIRST_PASS, overallMaxDetailLevel);
 
         return GLUS_FALSE;
     }
