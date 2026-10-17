@@ -1,35 +1,6 @@
-# cppcheck suppressions
-#
-# Format: one suppression id per line (optionally id:file:line).
-# Keep this list short and justified. Prefer inline // cppcheck-suppress
-# comments for one-off, local suppressions over global entries here.
-#
-# NOTE: unusedFunction is deliberately NOT suppressed here. Every example is a
-# self-contained application, so dead functions are exactly the defect class
-# this gate exists to catch. (The library-shaped projects suppress it because
-# their exported API has no in-tree caller; that argument does not apply.)
-
-# System/standard-library headers are not analysed; silence the advisory
-# that fires when cppcheck cannot find them.
 missingIncludeSystem
-
-# Informational messages produced by cppcheck itself, not code findings.
 checkersReport
-
-# Do not fail when a suppression in this file matches nothing.
 unmatchedSuppression
-
-# cppcheck's C parser bails on the vendored glew.h (PFNGLCLIENTWAITSYNCAPPLEPROC
-# typedefs a parameter named GLsync, shadowing the GLsync typedef). The header is
-# unmodified third-party code (glew-cmake 2.2.0, fetched at configure time) - not
-# ours to fix, and -i does not cover header findings surfaced through our TUs.
-# Scoped to glew.h so real parse errors in our code stay fatal.
 syntaxError:*glew.h
-
-# The EGL dependency (sibling checkout or FetchContent) guards its platform
-# dispatch with deliberate #error traps (eglplatform.h, egl_internal.h).
-# cppcheck evaluates headers in configurations where no platform macro is set,
-# so the traps always "fire" there. Scoped to the two dispatch headers; any
-# other #error in our code stays fatal.
 preprocessorErrorDirective:*eglplatform.h
 preprocessorErrorDirective:*egl_internal.h

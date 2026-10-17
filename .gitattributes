@@ -77,3 +77,7 @@
 *.bin filter=lfs diff=lfs merge=lfs -text
 
 *.yml text eol=lf
+*.supp text eol=lf
+.clang-tidy text eol=lf
+.markdownlint.yaml text eol=lf
+.yamllint text eol=lf
