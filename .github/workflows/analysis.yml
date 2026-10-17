@@ -19,6 +19,10 @@ jobs:
             cppcheck \
             clang-tidy \
             libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
             libwayland-dev \
             libgl1-mesa-dev \
             libxkbcommon-dev \

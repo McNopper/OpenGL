@@ -4,7 +4,9 @@
 Runs this repository's own .clang-tidy profile over its translation units and
 gates on the correctness checks (the set listed in WarningsAsErrors in
 .clang-tidy). Strictly read-only: it never applies fixes and never modifies
-source files - formatting and style are authored, not derived.
+source files - formatting and style are authored, not derived. Diagnostics
+whose file falls outside this repository's own code (build trees, fetched
+dependencies, excluded scopes) are not reported.
 
 Usage:
     python tools/check_tidy.py [options] [paths...]
@@ -114,6 +116,14 @@ def matches_filters(path, filters):
     return any(text.startswith(str(f)) or str(f) in text for f in filters)
 
 
+def is_reportable(file_text, exclude_dirs):
+    """True when a diagnostic's file belongs to this repository's own code."""
+    segments = {seg for seg in re.split(r"[/\\]+", file_text) if seg}
+    if segments & EXCLUDED_SEGMENTS:
+        return False
+    return not segments.intersection(exclude_dirs)
+
+
 def collect_units(compile_dir, filters, exclude_dirs):
     with open(compile_dir / "compile_commands.json", "r", encoding="utf-8") as fh:
         entries = json.load(fh)
@@ -134,7 +144,7 @@ def collect_units(compile_dir, filters, exclude_dirs):
     return [units[k] for k in sorted(units)]
 
 
-def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
+def run_clang_tidy(exe, compile_dir, units, jobs, verbose, exclude_dirs):
     """Run clang-tidy in batches. Returns (errors, warnings, tool_failed)."""
     errors, warnings = [], []
     tool_failed = False
@@ -155,10 +165,14 @@ def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
             return errors, warnings, True
 
         output = (proc.stdout or "") + (proc.stderr or "")
+        saw_diagnostics = False
         for line in output.splitlines():
             m = DIAGNOSTIC_RE.match(line.strip())
             if not m:
                 # "N warnings generated", "Suppressed N warnings", tool noise.
+                continue
+            saw_diagnostics = True
+            if not is_reportable(m.group("file"), exclude_dirs):
                 continue
             record = "{}:{}: {}: {}".format(
                 m.group("file"), m.group("line"), m.group("severity"), m.group("msg"))
@@ -167,10 +181,11 @@ def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
             elif m.group("severity") == "warning":
                 warnings.append(record)
 
-        # A non-zero status with no parsed error: usually the tool itself
-        # failing (bad flags, missing header). Surface it rather than
-        # reporting a false clean run.
-        if proc.returncode != 0 and not errors:
+        # A non-zero status with no diagnostics at all is the tool itself
+        # failing (bad flags, missing header). A non-zero status with
+        # diagnostics means findings were produced - possibly all filtered
+        # out of the report - and is not a tool failure.
+        if proc.returncode != 0 and not saw_diagnostics:
             tool_failed = True
             tail = "\n".join(output.splitlines()[-12:])
             print(f"error: clang-tidy exited {proc.returncode} without diagnostics:",
@@ -211,7 +226,8 @@ def main(argv):
         return 0
 
     errors, warnings, tool_failed = run_clang_tidy(
-        args.clang_tidy, compile_dir, units, args.jobs, args.verbose)
+        args.clang_tidy, compile_dir, units, args.jobs, args.verbose,
+        args.exclude_dirs)
 
     for w in warnings:
         print(w)
