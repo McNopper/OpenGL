@@ -131,10 +131,7 @@ def run_clang_tidy(exe, compile_dir, units, jobs, verbose):
 
     for start in range(0, len(units), batch_size):
         batch = units[start:start + batch_size]
-        # --allow-no-checks: a vendored subtree may carry its own .clang-tidy
-        # that disables everything (documented scope boundary); clang-tidy
-        # otherwise refuses to run on an empty check set.
-        cmd = [exe, "-p", str(compile_dir), "--allow-no-checks"] + [str(u) for u in batch]
+        cmd = [exe, "-p", str(compile_dir)] + [str(u) for u in batch]
         if verbose:
             print("  $ " + " ".join(cmd))
         try:
