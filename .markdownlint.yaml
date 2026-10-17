@@ -1,0 +1,10 @@
+# Markdown lint policy for this repository's documents.
+#
+# MD013 (line length): prose is wrapped at 80. Tables and code blocks are
+# exempt - table rows and commands cannot be wrapped without breaking them,
+# and markdownlint's own guidance is to scope the rule that way.
+MD013:
+  line_length: 80
+  code_blocks: false
+  tables: false
+  headings: false
