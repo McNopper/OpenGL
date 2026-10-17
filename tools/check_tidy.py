@@ -17,6 +17,11 @@ Options:
   --jobs N           Translation units per clang-tidy invocation (default 8).
   --list             Print the translation units that would be analysed, exit.
   --verbose          Echo the clang-tidy command lines.
+  --exclude-dir NAME Skip translation units under this directory segment
+                      (repeatable). For vendored scopes that carry their own
+                      documented .clang-tidy policy: Linux clang-tidy refuses
+                      an all-disabled check set, so such scopes are excluded
+                      here rather than through their .clang-tidy.
 
 Positional paths restrict the run to matching files or directories.
 
@@ -65,6 +70,9 @@ def parse_args(argv):
                    help="list the translation units that would be analysed, then exit")
     p.add_argument("--verbose", action="store_true",
                    help="echo the clang-tidy command lines")
+    p.add_argument("--exclude-dir", dest="exclude_dirs", action="append", default=[],
+                   help="skip translation units under this directory segment "
+                        "(repeatable)")
     p.add_argument("paths", nargs="*",
                    help="restrict the run to these files or directories")
     return p.parse_args(argv)
@@ -87,13 +95,16 @@ def find_compile_commands(build_dir):
     return None
 
 
-def is_ours(path):
+def is_ours(path, exclude_dirs):
     """True when a translation unit belongs to this repository's own code."""
     try:
         rel = path.resolve().relative_to(REPO_ROOT)
     except ValueError:
         return False
-    return not any(seg in EXCLUDED_SEGMENTS for seg in rel.parts)
+    segments = set(rel.parts)
+    if segments & EXCLUDED_SEGMENTS:
+        return False
+    return not segments.intersection(exclude_dirs)
 
 
 def matches_filters(path, filters):
@@ -103,7 +114,7 @@ def matches_filters(path, filters):
     return any(text.startswith(str(f)) or str(f) in text for f in filters)
 
 
-def collect_units(compile_dir, filters):
+def collect_units(compile_dir, filters, exclude_dirs):
     with open(compile_dir / "compile_commands.json", "r", encoding="utf-8") as fh:
         entries = json.load(fh)
 
@@ -115,7 +126,7 @@ def collect_units(compile_dir, filters):
         path = Path(raw)
         if not path.is_absolute():
             path = compile_dir / path
-        if not is_ours(path):
+        if not is_ours(path, exclude_dirs):
             continue
         if not matches_filters(path, filters):
             continue
@@ -186,7 +197,7 @@ def main(argv):
         return 2
 
     filters = [Path(f) for f in args.paths]
-    units = collect_units(compile_dir, filters)
+    units = collect_units(compile_dir, filters, args.exclude_dirs)
 
     if not units:
         print("error: no translation units matched (from {})", file=sys.stderr)
