@@ -11,11 +11,11 @@ OpenGL 3 and OpenGL 4 with GLSL
 Dependency pin update only; no example changes, rendered output unchanged.
 
 - **Example50 vendors EGL v1.0.16 -> v1.0.17** in its FetchContent fallback: the
-  EGL compliance wave - ES pbuffer delegation with format pairing, preserved
+  EGL conformance work - ES pbuffer delegation with format pairing, preserved
   swap behavior, EGL_EXT_buffer_age with the damage extensions, surfaceless
   contexts and reusable syncs (dEQP-EGL: 930 Pass / 28 Fail to 2307 Pass / 2
   Fail, with zero crashes). Example50 itself is unaffected - it exercises the
-  entry points whose behavior the wave restored, and its rendering path is
+  entry points whose behavior that release restored, and its rendering path is
   unchanged.
 
 ### v3.2.8
