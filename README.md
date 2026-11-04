@@ -6,6 +6,16 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.10
+
+Dependency pin update only; no example changes, rendered output unchanged.
+
+- **All examples fetch GLUS v1.1.4 -> v1.1.10** in their FetchContent fallback:
+  cgltf v1.15 with improved validation and new extension parsing, morph
+  NORMAL/TANGENT deltas detected across all morph targets, a GBM/DRM fix that
+  consumes page flip events (fixes a frozen picture after a few frames), a
+  wavefront loader flush guard, and the analysis CI lane.
+
 ### v3.2.9
 
 Dependency pin update only; no example changes, rendered output unchanged.
