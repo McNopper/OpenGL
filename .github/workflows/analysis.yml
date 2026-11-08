@@ -45,7 +45,9 @@ jobs:
 
       - name: actionlint
         run: |
-          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          # Version pinned: the script's default tracks upstream latest, and a
+          # silent bump there would change gate behavior without a repo change.
+          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.12
           ./actionlint
 
       - name: markdownlint
