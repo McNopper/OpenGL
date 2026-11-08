@@ -29,6 +29,29 @@ jobs:
           gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
 
+      # The platform archives must carry the real media (glTF models, HDR
+      # sky), not the 134-byte pointers a default checkout produces for LFS
+      # files - v3.2.10 shipped them broken that way. Smudge once here and
+      # hand the files to the packaging legs as a workflow artifact: artifact
+      # transfer does not consume the LFS bandwidth quota, so the media costs
+      # one download instead of one per platform leg.
+      - uses: actions/checkout@v4
+        with:
+          path: OpenGL
+          lfs: true
+      - name: Collect the LFS media
+        run: |
+          mkdir media
+          cd OpenGL
+          git lfs ls-files | awk '{print $3}' | while IFS= read -r f; do
+            cp --parents "$f" ../media/
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-media
+          path: media
+          retention-days: 1
+
   build:
     name: ${{ matrix.platform }}
     needs: release
@@ -51,6 +74,14 @@ jobs:
         with:
           repository: McNopper/GLUS
           path: GLUS
+
+      # Overlay the real LFS media onto the checkout's pointer files. The
+      # release job smudged them once and shared them as an artifact, so the
+      # platform archives carry the models instead of 134-byte pointers.
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-media
+          path: OpenGL
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
