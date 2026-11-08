@@ -45,9 +45,11 @@ jobs:
 
       - name: actionlint
         run: |
-          # Version pinned: the script's default tracks upstream latest, and a
-          # silent bump there would change gate behavior without a repo change.
-          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.12
+          # Version pinned: a silent upstream bump would change gate behavior
+          # without a repo change. The release CDN intermittently resets or
+          # stalls transfers, so download directly with retries.
+          curl -fLS --retry 5 --retry-all-errors --connect-timeout 20 -o actionlint.tgz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          tar xzf actionlint.tgz actionlint
           ./actionlint
 
       - name: markdownlint
@@ -55,6 +57,6 @@ jobs:
 
       - name: gitleaks (git history)
         run: |
-          curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o gitleaks.tgz
+          curl -fsSL --retry 5 --retry-all-errors --connect-timeout 20 https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o gitleaks.tgz
           tar xzf gitleaks.tgz gitleaks
           ./gitleaks git --redact --no-banner .
