@@ -57,7 +57,7 @@ else()
     FetchContent_Declare(
         mcnopper_egl
         GIT_REPOSITORY https://github.com/McNopper/EGL.git
-        GIT_TAG        v1.0.17
+        GIT_TAG        v1.0.20
         PATCH_COMMAND ${CMAKE_COMMAND} -DMCEGL_ROOT=<SOURCE_DIR> -P ${MCEGL_PATCH_SCRIPT}
     )
 endif()

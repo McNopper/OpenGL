@@ -84,9 +84,9 @@ function(project_enable_warnings)
         _project_sanitizer_flags(_san)
         if(_san)
             target_compile_options(${_target} PRIVATE ${_san})
-            # Passed as a link item rather than via target_link_options so this
-            # file keeps working on the oldest CMake in use here.
-            target_link_libraries(${_target} PRIVATE ${_san})
+            # Link options work with targets using either the plain or keyword
+            # target_link_libraries signature; CMake 3.14 is already required.
+            target_link_options(${_target} PRIVATE ${_san})
         endif()
     endforeach()
 endfunction()

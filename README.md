@@ -6,6 +6,21 @@ OpenGL 3 and OpenGL 4 with GLSL
 
 ## Changelog
 
+### v3.2.11
+
+Build system, release packaging and dependency updates:
+
+- **Release archives now contain the real LFS media**: v3.2.10 shipped
+  134-byte pointer files in place of the glTF models and HDR sky. The release
+  job now smudges the media once and shares it with the three platform legs as
+  a workflow artifact, avoiding three separate LFS downloads.
+- **Sanitizer configuration is compatible with all target link signatures**:
+  the shared warnings helper now uses `target_link_options`, so the OpenGL,
+  OpenGL ES and OpenVG sanitizer builds configure successfully.
+- **Track GLUS v1.1.11 and EGL v1.0.20**: desktop startup works on Wayland
+  sessions, current Xlib builds are warning-free, and the WSL
+  dEQP-EGL.functional suite reports 2308 Pass / 0 Fail.
+
 ### v3.2.10
 
 Dependency pin update only; no example changes, rendered output unchanged.
